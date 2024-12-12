@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeforeBuild", "BeforeBuild\BeforeBuild.csproj", "{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomEcommerce", "CustomEcommerce\CustomEcommerce.csproj", "{8C43747F-6AFA-4772-BA06-573685B3450F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NopCommerce", "NopCommerce", "{D106335B-0CC3-4CDA-B655-72F764AE810B}"
 EndProject
@@ -16,68 +19,161 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D9972EC1-10B1-4E28-B28D-75ACD183BEF4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Web", "NopCommerce\src\Presentation\Nop.Web\Nop.Web.csproj", "{E151692D-CE66-4FFB-905D-E8A38271F374}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Web.Framework", "NopCommerce\src\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj", "{0C470978-38D8-4EEE-BE0B-54289EEE4845}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{6FC09445-4AEC-4539-9578-FA72EB55D913}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Core", "NopCommerce\src\Libraries\Nop.Core\Nop.Core.csproj", "{BCB88095-00F6-490D-A971-F4874944D765}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Data", "NopCommerce\src\Libraries\Nop.Data\Nop.Data.csproj", "{1EE5181C-1106-4B3B-936E-219F235FB7EA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Services", "NopCommerce\src\Libraries\Nop.Services\Nop.Services.csproj", "{187EB882-31BD-4B0B-8D97-A9061DF04835}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.DiscountRules.CustomerRoles", "NopCommerce\src\Plugins\Nop.Plugin.DiscountRules.CustomerRoles\Nop.Plugin.DiscountRules.CustomerRoles.csproj", "{62B2EA02-9D0E-42AE-ADC1-C1E2CFFE664A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.ExchangeRate.EcbExchange", "NopCommerce\src\Plugins\Nop.Plugin.ExchangeRate.EcbExchange\Nop.Plugin.ExchangeRate.EcbExchange.csproj", "{4C68FC09-C52F-47F8-9580-6EEF95BD885B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.ExternalAuth.Facebook", "NopCommerce\src\Plugins\Nop.Plugin.ExternalAuth.Facebook\Nop.Plugin.ExternalAuth.Facebook.csproj", "{EB6A4EBB-43A9-41AC-88BC-2786524EFBA9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Misc.Brevo", "NopCommerce\src\Plugins\Nop.Plugin.Misc.Brevo\Nop.Plugin.Misc.Brevo.csproj", "{B2966044-0C05-4467-B745-50C61F0258ED}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Misc.NopMobileApp", "NopCommerce\src\Plugins\Nop.Plugin.Misc.NopMobileApp\Nop.Plugin.Misc.NopMobileApp.csproj", "{4919ED07-112C-4307-B133-94B290CB82AA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Misc.OmnibusDirective", "NopCommerce\src\Plugins\Nop.Plugin.Misc.OmnibusDirective\Nop.Plugin.Misc.OmnibusDirective.csproj", "{2096063D-5A47-485C-B7C7-1535103A54D9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Misc.Omnisend", "NopCommerce\src\Plugins\Nop.Plugin.Misc.Omnisend\Nop.Plugin.Misc.Omnisend.csproj", "{8827241D-7BCC-442A-8342-A482F3C5C23A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Misc.PowerBI", "NopCommerce\src\Plugins\Nop.Plugin.Misc.PowerBI\Nop.Plugin.Misc.PowerBI.csproj", "{B6987C56-2960-4DB9-8930-3230D2EAE243}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Misc.WebApi.Frontend", "NopCommerce\src\Plugins\Nop.Plugin.Misc.WebApi.Frontend\Nop.Plugin.Misc.WebApi.Frontend.csproj", "{B9C67944-6BA7-4E00-95A6-4ED0C44A7025}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Misc.Zettle", "NopCommerce\src\Plugins\Nop.Plugin.Misc.Zettle\Nop.Plugin.Misc.Zettle.csproj", "{2B0DECA6-2DBB-4405-B4AF-881EC9618DC1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.MultiFactorAuth.GoogleAuthenticator", "NopCommerce\src\Plugins\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator.csproj", "{D128AD07-8215-4FAF-B6A6-7BFDE3461480}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Payments.AmazonPay", "NopCommerce\src\Plugins\Nop.Plugin.Payments.AmazonPay\Nop.Plugin.Payments.AmazonPay.csproj", "{7FADD2A4-2674-4765-B594-94DF5DA7FD61}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Payments.CheckMoneyOrder", "NopCommerce\src\Plugins\Nop.Plugin.Payments.CheckMoneyOrder\Nop.Plugin.Payments.CheckMoneyOrder.csproj", "{896084B3-583F-41E6-A4E1-C6D6494EEA4A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Payments.Manual", "NopCommerce\src\Plugins\Nop.Plugin.Payments.Manual\Nop.Plugin.Payments.Manual.csproj", "{C70288C5-3329-43D6-9CBA-6C91DD68CB39}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Payments.PayPalCommerce", "NopCommerce\src\Plugins\Nop.Plugin.Payments.PayPalCommerce\Nop.Plugin.Payments.PayPalCommerce.csproj", "{3099A451-9A2E-4A08-9CDF-F32C8946370D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Pickup.PickupInStore", "NopCommerce\src\Plugins\Nop.Plugin.Pickup.PickupInStore\Nop.Plugin.Pickup.PickupInStore.csproj", "{0607ADB9-5433-487A-B789-85AD80D6E5DF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Search.Lucene", "NopCommerce\src\Plugins\Nop.Plugin.Search.Lucene\Nop.Plugin.Search.Lucene.csproj", "{8D33DBCD-FE38-4C92-AA0F-F2AC96F06F6D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Shipping.FixedByWeightByTotal", "NopCommerce\src\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\Nop.Plugin.Shipping.FixedByWeightByTotal.csproj", "{72023711-7F42-439A-894B-64ABDC9337FE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Shipping.UPS", "NopCommerce\src\Plugins\Nop.Plugin.Shipping.UPS\Nop.Plugin.Shipping.UPS.csproj", "{C5178377-FFD7-4022-851C-BBBEA3EB4930}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Tax.Avalara", "NopCommerce\src\Plugins\Nop.Plugin.Tax.Avalara\Nop.Plugin.Tax.Avalara.csproj", "{DD2DC57B-DBFF-4ABC-8DBD-883231D74C5D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Tax.FixedOrByCountryStateZip", "NopCommerce\src\Plugins\Nop.Plugin.Tax.FixedOrByCountryStateZip\Nop.Plugin.Tax.FixedOrByCountryStateZip.csproj", "{493EF816-E8FA-458B-8F15-CBE3FC8FA9B4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Widgets.FacebookPixel", "NopCommerce\src\Plugins\Nop.Plugin.Widgets.FacebookPixel\Nop.Plugin.Widgets.FacebookPixel.csproj", "{26BB0AA2-9D8F-440C-B0F1-37F79FBB9D15}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Widgets.GoogleAnalytics", "NopCommerce\src\Plugins\Nop.Plugin.Widgets.GoogleAnalytics\Nop.Plugin.Widgets.GoogleAnalytics.csproj", "{27DC5BEA-782F-4017-B2BF-99E5D22003FB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Widgets.Swiper", "NopCommerce\src\Plugins\Nop.Plugin.Widgets.Swiper\Nop.Plugin.Widgets.Swiper.csproj", "{F7E4DD0B-948E-43B8-9D0D-E63E0E3C183C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Widgets.What3words", "NopCommerce\src\Plugins\Nop.Plugin.Widgets.What3words\Nop.Plugin.Widgets.What3words.csproj", "{904FFE34-6FA7-47E4-BCCD-9E2813197D23}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Tests", "NopCommerce\src\Tests\Nop.Tests\Nop.Tests.csproj", "{99C6FDB9-4F8C-40CE-A31C-84E4558D7774}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA4A72EC-5A5E-4C9C-B5EA-B5D317541391} = {BA4A72EC-5A5E-4C9C-B5EA-B5D317541391}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
