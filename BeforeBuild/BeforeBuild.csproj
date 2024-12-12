@@ -8,7 +8,7 @@
   <ItemGroup>
     <Folder Include="Utils\" />
   </ItemGroup>
-  <Target Name="RunBeforeBuild" BeforeTargets="Build">
-    <Exec Command="powershell -ExecutionPolicy Bypass -File &quot;$(SolutionDir)\BeforeBuild\Utils\Replacer.ps1&quot; &quot;$(SolutionDir)NopCommerce\src&quot; &quot;SolutionDir)&quot; &quot;SolutionDir)NopCommerce\src\\&quot; &quot;*.csproj&quot;" />
+  <Target Name="RunBeforeRestore" BeforeTargets="Restore;CollectPackageReferences">
+    <Exec Command="powershell -ExecutionPolicy Bypass -File &quot;$(SolutionDir)\BeforeBuild\Utils\Replacer.ps1&quot; &quot;$(SolutionDir)NopCommerce\src&quot; &quot;SolutionDir)\\&quot; &quot;SolutionDir)NopCommerce\src\\&quot; &quot;*.csproj&quot;" />
   </Target>
 </Project>
