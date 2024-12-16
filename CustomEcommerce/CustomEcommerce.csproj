@@ -7,9 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="NopCommerce\Libraries\" />
-    <Folder Include="NopCommerce\Presentation\" />
-    <Folder Include="NopCommerce\Plugins\" />
+    <Compile Remove="NopCommerce\Plugins\**" />
+    <EmbeddedResource Remove="NopCommerce\Plugins\**" />
+    <None Remove="NopCommerce\Plugins\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="NopCommerce\Libraries\Nop.Services\" />
+    <Folder Include="NopCommerce\Libraries\Nop.Data\" />
+    <Folder Include="NopCommerce\Presentation\Nop.Web.Framework\" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /Y/E &quot;$(ProjectDir)NopCommerce\Libraries\*&quot; &quot;$(SolutionDir)NopCommerce\src\Libraries\&quot;" />
+    <Exec Command="xcopy /Y/E &quot;$(ProjectDir)NopCommerce\Presentation\*&quot; &quot;$(SolutionDir)NopCommerce\src\Presentation\&quot;" />
+  </Target>
 </Project>
