@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <Copyright>Copyright © Nop Solutions, Ltd</Copyright>
-    <Company>Nop Solutions, Ltd</Company>
-    <Authors>Nop Solutions, Ltd</Authors>
+    <Copyright>Copyright © Kivio SAS, Ltd</Copyright>
+    <Company>Kivio SAS</Company>
+    <Authors>Kivio SAS</Authors>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageProjectUrl>https://www.nopcommerce.com/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/nopSolutions/nopCommerce</RepositoryUrl>
+    <PackageProjectUrl></PackageProjectUrl>
+    <RepositoryUrl></RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <OutputPath>$(SolutionDir)NopCommerce\src\Presentation\Nop.Web\Plugins\Payments.ExamplePlugin</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
