@@ -1,0 +1,24 @@
+﻿@model FaviconAndAppIconsModel
+
+@inject UmbracoHelper UmbracoHelper
+
+@{
+    // Verificar si Umbraco está habilitado y responde
+    bool isUmbracoEnabled = await UmbracoHelper.IsUmbracoEnabledAsync();
+
+    // Solo intentamos obtener favicon si Umbraco está habilitado
+    string? umbracoFaviconUrl = null;
+    if (isUmbracoEnabled)
+    {
+        umbracoFaviconUrl = await UmbracoHelper.GetFaviconUrlAsync();
+    }
+}
+
+@if (!string.IsNullOrEmpty(umbracoFaviconUrl))
+{
+    <link rel="icon" href="@umbracoFaviconUrl" type="image/png" />
+}
+else
+{
+    @Html.Raw(Model.HeadCode)
+}

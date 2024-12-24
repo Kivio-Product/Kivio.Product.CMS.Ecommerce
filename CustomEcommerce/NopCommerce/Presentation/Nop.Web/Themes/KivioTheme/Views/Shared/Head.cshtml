@@ -1,46 +1,62 @@
-﻿@using Nop.Core.Domain.Catalog
-@using Nop.Services.Helpers
-@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+﻿@using Nop.Core
+@using Nop.Core.Domain.Catalog
 
 @inject CatalogSettings catalogSettings
-@inject IThemeContext themeContext
-@inject IUserAgentHelper userAgentHelper
+@inject IWorkContext workContext
+@inject UmbracoHelper UmbracoHelper
 
 @{
-    Layout = "";
-    var themeName = await themeContext.GetWorkingThemeNameAsync();
-    var supportRtl = await Html.ShouldUseRtlThemeAsync();
+    var supportRtl = (await workContext.GetWorkingLanguageAsync()).Rtl;
+    var isUmbracoEnabled = await UmbracoHelper.IsUmbracoEnabledAsync();
 
-    var urlProyectoExterno = Configuration["KivioModules:Umbraco:UmbracoUrl"];
-    var rutaCssProyectoExterno =  Configuration["KivioModules:Umbraco:UmbracoCSSNopCommercePath"];
-    bool proyectoExternoDisponible;
-    using (var client = new System.Net.Http.HttpClient())
-    {
-        try
-        {
-            var response = await client.GetAsync(urlProyectoExterno);
-            Console.WriteLine("response.IsSuccessStatusCode: " + response);
-            proyectoExternoDisponible = response.IsSuccessStatusCode;
-        }
-        catch
-        {
-            proyectoExternoDisponible = false;
-        }
-    }
+    //add main CSS file
 
-    if (proyectoExternoDisponible)
+    if (isUmbracoEnabled)
     {
-        NopHtml.AppendCssFileParts($"{urlProyectoExterno}{rutaCssProyectoExterno}");
+        NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/bootstrap.min.css");
+
+        var cssFiles = await UmbracoHelper.GetCssAsync();
+        if (cssFiles != null)
+        {
+            foreach (var cssFile in cssFiles)
+            {
+                if (!string.IsNullOrEmpty(cssFile))
+                {
+                    NopHtml.AppendCssFileParts(cssFile);
+                }
+            }
+        }
     }
     else
     {
-        NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/styles{(supportRtl ? ".rtl" : "")}.css");
+        if (supportRtl)
+        {
+
+            NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/furnish.styles.responsive.rtl.css");
+            NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/furnish.styles.rtl.css");
+            NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/bootstrap.min.rtl.css");
+
+        }
+        else
+        {
+            NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/furnish.styles.responsive.css");
+            NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/furnish.styles.css");
+            NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/bootstrap.min.css");
+        }
     }
 
+
+
+    //add swiper css file
     if (catalogSettings.DisplayAllPicturesOnCatalogPages)
     {
         NopHtml.AppendCssFileParts("~/lib_npm/swiper/swiper-bundle.min.css");
     }
 
+    NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/slick.css");
+    NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/slick-theme.css");
+    NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/fontawesome-all.min.css");
+
+    //add jQuery UI css file
     NopHtml.AppendCssFileParts("~/lib_npm/jquery-ui-dist/jquery-ui.min.css");
 }

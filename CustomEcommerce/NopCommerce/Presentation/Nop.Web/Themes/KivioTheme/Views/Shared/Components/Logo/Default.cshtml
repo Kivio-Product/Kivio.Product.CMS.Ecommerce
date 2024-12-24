@@ -1,0 +1,29 @@
+﻿@model LogoModel
+
+@inject UmbracoHelper UmbracoHelper
+@using System.Threading.Tasks
+
+<div class="logo">
+    @{
+        bool isUmbracoEnabled = await UmbracoHelper.IsUmbracoEnabledAsync();
+
+
+        string? umbracoLogoUrl = null;
+        if (isUmbracoEnabled)
+        {
+            umbracoLogoUrl = await UmbracoHelper.GetLogoUrlAsync();
+        }
+
+        string finalLogoUrl = !string.IsNullOrEmpty(umbracoLogoUrl)
+            ? umbracoLogoUrl
+            : Model.LogoPath;
+
+    }
+
+    <a href="@Url.RouteUrl("Homepage")" itemscope itemtype="http://schema.org/Organization">
+        <img itemprop="logo"
+             title=""
+             alt="@Model.StoreName"
+             src="@finalLogoUrl"/>
+    </a>
+</div>

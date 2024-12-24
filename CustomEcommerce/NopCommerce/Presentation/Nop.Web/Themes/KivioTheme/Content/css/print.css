@@ -19,14 +19,13 @@ a {
 .order-details-page .order-overview {
 	margin: 0 0 25px;
 }
-
 .order-details-page .order-overview .order-number {
 	font-size: 11pt;
 	text-transform: uppercase;
-    padding-block: 10px;
+    padding: 10px 40px;
 }
-.order-details-page .order-overview-content li {
-  margin: 5px 0;
+.order-details-page .order-overview .order-total {
+	margin: 10px 0 0;
 }
 .order-details-page .order-overview .order-total strong {
 	font-size: 10pt;
@@ -35,15 +34,14 @@ a {
 .order-details-page .order-details-area {
 	margin: 0 0 25px;
 	overflow: hidden;
-  display: flex;
 }
-.order-details-page ul {
-    padding-inline-start: 0px;
+.order-details-page .order-details-area ul {
+    padding-left: 0px;
 }
 .order-details-page .order-details-area > div {
-    flex: 1 0 auto;
-    margin-bottom: 40px;
-    margin-block-end: 1%;
+	float: left;
+	width: 48%;
+	margin: 0 1% 40px;
 }
 .order-details-page .order-details-area li.title {
 	margin: 10px 0 5px;
@@ -57,17 +55,18 @@ a {
 	border: 1px solid;
 }
 .order-details-page .data-table th {
-	border: 1px solid;
+	border-right: 1px solid;
+	border-bottom: 1px solid;
 	padding: 5px 10px;
 	font-weight: bold;
 	white-space: nowrap;
 }
 .order-details-page .data-table td {
-	border: 1px solid;
+	border-right: 1px solid;
+	border-bottom: 1px solid;
 	padding: 5px 10px;
 }
 .order-details-page .data-table .sku,
-.order-details-page .data-table .picture,
 .order-details-page .data-table .unit-price,
 .order-details-page .data-table .quantity,
 .order-details-page .data-table .total {
@@ -89,32 +88,20 @@ a {
 .order-details-page .section .title {
 	margin: 0 0 10px;
 }
-
-.order-details-page .section.totals {
-    display: flex;
-    justify-content: flex-end;
-}
-
 .order-details-page .tax-shipping-info,
 .order-details-page .selected-checkout-attributes {
 	margin: 20px 0;
-	text-align:end;
+	text-align:right;
 }
 
 .order-details-page .cart-total-right {
     white-space: nowrap;
 }
 .order-details-page .cart-total td {
-  padding-inline-start: 10px;
-  padding-block: 5px;
-  text-align: end;
+	padding: 5px 10px;
+	text-align: right;
 }
 .order-details-page td.cart-total-left {
+	width: 100%;
 	font-weight: bold;
-  text-align: start;
-}
-
-.order-details-page .total-info
-{
-    min-width: 200px;
 }

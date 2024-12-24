@@ -10,5 +10,8 @@
   </ItemGroup>
   <Target Name="RunBeforeRestore" BeforeTargets="Restore;CollectPackageReferences">
     <Exec Command="powershell -ExecutionPolicy Bypass -File &quot;$(SolutionDir)\BeforeBuild\Utils\Replacer.ps1&quot; &quot;$(SolutionDir)NopCommerce\src&quot; &quot;SolutionDir)\\&quot; &quot;SolutionDir)NopCommerce\src\\&quot; &quot;*.csproj&quot;" />
+	  <Exec Command="xcopy /Y/E &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Libraries\*&quot; &quot;$(SolutionDir)NopCommerce\src\Libraries\&quot;" />
+	  <Exec Command="xcopy /Y/E &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Presentation\*&quot; &quot;$(SolutionDir)NopCommerce\src\Presentation\&quot;" />
   </Target>
+	
 </Project>
