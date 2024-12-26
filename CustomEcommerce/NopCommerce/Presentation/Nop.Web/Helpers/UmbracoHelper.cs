@@ -18,9 +18,9 @@ public class UmbracoHelper
     public UmbracoHelper(IConfiguration configuration)
     {
         _configuration = configuration;
-        nopCommerceCssFolder = _configuration.GetValue<string>("KivioModules:Umbraco:NopCommerceCssFolder") ?? string.Empty;
-        nopCommerceCssFile = _configuration.GetValue<string>("KivioModules:Umbraco:NopCommerceCssFile") ?? string.Empty;
-        umbracoUrl = _configuration.GetValue<string>("KivioModules:Umbraco:UmbracoUrl") ?? string.Empty;
+        nopCommerceCssFolder = _configuration.GetValue<string>("KivioModules:Umbraco:CssFolder") ?? string.Empty;
+        nopCommerceCssFile = _configuration.GetValue<string>("KivioModules:Umbraco:CssFiles") ?? string.Empty;
+        umbracoUrl = _configuration.GetValue<string>("KivioModules:Umbraco:BaseUrl") ?? string.Empty;
         isEnabled = _configuration.GetValue<bool>("KivioModules:Umbraco:Enabled");
     }
 
