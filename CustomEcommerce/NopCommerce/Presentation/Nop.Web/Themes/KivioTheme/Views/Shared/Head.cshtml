@@ -13,7 +13,7 @@
 
     if (isUmbracoEnabled)
     {
-        NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/bootstrap.min.css");
+        NopHtml.AppendCssFileParts($"~/Themes/KivioTheme/Content/css/bootstrap.min.css");
 
         var cssFiles = await UmbracoHelper.GetCssAsync();
         if (cssFiles != null)
@@ -32,16 +32,16 @@
         if (supportRtl)
         {
 
-            NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/furnish.styles.responsive.rtl.css");
-            NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/furnish.styles.rtl.css");
-            NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/bootstrap.min.rtl.css");
+            NopHtml.AppendCssFileParts($"~/Themes/KivioTheme/Content/css/kiviotheme.styles.responsive.rtl.css");
+            NopHtml.AppendCssFileParts($"~/Themes/KivioTheme/Content/css/kiviotheme.styles.rtl.css");
+            NopHtml.AppendCssFileParts($"~/Themes/KivioTheme/Content/css/bootstrap.min.rtl.css");
 
         }
         else
         {
-            NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/furnish.styles.responsive.css");
-            NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/furnish.styles.css");
-            NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/bootstrap.min.css");
+            NopHtml.AppendCssFileParts($"~/Themes/KivioTheme/Content/css/kiviotheme.styles.responsive.css");
+            NopHtml.AppendCssFileParts($"~/Themes/KivioTheme/Content/css/kiviotheme.styles.css");
+            NopHtml.AppendCssFileParts($"~/Themes/KivioTheme/Content/css/bootstrap.min.css");
         }
     }
 
@@ -53,9 +53,9 @@
         NopHtml.AppendCssFileParts("~/lib_npm/swiper/swiper-bundle.min.css");
     }
 
-    NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/slick.css");
-    NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/slick-theme.css");
-    NopHtml.AppendCssFileParts($"~/Themes/FurnishTheme/Content/css/fontawesome-all.min.css");
+    NopHtml.AppendCssFileParts($"~/Themes/KivioTheme/Content/css/slick.css");
+    NopHtml.AppendCssFileParts($"~/Themes/KivioTheme/Content/css/slick-theme.css");
+    NopHtml.AppendCssFileParts($"~/Themes/KivioTheme/Content/css/fontawesome-all.min.css");
 
     //add jQuery UI css file
     NopHtml.AppendCssFileParts("~/lib_npm/jquery-ui-dist/jquery-ui.min.css");
