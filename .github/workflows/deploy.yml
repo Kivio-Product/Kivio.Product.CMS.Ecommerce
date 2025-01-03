@@ -5,7 +5,9 @@ on:
   pull_request:
     branches: ["develop"]
   push:
-    branches: ["develop"]
+    branches: 
+      - develop
+      - main
   workflow_dispatch:
     inputs:
       build:
@@ -22,8 +24,14 @@ jobs:
     env:
       PUBLISH_OUTPUT_PATH: /tmp/kivio_ecommerce_binaries
     steps:
-      - name: Check out repository
+      - name: Check out repository with submodules
         uses: actions/checkout@v3
+        with:
+          submodules: true  # Asegura que se clonen los submódulos
+          fetch-depth: 0    # Clona todo el historial, útil si el submódulo tiene commits previos
+
+      - name: Debug - List directories
+        run: ls -R ${{ github.workspace }}
 
       - name: Switch to develop branch
         run: |
@@ -37,10 +45,10 @@ jobs:
           dotnet-version: "9.0.x"
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore KivioEcommerce.sln
 
       - name: Build
-        run: dotnet build 
+        run: dotnet build KivioEcommerce.sln --no-restore
 
       - name: Publish
         env:
