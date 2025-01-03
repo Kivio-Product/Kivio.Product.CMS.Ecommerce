@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: ["develop"]
   push:
-    branches: 
+    branches:
       - develop
       - main
   workflow_dispatch:
@@ -16,22 +16,19 @@ on:
         default: "true"
 
 jobs:
-  build_on_linux:
-    if: >
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
-    runs-on: ubuntu-latest
+  build_on_windows:
+    runs-on: windows-latest
     env:
-      PUBLISH_OUTPUT_PATH: /tmp/kivio_ecommerce_binaries
+      PUBLISH_OUTPUT_PATH: C:\tmp\kivio_ecommerce_binaries
     steps:
       - name: Check out repository with submodules
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true  # Asegura que se clonen los submódulos
           fetch-depth: 0    # Clona todo el historial, útil si el submódulo tiene commits previos
 
       - name: Debug - List directories
-        run: ls -R ${{ github.workspace }}
+        run: dir /s
 
       - name: Switch to develop branch
         run: |
@@ -56,15 +53,18 @@ jobs:
         run: |
           dotnet publish "$PUBLISH_PROJECT_PATH" -c Release -o "$PUBLISH_OUTPUT_PATH"
 
+      - name: Comprimir binarios
+        run: powershell Compress-Archive -Path "$PUBLISH_OUTPUT_PATH\*" -DestinationPath binaries.zip
+
       - name: Cargar artefactos para siguientes jobs
         uses: actions/upload-artifact@v3
         with:
           name: publish_output
-          path: ${{ env.PUBLISH_OUTPUT_PATH }}
+          path: binaries.zip
 
   deploy_linux:
     runs-on: ubuntu-latest
-    needs: build_on_linux
+    needs: build_on_windows
     env:
       PUBLISH_OUTPUT_PATH: /tmp/kivio_ecommerce_binaries
     steps:
@@ -72,7 +72,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: publish_output
-          path: ${{ env.PUBLISH_OUTPUT_PATH }}
+          path: ./binaries
+
+      - name: Extraer binarios
+        run: |
+          unzip binaries.zip -d $PUBLISH_OUTPUT_PATH
 
       - name: Configurar el agente SSH
         uses: webfactory/ssh-agent@v0.9.0
@@ -87,5 +91,5 @@ jobs:
         run: |
           rsync -avz --progress \
             -e "ssh -o StrictHostKeyChecking=no" \
-            "${{ env.PUBLISH_OUTPUT_PATH }}/" \
+            "$PUBLISH_OUTPUT_PATH/" \
             "$SSH_USER@$EC2_HOST:$BINARIES_PATH"
