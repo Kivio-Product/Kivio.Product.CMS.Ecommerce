@@ -17,6 +17,17 @@ $FileExtension = "*.csproj"
 Write-Host "Ejecutando Replacer.ps1 --> Reemplazar rutas de archivos en archivos .csproj..."
 powershell -ExecutionPolicy Bypass -File $ReplacerScript $TargetDir $SearchPattern $ReplacePattern $FileExtension
 
+# Script 2: Reemplazar rutas de archivos en archivos .cs
+$TargetDir = "$SolutionDir\NopCommerce\src"
+
+Write-Host "Ejecutando xcopy para copiar archivos..."
+# Copiar la carpeta Libraries
+xcopy /Y /E "$SolutionDir\CustomEcommerce\NopCommerce\Libraries\*" "$TargetDir\Libraries\"
+
+# Copiar la carpeta Presentation
+xcopy /Y /E "$SolutionDir\CustomEcommerce\NopCommerce\Presentation\*" "$TargetDir\Presentation\"
+
+
 # Agrega más scripts si es necesario
 # Ejemplo: Ejecutar un script de configuración de dependencias
 # $ConfigScript = "$SolutionDir\Setup\ConfigureDependencies.ps1"

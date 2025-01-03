@@ -54,8 +54,6 @@ jobs:
         run: dotnet build KivioEcommerce.sln --no-restore
 
       - name: Publish
-        env:
-          PUBLISH_PROJECT_PATH: ${{ vars.KIVIO_ECOMMERCE_PUBLISH_PROJECT_PATH_BASE }}
         run: |
           dotnet publish "$PUBLISH_PROJECT_PATH" -c Release -o "$PUBLISH_OUTPUT_PATH"
 
