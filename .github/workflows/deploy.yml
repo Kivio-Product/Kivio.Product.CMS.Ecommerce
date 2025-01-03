@@ -55,7 +55,7 @@ jobs:
 
       - name: Publish
         env:
-          PUBLISH_PROJECT_PATH: C:\tmp\kivio_ecommerce_binaries
+          PUBLISH_PROJECT_PATH: ${{ vars.KIVIO_ECOMMERCE_PUBLISH_PROJECT_PATH_BASE }}
         run: |
           dotnet publish "$PUBLISH_PROJECT_PATH" -c Release -o "C:\tmp\kivio_ecommerce_binaries"
 
