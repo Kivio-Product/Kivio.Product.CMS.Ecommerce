@@ -1,0 +1,80 @@
+name: Build and Deploy .NET 9.0
+run-name: Build and Deploy .NET 9.0
+
+on:
+  pull_request:
+    branches: ["develop"]
+  push:
+    branches: ["develop"]
+  workflow_dispatch:
+    inputs:
+      build:
+        description: 'Build and deploy'
+        required: true
+        default: 'true'
+
+jobs:
+  build_on_windows:
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    runs-on: windows-latest
+    env:
+      PUBLISH_OUTPUT_PATH: /tmp/kivio_ecommerce_binaries
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET 9.0
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Clean
+        run: dotnet clean
+
+      - name: Build
+        run: dotnet build --no-restore
+
+      - name: Publish
+        env:
+          PUBLISH_PROJECT_PATH: ${{ vars.KIVIO_ECOMMERCE_PUBLISH_PROJECT_PATH_BASE }}
+        run: |
+          dotnet publish "$PUBLISH_PROJECT_PATH" -c Release -o "$PUBLISH_OUTPUT_PATH"
+
+      - name: Cargar artefactos para siguientes jobs
+        uses: actions/upload-artifact@v3
+        with:
+          name: publish_output
+          path: ${{ env.PUBLISH_OUTPUT_PATH }}
+
+  deploy_linux:
+    runs-on: ubuntu-latest
+    needs: build_on_windows
+    env:
+      PUBLISH_OUTPUT_PATH: /tmp/kivio_ecommerce_binaries
+    steps:
+      - name: Descargar artefactos
+        uses: actions/download-artifact@v3
+        with:
+          name: publish_output
+          path: ${{ env.PUBLISH_OUTPUT_PATH }}
+
+      - name: Configurar el agente SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.KIVIO_ECOMMERCE_BASE_SECRET_KEY }}
+
+      - name: Transferir binarios a servidor remoto (rsync)
+        env:
+          SSH_USER: ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}
+          EC2_HOST: ${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}
+          BINARIES_PATH: ${{ vars.KIVIO_ECOMMERCE_BINARIES_PATH_BASE }}
+        run: |
+          rsync -avz --progress \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            "$PUBLISH_OUTPUT_PATH_BASE/" \
+            "$SSH_USER@$EC2_HOST:$BINARIES_PATH"
