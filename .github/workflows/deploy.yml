@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 0    # Clona todo el historial, útil si el submódulo tiene commits previos
 
       - name: Debug - List directories
-        run: dir /s
+        run: tree
 
       - name: Switch to develop branch
         run: |
