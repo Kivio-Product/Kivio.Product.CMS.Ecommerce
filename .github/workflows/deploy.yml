@@ -24,8 +24,8 @@ jobs:
       - name: Check out repository with submodules
         uses: actions/checkout@v4
         with:
-          submodules: true  # Asegura que se clonen los submódulos
-          fetch-depth: 0    # Clona todo el historial, útil si el submódulo tiene commits previos
+          submodules: true  
+          fetch-depth: 0
 
       - name: Debug - List directories
         run: tree
@@ -40,6 +40,9 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "9.0.x"
+
+      - name: Init Scripts
+        run: powershell -ExecutionPolicy Bypass -File .\init.ps1
 
       - name: Restore
         run: dotnet restore KivioEcommerce.sln
