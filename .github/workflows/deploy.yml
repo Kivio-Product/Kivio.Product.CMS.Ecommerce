@@ -54,11 +54,13 @@ jobs:
         run: dotnet build KivioEcommerce.sln --no-restore
 
       - name: Publish
+        env:
+          PUBLISH_PROJECT_PATH: C:\tmp\kivio_ecommerce_binaries
         run: |
-          dotnet publish "$PUBLISH_PROJECT_PATH" -c Release -o "$PUBLISH_OUTPUT_PATH"
+          dotnet publish "$PUBLISH_PROJECT_PATH" -c Release -o "C:\tmp\kivio_ecommerce_binaries"
 
       - name: Comprimir binarios
-        run: powershell Compress-Archive -Path "$PUBLISH_OUTPUT_PATH\*" -DestinationPath binaries.zip
+        run: powershell Compress-Archive -Path "C:\tmp\kivio_ecommerce_binaries\*" -DestinationPath binaries.zip
 
       - name: Cargar artefactos para siguientes jobs
         uses: actions/upload-artifact@v3
@@ -80,7 +82,7 @@ jobs:
 
       - name: Extraer binarios
         run: |
-          unzip binaries.zip -d $PUBLISH_OUTPUT_PATH
+          unzip binaries.zip -d /tmp/kivio_ecommerce_binaries
 
       - name: Configurar el agente SSH
         uses: webfactory/ssh-agent@v0.9.0
