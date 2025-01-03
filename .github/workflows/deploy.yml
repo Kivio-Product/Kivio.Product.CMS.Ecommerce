@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       build:
-        description: 'Build and deploy'
+        description: "Build and deploy"
         required: true
-        default: 'true'
+        default: "true"
 
 jobs:
   build_on_windows:
@@ -24,6 +24,12 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
+
+      - name: Switch to develop branch
+        run: |
+          git fetch origin
+          git checkout develop
+          git pull origin develop
 
       - name: Setup .NET 9.0
         uses: actions/setup-dotnet@v3

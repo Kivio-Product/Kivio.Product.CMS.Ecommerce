@@ -4,8 +4,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
+    <NopCommerceRootDir>$(SolutionDir)NopCommerce\src</NopCommerceRootDir>
+
     <!-- Variables internas para los parámetros del script -->
-    <ScriptArg1>$(SolutionDir)NopCommerce\src</ScriptArg1>
     <ScriptArg2>SolutionDir)\\</ScriptArg2>
     <ScriptArg3>SolutionDir)NopCommerce\src\\</ScriptArg3>
     <ScriptArg4>*.csproj</ScriptArg4>
@@ -15,24 +16,40 @@
     <Folder Include="Utils\" />
   </ItemGroup>
 
-  <Target Name="RunBeforeRestore" BeforeTargets="Restore;CollectPackageReferences">
-    <!-- Ejecutar el script de reemplazo según el SO -->
-    <Exec Condition="'$(OS)' == 'Windows_NT'"
-      Command="powershell -ExecutionPolicy Bypass -File &quot;$(SolutionDir)\BeforeBuild\Utils\Replacer.ps1&quot; &quot;$(ScriptArg1)&quot; &quot;$(ScriptArg2)&quot; &quot;$(ScriptArg3)&quot; &quot;$(ScriptArg4)&quot;" />
-    <Exec Condition="'$(OS)' != 'Windows_NT'"
-      Command="bash &quot;$(SolutionDir)\BeforeBuild\Utils\Replacer.sh&quot; &quot;$(ScriptArg1)&quot; &quot;$(ScriptArg2)&quot; &quot;$(ScriptArg3)&quot; &quot;$(ScriptArg4)&quot;" />
+  <Target Name="RunBeforeRestore" BeforeTargets="Restore;CollectPackageReferences"
+    Condition="Exists('$(NopCommerceRootDir)')">
 
-    <!-- Copiar archivos según el SO -->
+    <Exec Condition="'$(OS)' == 'Windows_NT'"
+      Command="powershell -ExecutionPolicy Bypass -File &quot;$(SolutionDir)\BeforeBuild\Utils\Replacer.ps1&quot; 
+                   &quot;$(NopCommerceRootDir)&quot; 
+                   &quot;$(ScriptArg2)&quot; 
+                   &quot;$(ScriptArg3)&quot; 
+                   &quot;$(ScriptArg4)&quot;" />
+    <Exec Condition="'$(OS)' != 'Windows_NT'"
+      Command="bash &quot;$(SolutionDir)\BeforeBuild\Utils\Replacer.sh&quot; 
+                   &quot;$(NopCommerceRootDir)&quot; 
+                   &quot;$(ScriptArg2)&quot; 
+                   &quot;$(ScriptArg3)&quot; 
+                   &quot;$(ScriptArg4)&quot;" />
+
     <!-- Windows -->
     <Exec Condition="'$(OS)' == 'Windows_NT'"
-      Command="xcopy /Y/E &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Libraries\*&quot; &quot;$(SolutionDir)NopCommerce\src\Libraries\&quot;" />
+      Command="xcopy /Y/E 
+                   &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Libraries\*&quot; 
+                   &quot;$(NopCommerceRootDir)\Libraries\&quot;" />
     <Exec Condition="'$(OS)' == 'Windows_NT'"
-      Command="xcopy /Y/E &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Presentation\*&quot; &quot;$(SolutionDir)NopCommerce\src\Presentation\&quot;" />
+      Command="xcopy /Y/E 
+                   &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Presentation\*&quot; 
+                   &quot;$(NopCommerceRootDir)\Presentation\&quot;" />
 
     <!-- Linux/macOS -->
     <Exec Condition="'$(OS)' != 'Windows_NT'"
-      Command="cp -r &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Libraries/*&quot; &quot;$(SolutionDir)NopCommerce\src\Libraries/&quot;" />
+      Command="cp -r 
+                   &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Libraries/*&quot; 
+                   &quot;$(NopCommerceRootDir)/Libraries/&quot;" />
     <Exec Condition="'$(OS)' != 'Windows_NT'"
-      Command="cp -r &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Presentation/*&quot; &quot;$(SolutionDir)NopCommerce\src\Presentation/&quot;" />
+      Command="cp -r 
+                   &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Presentation/*&quot; 
+                   &quot;$(NopCommerceRootDir)/Presentation/&quot;" />
   </Target>
 </Project>
