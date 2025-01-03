@@ -36,8 +36,11 @@ jobs:
         with:
           dotnet-version: "9.0.x"
 
+      - name: Restore
+        run: dotnet restore
+
       - name: Build
-        run: dotnet build KivioEcommerce.sln --no-restore
+        run: dotnet build 
 
       - name: Publish
         env:
