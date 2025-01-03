@@ -44,6 +44,9 @@ jobs:
       - name: Init Scripts
         run: powershell -ExecutionPolicy Bypass -File .\init.ps1
 
+      - name: Remove BeforeBuild from sln
+        run:  dotnet sln remove .\BeforeBuild\BeforeBuild.csproj
+
       - name: Restore
         run: dotnet restore KivioEcommerce.sln
 
