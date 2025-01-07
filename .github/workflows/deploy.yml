@@ -16,7 +16,7 @@ on:
         default: "true"
 
 jobs:
-  build_and_deploy:
+  build:
     runs-on: windows-latest
     env:
       PUBLISH_OUTPUT_PATH: C:\tmp\kivio_ecommerce_binaries
@@ -27,17 +27,6 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
-
-      - name: Configurar el agente SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.KIVIO_ECOMMERCE_BASE_SECRET_KEY }}
-
-      - name: Verificar llaves cargadas en el agente SSH
-        run: ssh-add -l
-
-      - name: Probar conexión SSH
-        run: ssh -v -o StrictHostKeyChecking=no ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}@${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }} "echo 'Conexión exitosa'"
 
       - name: Switch to develop branch
         run: |
@@ -73,10 +62,33 @@ jobs:
       - name: Verificar existencia del zip
         run: dir
 
-     
-      - name: Transferir ZIP al servidor remoto usando SCP
+      - name: Subir artefacto ZIP para transferencia
+        uses: actions/upload-artifact@v3
+        with:
+          name: publish-zip
+          path: ${{ env.PUBLISH_ZIP_NAME }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Descargar artefacto ZIP
+        uses: actions/download-artifact@v3
+        with:
+          name: publish-zip
+
+      - name: Configurar el agente SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.KIVIO_ECOMMERCE_BASE_SECRET_KEY }}
+
+      - name: Probar conexión SSH
+        run: ssh -v -o StrictHostKeyChecking=no ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}@${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }} "echo 'Conexión exitosa'"
+
+      - name: Transferir ZIP al servidor remoto usando rsync
         env:
           SSH_USER: ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}
           EC2_HOST: ${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}
           BINARIES_PATH: ${{ vars.KIVIO_ECOMMERCE_BINARIES_PATH_BASE }}
-        run: scp -o StrictHostKeyChecking=no ${{ env.PUBLISH_ZIP_NAME }} ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}@${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}:${{ vars.KIVIO_ECOMMERCE_BINARIES_PATH_BASE }}/${{ env.PUBLISH_ZIP_NAME }}
+        run: |
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./binaries.zip ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}@${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}:${{ vars.KIVIO_ECOMMERCE_BINARIES_PATH_BASE }}
