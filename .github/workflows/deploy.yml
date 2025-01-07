@@ -71,4 +71,4 @@ jobs:
           SSH_USER: ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}
           EC2_HOST: ${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}
           BINARIES_PATH: ${{ vars.KIVIO_ECOMMERCE_BINARIES_PATH_BASE }}
-        run: scp -o StrictHostKeyChecking=no binaries.zip $env:SSH_USER@$env:EC2_HOST:/home/ubuntu/binaries.zip
+        run: scp -o StrictHostKeyChecking=no binaries.zip ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}@${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}:/home/ubuntu/binaries.zip
