@@ -46,6 +46,10 @@ jobs:
         with:
           dotnet-version: "9.0.x"
 
+
+      - name: Check utils folder content
+        run: ls -la .\BeforeBuild\Utils
+
       - name: Generate appsettings.json from template
         run: powershell -ExecutionPolicy Bypass -File .\BeforeBuild\Utils\FromTemplateFileGenerator.ps1 -EnvironmentName "${{env.ENVIRONMENT}}" -SourceFile "${{env.APPSETTINGS_TEMPLATE_FILE}}" -DestinationFile "${{env.APPSETTINGS_OUTPUT_FILE}}" -Pattern "${{env.APPSETTINGS_PATTERN}}"
 
