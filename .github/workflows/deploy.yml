@@ -63,13 +63,9 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.KIVIO_ECOMMERCE_BASE_SECRET_KEY }}
 
-      - name: Transferir ZIP al servidor remoto usando SFTP
+      - name: Transferir ZIP al servidor remoto usando SCP
         env:
           SSH_USER: ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}
           EC2_HOST: ${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}
           BINARIES_PATH: ${{ vars.KIVIO_ECOMMERCE_BINARIES_PATH_BASE }}
-        run: |
-          sftp -o StrictHostKeyChecking=no ${env:SSH_USER}@${env:EC2_HOST} <<EOF
-          put binaries.zip ${env:BINARIES_PATH}/binaries.zip
-          bye
-          EOF
+        run: scp -o StrictHostKeyChecking=no binaries.zip $env:SSH_USER@$env:EC2_HOST:$env:BINARIES_PATH/binaries.zip
