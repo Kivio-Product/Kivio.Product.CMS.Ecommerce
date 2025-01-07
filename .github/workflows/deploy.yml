@@ -33,6 +33,9 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.KIVIO_ECOMMERCE_BASE_SECRET_KEY }}
 
+      - name: Probar conexión SSH
+        run: ssh -o StrictHostKeyChecking=no ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}@${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }} "echo 'Conexión exitosa'"
+
       - name: Switch to develop branch
         run: |
           git fetch origin
@@ -67,9 +70,12 @@ jobs:
       - name: Verificar existencia del zip
         run: dir
 
+      - name: Probar conexión SSH
+        run: ssh -o StrictHostKeyChecking=no ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}@${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }} "echo 'Conexión exitosa'"
+
       - name: Transferir ZIP al servidor remoto usando SCP
         env:
           SSH_USER: ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}
           EC2_HOST: ${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}
           BINARIES_PATH: ${{ vars.KIVIO_ECOMMERCE_BINARIES_PATH_BASE }}
-        run: scp -o StrictHostKeyChecking=no ${{ env.PUBLISH_ZIP_NAME }} ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}@${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}:/home/ubuntu/${{ env.PUBLISH_ZIP_NAME }}
+        run: scp -o StrictHostKeyChecking=no ${{ env.PUBLISH_ZIP_NAME }} ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}@${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}:${{ vars.KIVIO_ECOMMERCE_BINARIES_PATH_BASE }}/${{ env.PUBLISH_ZIP_NAME }}
