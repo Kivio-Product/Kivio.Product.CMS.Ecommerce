@@ -28,6 +28,11 @@ jobs:
           submodules: true
           fetch-depth: 0
 
+      - name: Configurar el agente SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.KIVIO_ECOMMERCE_BASE_SECRET_KEY }}
+
       - name: Switch to develop branch
         run: |
           git fetch origin
@@ -58,11 +63,6 @@ jobs:
 
       - name: Comprimir binarios
         run: powershell Compress-Archive -Path "${{ env.PUBLISH_OUTPUT_PATH }}\*" -DestinationPath ${{ env.PUBLISH_ZIP_NAME }}
-
-      - name: Configurar el agente SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.KIVIO_ECOMMERCE_BASE_SECRET_KEY }}
 
       - name: Verificar existencia del zip
         run: dir
