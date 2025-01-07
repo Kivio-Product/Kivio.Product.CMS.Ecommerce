@@ -17,7 +17,7 @@ on:
 
 env:
   PUBLISH_OUTPUT_PATH: C:\tmp\kivio_ecommerce_binaries
-  PUBLISH_COMPRESSED_FILE: binaries.zst
+  PUBLISH_COMPRESSED_FILE: binaries.tar.zst
 
 jobs:
   build:
@@ -62,17 +62,14 @@ jobs:
         run: |
           choco install zstandard -y
 
-      - name: Comprimir binarios con Zstandard
+      - name: Comprimir binarios con tar y Zstandard
         run: |
-          zstd -r -o ${{ env.PUBLISH_COMPRESSED_FILE }} "${{ env.PUBLISH_OUTPUT_PATH }}"
-
-      - name: Verificar existencia del zip
-        run: dir
+          tar -cf - -C "${{ env.PUBLISH_OUTPUT_PATH }}" . | zstd -o ${{ env.PUBLISH_COMPRESSED_FILE }}
 
       - name: Subir artefacto zst para transferencia
         uses: actions/upload-artifact@v3
         with:
-          name: publish-zst
+          name: publish-compressed-file
           path: ${{ env.PUBLISH_COMPRESSED_FILE }}
 
   deploy:
@@ -82,7 +79,7 @@ jobs:
       - name: Descargar artefacto zst
         uses: actions/download-artifact@v3
         with:
-          name: publish-zst
+          name: publish-compressed-file
 
       - name: Configurar el agente SSH
         uses: webfactory/ssh-agent@v0.9.0
