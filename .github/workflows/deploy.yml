@@ -47,7 +47,7 @@ jobs:
           dotnet-version: "9.0.x"
 
       - name: Generate appsettings.json from template
-        run: powershell -ExecutionPolicy Bypass -File .\BeforeBuild\FromTemplateFileGenerator.ps1 -EnvironmentName "${{env.ENVIRONMENT}}" -SourceFile "${{env.APPSETTINGS_TEMPLATE_FILE}}" -DestinationFile "${{env.APPSETTINGS_OUTPUT_FILE}}" -Pattern "${{env.APPSETTINGS_PATTERN}}"
+        run: powershell -ExecutionPolicy Bypass -File .\BeforeBuild\Utils\FromTemplateFileGenerator.ps1 -EnvironmentName "${{env.ENVIRONMENT}}" -SourceFile "${{env.APPSETTINGS_TEMPLATE_FILE}}" -DestinationFile "${{env.APPSETTINGS_OUTPUT_FILE}}" -Pattern "${{env.APPSETTINGS_PATTERN}}"
 
       - name: Init Scripts
         run: powershell -ExecutionPolicy Bypass -File .\init.ps1
