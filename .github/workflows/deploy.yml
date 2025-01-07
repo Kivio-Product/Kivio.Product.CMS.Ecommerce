@@ -19,15 +19,12 @@ env:
   PUBLISH_OUTPUT_PATH: C:\tmp\kivio_ecommerce_binaries
   PUBLISH_COMPRESSED_FILE: binaries.tar.zst
   ENVIRONMENT: BASE
-  APPSETTINGS_TEMPLATE_FILE: .\BeforeBuild\TemplateFiles\appsettings.template.json
-  APPSETTINGS_OUTPUT_FILE: .\CustomEcommerce\NopCommerce\Presentation\Nop.Web\App_Data\appsettings.json
-  APPSETTINGS_PATTERN: "{{ENV}}"
   BINNARIES_APPSETTINGS_PATH: C:\tmp\kivio_ecommerce_binaries\App_Data
+  TEMP_BINARIES_SERVER_PATH: /tmp/kivio_ecommerce_binaries/BASE
 
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
       - name: Check out repository with submodules
         uses: actions/checkout@v4
@@ -47,10 +44,10 @@ jobs:
           dotnet-version: "9.0.x"
 
       - name: Generate appsettings.json from template
-        run: powershell -ExecutionPolicy Bypass -File .\BeforeBuild\Utils\FromTemplateFileGenerator.ps1 -EnvironmentName "${{env.ENVIRONMENT}}" -SourceFile "${{env.APPSETTINGS_TEMPLATE_FILE}}" -DestinationFile "${{env.APPSETTINGS_OUTPUT_FILE}}" -Pattern "${{env.APPSETTINGS_PATTERN}}"
+        run: powershell -ExecutionPolicy Bypass -File ${{vars.APPSETTINGS_GENERATOR_SCRIPT}} -EnvironmentName "${{env.ENVIRONMENT}}" -SourceFile "${{vars.APPSETTINGS_TEMPLATE_FILE}}" -DestinationFile "${{vars.APPSETTINGS_OUTPUT_FILE}}" -Pattern "${{vars.APPSETTINGS_PATTERN}}"
 
       - name: Init Scripts
-        run: powershell -ExecutionPolicy Bypass -File .\init.ps1
+        run: powershell -ExecutionPolicy Bypass -File ${{vars.INIT_SCRIPT}}
 
       - name: Remove BeforeBuild from sln
         run: dotnet sln remove .\BeforeBuild\BeforeBuild.csproj
@@ -67,7 +64,7 @@ jobs:
         run: dotnet publish "${{ vars.KIVIO_ECOMMERCE_PUBLISH_PROJECT_PATH_BASE }}" -c Release -o "${{ env.PUBLISH_OUTPUT_PATH }}"
 
       - name: Copy appsettings.json to binaries
-        run: cp "${{ env.APPSETTINGS_OUTPUT_FILE }}" "${{ env.BINNARIES_APPSETTINGS_PATH }}"
+        run: cp "${{ vars.APPSETTINGS_OUTPUT_FILE }}" "${{ env.BINNARIES_APPSETTINGS_PATH }}"
 
       - name: ReplaceTokens
         uses: qetza/replacetokens-action@v1.2.0
@@ -107,6 +104,26 @@ jobs:
         env:
           SSH_USER: ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}
           EC2_HOST: ${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}
-          BINARIES_PATH: ${{ vars.KIVIO_ECOMMERCE_BINARIES_PATH_BASE }}
+          BINARIES_PATH: ${{ env.TEMP_BINARIES_SERVER_PATH }}
         run: |
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./${{env.PUBLISH_COMPRESSED_FILE}} ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}@${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}:${{ vars.KIVIO_ECOMMERCE_BINARIES_PATH_BASE }}
+          rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no" ./${{env.PUBLISH_COMPRESSED_FILE}} $SSH_USER@$EC2_HOST:$BINARIES_PATH
+
+      - name: Deploy script
+        env:
+          SSH_USER: ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}
+          EC2_HOST: ${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}
+          BINARIES_PATH: ${{ env.TEMP_BINARIES_SERVER_PATH }}
+          APP_NAME: KivioCMS_Ecommerce:${{ env.ENVIRONMENT }}
+          ENV: ${{ env.ENVIRONMENT }}
+          APP_BASE_DIR: ${{ vars.KIVIO_ECOMMERCE_BINARIES_PATH_BASE }}
+          COMPRESSED_FILE: ${{ env.PUBLISH_COMPRESSED_FILE }}
+          SERVICE_NAME: KivioCMS_Ecommerce:${{ env.ENVIRONMENT }}
+          RUN_DEPLOY_COMMAND: ${{ vars.KIVIO_ECOMMERCE_RUN_DEPLOY_COMMAND_BASE }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$EC2_HOST " 
+            $RUN_DEPLOY_COMMAND --app_name $APP_NAME --env $ENV --app_base_dir $APP_BASE_DIR --compressed_file $BINARIES_PATH/$COMPRESSED_FILE --service_name $SERVICE_NAME
+          "
+          
+      - name: Delete compressed file
+        run: |
+          rm -f ${{env.TEMP_BINARIES_SERVER_PATH}}/${{ env.PUBLISH_COMPRESSED_FILE }}
