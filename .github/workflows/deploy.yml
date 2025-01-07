@@ -27,9 +27,6 @@ jobs:
           submodules: true
           fetch-depth: 0
 
-      - name: Debug - List directories
-        run: tree
-
       - name: Switch to develop branch
         run: |
           git fetch origin
@@ -72,7 +69,4 @@ jobs:
           EC2_HOST: ${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}
           BINARIES_PATH: ${{ vars.KIVIO_ECOMMERCE_BINARIES_PATH_BASE }}
         run: |
-          rsync -avz --progress \
-            -e "ssh -o StrictHostKeyChecking=no" \
-            "binaries.zip" \
-            "$SSH_USER@$EC2_HOST:$BINARIES_PATH/binaries.zip"
+          rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no" binaries.zip $SSH_USER@$EC2_HOST:$BINARIES_PATH/binaries.zip
