@@ -77,18 +77,14 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: publish_output
-          path: "/tmp/binaries" 
-          
-      - name: Extraer binarios
-        run: |
-          unzip /tmp/binaries/binaries.zip -d /tmp/kivio_ecommerce_binaries
+          path: "/tmp/binaries"
 
       - name: Configurar el agente SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.KIVIO_ECOMMERCE_BASE_SECRET_KEY }}
 
-      - name: Transferir binarios a servidor remoto (rsync)
+      - name: Transferir ZIP al servidor remoto
         env:
           SSH_USER: ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}
           EC2_HOST: ${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}
@@ -96,5 +92,5 @@ jobs:
         run: |
           rsync -avz --progress \
             -e "ssh -o StrictHostKeyChecking=no" \
-            "$PUBLISH_OUTPUT_PATH/" \
-            "$SSH_USER@$EC2_HOST:$BINARIES_PATH"
+            "/tmp/binaries/binaries.zip" \
+            "$SSH_USER@$EC2_HOST:$BINARIES_PATH/binaries.zip"
