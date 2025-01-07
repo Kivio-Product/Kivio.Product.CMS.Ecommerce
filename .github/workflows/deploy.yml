@@ -56,8 +56,7 @@ jobs:
       - name: Publish
         env:
           PUBLISH_PROJECT_PATH: ${{ vars.KIVIO_ECOMMERCE_PUBLISH_PROJECT_PATH_BASE }}
-        run: |
-          dotnet publish "$PUBLISH_PROJECT_PATH" -c Release -o "C:\tmp\kivio_ecommerce_binaries"
+        run: dotnet publish "NopCommerce/src/Presentation/Nop.Web/Nop.Web.csproj" -c Release -o "C:\tmp\kivio_ecommerce_binaries"
 
       - name: Comprimir binarios
         run: powershell Compress-Archive -Path "C:\tmp\kivio_ecommerce_binaries\*" -DestinationPath binaries.zip
