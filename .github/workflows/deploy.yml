@@ -20,7 +20,7 @@ env:
   PUBLISH_COMPRESSED_FILE: binaries_BASE.tar.zst
   ENVIRONMENT: BASE
   BINNARIES_APPSETTINGS_PATH: C:\tmp\kivio_ecommerce_binaries\App_Data
-  TEMP_BINARIES_SERVER_PATH: /tmp/kivio_ecommerce_binaries/BASE
+  TEMP_BINARIES_SERVER_PATH: /tmp/kivio_ecommerce_binaries/
 
 jobs:
   build:
