@@ -123,7 +123,3 @@ jobs:
           ssh -o StrictHostKeyChecking=no $SSH_USER@$EC2_HOST " 
             $RUN_DEPLOY_COMMAND --app_name $APP_NAME --env $ENV --app_base_dir $APP_BASE_DIR --compressed_file $BINARIES_PATH/$COMPRESSED_FILE --service_name $SERVICE_NAME
           "
-          
-      - name: Delete compressed file
-        run: |
-          rm -f ${{env.TEMP_BINARIES_SERVER_PATH}}/${{ env.PUBLISH_COMPRESSED_FILE }}
