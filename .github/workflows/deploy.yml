@@ -113,7 +113,7 @@ jobs:
           SSH_USER: ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}
           EC2_HOST: ${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}
           BINARIES_PATH: ${{ env.TEMP_BINARIES_SERVER_PATH }}
-          APP_NAME: KivioCMS_Ecommerce:${{ env.ENVIRONMENT }}
+          APP_NAME: KivioCMS_Ecommerce
           ENV: ${{ env.ENVIRONMENT }}
           APP_BASE_DIR: ${{ vars.KIVIO_ECOMMERCE_BINARIES_PATH_BASE }}
           COMPRESSED_FILE: ${{ env.PUBLISH_COMPRESSED_FILE }}
