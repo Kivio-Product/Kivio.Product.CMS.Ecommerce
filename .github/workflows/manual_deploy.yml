@@ -1,0 +1,123 @@
+name: Manual Build and Deploy .NET 9.0
+run-name: Manual Build and Deploy .NET 9.0
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Selecciona la rama a desplegar"
+        required: true
+        type: string
+      env:
+        description: "Selecciona el entorno a desplegar [¡En mayusculas!] (ejemplo: DEV, PROD, BASE)"
+        required: true
+        type: string
+
+env:
+  PUBLISH_OUTPUT_PATH: C:\tmp\kivio_ecommerce_binaries
+  PUBLISH_COMPRESSED_FILE: binaries_${{github.event.inputs.env}}.tar.zst
+  ENVIRONMENT: ${{github.event.inputs.env}}
+  BINNARIES_APPSETTINGS_PATH: C:\tmp\kivio_ecommerce_binaries\App_Data
+  TEMP_BINARIES_SERVER_PATH: /tmp/kivio_ecommerce_binaries/
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Setup .NET 9.0
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Switch to ${{github.event.inputs.branch}} branch
+        run: |
+          git fetch origin
+          git checkout ${{github.event.inputs.branch}}
+          git pull origin ${{github.event.inputs.branch}}
+
+      - name: Generate appsettings.json from template
+        run: powershell -ExecutionPolicy Bypass -File ${{vars.APPSETTINGS_GENERATOR_SCRIPT}} -EnvironmentName "${{env.ENVIRONMENT}}" -SourceFile "${{vars.APPSETTINGS_TEMPLATE_FILE}}" -DestinationFile "${{vars.APPSETTINGS_OUTPUT_FILE}}" -Pattern "${{vars.APPSETTINGS_PATTERN}}"
+
+      - name: Init Scripts
+        run: powershell -ExecutionPolicy Bypass -File ${{vars.INIT_SCRIPT}}
+
+      - name: Remove BeforeBuild from sln
+        run: dotnet sln remove .\BeforeBuild\BeforeBuild.csproj
+
+      - name: Restore
+        run: dotnet restore KivioEcommerce.sln
+
+      - name: Build
+        run: dotnet build KivioEcommerce.sln --no-restore
+
+      - name: Publish
+        env:
+          PUBLISH_PROJECT_PATH: ${{ vars.KIVIO_ECOMMERCE_PUBLISH_PROJECT_PATH_BASE }}
+        run: dotnet publish "${{ vars.KIVIO_ECOMMERCE_PUBLISH_PROJECT_PATH_BASE }}" -c Release -o "${{ env.PUBLISH_OUTPUT_PATH }}"
+
+      - name: Copy appsettings.json to binaries
+        run: cp "${{ vars.APPSETTINGS_OUTPUT_FILE }}" "${{ env.BINNARIES_APPSETTINGS_PATH }}"
+
+      - name: ReplaceTokens
+        uses: qetza/replacetokens-action@v1.2.0
+        with:
+          sources: "${{ env.PUBLISH_OUTPUT_PATH }}/**/*.json"
+          variables: "[${{ toJSON(vars) }},${{ toJSON(secrets) }}]"
+
+      - name: Install Zstandard with Chocolatey
+        run: |
+          choco install zstandard -y
+
+      - name: Compress binaries with Zstandard
+        run: |
+          tar -cf - -C "${{ env.PUBLISH_OUTPUT_PATH }}" . | zstd -o ${{ env.PUBLISH_COMPRESSED_FILE }}
+
+      - name: Upload artifact publish-compressed-file
+        uses: actions/upload-artifact@v3
+        with:
+          name: publish-compressed-file
+          path: ${{ env.PUBLISH_COMPRESSED_FILE }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifact publish-compressed-file
+        uses: actions/download-artifact@v3
+        with:
+          name: publish-compressed-file
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.KIVIO_ECOMMERCE_BASE_SECRET_KEY }}
+
+      - name: Deploy to server
+        env:
+          SSH_USER: ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}
+          EC2_HOST: ${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}
+          BINARIES_PATH: ${{ env.TEMP_BINARIES_SERVER_PATH }}
+        run: |
+          rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no" ./${{env.PUBLISH_COMPRESSED_FILE}} $SSH_USER@$EC2_HOST:$BINARIES_PATH
+
+      - name: Deploy script
+        env:
+          SSH_USER: ${{ secrets.KIVIO_ECOMMERCE_BASE_USER }}
+          EC2_HOST: ${{ secrets.KIVIO_ECOMMERCE_BASE_HOST }}
+          BINARIES_PATH: ${{ env.TEMP_BINARIES_SERVER_PATH }}
+          APP_NAME: KivioCMS_Ecommerce
+          ENV: ${{ env.ENVIRONMENT }}
+          APP_BASE_DIR: ${{ vars.KIVIO_ECOMMERCE_BINARIES_PATH_BASE }}
+          COMPRESSED_FILE: ${{ env.PUBLISH_COMPRESSED_FILE }}
+          SERVICE_NAME: KivioCMS_Ecommerce:${{ env.ENVIRONMENT }}
+          RUN_DEPLOY_COMMAND: ${{ vars.KIVIO_ECOMMERCE_RUN_DEPLOY_COMMAND_BASE }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$EC2_HOST " 
+            $RUN_DEPLOY_COMMAND --app_name $APP_NAME --env $ENV --app_base_dir $APP_BASE_DIR --compressed_file $BINARIES_PATH/$COMPRESSED_FILE --service_name $SERVICE_NAME
+          "
