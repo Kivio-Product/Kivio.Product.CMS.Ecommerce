@@ -32,12 +32,6 @@ jobs:
           submodules: true
           fetch-depth: 0
 
-      - name: Switch to develop branch
-        run: |
-          git fetch origin
-          git checkout develop
-          git pull origin develop
-
       - name: Setup .NET 9.0
         uses: actions/setup-dotnet@v3
         with:
