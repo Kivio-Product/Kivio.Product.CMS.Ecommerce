@@ -135,6 +135,7 @@ public class UmbracoHelper
             {
                 using var httpClient = new HttpClient();
                 string content = await httpClient.GetStringAsync(endpoint);
+                content = content.Replace("http", "https");
                 cssContents.Add(content);
             }
             catch
