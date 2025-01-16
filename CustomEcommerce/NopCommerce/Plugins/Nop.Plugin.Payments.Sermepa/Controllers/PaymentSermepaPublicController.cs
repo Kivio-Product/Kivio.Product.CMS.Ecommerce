@@ -8,6 +8,8 @@ using Nop.Core;
 using Nop.Core.Domain.Orders;
 using Nop.Services.Logging;
 using Nop.Services.Orders;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Nop.Web.Framework.Controllers;
 
 namespace Nop.Plugin.Payments.Sermepa.Controllers
@@ -30,88 +32,175 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
             _sermepaPaymentSettings = sermepaPaymentSettings;
         }
 
-        public async Task<IActionResult> Return(FormCollection form)
+        public async Task<IActionResult> Return()
         {
-            //ID de Pedido
-            var orderId = HttpContext.Request.Query["Ds_Order"];
-            var strDs_Merchant_Order = HttpContext.Request.Query["Ds_Order"];
+            // Obtener los parámetros de la respuesta de Redsys
+            var dsMerchantParameters = HttpContext.Request.Form["Ds_MerchantParameters"].ToString();
+            var dsSignature = HttpContext.Request.Form["Ds_Signature"].ToString();
+            var dsSignatureVersion = HttpContext.Request.Form["Ds_SignatureVersion"].ToString();
 
-            var strDs_Merchant_Amount = HttpContext.Request.Query["Ds_Amount"];
-            var strDs_Merchant_MerchantCode = HttpContext.Request.Query["Ds_MerchantCode"];
-            var strDs_Merchant_Currency = HttpContext.Request.Query["Ds_Currency"];
-
-            //Respuesta del TPV
-            var str_Merchant_Response = HttpContext.Request.Query["Ds_Response"];
-            var dsResponse = Convert.ToInt32(HttpContext.Request.Query["Ds_Response"]);
-
-            //Clave
-            var pruebas = _sermepaPaymentSettings.Pruebas;
-            var clave = pruebas ? _sermepaPaymentSettings.ClavePruebas : _sermepaPaymentSettings.ClaveReal;
-
-            //Calculo de la firma
-            var sha = string.Format("{0}{1}{2}{3}{4}{5}",
-                strDs_Merchant_Amount,
-                strDs_Merchant_Order,
-                strDs_Merchant_MerchantCode,
-                strDs_Merchant_Currency,
-                str_Merchant_Response,
-                clave);
-
-            SHA1 shaM = new SHA1Managed();
-            var shaResult = shaM.ComputeHash(Encoding.Default.GetBytes(sha));
-            var shaResultStr = BitConverter.ToString(shaResult).Replace("-", "");
-
-            //Firma enviada
-            var signature = CommonHelper.EnsureNotNull(HttpContext.Request.Query["Ds_Signature"]);
-
-            //Comprobamos la integridad de las comunicaciones con las claves
-            //LogManager.InsertLog(LogTypeEnum.OrderError, "TPV SERMEPA: Clave generada", "CLAVE GENERADA: " + SHAresultStr);
-            //LogManager.InsertLog(LogTypeEnum.OrderError, "TPV SERMEPA: Clave obtenida", "CLAVE OBTENIDA: " + signature);
-            if (!signature.Equals(shaResultStr))
+            if (string.IsNullOrEmpty(dsMerchantParameters) || string.IsNullOrEmpty(dsSignature) || string.IsNullOrEmpty(dsSignatureVersion))
             {
-                await _logger.ErrorAsync("TPV SERMEPA: Clave incorrecta. Las claves enviada y generada no coinciden: " + shaResultStr + " != " + signature);
-
+                await _logger.ErrorAsync("TPV SERMEPA: Falta información en la respuesta del TPV.");
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
 
-            //Pedido
+            // Decodificar los parámetros de la respuesta
+            string decodedParameters;
+            try
+            {
+                decodedParameters = Encoding.UTF8.GetString(Convert.FromBase64String(dsMerchantParameters.Replace('-', '+').Replace('_', '/')));
+            }
+            catch (FormatException ex)
+            {
+                await _logger.ErrorAsync($"TPV SERMEPA: Error al decodificar los parámetros. {ex.Message}");
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            var responseParameters = JsonConvert.DeserializeObject<Dictionary<string, string>>(decodedParameters);
+
+            if (!responseParameters.TryGetValue("Ds_Order", out var orderId) || !responseParameters.TryGetValue("Ds_Response", out var responseCode))
+            {
+                await _logger.ErrorAsync("TPV SERMEPA: Falta información clave en los parámetros decodificados.");
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            // Obtener clave
+            var key = _sermepaPaymentSettings.Pruebas ? _sermepaPaymentSettings.ClavePruebas : _sermepaPaymentSettings.ClaveReal;
+            var decodedKey = Convert.FromBase64String(key);
+
+            // Generar la firma
+            string signatureCalculated;
+            try
+            {
+                // Decode Merchant Parameters to validate nested JSON if necessary
+                string validatedParameters = ValidateNestedJson("Ds_EMV3DS", decodedParameters);
+
+                // Extract the order ID from decoded parameters
+                string extractedOrderId = ExtractOrderFromParameters(validatedParameters);
+
+                // Generate the derived key using 3DES encryption with the decoded key and extracted order ID
+                byte[] derivedKey = Encrypt3DES(extractedOrderId, decodedKey);
+
+                // Calculate HMAC-SHA256 signature
+                byte[] hmacSignature = GetHMACSHA256(dsMerchantParameters, derivedKey);
+
+                // Convert the signature to Base64 and URL-safe format
+                signatureCalculated = Convert.ToBase64String(hmacSignature).Replace('+', '-').Replace('/', '_');
+            }
+            catch (Exception ex)
+            {
+                await _logger.ErrorAsync($"TPV SERMEPA: Error al calcular la firma. {ex.Message}");
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            // Validar la firma
+            if (!signatureCalculated.Equals(dsSignature))
+            {
+                await _logger.ErrorAsync($"TPV SERMEPA: Firma incorrecta. Calculada: {signatureCalculated}, Recibida: {dsSignature}");
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            // Obtener el pedido
             var order = await _orderService.GetOrderByIdAsync(Convert.ToInt32(orderId));
             if (order == null)
-                throw new NopException(string.Format("El pedido de ID {0} no existe", orderId));
-
-            //Actualizamos el pedido
-            if (dsResponse > -1 && dsResponse < 100)
             {
-                //Lo marcamos como pagado
+                throw new NopException($"El pedido con ID {orderId} no existe.");
+            }
+
+            // Verificar el código de respuesta de Redsys
+            int.TryParse(responseCode, out var dsResponse);
+            if (dsResponse >= 0 && dsResponse < 100)
+            {
+                // Marcar el pedido como pagado
                 if (_orderProcessingService.CanMarkOrderAsPaid(order))
                 {
                     await _orderProcessingService.MarkOrderAsPaidAsync(order);
                 }
 
-                //order note
+                // Agregar nota al pedido
                 await _orderService.InsertOrderNoteAsync(new OrderNote
                 {
-                    Note = "Información del pago: " + Request.Form,
+                    Note = $"Pago confirmado. Parámetros de Redsys: {decodedParameters}",
                     DisplayToCustomer = false,
                     CreatedOnUtc = DateTime.UtcNow
                 });
+
                 return RedirectToRoute("CheckoutCompleted", new { orderId = order.Id });
             }
 
-            await _logger.ErrorAsync("TPV SERMEPA: Pago no autorizado con ERROR: " + dsResponse);
+            // Log del error
+            await _logger.ErrorAsync($"TPV SERMEPA: Pago no autorizado. Código de error: {dsResponse}");
 
-            //order note
+            // Agregar nota de error al pedido
             await _orderService.InsertOrderNoteAsync(new OrderNote
             {
-                Note = "!!! PAGO DENEGADO !!! " + Request.Form,
+                Note = $"!!! PAGO DENEGADO !!! Código de respuesta: {dsResponse}",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow
             });
+
             return RedirectToAction("Index", "Home", new { area = "" });
         }
 
-        public IActionResult Error()
+        private string ValidateNestedJson(string nestedKey, string json)
         {
+            try
+            {
+                var jsonObject = JsonConvert.DeserializeObject<JObject>(json);
+                if (jsonObject != null && jsonObject.ContainsKey(nestedKey))
+                {
+                    var nestedJson = jsonObject[nestedKey]?.ToString();
+                    jsonObject.Remove(nestedKey);
+                    jsonObject.Add(nestedKey, nestedJson);
+                    return jsonObject.ToString();
+                }
+            }
+            catch (JsonReaderException ex)
+            {
+                throw new JsonReaderException($"Error al validar JSON anidado: {ex.Message}");
+            }
+            return json;
+        }
+
+        private string ExtractOrderFromParameters(string parameters)
+        {
+            var paramDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(parameters);
+            if (paramDict != null && paramDict.TryGetValue("Ds_Order", out var orderId))
+            {
+                return orderId;
+            }
+            throw new KeyNotFoundException("No se encontró Ds_Order en los parámetros decodificados.");
+        }
+
+        private byte[] Encrypt3DES(string plainText, byte[] key)
+        {
+            using (var tdes = TripleDES.Create())
+            {
+                tdes.Key = key;
+                tdes.Mode = CipherMode.ECB;
+                tdes.Padding = PaddingMode.PKCS7;
+
+                using (var encryptor = tdes.CreateEncryptor())
+                {
+                    byte[] inputBytes = Encoding.UTF8.GetBytes(plainText);
+                    return encryptor.TransformFinalBlock(inputBytes, 0, inputBytes.Length);
+                }
+            }
+        }
+
+        private byte[] GetHMACSHA256(string data, byte[] key)
+        {
+            using (var hmac = new HMACSHA256(key))
+            {
+                return hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
+            }
+        }
+
+
+        public async Task<IActionResult> Error()
+        {
+            await _logger.ErrorAsync("TPV SERMEPA: Falta información en la respuesta del TPV.");
             return RedirectToRoute("Homepage");
         }
     }

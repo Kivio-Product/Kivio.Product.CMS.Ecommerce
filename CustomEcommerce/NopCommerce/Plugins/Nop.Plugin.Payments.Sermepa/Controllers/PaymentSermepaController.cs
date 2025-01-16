@@ -35,11 +35,9 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
             _notificationService = notificationService;
         }
 
+        [CheckPermission(StandardPermission.Configuration.MANAGE_PAYMENT_METHODS)]
         public async Task<IActionResult> Configure()
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePaymentMethods))
-                return AccessDeniedView();
-
             //load settings for a chosen store scope
             var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
             var sermepaPaymentSettings = await _settingService.LoadSettingAsync<SermepaPaymentSettings>(storeScope);
@@ -78,13 +76,12 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
         }
 
         [HttpPost]
+        [CheckPermission(StandardPermission.Configuration.MANAGE_PAYMENT_METHODS)]
         public async Task<IActionResult> Configure(ConfigurationModel model)
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePaymentMethods))
-                return AccessDeniedView();
 
             if (!ModelState.IsValid)
-                return RedirectToAction("Configure");
+                return await Configure();
 
             //load settings for a chosen store scope
             var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
@@ -123,7 +120,7 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
 
             _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
 
-            return RedirectToAction("Configure");
+           return await Configure();
         }
     }
 }

@@ -2,10 +2,10 @@
   "Group": "Payment methods",
   "FriendlyName": "Sermepa",
   "SystemName": "Payments.Sermepa",
-  "Version": "1.69",
+  "Version": "4.8.0",
   "SupportedVersions": [ "4.80" ],
   "Author": "nopCommerce team, Nop-Station Team",
-  "DisplayOrder": 1,
+  "DisplayOrder": -1,
   "FileName": "Nop.Plugin.Payments.Sermepa.dll",
   "Description": "This plugin allows paying with Sermepa"
 }
