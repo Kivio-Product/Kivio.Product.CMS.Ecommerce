@@ -35,9 +35,9 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
         public async Task<IActionResult> Return()
         {
             // Obtener los parámetros de la respuesta de Redsys
-            var dsMerchantParameters = HttpContext.Request.Form["Ds_MerchantParameters"].ToString();
-            var dsSignature = HttpContext.Request.Form["Ds_Signature"].ToString();
-            var dsSignatureVersion = HttpContext.Request.Form["Ds_SignatureVersion"].ToString();
+            var dsMerchantParameters = HttpContext.Request.Query["Ds_MerchantParameters"].ToString();
+            var dsSignature = HttpContext.Request.Query["Ds_Signature"].ToString();
+            var dsSignatureVersion = HttpContext.Request.Query["Ds_SignatureVersion"].ToString();
 
             if (string.IsNullOrEmpty(dsMerchantParameters) || string.IsNullOrEmpty(dsSignature) || string.IsNullOrEmpty(dsSignatureVersion))
             {
@@ -123,7 +123,9 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
                 {
                     Note = $"Pago confirmado. Parámetros de Redsys: {decodedParameters}",
                     DisplayToCustomer = false,
-                    CreatedOnUtc = DateTime.UtcNow
+                    CreatedOnUtc = DateTime.UtcNow,
+                    OrderId = order.Id,
+                    Id = order.Id
                 });
 
                 return RedirectToRoute("CheckoutCompleted", new { orderId = order.Id });
@@ -137,11 +139,64 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
             {
                 Note = $"!!! PAGO DENEGADO !!! Código de respuesta: {dsResponse}",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow
+                CreatedOnUtc = DateTime.UtcNow,
+                OrderId = order.Id,
+                Id = order.Id
             });
 
             return RedirectToAction("Index", "Home", new { area = "" });
         }
+
+
+
+        public async Task<IActionResult> Error()
+        {
+
+            var dsMerchantParameters = HttpContext.Request.Query["Ds_MerchantParameters"].ToString();
+            var dsSignatureVersion = HttpContext.Request.Query["Ds_SignatureVersion"].ToString();
+            var dsSignature = HttpContext.Request.Query["Ds_Signature"].ToString();
+
+
+            // Decodificar los parámetros de la respuesta
+            string decodedParameters;
+            try
+            {
+                decodedParameters = Encoding.UTF8.GetString(Convert.FromBase64String(dsMerchantParameters.Replace('-', '+').Replace('_', '/')));
+            }
+            catch (FormatException ex)
+            {
+                await _logger.ErrorAsync($"TPV SERMEPA: Error al decodificar los parámetros. {ex.Message}");
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            string validatedParameters = ValidateNestedJson("Ds_EMV3DS", decodedParameters);
+            var orderId = ExtractOrderFromParameters(validatedParameters);
+            var responseCode = ExtractResponseFromParameters(validatedParameters);
+
+            var order = await _orderService.GetOrderByIdAsync(Convert.ToInt32(orderId));
+            if (order == null)
+            {
+                // throw new NopException($"El pedido con ID {orderId} no existe.");
+            }
+
+            if (_orderProcessingService.CanCancelOrder(order))
+            {
+                await _orderProcessingService.CancelOrderAsync(order, true);
+            }
+
+            await _orderService.InsertOrderNoteAsync(new OrderNote
+            {
+                Note = $"!!! PAGO DENEGADO !!! Código de respuesta: {responseCode}",
+                DisplayToCustomer = false,
+                CreatedOnUtc = DateTime.UtcNow,
+                OrderId = order.Id,
+                Id = order.Id
+            });
+
+            await _logger.ErrorAsync("Orden de pago rechazada por el TPV SERMEPA.");
+            return RedirectToRoute("Homepage");
+        }
+
 
         private string ValidateNestedJson(string nestedKey, string json)
         {
@@ -170,21 +225,35 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
             {
                 return orderId;
             }
-            throw new KeyNotFoundException("No se encontró Ds_Order en los parámetros decodificados.");
+            // throw new KeyNotFoundException("No se encontró Ds_Order en los parámetros decodificados.");
+            return "";
         }
 
-        private byte[] Encrypt3DES(string plainText, byte[] key)
+        private string ExtractResponseFromParameters(string parameters)
         {
+            var paramDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(parameters);
+            if (paramDict != null && paramDict.TryGetValue("Ds_Response", out var responseCode))
+            {
+                return responseCode;
+            }
+            // throw new KeyNotFoundException("No se encontró Ds_Response en los parámetros decodificados.");
+            return "No response code found";
+        }
+
+        private byte[] Encrypt3DES(string orderId, byte[] key)
+        {
+            byte[] orderBytes = Encoding.UTF8.GetBytes(orderId);
+            byte[] iv = new byte[8]; // SALT: {0, 0, 0, 0, 0, 0, 0, 0}
+
             using (var tdes = TripleDES.Create())
             {
                 tdes.Key = key;
-                tdes.Mode = CipherMode.ECB;
-                tdes.Padding = PaddingMode.PKCS7;
-
-                using (var encryptor = tdes.CreateEncryptor())
+                tdes.IV = iv;
+                tdes.Mode = CipherMode.CBC;
+                tdes.Padding = PaddingMode.Zeros;
                 {
-                    byte[] inputBytes = Encoding.UTF8.GetBytes(plainText);
-                    return encryptor.TransformFinalBlock(inputBytes, 0, inputBytes.Length);
+                    using var encryptor = tdes.CreateEncryptor();
+                    return encryptor.TransformFinalBlock(orderBytes, 0, orderBytes.Length);
                 }
             }
         }
@@ -197,11 +266,6 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
             }
         }
 
-
-        public async Task<IActionResult> Error()
-        {
-            await _logger.ErrorAsync("TPV SERMEPA: Falta información en la respuesta del TPV.");
-            return RedirectToRoute("Homepage");
-        }
     }
+
 }

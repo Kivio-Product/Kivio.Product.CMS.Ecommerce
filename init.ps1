@@ -12,26 +12,13 @@ if (-Not (Test-Path $SolutionDir)) {
 
 # Definir rutas de scripts
 $ReplacerScript = Join-Path $SolutionDir "BeforeBuild\Utils\Replacer.ps1"
+$TargetDir = Join-Path $SolutionDir "NopCommerce\src"
 
 # Validar que Replacer.ps1 existe
 if (-Not (Test-Path $ReplacerScript)) {
     Write-Error "El script Replacer.ps1 no existe en: $ReplacerScript"
     exit 1
 }
-
-# Script 1: Reemplazar rutas de archivos en archivos .csproj
-$TargetDir = Join-Path $SolutionDir "NopCommerce\src"
-$SearchPattern = "SolutionDir)\"  # Texto a buscar
-$ReplacePattern = "SolutionDir)NopCommerce\src\"  # Texto con el que se reemplaza
-$FileExtension = "*.csproj"  # Extensión de los archivos a procesar
-
-# Ejecutar el script Replacer
-Write-Host "Ejecutando Replacer.ps1 para archivos .csproj..."
-powershell -ExecutionPolicy Bypass -File $ReplacerScript `
-    -rootDir $TargetDir `
-    -search $SearchPattern `
-    -replace $ReplacePattern `
-    -fileExtension $FileExtension
 
 # Copiar la carpeta Libraries
 $LibrariesSource = Join-Path $SolutionDir "CustomEcommerce\NopCommerce\Libraries\*"
@@ -43,6 +30,16 @@ if (Test-Path $LibrariesSource) {
     Write-Warning "No se encontró la carpeta Libraries en: $LibrariesSource"
 }
 
+# Copiar la carpeta Plugins
+$PluginsSource = Join-Path $SolutionDir "CustomEcommerce\NopCommerce\Plugins\*"
+$PluginsTarget = Join-Path $TargetDir "Plugins"
+if (Test-Path $LibrariesSource) {
+    Write-Host "Copiando la carpeta Plugins..."
+    xcopy /Y /E $PluginsSource $PluginsTarget
+} else {
+    Write-Warning "No se encontró la carpeta Plugins en: $PluginsSource"
+}
+
 # Copiar la carpeta Presentation
 $PresentationSource = Join-Path $SolutionDir "CustomEcommerce\NopCommerce\Presentation\*"
 $PresentationTarget = Join-Path $TargetDir "Presentation"
@@ -52,6 +49,19 @@ if (Test-Path $PresentationSource) {
 } else {
     Write-Warning "No se encontró la carpeta Presentation en: $PresentationSource"
 }
+
+# Script 1: Reemplazar rutas de archivos en archivos .csproj
+$SearchPattern = "SolutionDir)\"  # Texto a buscar
+$ReplacePattern = "SolutionDir)NopCommerce\src\"  # Texto con el que se reemplaza
+$FileExtension = "*.csproj"  # Extensión de los archivos a procesar
+
+# Ejecutar el script Replacer
+Write-Host "Ejecutando Replacer.ps1 para archivos .csproj..."
+powershell -ExecutionPolicy Bypass -File $ReplacerScript `
+    -rootDir $TargetDir `
+    -search $SearchPattern `
+    -replace $ReplacePattern `
+    -fileExtension $FileExtension
 
 # Agrega más scripts si es necesario
 # Ejemplo: Ejecutar un script de configuración de dependencias

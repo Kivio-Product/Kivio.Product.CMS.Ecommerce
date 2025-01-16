@@ -32,6 +32,8 @@ namespace Nop.Plugin.Payments.Sermepa
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         private const string _SIGNATURE_VERSION = "HMAC_SHA256_V1";
+        private const string SANDBOX_URL = "https://sis-t.redsys.es:25443/sis/realizarPago";
+        private const string PRODUCTION_URL = "https://sis.redsys.es/sis/realizarPago";
 
         #endregion
 
@@ -60,8 +62,7 @@ namespace Nop.Plugin.Payments.Sermepa
         /// <returns></returns>
         private string GetSermepaUrl()
         {
-            return _sermepaPaymentSettings.Pruebas ? "https://sis-t.redsys.es:25443/sis/realizarPago" :
-                "https://sis-t.redsys.es:25443/sis/realizarPago";
+            return _sermepaPaymentSettings.Pruebas ? SANDBOX_URL : PRODUCTION_URL;
         }
 
         #endregion
@@ -95,7 +96,7 @@ namespace Nop.Plugin.Payments.Sermepa
                 {"DS_MERCHANT_TRANSACTIONTYPE", "0"}, // Tipo de transacción: 0 - Autorización
                 {"DS_MERCHANT_TERMINAL", _sermepaPaymentSettings.Terminal},
                 {"DS_MERCHANT_MERCHANTURL", _webHelper.GetStoreLocation(true) + "Plugins/PaymentSermepa/Return"},
-                {"DS_MERCHANT_URLOK", _webHelper.GetStoreLocation(true) + "checkout/Completed"},
+                {"DS_MERCHANT_URLOK", _webHelper.GetStoreLocation(true) + "Plugins/PaymentSermepa/Return"},
                 {"DS_MERCHANT_URLKO", _webHelper.GetStoreLocation(true) + "Plugins/PaymentSermepa/Error"}
             };
 
