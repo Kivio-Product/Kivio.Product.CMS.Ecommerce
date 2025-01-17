@@ -6,11 +6,11 @@ namespace Nop.Plugin.Payments.PayU
 {
     public partial class RouteProvider : IRouteProvider
     {
-        public void RegisterRoutes(IRouteBuilder routeBuilder)
+        public void RegisterRoutes(IEndpointRouteBuilder endpointRouteBuilder)
         {
-            routeBuilder.MapRoute("Plugin.Payments.PayU.Notify", "Plugins/PaymentPayU/Notify",
+            endpointRouteBuilder.MapControllerRoute("Plugin.Payments.PayU.Notify", "Plugins/PaymentPayU/Notify",
                 new { controller = "PaymentPayU", action = "Notify" });
-            routeBuilder.MapRoute("Plugin.Payments.PayU.ProcessingPayment", "Plugins/PaymentPayU/ProcessingPayment",
+            endpointRouteBuilder.MapControllerRoute("Plugin.Payments.PayU.ProcessingPayment", "Plugins/PaymentPayU/ProcessingPayment",
                 new { controller = "PaymentPayU", action = "ProcessingPayment" });
         }
 

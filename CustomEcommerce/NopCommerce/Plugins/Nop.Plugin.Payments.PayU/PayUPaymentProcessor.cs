@@ -2,10 +2,12 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Nop.Core;
 using Nop.Core.Domain.Orders;
-using Nop.Core.Plugins;
+using Nop.Core.Domain.Payments;
 using Nop.Plugin.Payments.PayU.Services;
+using Nop.Plugin.Payments.PayU.Components;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
+using Nop.Services.Plugins;
 using Nop.Services.Payments;
 
 namespace Nop.Plugin.Payments.PayU
@@ -25,8 +27,7 @@ namespace Nop.Plugin.Payments.PayU
         public RecurringPaymentType RecurringPaymentType => RecurringPaymentType.NotSupported;
         public PaymentMethodType PaymentMethodType => PaymentMethodType.Redirection;
         public bool SkipPaymentInfo => false;
-        public string PaymentMethodDescription =>
-            _localizationService.GetResource("Plugins.Payments.PayU.PaymentMethodDescription");
+        public string PaymentMethodDescription => _localizationService.GetResourceAsync("Plugins.Payments.PayU.PaymentMethodDescription").Result;
 
         public PayUPaymentProcessor(
             ISettingService settingService,
@@ -40,9 +41,9 @@ namespace Nop.Plugin.Payments.PayU
             _localizationService = localizationService;
         }
 
-        public override void Install()
+        public override async Task InstallAsync()
         {
-            _settingService.SaveSetting(new PayUPaymentSettings()
+            await _settingService.SaveSettingAsync(new PayUPaymentSettings()
             {
                 UseSandbox = true,
                 SandboxClientId = "300746",
@@ -50,40 +51,40 @@ namespace Nop.Plugin.Payments.PayU
                 SandboxSecondKey = "b6ca15b0d1020e8094d9b5f8d163db54"
             });
 
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.PayU.Fields.UseSandbox", "Use Sandbox");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.PayU.Fields.SandboxClientId", "Sandbox client id");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.PayU.Fields.SandboxClientSecret",
-                "Sandbox client secret");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.PayU.Fields.SandboxSecondKey",
-                "Sandbox second key");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.PayU.Fields.ClientId", "Client id");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.PayU.Fields.ClientSecret", "Client secret");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.PayU.Fields.SecondKey", "Second key");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.UseSandbox", "Use Sandbox");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.SandboxClientId", "Sandbox client id");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.SandboxClientSecret",
+                 "Sandbox client secret");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.SandboxSecondKey",
+                 "Sandbox second key");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.ClientId", "Client id");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.ClientSecret", "Client secret");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.SecondKey", "Second key");
 
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.PayU.PaymentMethodDescription",
-                "You will be redirected to PayU site to complete the payment");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.PayU.PaymentInfo",
-                "You will be redirected to PayU site to complete the order.");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.PaymentMethodDescription",
+                  "You will be redirected to PayU site to complete the payment");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.PaymentInfo",
+                 "You will be redirected to PayU site to complete the order.");
 
-            base.Install(); 
+            await base.InstallAsync();
         }
 
-        public override void Uninstall()
+        public override async Task UninstallAsync()
         {
-            _settingService.DeleteSetting<PayUPaymentSettings>();
+            await _settingService.DeleteSettingAsync<PayUPaymentSettings>();
 
-            _localizationService.DeletePluginLocaleResource("Plugins.Payments.PayU.Fields.UseSandbox");
-            _localizationService.DeletePluginLocaleResource("Plugins.Payments.PayU.Fields.SandboxClientId");
-            _localizationService.DeletePluginLocaleResource("Plugins.Payments.PayU.Fields.SandboxClientSecret");
-            _localizationService.DeletePluginLocaleResource("Plugins.Payments.PayU.Fields.SandboxSecondKey");
-            _localizationService.DeletePluginLocaleResource("Plugins.Payments.PayU.Fields.ClientId");
-            _localizationService.DeletePluginLocaleResource("Plugins.Payments.PayU.Fields.ClientSecret");
-            _localizationService.DeletePluginLocaleResource("Plugins.Payments.PayU.Fields.SecondKey");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.UseSandbox");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.SandboxClientId");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.SandboxClientSecret");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.SandboxSecondKey");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.ClientId");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.ClientSecret");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.SecondKey");
 
-            _localizationService.DeletePluginLocaleResource("Plugins.Payments.PayU.PaymentMethodDescription");
-            _localizationService.DeletePluginLocaleResource("Plugins.Payments.PayU.PaymentInfo");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.PaymentMethodDescription");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.PaymentInfo");
 
-            base.Uninstall();   
+            await base.UninstallAsync();
         }
 
         public override string GetConfigurationPageUrl()
@@ -91,14 +92,17 @@ namespace Nop.Plugin.Payments.PayU
             return $"{_webHelper.GetStoreLocation()}Admin/PaymentPayU/Configure";
         }
 
-        public bool CanRePostProcessPayment(Order order)
+        public Task<bool> CanRePostProcessPaymentAsync(Order order)
         {
-            return false;
+            if (order == null)
+                throw new ArgumentNullException("order");
+
+            return Task.FromResult(false);
         }
 
-        public decimal GetAdditionalHandlingFee(IList<ShoppingCartItem> cart)
+        public Task<decimal> GetAdditionalHandlingFeeAsync(IList<ShoppingCartItem> cart)
         {
-            return 0;
+            return Task.FromResult(0m);
         }
 
         public ProcessPaymentRequest GetPaymentInfo(IFormCollection form)
@@ -111,49 +115,68 @@ namespace Nop.Plugin.Payments.PayU
             return "PaymentPayU";
         }
 
-        public bool HidePaymentMethod(IList<ShoppingCartItem> cart)
+        public Task<bool> HidePaymentMethodAsync(IList<ShoppingCartItem> cart)
         {
-            return false;
+            return Task.FromResult(false);
         }
 
-        public ProcessPaymentResult ProcessPayment(ProcessPaymentRequest processPaymentRequest)
+        public Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            return new ProcessPaymentResult();
+            var result = new ProcessPaymentResult { NewPaymentStatus = PaymentStatus.Pending };
+            return Task.FromResult(result);
         }
 
-        public void PostProcessPayment(PostProcessPaymentRequest postProcessPaymentRequest)
+        public Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
         {
             _payUService.RedirectToPayUPayment(postProcessPaymentRequest);
+            return Task.CompletedTask;
+
         }
 
-        public RefundPaymentResult Refund(RefundPaymentRequest refundPaymentRequest)
+        public Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
         {
             return _payUService.Refund(refundPaymentRequest);
         }
 
-        public IList<string> ValidatePaymentForm(IFormCollection form)
+        public Task<IList<string>> ValidatePaymentFormAsync(IFormCollection form)
         {
-            return new List<string>();
+            return Task.FromResult<IList<string>>(new List<string>());
         }
 
-        public CapturePaymentResult Capture(CapturePaymentRequest capturePaymentRequest)
+        public Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
         {
-            return new CapturePaymentResult();
+            return Task.FromResult(new CapturePaymentResult());
         }
 
-        public VoidPaymentResult Void(VoidPaymentRequest voidPaymentRequest)
+        public Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
         {
-            return new VoidPaymentResult();
+            return Task.FromResult(new VoidPaymentResult());
         }
 
-        public ProcessPaymentResult ProcessRecurringPayment(ProcessPaymentRequest processPaymentRequest)
+        public Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            return new ProcessPaymentResult();
+            return Task.FromResult(new ProcessPaymentResult());
         }
 
-        public CancelRecurringPaymentResult CancelRecurringPayment(CancelRecurringPaymentRequest cancelPaymentRequest)
+        public Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest)
         {
-            return new CancelRecurringPaymentResult();
+            return Task.FromResult(new CancelRecurringPaymentResult());
+        }
+
+        public Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
+        {
+            return Task.FromResult(new ProcessPaymentRequest());
+        }
+
+        public Type GetPublicViewComponent()
+        {
+            return typeof(PaymentPayUViewComponent);
+        }
+
+        public async Task<string> GetPaymentMethodDescriptionAsync()
+        {
+            return await _localizationService.GetResourceAsync("Plugins.Payments.PayU.PaymentMethodDescription");
+
         }
     }
 }

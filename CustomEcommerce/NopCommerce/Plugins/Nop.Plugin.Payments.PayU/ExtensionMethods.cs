@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Nop.Plugin.Payments.PayU
 {
@@ -11,26 +7,22 @@ namespace Nop.Plugin.Payments.PayU
     {
         public static string ConvertToMd5(this string text)
         {
-            using (var md5 = MD5.Create())
+            var inputBytes = Encoding.UTF8.GetBytes(text);
+            var hashBytes = MD5.HashData(inputBytes);
+
+            var sb = new StringBuilder();
+            foreach (var b in hashBytes)
             {
-                var inputBytes = Encoding.UTF8.GetBytes(text);
-                var hashBytes = md5.ComputeHash(inputBytes);
-
-                var sb = new StringBuilder();
-                foreach (var b in hashBytes)
-                {
-                    sb.Append(b.ToString("x2"));
-                }
-
-                return sb.ToString();
+                sb.Append(b.ToString("x2"));
             }
+
+            return sb.ToString();
         }
 
         public static string ConvertToSha256(this string text)
         {
-            var crypt = new SHA256Managed();
             var hash = new StringBuilder();
-            var crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(text));
+            var crypto = SHA256.HashData(Encoding.UTF8.GetBytes(text));
             foreach (var b in crypto)
             {
                 hash.Append(b.ToString("x2"));
@@ -40,9 +32,8 @@ namespace Nop.Plugin.Payments.PayU
 
         public static string ConvertToSha384(this string text)
         {
-            var crypt = new SHA384Managed();
             var hash = new StringBuilder();
-            var crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(text));
+            var crypto = SHA384.HashData(Encoding.UTF8.GetBytes(text));
             foreach (var b in crypto)
             {
                 hash.Append(b.ToString("x2"));
@@ -52,9 +43,8 @@ namespace Nop.Plugin.Payments.PayU
 
         public static string ConvertToSha512(this string text)
         {
-            var crypt = new SHA512Managed();
             var hash = new StringBuilder();
-            var crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(text));
+            var crypto = SHA512.HashData(Encoding.UTF8.GetBytes(text));
             foreach (var b in crypto)
             {
                 hash.Append(b.ToString("x2"));

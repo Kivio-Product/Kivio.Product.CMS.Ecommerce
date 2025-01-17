@@ -1,9 +1,9 @@
 ﻿{
   "Group": "Payment methods",
-  "FriendlyName": "PayU Poland",
+  "FriendlyName": "PayU Latam",
   "SystemName": "Payments.PayU",
   "Version": "1.2.0",
-  "SupportedVersions": [ "4.10" ],
+  "SupportedVersions": [ "4.80" ],
   "Author": "Sharpapp Marek Łańduch",
   "DisplayOrder": 1,
   "FileName": "Nop.Plugin.Payments.PayU.dll",

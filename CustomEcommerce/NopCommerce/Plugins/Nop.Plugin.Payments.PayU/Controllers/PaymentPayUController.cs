@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Nop.Core;
@@ -10,6 +8,7 @@ using Nop.Plugin.Payments.PayU.Services;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
+using Nop.Services.Messages;
 using Nop.Services.Security;
 using Nop.Services.Stores;
 using Nop.Web.Framework;
@@ -26,16 +25,19 @@ namespace Nop.Plugin.Payments.PayU.Controllers
         private readonly ILocalizationService _localizationService;
         private readonly IPayUService _payUService;
         private readonly IStoreContext _storeContext;
+        private readonly INotificationService _notificationService;
+
 
         public PaymentPayUController(
             ILogger logger,
             IStoreService storeService,
-            ISettingService settingService, 
+            ISettingService settingService,
             IPermissionService permissionService,
             ILocalizationService localizationService,
             IPayUService payUService,
             IWorkContext workContext,
-            IStoreContext storeContext)
+            IStoreContext storeContext,
+            INotificationService notificationService)
         {
             _logger = logger;
             _settingService = settingService;
@@ -43,14 +45,15 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             _localizationService = localizationService;
             _payUService = payUService;
             _storeContext = storeContext;
+            _notificationService = notificationService;
         }
 
         [AuthorizeAdmin]
-        [Area(AreaNames.Admin)]
-        public IActionResult Configure()
+        [Area(AreaNames.ADMIN)]
+        public async Task<IActionResult> Configure()
         {
-            var storeScope = _storeContext.ActiveStoreScopeConfiguration;
-            var payUPaymentSettings = _settingService.LoadSetting<PayUPaymentSettings>(storeScope);
+            var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var payUPaymentSettings = await _settingService.LoadSettingAsync<PayUPaymentSettings>(storeScope);
 
             var model = new ConfigurationModel()
             {
@@ -66,21 +69,16 @@ namespace Nop.Plugin.Payments.PayU.Controllers
         }
 
         [HttpPost]
-        [AuthorizeAdmin]
-        [AdminAntiForgery]
-        [Area(AreaNames.Admin)]
-        public IActionResult Configure(ConfigurationModel model)
+        [CheckPermission(StandardPermission.Configuration.MANAGE_PAYMENT_METHODS)]
+        [Area(AreaNames.ADMIN)]
+        public async Task<IActionResult> Configure(ConfigurationModel model)
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManagePaymentMethods))
-            {
-                return AccessDeniedView();
-            }
 
             if (!ModelState.IsValid)
                 return View("~/Plugins/Payments.PayU/Views/Configure.cshtml", model);
 
-            var storeScope = _storeContext.ActiveStoreScopeConfiguration;
-            var payUPaymentSettings = _settingService.LoadSetting<PayUPaymentSettings>(storeScope);
+            var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var payUPaymentSettings = await _settingService.LoadSettingAsync<PayUPaymentSettings>(storeScope);
 
             payUPaymentSettings.UseSandbox = model.UseSandbox;
             payUPaymentSettings.SandboxClientId = model.SandboxClientId;
@@ -91,32 +89,32 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             payUPaymentSettings.ClientSecret = model.ClientSecret;
             payUPaymentSettings.SecondKey = model.SecondKey;
 
-            _settingService.SaveSettingOverridablePerStore(payUPaymentSettings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
                 x => x.UseSandbox, model.UseSandboxOverrideForStore, storeScope, false);
 
-            _settingService.SaveSettingOverridablePerStore(payUPaymentSettings,
-                x => x.SandboxClientId, model.SandboxClientIdOverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
+                 x => x.SandboxClientId, model.SandboxClientIdOverrideForStore, storeScope, false);
 
-            _settingService.SaveSettingOverridablePerStore(payUPaymentSettings,
-                x => x.SandboxClientSecret, model.SandboxClientSecretOverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
+                 x => x.SandboxClientSecret, model.SandboxClientSecretOverrideForStore, storeScope, false);
 
-            _settingService.SaveSettingOverridablePerStore(payUPaymentSettings,
-                x => x.SandboxSecondKey, model.SandboxSecondKeyOverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
+                 x => x.SandboxSecondKey, model.SandboxSecondKeyOverrideForStore, storeScope, false);
 
-            _settingService.SaveSettingOverridablePerStore(payUPaymentSettings,
-                x => x.ClientId, model.ClientIdOverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
+                 x => x.ClientId, model.ClientIdOverrideForStore, storeScope, false);
 
-            _settingService.SaveSettingOverridablePerStore(payUPaymentSettings,
-                x => x.ClientSecret, model.ClientSecretOverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
+                 x => x.ClientSecret, model.ClientSecretOverrideForStore, storeScope, false);
 
-            _settingService.SaveSettingOverridablePerStore(payUPaymentSettings,
-                x => x.SecondKey, model.SecondKeyOverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
+                  x => x.SecondKey, model.SecondKeyOverrideForStore, storeScope, false);
 
-            _settingService.ClearCache();
+            await _settingService.ClearCacheAsync();
 
-            SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));
+            _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
 
-            return View("~/Plugins/Payments.PayU/Views/Configure.cshtml", model);
+            return await Configure();
         }
 
         [HttpPost]
@@ -137,7 +135,7 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             }
 
             var isRefundNotification = JObject.Parse(body)["refund"];
-            if (isRefundNotification !=  null)
+            if (isRefundNotification != null)
             {
                 var refundNotification = Newtonsoft.Json.JsonConvert.DeserializeObject<NotificationRefund>(body);
                 _logger.Information($"Refund notification, order extId: {refundNotification?.ExtOrderId}, order status: {refundNotification?.Refund?.Status}");
