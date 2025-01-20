@@ -5,11 +5,11 @@ namespace Nop.Plugin.Payments.PayU
     public class PayUPaymentSettings : ISettings
     {
         public bool UseSandbox { get; set; }
-        public string SandboxClientId { get; set; }
-        public string SandboxClientSecret { get; set; }
-        public string SandboxSecondKey { get; set; }
-        public string ClientId { get; set; }
-        public string ClientSecret { get; set; }
-        public string SecondKey { get; set; }
+        public string AccountId { get; set; }
+        public string MerchantId { get; set; }
+        public string ClientLoginId { get; set; }
+        public string ClientSecretKey { get; set; }
+        public string ClientPublicKey { get; set; }
+        public string PaymentDescription { get; set; }
     }
 }

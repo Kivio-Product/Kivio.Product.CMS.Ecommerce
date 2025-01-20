@@ -28,22 +28,11 @@ namespace Nop.Plugin.Payments.PayU.Services
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly ICurrencyService _currencyService;
         private readonly IOrderService _orderService;
+        private readonly IWorkContext _workContext;
 
         private string GetPayUUrl => _payUPaymentSettings.UseSandbox
             ? "https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu"
             : "https://checkout.payulatam.com/ppp-web-gateway-payu";
-
-        private string ClientId => _payUPaymentSettings.UseSandbox
-            ? _payUPaymentSettings.SandboxClientId
-            : _payUPaymentSettings.ClientId;
-
-        private string ClientSecret => _payUPaymentSettings.UseSandbox
-            ? _payUPaymentSettings.SandboxClientSecret
-            : _payUPaymentSettings.ClientSecret;
-
-        private string SecondKey => _payUPaymentSettings.UseSandbox
-            ? _payUPaymentSettings.SandboxSecondKey
-            : _payUPaymentSettings.SecondKey;
 
         public PayUService(
             ILogger logger,
@@ -52,7 +41,8 @@ namespace Nop.Plugin.Payments.PayU.Services
             IWebHelper webHelper,
             IOrderProcessingService orderProcessingService,
             ICurrencyService currencyService,
-            IOrderService orderService)
+            IOrderService orderService,
+            IWorkContext workContext)
         {
             _logger = logger;
             _payUPaymentSettings = payUPaymentSettings;
@@ -61,36 +51,34 @@ namespace Nop.Plugin.Payments.PayU.Services
             _orderProcessingService = orderProcessingService;
             _currencyService = currencyService;
             _orderService = orderService;
+            _workContext = workContext;
         }
 
-        public void RedirectToPayUPayment(PostProcessPaymentRequest postProcessPaymentRequest)
+        public async void RedirectToPayUPayment(PostProcessPaymentRequest postProcessPaymentRequest)
         {
-            // Datos del comercio y las credenciales
-            string merchantId = "508029"; // ID del comercio (PayU)
-            string accountId = "512321"; // ID de cuenta (PayU)
-            string apiKey = "4Vj8eK4rloUd272L48hsrarnUA"; // Clave API de PayU
+            string merchantId = _payUPaymentSettings.MerchantId; // ID del comercio (PayU)
+            string accountId = _payUPaymentSettings.AccountId; // ID de cuenta (PayU)
+            string apiKey = _payUPaymentSettings.ClientSecretKey; // Clave API de PayU
             string currency = "COP"; // Moneda de la transacción
-            string description = "Compra en NopCommerce"; // Descripción de la transacción
-            string testMode = "1"; // 1 = Sandbox, 0 = Producción
+            string description = _payUPaymentSettings.PaymentDescription; // Descripción de la transacción
+            string testMode = _payUPaymentSettings.UseSandbox ? "1" : "0"; // 1 = Sandbox, 0 = Producción
 
-            // Obtiene los detalles del pedido
             var order = postProcessPaymentRequest.Order;
-            var referenceCode = $"Order_{order.Id}"; // Código de referencia único
+            var referenceCode = $"Orden_{order.Id}"; // Código de referencia único
             var amount = order.OrderTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture); // Monto con formato decimal
             var tax = "0"; // Impuestos aplicados
             var taxReturnBase = "0"; // Base de devolución de impuestos
 
-            // URLs de respuesta y confirmación
-            string responseUrl = $"{_webHelper.GetStoreLocation()}Plugins/PaymentPayU/Response";
-            string confirmationUrl = $"{_webHelper.GetStoreLocation()}Plugins/PaymentPayU/Confirmation";
+            var currentCustomer = await _workContext.GetCurrentCustomerAsync();            
 
-            // Generación de la firma
+            string responseUrl = $"{_webHelper.GetStoreLocation()}Plugins/PaymentPayU/Return";
+            string confirmationUrl = $"{_webHelper.GetStoreLocation()}Plugins/PaymentPayU/ProcessingPayment?orderId={order.Id}";
+
             string signatureString = $"{apiKey}~{merchantId}~{referenceCode}~{amount}~{currency}";
             string signature = GenerateMD5Hash(signatureString); // Método para calcular MD5
 
-            // Crear formulario HTML para redirección
             var formBuilder = new StringBuilder();
-            formBuilder.AppendLine("<form id='payuForm' method='post' action='https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu/'>");
+            formBuilder.AppendLine($"<form id='payuForm' method='post' action='{GetPayUUrl}'>");
             formBuilder.AppendLine($"<input name='merchantId' type='hidden' value='{merchantId}' />");
             formBuilder.AppendLine($"<input name='accountId' type='hidden' value='{accountId}' />");
             formBuilder.AppendLine($"<input name='description' type='hidden' value='{description}' />");
@@ -101,17 +89,98 @@ namespace Nop.Plugin.Payments.PayU.Services
             formBuilder.AppendLine($"<input name='currency' type='hidden' value='{currency}' />");
             formBuilder.AppendLine($"<input name='signature' type='hidden' value='{signature}' />");
             formBuilder.AppendLine($"<input name='test' type='hidden' value='{testMode}' />");
-            formBuilder.AppendLine($"<input name='buyerEmail' type='hidden' value='arnedoesu@gmail.com' />");
+            formBuilder.AppendLine($"<input name='buyerEmail' type='hidden' value='{currentCustomer.Email}' />");
             formBuilder.AppendLine($"<input name='responseUrl' type='hidden' value='{responseUrl}' />");
             formBuilder.AppendLine($"<input name='confirmationUrl' type='hidden' value='{confirmationUrl}' />");
             formBuilder.AppendLine("<input type='submit' value='Pagar ahora' />");
             formBuilder.AppendLine("</form>");
             formBuilder.AppendLine("<script>document.getElementById('payuForm').submit();</script>");
 
-            // Enviar el formulario al cliente
             _httpContextAccessor.HttpContext.Response.Clear();
             _httpContextAccessor.HttpContext.Response.ContentType = "text/html";
             _httpContextAccessor.HttpContext.Response.WriteAsync(formBuilder.ToString()).Wait();
+        }
+
+        public async Task<(bool succeeded, int orderId)> ReturnAsync(PaymentResponse paymentResponse)
+        {
+            if (paymentResponse == null || string.IsNullOrEmpty(paymentResponse.ReferenceCode))
+            {
+                _logger.Error("PaymentResponse no contiene información válida.");
+                return (false, 0);
+            }
+
+            var order = await GetOrderByResponseAsync(paymentResponse);
+            if (order == null)
+            {
+                _logger.Error($"No se encontró el pedido para la referencia {paymentResponse.ReferenceCode}");
+                return (false, 0);
+            }
+
+            if (order.PaymentStatus == PaymentStatus.Paid)
+            {
+                _logger.Information($"La transacción ya fue procesada para el pedido {order.Id}");
+                return (true, order.Id);
+            }
+
+            // Ajustar el valor de TX_VALUE según las reglas de redondeo
+            var roundedValue = RoundToPayURules(paymentResponse.TXValue);
+
+            // Generar la cadena para la firma
+            var signatureString = $"{_payUPaymentSettings.ClientSecretKey}~{paymentResponse.MerchantId}~{paymentResponse.ReferenceCode}~{roundedValue.ToString("F1", CultureInfo.InvariantCulture)}~{paymentResponse.Currency}~{paymentResponse.TransactionState}";
+            var expectedSignature = GenerateMD5Hash(signatureString);
+
+            // Validar la firma
+            if (!string.Equals(expectedSignature, paymentResponse.Signature, StringComparison.InvariantCultureIgnoreCase))
+            {
+                _logger.Error($"Firma no válida para la referencia {paymentResponse.ReferenceCode}. Esperado: {expectedSignature}, recibido: {paymentResponse.Signature}");
+                OrderRejectedAsync(order);
+                return (false, order.Id);
+            }
+
+            return ProcessTransactionState(paymentResponse, order);
+        }
+
+        private decimal RoundToPayURules(decimal value)
+        {
+            var rounded = Math.Round(value, 1, MidpointRounding.ToEven); // "Round half to even"
+            return rounded;
+        }
+
+        private (bool succeeded, int orderId) ProcessTransactionState(PaymentResponse paymentResponse, Order order)
+        {
+            var stateMessage = paymentResponse.TransactionState switch
+            {
+                4 => "Transacción aprobada",
+                6 => "Transacción rechazada",
+                104 => "Error en la transacción",
+                7 => "Pago pendiente",
+                _ => "Estado desconocido"
+            };
+
+            _logger.Information($"{stateMessage} para el pedido {order.Id}");
+
+            switch (paymentResponse.TransactionState)
+            {
+                case 4: // Transacción aprobada
+                    OrderCompletedAsync(order);
+                    return (true, order.Id);
+
+                case 6: // Transacción rechazada
+                    OrderRejectedAsync(order);
+                    return (false, order.Id);
+
+                case 104: // Error en la transacción
+                    OrderCanceledAsync(order);
+                    return (false, order.Id);
+
+                case 7: // Pago pendiente
+                    OrderPendingAsync(order);
+                    return (true, order.Id);
+
+                default: // Estado desconocido
+                    OrderRejectedAsync(order);
+                    return (false, order.Id);
+            }
         }
 
         // Método para generar el hash MD5
@@ -141,51 +210,20 @@ namespace Nop.Plugin.Payments.PayU.Services
             switch (notification.Order.Status.ToUpperInvariant())
             {
                 case "PENDING":
-                    OrderPending(order);
+                    OrderPendingAsync(order);
                     break;
                 case "WAITING_FOR_CONFIRMATION":
                     //Not implemented. This status is only available when "auto odbiór" is disabled in PayU settings.
                     break;
                 case "COMPLETED":
-                    OrderCompleted(notification, order);
+                    OrderCompletedAsync(order);
                     break;
                 case "CANCELED":
-                    OrderCanceled(order);
+                    OrderCanceledAsync(order);
                     break;
                 case "REJECTED":
-                    OrderRejected(order);
+                    OrderRejectedAsync(order);
                     break;
-            }
-        }
-
-        public async Task<RefundPaymentResult> Refund(RefundPaymentRequest refundPaymentRequest)
-        {
-            if (string.IsNullOrEmpty(refundPaymentRequest?.Order?.CaptureTransactionId))
-            {
-                return RefundPayUOrderIdNotFound();
-            }
-
-            var bearer = GetAuthorizationData().AccessToken;
-
-            using (var httpClient = new HttpClient(new HttpClientHandler
-            {
-                AllowAutoRedirect = false
-            })
-            {
-                BaseAddress = new Uri(GetPayUUrl)
-            })
-            {
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
-                httpClient.DefaultRequestHeaders
-                    .Accept
-                    .Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                var content = await GetRefundJson(refundPaymentRequest);
-
-                using (var response = httpClient.PostAsync($"/api/v2_1/orders/{refundPaymentRequest.Order.CaptureTransactionId}/refunds", content).Result)
-                {
-                    return RefundResult((int)response.StatusCode, refundPaymentRequest.IsPartialRefund);
-                }
             }
         }
 
@@ -199,88 +237,12 @@ namespace Nop.Plugin.Payments.PayU.Services
             var algorithmMatch = Regex.Match(openPayUSignature, "(algorithm=)([A-z,0-9,-]*)");
             var algorithm = algorithmMatch.Groups[2].Value;
 
-            var verifyHash = GenerateHash(algorithm, body + SecondKey);
+            var verifyHash = GenerateHash(algorithm, body);
 
             return verifyHash == signature.ToLower();
         }
 
-        private AuthorizationRequest GetAuthorizationData()
-        {
-            using (var httpClient = new HttpClient { BaseAddress = new Uri(GetPayUUrl) })
-            {
-                var content =
-                    new StringContent(
-                        $"grant_type=client_credentials&client_id={ClientId}&client_secret={ClientSecret}",
-                        Encoding.Default,
-                        "application/x-www-form-urlencoded");
-                using (var response = httpClient.PostAsync("/pl/standard/user/oauth/authorize", content).Result)
-                {
-                    AuthorizationRequest authRequest;
-                    try
-                    {
-                        response.EnsureSuccessStatusCode();
-                        var responseContent = response.Content.ReadAsStringAsync().Result;
-                        authRequest = JsonConvert.DeserializeObject<AuthorizationRequest>(responseContent);
-                    }
-                    catch
-                    {
-                        authRequest = null;
-                    }
-
-                    return authRequest;
-                }
-            }
-        }
-
-        private async Task<OrderRequest> PrepareOrder(PostProcessPaymentRequest postProcessPaymentRequest)
-        {
-            var orderId = postProcessPaymentRequest.Order.Id.ToString();
-
-            var targetCurrency =
-                await _currencyService.GetCurrencyByCodeAsync(postProcessPaymentRequest.Order.CustomerCurrencyCode);
-
-            var orderTotal = await PriceInPayUStandard(postProcessPaymentRequest.Order.OrderTotal, targetCurrency);
-
-            var result = new OrderRequest
-            {
-                ExtOrderId = orderId,
-                NotifyUrl = $"{_webHelper.GetStoreLocation()}Plugins/PaymentPayU/Notify",
-                ContinueUrl = $"{_webHelper.GetStoreLocation()}Plugins/PaymentPayU/ProcessingPayment?orderId={orderId}",
-                BuyerRequest = new BuyerRequest
-                {
-                    ExtCustomerId = postProcessPaymentRequest.Order.CustomerId.ToString(),
-                    Email = postProcessPaymentRequest.Order.CustomerId.ToString(), // Cambiar por email del cliente
-                },
-                CurrencyCode = postProcessPaymentRequest.Order.CustomerCurrencyCode,
-                CustomerIp = postProcessPaymentRequest.Order.CustomerIp,
-                Description = $"External id {orderId}",
-                MerchantPosId = ClientId,
-                TotalAmount = orderTotal.ToString(), // CultureInfo.InvariantCulture
-                Products = new List<ProductRequest>()
-            };
-
-            // foreach (var item in postProcessPaymentRequest.Order.)
-            // {
-            //     var itemPrice = PriceInPayUStandard(item.UnitPriceInclTax, targetCurrency);
-
-            //     result.Products.Add(new ProductRequest
-            //     {
-            //         Name = item.Product.Name,
-            //         Quantity = item.Quantity.ToString(),
-            //         UnitPrice = itemPrice.ToString(CultureInfo.InvariantCulture)
-            //     });
-            // }
-
-            return result;
-        }
-
-        private async Task<decimal> PriceInPayUStandard(decimal price, Currency targetCurrency)
-        {
-            return Math.Round(await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(price * 100, targetCurrency),
-                MidpointRounding.ToEven);
-        }
-
-        private async void OrderPending(Order order)
+        private async void OrderPendingAsync(Order order)
         {
             await _orderService.InsertOrderNoteAsync(new OrderNote
             {
@@ -294,47 +256,13 @@ namespace Nop.Plugin.Payments.PayU.Services
             await _orderService.UpdateOrderAsync(order);
         }
 
-        private async void OrderCompleted(Notification notification, Order order)
+        private async void OrderCompletedAsync(Order order)
         {
-            if (!decimal.TryParse(notification?.Order?.TotalAmount, out var totalAmount))
+            if (_orderProcessingService.CanMarkOrderAsPaid(order))
             {
-                return;
-            }
-
-            var targetCurrency =
-                await _currencyService.GetCurrencyByCodeAsync(order.CustomerCurrencyCode);
-
-            var orderTotal = await PriceInPayUStandard(order.OrderTotal, targetCurrency);
-
-            if (totalAmount == orderTotal)
-            {
-                if (_orderProcessingService.CanMarkOrderAsPaid(order))
-                {
-                    order.CaptureTransactionId = notification?.Order?.OrderId;
-
-                    await _orderService.InsertOrderNoteAsync(new OrderNote
-                    {
-                        Note = $"PayU order id {order.CaptureTransactionId}",
-                        DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = order.Id,
-                        Id = order.Id
-                    });
-
-                    await _orderService.UpdateOrderAsync(order);
-                    await _orderProcessingService.MarkOrderAsPaidAsync(order);
-                }
-            }
-            else
-            {
-                var error =
-                    $"PayU order id {notification?.Order?.OrderId}. Order id {order.Id}. PayU returned order total {totalAmount}. Order total should be equal to {order.OrderTotal}.";
-
-                _logger.Error(error);
-
                 await _orderService.InsertOrderNoteAsync(new OrderNote
                 {
-                    Note = error,
+                    Note = $"PayU order id {order.CaptureTransactionId}",
                     DisplayToCustomer = false,
                     CreatedOnUtc = DateTime.UtcNow,
                     OrderId = order.Id,
@@ -342,10 +270,12 @@ namespace Nop.Plugin.Payments.PayU.Services
                 });
 
                 await _orderService.UpdateOrderAsync(order);
+                await _orderProcessingService.MarkOrderAsPaidAsync(order);
             }
+
         }
 
-        private async void OrderCanceled(Order order)
+        private async void OrderCanceledAsync(Order order)
         {
             if (_orderProcessingService.CanCancelOrder(order))
             {
@@ -363,9 +293,9 @@ namespace Nop.Plugin.Payments.PayU.Services
             await _orderService.UpdateOrderAsync(order);
         }
 
-        private async void OrderRejected(Order order)
+        private async void OrderRejectedAsync(Order order)
         {
-            OrderCanceled(order);
+            OrderCanceledAsync(order);
 
             await _orderService.InsertOrderNoteAsync(new OrderNote
             {
@@ -377,66 +307,6 @@ namespace Nop.Plugin.Payments.PayU.Services
             });
 
             await _orderService.UpdateOrderAsync(order);
-        }
-
-        private RefundPaymentResult RefundPayUOrderIdNotFound()
-        {
-            var refund = new RefundPaymentResult();
-            var error =
-                "PayU order id not found. Probably payment settled manually. Refund can be done using PayU site.";
-            refund.Errors.Add(error);
-            _logger.Error(error);
-
-            return refund;
-        }
-
-        private RefundPaymentResult RefundResult(int statusCode, bool partialRefund)
-        {
-            switch (statusCode)
-            {
-                case 200:
-                case 204:
-                    return new RefundPaymentResult
-                    {
-                        NewPaymentStatus = partialRefund ? PaymentStatus.PartiallyRefunded : PaymentStatus.Refunded
-                    };
-                default:
-                    var error = $"PayU refund error code {statusCode}";
-                    _logger.Error(error);
-                    return new RefundPaymentResult
-                    {
-                        Errors = new List<string>
-                        {
-                            error
-                        }
-                    };
-            }
-        }
-
-        private async Task<StringContent> GetRefundJson(RefundPaymentRequest refundPaymentRequest)
-        {
-            var refundData = new RefundRequest();
-            if (refundPaymentRequest.IsPartialRefund)
-            {
-                var targetCurrency = await _currencyService.GetCurrencyByCodeAsync(refundPaymentRequest.Order.CustomerCurrencyCode);
-                var refundAmount = await PriceInPayUStandard(refundPaymentRequest.AmountToRefund, targetCurrency);
-                refundData.Refund = new ParialRefundDataRequest
-                {
-                    Amount = refundAmount.ToString(),
-                    Description = $"Partial refund, amount: {refundAmount} {targetCurrency.CurrencyCode}"
-                };
-            }
-            else
-            {
-                refundData.Refund = new RefundDataRequest
-                {
-                    Description = "Full refund"
-                };
-            }
-
-            var refundJson = JsonConvert.SerializeObject(refundData);
-
-            return new StringContent(refundJson, Encoding.UTF8, "application/json");
         }
 
         private string GenerateHash(string hashName, string input)
@@ -456,6 +326,13 @@ namespace Nop.Plugin.Payments.PayU.Services
                     _logger.Error(error);
                     throw new Exception(error);
             }
+        }
+
+        private async Task<Order> GetOrderByResponseAsync(PaymentResponse paymentResponse)
+        {
+            var orderId = int.Parse(paymentResponse.ReferenceCode.Split('_')[1]);
+
+            return await _orderService.GetOrderByIdAsync(orderId);
         }
     }
 }

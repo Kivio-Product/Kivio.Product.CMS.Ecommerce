@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Nop.Core;
 using Nop.Plugin.Payments.PayU.Models;
-using Nop.Plugin.Payments.PayU.Models.Notifications;
 using Nop.Plugin.Payments.PayU.Services;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
@@ -59,10 +58,12 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             {
                 ActiveStoreScopeConfiguration = storeScope,
                 UseSandbox = payUPaymentSettings.UseSandbox,
-                SandboxClientId = payUPaymentSettings.SandboxClientId,
-                SandboxClientSecret = payUPaymentSettings.SandboxClientSecret,
-                ClientId = payUPaymentSettings.ClientId,
-                ClientSecret = payUPaymentSettings.ClientSecret
+                AccountId = payUPaymentSettings.AccountId,
+                MerchantId = payUPaymentSettings.MerchantId,
+                ClientLoginId = payUPaymentSettings.ClientLoginId,
+                ClientSecretKey = payUPaymentSettings.ClientSecretKey,
+                ClientPublicKey = payUPaymentSettings.ClientPublicKey,
+                PaymentDescription = payUPaymentSettings.PaymentDescription
             };
 
             return View("~/Plugins/Payments.PayU/Views/Configure.cshtml", model);
@@ -81,34 +82,33 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             var payUPaymentSettings = await _settingService.LoadSettingAsync<PayUPaymentSettings>(storeScope);
 
             payUPaymentSettings.UseSandbox = model.UseSandbox;
-            payUPaymentSettings.SandboxClientId = model.SandboxClientId;
-            payUPaymentSettings.SandboxClientSecret = model.SandboxClientSecret;
-            payUPaymentSettings.SandboxSecondKey = model.SandboxSecondKey;
-
-            payUPaymentSettings.ClientId = model.ClientId;
-            payUPaymentSettings.ClientSecret = model.ClientSecret;
-            payUPaymentSettings.SecondKey = model.SecondKey;
+            payUPaymentSettings.AccountId = model.AccountId;
+            payUPaymentSettings.MerchantId = model.MerchantId;
+            payUPaymentSettings.ClientLoginId = model.ClientLoginId;
+            payUPaymentSettings.ClientSecretKey = model.ClientSecretKey;
+            payUPaymentSettings.ClientPublicKey = model.ClientPublicKey;
+            payUPaymentSettings.PaymentDescription = model.PaymentDescription;
 
             await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
                 x => x.UseSandbox, model.UseSandboxOverrideForStore, storeScope, false);
 
             await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
-                 x => x.SandboxClientId, model.SandboxClientIdOverrideForStore, storeScope, false);
+                 x => x.AccountId, model.AccountIdOverrideForStore, storeScope, false);
 
             await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
-                 x => x.SandboxClientSecret, model.SandboxClientSecretOverrideForStore, storeScope, false);
+                 x => x.MerchantId, model.MerchantIdOverrideForStore, storeScope, false);
 
             await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
-                 x => x.SandboxSecondKey, model.SandboxSecondKeyOverrideForStore, storeScope, false);
+                 x => x.ClientLoginId, model.ClientLoginIdOverrideForStore, storeScope, false);
 
             await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
-                 x => x.ClientId, model.ClientIdOverrideForStore, storeScope, false);
+                 x => x.ClientSecretKey, model.ClientSecretKeyOverrideForStore, storeScope, false);
 
             await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
-                 x => x.ClientSecret, model.ClientSecretOverrideForStore, storeScope, false);
+                 x => x.ClientPublicKey, model.ClientPublicKeyOverrideForStore, storeScope, false);
 
             await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
-                  x => x.SecondKey, model.SecondKeyOverrideForStore, storeScope, false);
+                  x => x.PaymentDescription, model.PaymentDescriptionOverrideForStore, storeScope, false);
 
             await _settingService.ClearCacheAsync();
 
@@ -117,38 +117,55 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             return await Configure();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Notify()
+        // [HttpPost]
+        // public async Task<IActionResult> Notify()
+        // {
+        //     string body;
+        //     using (var reader = new StreamReader(Request.Body, Encoding.UTF8))
+        //     {
+        //         body = await reader.ReadToEndAsync();
+        //     }
+
+        //     var verifySignature = _payUService.VerifySignature(body);
+
+        //     if (!verifySignature)
+        //     {
+        //         _logger.Error($"PayU signature error. Body {body}. OpenPayU-Signature: {Request.Headers["OpenPayu-Signature"]}");
+        //         return Ok();
+        //     }
+
+        //     var isRefundNotification = JObject.Parse(body)["refund"];
+        //     if (isRefundNotification != null)
+        //     {
+        //         var refundNotification = Newtonsoft.Json.JsonConvert.DeserializeObject<NotificationRefund>(body);
+        //         _logger.Information($"Refund notification, order extId: {refundNotification?.ExtOrderId}, order status: {refundNotification?.Refund?.Status}");
+
+        //         return Ok();
+        //     }
+
+        //     var notification = Newtonsoft.Json.JsonConvert.DeserializeObject<Notification>(body);
+        //     _logger.Information($"Notification, order extId: {notification?.Order?.ExtOrderId}, order status: {notification?.Order?.Status}");
+        //     //_payUService.Notify(notification);
+
+        //     return Ok();
+        // }
+
+
+        [HttpGet]
+         public async Task<IActionResult> Return()
         {
-            string body;
-            using (var reader = new StreamReader(Request.Body, Encoding.UTF8))
+            var paymentResponse = PaymentResponse.FromHttpRequest(HttpContext.Request);
+
+            var (succeeded, orderId) = await this._payUService.ReturnAsync(paymentResponse);
+
+            if (!succeeded)
             {
-                body = await reader.ReadToEndAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
             }
 
-            var verifySignature = _payUService.VerifySignature(body);
-
-            if (!verifySignature)
-            {
-                _logger.Error($"PayU signature error. Body {body}. OpenPayU-Signature: {Request.Headers["OpenPayu-Signature"]}");
-                return Ok();
-            }
-
-            var isRefundNotification = JObject.Parse(body)["refund"];
-            if (isRefundNotification != null)
-            {
-                var refundNotification = Newtonsoft.Json.JsonConvert.DeserializeObject<NotificationRefund>(body);
-                _logger.Information($"Refund notification, order extId: {refundNotification?.ExtOrderId}, order status: {refundNotification?.Refund?.Status}");
-
-                return Ok();
-            }
-
-            var notification = Newtonsoft.Json.JsonConvert.DeserializeObject<Notification>(body);
-            _logger.Information($"Notification, order extId: {notification?.Order?.ExtOrderId}, order status: {notification?.Order?.Status}");
-            _payUService.Notify(notification);
-
-            return Ok();
+            return RedirectToRoute("CheckoutCompleted", new { orderId = orderId });
         }
+
 
         public IActionResult ProcessingPayment(int orderId)
         {
