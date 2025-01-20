@@ -117,40 +117,6 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             return await Configure();
         }
 
-        // [HttpPost]
-        // public async Task<IActionResult> Notify()
-        // {
-        //     string body;
-        //     using (var reader = new StreamReader(Request.Body, Encoding.UTF8))
-        //     {
-        //         body = await reader.ReadToEndAsync();
-        //     }
-
-        //     var verifySignature = _payUService.VerifySignature(body);
-
-        //     if (!verifySignature)
-        //     {
-        //         _logger.Error($"PayU signature error. Body {body}. OpenPayU-Signature: {Request.Headers["OpenPayu-Signature"]}");
-        //         return Ok();
-        //     }
-
-        //     var isRefundNotification = JObject.Parse(body)["refund"];
-        //     if (isRefundNotification != null)
-        //     {
-        //         var refundNotification = Newtonsoft.Json.JsonConvert.DeserializeObject<NotificationRefund>(body);
-        //         _logger.Information($"Refund notification, order extId: {refundNotification?.ExtOrderId}, order status: {refundNotification?.Refund?.Status}");
-
-        //         return Ok();
-        //     }
-
-        //     var notification = Newtonsoft.Json.JsonConvert.DeserializeObject<Notification>(body);
-        //     _logger.Information($"Notification, order extId: {notification?.Order?.ExtOrderId}, order status: {notification?.Order?.Status}");
-        //     //_payUService.Notify(notification);
-
-        //     return Ok();
-        // }
-
-
         [HttpGet]
          public async Task<IActionResult> Return()
         {
@@ -169,6 +135,7 @@ namespace Nop.Plugin.Payments.PayU.Controllers
 
         public IActionResult ProcessingPayment(int orderId)
         {
+            this._payUService.CompleteOrderById(orderId);
             return RedirectToRoute("CheckoutCompleted", new { orderId });
         }
     }

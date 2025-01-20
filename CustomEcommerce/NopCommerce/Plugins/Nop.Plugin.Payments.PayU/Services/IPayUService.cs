@@ -10,6 +10,7 @@ namespace Nop.Plugin.Payments.PayU.Services
         //void Notify(Notification notification);
         //Task<RefundPaymentResult> Refund(RefundPaymentRequest refundPaymentRequest);
         bool VerifySignature(string body);
+        void CompleteOrderById(int orderId);
         public Task<(bool succeeded, int orderId)> ReturnAsync(PaymentResponse paymentResponse);
     }
 }

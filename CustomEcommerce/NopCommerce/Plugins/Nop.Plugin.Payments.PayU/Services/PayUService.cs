@@ -183,6 +183,12 @@ namespace Nop.Plugin.Payments.PayU.Services
             }
         }
 
+        public async void CompleteOrderById(int orderId){
+            var order = await _orderService.GetOrderByIdAsync(orderId);
+
+            OrderCompletedAsync(order);
+        }
+
         // Método para generar el hash MD5
         private string GenerateMD5Hash(string input)
         {
