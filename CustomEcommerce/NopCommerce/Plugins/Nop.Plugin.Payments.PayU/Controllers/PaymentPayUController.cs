@@ -1,6 +1,4 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
+﻿using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Plugin.Payments.PayU.Models;
 using Nop.Plugin.Payments.PayU.Services;
@@ -20,8 +18,7 @@ namespace Nop.Plugin.Payments.PayU.Controllers
     {
         private readonly ILogger _logger;
         private readonly ISettingService _settingService;
-        private readonly IPermissionService _permissionService;
-        private readonly ILocalizationService _localizationService;
+                private readonly ILocalizationService _localizationService;
         private readonly IPayUService _payUService;
         private readonly IStoreContext _storeContext;
         private readonly INotificationService _notificationService;
@@ -29,18 +26,14 @@ namespace Nop.Plugin.Payments.PayU.Controllers
 
         public PaymentPayUController(
             ILogger logger,
-            IStoreService storeService,
             ISettingService settingService,
-            IPermissionService permissionService,
             ILocalizationService localizationService,
             IPayUService payUService,
-            IWorkContext workContext,
             IStoreContext storeContext,
             INotificationService notificationService)
         {
             _logger = logger;
             _settingService = settingService;
-            _permissionService = permissionService;
             _localizationService = localizationService;
             _payUService = payUService;
             _storeContext = storeContext;
@@ -122,7 +115,7 @@ namespace Nop.Plugin.Payments.PayU.Controllers
         {
             var paymentResponse = PaymentResponse.FromHttpRequest(HttpContext.Request);
 
-            var (succeeded, orderId) = await this._payUService.ReturnAsync(paymentResponse);
+            var (succeeded, orderId) = await _payUService.ReturnAsync(paymentResponse);
 
             if (!succeeded)
             {
@@ -133,10 +126,27 @@ namespace Nop.Plugin.Payments.PayU.Controllers
         }
 
 
-        public IActionResult ProcessingPayment(int orderId)
+        [HttpPost]
+        public async Task<IActionResult> Confirm()
         {
-            this._payUService.CompleteOrderById(orderId);
-            return RedirectToRoute("CheckoutCompleted", new { orderId });
+            try
+            {
+                var confirmationResponse = ConfirmationResponse.FromHttpRequest(HttpContext.Request);
+                var (succeeded, orderId) = await _payUService.ConfirmAsync(confirmationResponse);
+
+                if (!succeeded)
+                {
+                    _logger.Error($"Fallo en la confirmación del pedido con ID {orderId}.");
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Error procesando la confirmación de PayU: {ex.Message}", ex);
+
+                return Ok();
+            }
         }
     }
 }

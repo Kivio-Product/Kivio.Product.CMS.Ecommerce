@@ -69,10 +69,10 @@ namespace Nop.Plugin.Payments.PayU.Services
             var tax = "0"; // Impuestos aplicados
             var taxReturnBase = "0"; // Base de devolución de impuestos
 
-            var currentCustomer = await _workContext.GetCurrentCustomerAsync();            
+            var currentCustomer = await _workContext.GetCurrentCustomerAsync();
 
             string responseUrl = $"{_webHelper.GetStoreLocation()}Plugins/PaymentPayU/Return";
-            string confirmationUrl = $"{_webHelper.GetStoreLocation()}Plugins/PaymentPayU/ProcessingPayment?orderId={order.Id}";
+            string confirmationUrl = $"{_webHelper.GetStoreLocation()}Plugins/PaymentPayU/Confirm";
 
             string signatureString = $"{apiKey}~{merchantId}~{referenceCode}~{amount}~{currency}";
             string signature = GenerateMD5Hash(signatureString); // Método para calcular MD5
@@ -109,7 +109,7 @@ namespace Nop.Plugin.Payments.PayU.Services
                 return (false, 0);
             }
 
-            var order = await GetOrderByResponseAsync(paymentResponse);
+            var order = await GetOrderByReturnResponseAsync(paymentResponse);
             if (order == null)
             {
                 _logger.Error($"No se encontró el pedido para la referencia {paymentResponse.ReferenceCode}");
@@ -137,16 +137,47 @@ namespace Nop.Plugin.Payments.PayU.Services
                 return (false, order.Id);
             }
 
-            return ProcessTransactionState(paymentResponse, order);
+            return ProcessTransactionStateByReturn(paymentResponse, order);
         }
 
-        private decimal RoundToPayURules(decimal value)
+        public async Task<(bool succeeded, int orderId)> ConfirmAsync(ConfirmationResponse confirmationResponse)
         {
-            var rounded = Math.Round(value, 1, MidpointRounding.ToEven); // "Round half to even"
-            return rounded;
+
+
+            if (confirmationResponse == null || string.IsNullOrEmpty(confirmationResponse.ReferenceSale))
+            {
+                _logger.Error("PaymentResponse no contiene información válida.");
+                return (false, 0);
+            }
+
+            var order = await GetOrderByConfirmResponseAsync(confirmationResponse);
+            if (order == null)
+            {
+                _logger.Error($"No se encontró el pedido para la referencia {confirmationResponse.ReferenceSale}");
+                return (false, 0);
+            }
+
+            if (order.PaymentStatus == PaymentStatus.Paid)
+            {
+                _logger.Information($"La transacción ya fue procesada para el pedido {order.Id}");
+                return (true, order.Id);
+            }
+
+            // Generar la cadena para la firma
+            var signatureString = $"{_payUPaymentSettings.ClientSecretKey}~{confirmationResponse.MerchantId}~{confirmationResponse.ReferenceSale}~{confirmationResponse.Value.ToString("F1", CultureInfo.InvariantCulture)}~{confirmationResponse.Currency}~{confirmationResponse.StatePol}";
+            var expectedSignature = GenerateMD5Hash(signatureString);
+
+            if (!string.Equals(expectedSignature, confirmationResponse.Sign, StringComparison.InvariantCultureIgnoreCase))
+            {
+                _logger.Error($"Firma no válida para la referencia {confirmationResponse.ReferenceSale}. Esperado: {expectedSignature}, recibido: {confirmationResponse.Sign}");
+                OrderRejectedAsync(order);
+                return (false, order.Id);
+            }
+
+            return ProcessTransactionStateByConfirm(confirmationResponse, order);
         }
 
-        private (bool succeeded, int orderId) ProcessTransactionState(PaymentResponse paymentResponse, Order order)
+        private (bool succeeded, int orderId) ProcessTransactionStateByReturn(PaymentResponse paymentResponse, Order order)
         {
             var stateMessage = paymentResponse.TransactionState switch
             {
@@ -183,69 +214,52 @@ namespace Nop.Plugin.Payments.PayU.Services
             }
         }
 
-        public async void CompleteOrderById(int orderId){
-            var order = await _orderService.GetOrderByIdAsync(orderId);
-
-            OrderCompletedAsync(order);
-        }
-
-        // Método para generar el hash MD5
-        private string GenerateMD5Hash(string input)
+        private (bool succeeded, int orderId) ProcessTransactionStateByConfirm(ConfirmationResponse paymentResponse, Order order)
         {
-            using (var md5 = System.Security.Cryptography.MD5.Create())
+            var stateMessage = paymentResponse.StatePol switch
             {
-                var inputBytes = Encoding.UTF8.GetBytes(input);
-                var hashBytes = md5.ComputeHash(inputBytes);
-                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
-            }
-        }
+                4 => "Transacción aprobada",
+                6 => "Transacción rechazada",
+                104 => "Error en la transacción",
+                7 => "Pago pendiente",
+                _ => "Estado desconocido"
+            };
 
-        public async void Notify(Notification notification)
-        {
-            if (!int.TryParse(notification.Order.ExtOrderId, out var orderId))
-            {
-                return;
-            }
+            _logger.Information($"{stateMessage} para el pedido {order.Id}");
 
-            var order = await _orderService.GetOrderByIdAsync(orderId);
-            if (order == null)
+            switch (paymentResponse.StatePol)
             {
-                return;
-            }
-
-            switch (notification.Order.Status.ToUpperInvariant())
-            {
-                case "PENDING":
-                    OrderPendingAsync(order);
-                    break;
-                case "WAITING_FOR_CONFIRMATION":
-                    //Not implemented. This status is only available when "auto odbiór" is disabled in PayU settings.
-                    break;
-                case "COMPLETED":
+                case 4: // Transacción aprobada
                     OrderCompletedAsync(order);
-                    break;
-                case "CANCELED":
-                    OrderCanceledAsync(order);
-                    break;
-                case "REJECTED":
+                    return (true, order.Id);
+
+                case 6: // Transacción rechazada
                     OrderRejectedAsync(order);
-                    break;
+                    return (false, order.Id);
+
+                case 104: // Error en la transacción
+                    OrderCanceledAsync(order);
+                    return (false, order.Id);
+
+                default: // Estado desconocido
+                    OrderRejectedAsync(order);
+                    return (false, order.Id);
             }
         }
 
-        public bool VerifySignature(string body)
+        //#region Auxiliar methods 
+
+        private static decimal RoundToPayURules(decimal value)
         {
-            var openPayUSignature = _httpContextAccessor.HttpContext.Request.Headers["OpenPayu-Signature"].ToString();
-
-            var signatureMatch = Regex.Match(openPayUSignature, "(signature=)([A-z,0-9]*)");
-            var signature = signatureMatch.Groups[2].Value;
-
-            var algorithmMatch = Regex.Match(openPayUSignature, "(algorithm=)([A-z,0-9,-]*)");
-            var algorithm = algorithmMatch.Groups[2].Value;
-
-            var verifyHash = GenerateHash(algorithm, body);
-
-            return verifyHash == signature.ToLower();
+            var rounded = Math.Round(value, 1, MidpointRounding.ToEven); // "Round half to even"
+            return rounded;
+        }
+        private static string GenerateMD5Hash(string input)
+        {
+            using var md5 = System.Security.Cryptography.MD5.Create();
+            var inputBytes = Encoding.UTF8.GetBytes(input);
+            var hashBytes = md5.ComputeHash(inputBytes);
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
         }
 
         private async void OrderPendingAsync(Order order)
@@ -315,30 +329,21 @@ namespace Nop.Plugin.Payments.PayU.Services
             await _orderService.UpdateOrderAsync(order);
         }
 
-        private string GenerateHash(string hashName, string input)
-        {
-            switch (hashName.ToLowerInvariant())
-            {
-                case "md5":
-                    return input.ConvertToMd5();
-                case "sha-256":
-                    return input.ConvertToSha256();
-                case "sha-384":
-                    return input.ConvertToSha384();
-                case "sha-512":
-                    return input.ConvertToSha512();
-                default:
-                    var error = $"Hash name: {hashName}. This hash is not supported.";
-                    _logger.Error(error);
-                    throw new Exception(error);
-            }
-        }
-
-        private async Task<Order> GetOrderByResponseAsync(PaymentResponse paymentResponse)
+        private async Task<Order> GetOrderByReturnResponseAsync(PaymentResponse paymentResponse)
         {
             var orderId = int.Parse(paymentResponse.ReferenceCode.Split('_')[1]);
 
             return await _orderService.GetOrderByIdAsync(orderId);
         }
+
+        private async Task<Order> GetOrderByConfirmResponseAsync(ConfirmationResponse paymentResponse)
+        {
+            var orderId = int.Parse(paymentResponse.ReferenceSale.Split('_')[1]);
+
+            return await _orderService.GetOrderByIdAsync(orderId);
+        }
+
+        //#endregion
+
     }
 }

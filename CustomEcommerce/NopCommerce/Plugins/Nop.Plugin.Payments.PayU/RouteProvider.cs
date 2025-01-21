@@ -8,12 +8,10 @@ namespace Nop.Plugin.Payments.PayU
     {
         public void RegisterRoutes(IEndpointRouteBuilder endpointRouteBuilder)
         {
-            endpointRouteBuilder.MapControllerRoute("Plugin.Payments.PayU.Notify", "Plugins/PaymentPayU/Notify",
-                new { controller = "PaymentPayU", action = "Notify" });
             endpointRouteBuilder.MapControllerRoute("Plugin.Payments.PayU.Return", "Plugins/PaymentPayU/Return",
                 new { controller = "PaymentPayU", action = "Return" }); 
-            endpointRouteBuilder.MapControllerRoute("Plugin.Payments.PayU.ProcessingPayment", "Plugins/PaymentPayU/ProcessingPayment",
-                new { controller = "PaymentPayU", action = "ProcessingPayment" });
+            endpointRouteBuilder.MapControllerRoute("Plugin.Payments.PayU.ProcessingPayment", "Plugins/PaymentPayU/Confirm",
+                new { controller = "PaymentPayU", action = "Confirm" });
         }
 
         public int Priority

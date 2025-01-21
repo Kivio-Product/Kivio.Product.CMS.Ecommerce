@@ -2175,6 +2175,14 @@ public partial class CheckoutController : BasePublicController
         {
             // Registrar advertencias en caso de error
             await _logger.WarningAsync(exc.Message, exc, await _workContext.GetCurrentCustomerAsync());
+
+            // Verificar si la respuesta ya comenzó para evitar errores
+            if (HttpContext.Response.HasStarted)
+            {
+                _logger.Error("No se puede devolver contenido, la respuesta ya inició.");
+                return new EmptyResult();
+            }
+
             return Content(exc.Message);
         }
     }

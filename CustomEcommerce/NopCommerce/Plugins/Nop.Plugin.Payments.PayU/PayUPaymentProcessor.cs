@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Nop.Core;
 using Nop.Core.Domain.Orders;
@@ -61,6 +60,7 @@ namespace Nop.Plugin.Payments.PayU
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.ClientSecretKey", "API Key");
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.ClientPublicKey", "Public Key");
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.ClientPublicKey", "Public Key");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.PaymentDescription", "Payment Description");
 
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.PaymentMethodDescription",
                   "You will be redirected to PayU site to complete the payment");
