@@ -95,7 +95,7 @@ namespace Nop.Plugin.Payments.Sermepa
                 {"DS_MERCHANT_CURRENCY", _sermepaPaymentSettings.Moneda.ToString()},
                 {"DS_MERCHANT_TRANSACTIONTYPE", "0"}, // Tipo de transacción: 0 - Autorización
                 {"DS_MERCHANT_TERMINAL", _sermepaPaymentSettings.Terminal},
-                {"DS_MERCHANT_MERCHANTURL", _webHelper.GetStoreLocation(true) + "Plugins/PaymentSermepa/Return"},
+                {"DS_MERCHANT_MERCHANTURL", _webHelper.GetStoreLocation(true) + "Plugins/PaymentSermepa/Notification"},
                 {"DS_MERCHANT_URLOK", _webHelper.GetStoreLocation(true) + "Plugins/PaymentSermepa/Return"},
                 {"DS_MERCHANT_URLKO", _webHelper.GetStoreLocation(true) + "Plugins/PaymentSermepa/Error"}
             };

@@ -34,11 +34,22 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
 
         public async Task<IActionResult> Return()
         {
-            // Obtener los parámetros de la respuesta de Redsys
-            var dsMerchantParameters = HttpContext.Request.Query["Ds_MerchantParameters"].ToString();
-            var dsSignature = HttpContext.Request.Query["Ds_Signature"].ToString();
-            var dsSignatureVersion = HttpContext.Request.Query["Ds_SignatureVersion"].ToString();
+            return await ProcessRedsysResponseAsync(
+                HttpContext.Request.Query["Ds_MerchantParameters"].ToString(),
+                HttpContext.Request.Query["Ds_Signature"].ToString(),
+                HttpContext.Request.Query["Ds_SignatureVersion"].ToString());
+        }
 
+        public async Task<IActionResult> Notification()
+        {
+            return await ProcessRedsysResponseAsync(
+                HttpContext.Request.Form["Ds_MerchantParameters"].ToString(),
+                HttpContext.Request.Form["Ds_Signature"].ToString(),
+                HttpContext.Request.Form["Ds_SignatureVersion"].ToString());
+        }
+
+        private async Task<IActionResult> ProcessRedsysResponseAsync(string dsMerchantParameters, string dsSignature, string dsSignatureVersion)
+        {
             if (string.IsNullOrEmpty(dsMerchantParameters) || string.IsNullOrEmpty(dsSignature) || string.IsNullOrEmpty(dsSignatureVersion))
             {
                 await _logger.ErrorAsync("TPV SERMEPA: Falta información en la respuesta del TPV.");
@@ -65,6 +76,14 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
 
+            // Obtener el pedido
+            var order = await _orderService.GetOrderByIdAsync(Convert.ToInt32(orderId));
+            if (order == null)
+            {
+                await _logger.ErrorAsync($"El pedido con ID {orderId} no existe.");
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
             // Obtener clave
             var key = _sermepaPaymentSettings.Pruebas ? _sermepaPaymentSettings.ClavePruebas : _sermepaPaymentSettings.ClaveReal;
             var decodedKey = Convert.FromBase64String(key);
@@ -73,81 +92,91 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
             string signatureCalculated;
             try
             {
-                // Decode Merchant Parameters to validate nested JSON if necessary
                 string validatedParameters = ValidateNestedJson("Ds_EMV3DS", decodedParameters);
-
-                // Extract the order ID from decoded parameters
                 string extractedOrderId = ExtractOrderFromParameters(validatedParameters);
-
-                // Generate the derived key using 3DES encryption with the decoded key and extracted order ID
                 byte[] derivedKey = Encrypt3DES(extractedOrderId, decodedKey);
-
-                // Calculate HMAC-SHA256 signature
                 byte[] hmacSignature = GetHMACSHA256(dsMerchantParameters, derivedKey);
-
-                // Convert the signature to Base64 and URL-safe format
                 signatureCalculated = Convert.ToBase64String(hmacSignature).Replace('+', '-').Replace('/', '_');
             }
             catch (Exception ex)
             {
                 await _logger.ErrorAsync($"TPV SERMEPA: Error al calcular la firma. {ex.Message}");
-                return RedirectToAction("Index", "Home", new { area = "" });
+                return await CancelOrderAsync(order.Id, "Error al calcular la firma.");
             }
 
             // Validar la firma
             if (!signatureCalculated.Equals(dsSignature))
             {
                 await _logger.ErrorAsync($"TPV SERMEPA: Firma incorrecta. Calculada: {signatureCalculated}, Recibida: {dsSignature}");
-                return RedirectToAction("Index", "Home", new { area = "" });
-            }
-
-            // Obtener el pedido
-            var order = await _orderService.GetOrderByIdAsync(Convert.ToInt32(orderId));
-            if (order == null)
-            {
-                throw new NopException($"El pedido con ID {orderId} no existe.");
+                return await CancelOrderAsync(order.Id, "Firma incorrecta.");
             }
 
             // Verificar el código de respuesta de Redsys
             int.TryParse(responseCode, out var dsResponse);
             if (dsResponse >= 0 && dsResponse < 100)
             {
-                // Marcar el pedido como pagado
-                if (_orderProcessingService.CanMarkOrderAsPaid(order))
-                {
-                    await _orderProcessingService.MarkOrderAsPaidAsync(order);
-                }
-
-                // Agregar nota al pedido
-                await _orderService.InsertOrderNoteAsync(new OrderNote
-                {
-                    Note = $"Pago confirmado. Parámetros de Redsys: {decodedParameters}",
-                    DisplayToCustomer = false,
-                    CreatedOnUtc = DateTime.UtcNow,
-                    OrderId = order.Id,
-                    Id = order.Id
-                });
-
-                return RedirectToRoute("CheckoutCompleted", new { orderId = order.Id });
+                return await CompleteOrderAsync(order.Id, $"Pago confirmado. Código de respuesta: {decodedParameters}");
             }
 
-            // Log del error
             await _logger.ErrorAsync($"TPV SERMEPA: Pago no autorizado. Código de error: {dsResponse}");
 
-            // Agregar nota de error al pedido
+            // Cancelar el pedido
+            return await CancelOrderAsync(order.Id, $"!!! PAGO DENEGADO !!! Código de respuesta: {dsResponse}");
+        }
+
+        private async Task<IActionResult> CancelOrderAsync(int orderId, string message)
+        {
+            var order = await _orderService.GetOrderByIdAsync(orderId);
+            if (order == null)
+            {
+                await _logger.ErrorAsync($"El pedido con ID {orderId} no existe.");
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            if (_orderProcessingService.CanCancelOrder(order))
+            {
+                await _orderProcessingService.CancelOrderAsync(order, true);
+            }
+
             await _orderService.InsertOrderNoteAsync(new OrderNote
             {
-                Note = $"!!! PAGO DENEGADO !!! Código de respuesta: {dsResponse}",
+                Note = message,
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
-                OrderId = order.Id,
-                Id = order.Id
+                OrderId = orderId,
+                Id = orderId
             });
 
+            await _logger.ErrorAsync("Orden de pago rechazada por el TPV SERMEPA.");
             return RedirectToAction("Index", "Home", new { area = "" });
         }
 
+        private async Task<IActionResult> CompleteOrderAsync(int orderId, string message)
+        {
+            var order = await _orderService.GetOrderByIdAsync(orderId);
+            if (order == null)
+            {
+                await _logger.ErrorAsync($"El pedido con ID {orderId} no existe.");
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
 
+            if (_orderProcessingService.CanMarkOrderAsPaid(order))
+            {
+                await _orderProcessingService.MarkOrderAsPaidAsync(order);
+            }
+
+            await _orderService.InsertOrderNoteAsync(new OrderNote
+            {
+                Note = message,
+                DisplayToCustomer = false,
+                CreatedOnUtc = DateTime.UtcNow,
+                OrderId = orderId,
+                Id = orderId
+            });
+
+            await _logger.InformationAsync("Orden de pago confirmada por el TPV SERMEPA.");
+            return RedirectToRoute("CheckoutCompleted", new { orderId = order.Id });
+        }
 
         public async Task<IActionResult> Error()
         {
@@ -155,7 +184,6 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
             var dsMerchantParameters = HttpContext.Request.Query["Ds_MerchantParameters"].ToString();
             var dsSignatureVersion = HttpContext.Request.Query["Ds_SignatureVersion"].ToString();
             var dsSignature = HttpContext.Request.Query["Ds_Signature"].ToString();
-
 
             // Decodificar los parámetros de la respuesta
             string decodedParameters;
@@ -169,35 +197,20 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
 
-            string validatedParameters = ValidateNestedJson("Ds_EMV3DS", decodedParameters);
+            var validatedParameters = ValidateNestedJson("Ds_EMV3DS", decodedParameters);
             var orderId = ExtractOrderFromParameters(validatedParameters);
             var responseCode = ExtractResponseFromParameters(validatedParameters);
 
             var order = await _orderService.GetOrderByIdAsync(Convert.ToInt32(orderId));
             if (order == null)
             {
-                // throw new NopException($"El pedido con ID {orderId} no existe.");
+                await _logger.ErrorAsync($"El pedido con ID {orderId} no existe.");
+                return RedirectToAction("Index", "Home", new { area = "" });
             }
-
-            if (_orderProcessingService.CanCancelOrder(order))
-            {
-                await _orderProcessingService.CancelOrderAsync(order, true);
-            }
-
-            await _orderService.InsertOrderNoteAsync(new OrderNote
-            {
-                Note = $"!!! PAGO DENEGADO !!! Código de respuesta: {responseCode}",
-                DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
-                OrderId = order.Id,
-                Id = order.Id
-            });
 
             await _logger.ErrorAsync("Orden de pago rechazada por el TPV SERMEPA.");
-            return RedirectToRoute("Homepage");
+            return await CancelOrderAsync(order.Id, $"Error en el pago. Código de respuesta: {responseCode}");
         }
-
-
         private string ValidateNestedJson(string nestedKey, string json)
         {
             try
