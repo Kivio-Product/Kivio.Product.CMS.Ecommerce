@@ -421,7 +421,7 @@ public partial class CheckoutController : BasePublicController
     }
 
 
-    public virtual async Task<IActionResult> Cancelled(int orderId)
+    public virtual async Task<IActionResult> Cancelled(int? orderId)
     {
         //validation
         var customer = await _workContext.GetCurrentCustomerAsync();
