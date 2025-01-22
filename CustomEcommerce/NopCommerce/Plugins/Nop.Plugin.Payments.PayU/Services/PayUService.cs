@@ -10,8 +10,6 @@ using Nop.Core.Domain.Directory;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Payments;
 using Nop.Plugin.Payments.PayU.Models;
-using Nop.Plugin.Payments.PayU.Models.Notifications;
-using Nop.Plugin.Payments.PayU.Models.Requests;
 using Nop.Services.Directory;
 using Nop.Services.Payments;
 using Nop.Services.Logging;
