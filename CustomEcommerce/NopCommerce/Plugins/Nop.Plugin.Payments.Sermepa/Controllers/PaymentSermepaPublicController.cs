@@ -148,7 +148,7 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
             });
 
             await _logger.ErrorAsync("Orden de pago rechazada por el TPV SERMEPA.");
-            return RedirectToAction("Index", "Home", new { area = "" });
+            return RedirectToRoute("OrderCancelled", new { orderId = orderId });
         }
 
         private async Task<IActionResult> CompleteOrderAsync(int orderId, string message)

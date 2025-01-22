@@ -420,6 +420,37 @@ public partial class CheckoutController : BasePublicController
         return View(model);
     }
 
+
+    public virtual async Task<IActionResult> Cancelled(int orderId)
+    {
+        //validation
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        if (await _customerService.IsGuestAsync(customer) && !_orderSettings.AnonymousCheckoutAllowed)
+            return Challenge();
+
+        Order order = null;
+        if (orderId.HasValue)
+        {
+            //load order by identifier (if provided)
+            order = await _orderService.GetOrderByIdAsync(orderId.Value);
+        }
+        if (order == null)
+        {
+            var store = await _storeContext.GetCurrentStoreAsync();
+            order = (await _orderService.SearchOrdersAsync(storeId: store.Id,
+                    customerId: customer.Id, pageSize: 1))
+                .FirstOrDefault();
+        }
+        if (order == null || order.Deleted || customer.Id != order.CustomerId)
+        {
+            return RedirectToRoute("Homepage");
+        }
+
+        //model
+        var model = await _checkoutModelFactory.PrepareCheckoutCompletedModelAsync(order);
+        return View(model);
+    }
+
     /// <summary>
     /// Get specified Address by addresId
     /// </summary>

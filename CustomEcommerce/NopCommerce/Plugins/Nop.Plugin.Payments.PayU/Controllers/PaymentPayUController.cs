@@ -119,7 +119,7 @@ namespace Nop.Plugin.Payments.PayU.Controllers
 
             if (!succeeded)
             {
-                return RedirectToAction("Index", "Home", new { area = "" });
+                return RedirectToRoute("OrderCancelled", new { orderId = orderId });
             }
 
             return RedirectToRoute("CheckoutCompleted", new { orderId = orderId });
