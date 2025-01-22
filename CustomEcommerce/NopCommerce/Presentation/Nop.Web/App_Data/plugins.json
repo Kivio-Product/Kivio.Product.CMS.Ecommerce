@@ -1,0 +1,30 @@
+{
+    "InstalledPluginNames": [
+      "Obsolete field, using only for compatibility"
+    ],
+    "InstalledPlugins": [
+      {
+        "SystemName": "Pickup.PickupInStore",
+        "Version": "4.80.5"
+      },
+      {
+        "SystemName": "Payments.CashOnDelivery",
+        "Version": "4.80.1"
+      },
+      {
+        "SystemName": "Payments.Sermepa",
+        "Version": "4.8.0"
+      },
+      {
+        "SystemName": "Payments.PayU",
+        "Version": "1.2.0"
+      },
+      {
+        "SystemName": "Payments.PayPalCommerce",
+        "Version": "4.80.8"
+      }
+    ],
+    "PluginNamesToUninstall": [],
+    "PluginNamesToDelete": [],
+    "PluginNamesToInstall": []
+  }

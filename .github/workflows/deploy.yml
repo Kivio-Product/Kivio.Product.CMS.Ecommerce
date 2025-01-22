@@ -59,6 +59,9 @@ jobs:
       - name: Copy appsettings.json to binaries
         run: cp "${{ vars.APPSETTINGS_OUTPUT_FILE }}" "${{ env.BINNARIES_APPSETTINGS_PATH }}"
 
+      - name: Copy  plugins.jsson to binaries
+        run: cp "${{ vars.PLUGINS_FILE }}" "${{ env.BINNARIES_APPSETTINGS_PATH }}"
+
       - name: ReplaceTokens
         uses: qetza/replacetokens-action@v1.2.0
         with:
