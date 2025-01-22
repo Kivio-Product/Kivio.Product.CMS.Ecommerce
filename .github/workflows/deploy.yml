@@ -3,17 +3,10 @@ run-name: Build and Deploy .NET 9.0
 
 on:
   pull_request:
-    branches: ["develop"]
-  push:
     branches:
-      - develop
-      - main
-  workflow_dispatch:
-    inputs:
-      build:
-        description: "Build and deploy"
-        required: true
-        default: "true"
+      - "develop"
+    types:
+      - closed
 
 env:
   PUBLISH_OUTPUT_PATH: C:\tmp\kivio_ecommerce_binaries
@@ -24,6 +17,9 @@ env:
 
 jobs:
   build:
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     runs-on: windows-latest
     steps:
       - name: Check out repository with submodules
