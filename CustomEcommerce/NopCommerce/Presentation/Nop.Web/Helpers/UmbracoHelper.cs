@@ -1,3 +1,4 @@
+#nullable enable
 using Microsoft.Extensions.Configuration;
 
 namespace Nop.Web.Helpers;
@@ -5,10 +6,10 @@ namespace Nop.Web.Helpers;
 public class UmbracoHelper
 {
     private readonly IConfiguration _configuration;
-    private string nopCommerceCssFolder;
-    private string nopCommerceCssFile;
-    private string umbracoUrl;
-    private bool isEnabled;
+    private string _nopCommerceCssFolder;
+    private string _nopCommerceCssFile;
+    private string _umbracoUrl;
+    private bool _isEnabled;
 
     private const string TITLE_ENPOINT = "/umbraco/api/assets/title";
     private const string LOGO_ENPOINT = "/umbraco/api/assets/logo";
@@ -18,10 +19,10 @@ public class UmbracoHelper
     public UmbracoHelper(IConfiguration configuration)
     {
         _configuration = configuration;
-        nopCommerceCssFolder = _configuration.GetValue<string>("KivioModules:Umbraco:CssFolder") ?? string.Empty;
-        nopCommerceCssFile = _configuration.GetValue<string>("KivioModules:Umbraco:CssFiles") ?? string.Empty;
-        umbracoUrl = _configuration.GetValue<string>("KivioModules:Umbraco:BaseUrl") ?? string.Empty;
-        isEnabled = _configuration.GetValue<bool>("KivioModules:Umbraco:Enabled");
+        _nopCommerceCssFolder = _configuration.GetValue<string>("KivioModules:Umbraco:CssFolder") ?? string.Empty;
+        _nopCommerceCssFile = _configuration.GetValue<string>("KivioModules:Umbraco:CssFiles") ?? string.Empty;
+        _umbracoUrl = _configuration.GetValue<string>("KivioModules:Umbraco:BaseUrl") ?? string.Empty;
+        _isEnabled = _configuration.GetValue<bool>("KivioModules:Umbraco:Enabled");
     }
 
     /// <summary>
@@ -31,16 +32,16 @@ public class UmbracoHelper
     public async Task<bool> IsUmbracoEnabledAsync()
     {
 
-        if (!isEnabled)
+        if (!_isEnabled)
             return false;
 
-        if (string.IsNullOrEmpty(umbracoUrl))
+        if (string.IsNullOrEmpty(_umbracoUrl))
             return false;
 
         try
         {
             using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync(umbracoUrl);
+            var response = await httpClient.GetAsync(_umbracoUrl);
             return response.IsSuccessStatusCode;
         }
         catch
@@ -58,14 +59,14 @@ public class UmbracoHelper
         if (!await IsUmbracoEnabledAsync())
             return null;
 
-        string endpoint = $"{umbracoUrl.TrimEnd('/')}{LOGO_ENPOINT}";
+        string endpoint = $"{_umbracoUrl.TrimEnd('/')}{LOGO_ENPOINT}";
 
         try
         {
             using var httpClient = new HttpClient();
             string relativePath = await httpClient.GetStringAsync(endpoint);
 
-            return CombineUrl(umbracoUrl, relativePath);
+            return CombineUrl(_umbracoUrl, relativePath);
         }
         catch
         {
@@ -82,14 +83,14 @@ public class UmbracoHelper
         if (!await IsUmbracoEnabledAsync())
             return null;
 
-        string endpoint = $"{umbracoUrl.TrimEnd('/')}{FAVICON_ENPOINT}";
+        string endpoint = $"{_umbracoUrl.TrimEnd('/')}{FAVICON_ENPOINT}";
 
         try
         {
             using var httpClient = new HttpClient();
             string relativePath = await httpClient.GetStringAsync(endpoint);
 
-            return CombineUrl(umbracoUrl, relativePath);
+            return CombineUrl(_umbracoUrl, relativePath);
         }
         catch
         {
@@ -102,7 +103,7 @@ public class UmbracoHelper
         if (!await IsUmbracoEnabledAsync())
             return null;
 
-        string endpoint = $"{umbracoUrl.TrimEnd('/')}{TITLE_ENPOINT}";
+        string endpoint = $"{_umbracoUrl.TrimEnd('/')}{TITLE_ENPOINT}";
 
         try
         {
@@ -124,12 +125,12 @@ public class UmbracoHelper
         if (!await IsUmbracoEnabledAsync())
             return null;
 
-        string[] cssFiles = nopCommerceCssFile.Split(',');
+        string[] cssFiles = _nopCommerceCssFile.Split(',');
         List<string?> cssContents = [];
 
         foreach (var cssFile in cssFiles)
         {
-            string endpoint = $"{umbracoUrl.TrimEnd('/')}{CSS_ENPOINT}folder={nopCommerceCssFolder}&file={cssFile.Trim()}";
+            string endpoint = $"{_umbracoUrl.TrimEnd('/')}{CSS_ENPOINT}folder={_nopCommerceCssFolder}&file={cssFile.Trim()}";
 
             try
             {

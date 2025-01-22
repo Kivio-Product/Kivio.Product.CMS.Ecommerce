@@ -2,42 +2,33 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <Copyright>Copyright © Nop Solutions, Ltd</Copyright>
-    <Company>Nop Solutions, Ltd</Company>
-    <Authors>Nop Solutions, Ltd</Authors>
+    <Copyright>Copyright © Nop Solutions, Ltd</Copyright> 
+    <Company>Nop Solutions, Ltd</Company> 
+    <Authors>Nop Solutions, Ltd</Authors> 
     <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageProjectUrl>https://www.nopcommerce.com/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/nopStation/sermepa-plugin-for-nopcommerce</RepositoryUrl>
+    <PackageProjectUrl>https://www.nopcommerce.com/cash-on-delivery-payment-module</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/nopSolutions/cashondelivery-plugin-for-nopcommerce</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <OutputPath>$(SolutionDir)NopCommerce\src\Presentation\Nop.Web\Plugins\Payments.Sermepa</OutputPath>
+    <OutputPath>$(SolutionDir)NopCommerce\src\Presentation\Nop.Web\Plugins\Payments.CashOnDelivery</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
-    <!--Set
-    this parameter to true to get the dlls copied from the NuGet cache to the output of your
-    project.
+    <!--Set this parameter to true to get the dlls copied from the NuGet cache to the output of your project.
     You need to set this parameter to true if your plugin has a nuget package 
     to ensure that the dlls copied from the NuGet cache to the output of your project-->
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <None Remove="logo.jpg" />
     <None Remove="plugin.json" />
     <None Remove="Views\Configure.cshtml" />
-    <None Remove="Views\Create.cshtml" />
-    <None Remove="Views\Configure.cshtml" />
-    <None Remove="Views\Edit.cshtml" />
-    <None Remove="Views\_CreateOrUpdate.cshtml" />
+    <None Remove="Views\PaymentInfo.cshtml" />
     <None Remove="Views\_ViewImports.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="logo.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="plugin.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -45,25 +36,23 @@
     <Content Include="Views\Configure.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Views\_ViewImports.cshtml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Views\PaymentInfo.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Views\_ViewImports.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference
-      Include="$(SolutionDir)NopCommerce\src\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
+    <ProjectReference Include="$(SolutionDir)NopCommerce\src\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
     <ClearPluginAssemblies Include="$(SolutionDir)NopCommerce\src\Build\ClearPluginAssemblies.proj" />
   </ItemGroup>
-
+  
   <!-- This target execute after "Build" target -->
   <Target Name="NopTarget" AfterTargets="Build">
     <!-- Delete unnecessary libraries from plugins path -->
-    <MSBuild Projects="@(ClearPluginAssemblies)" Properties="PluginPath=$(OutDir)"
-      Targets="NopClear" />
+    <MSBuild Projects="@(ClearPluginAssemblies)" Properties="PluginPath=$(OutDir)" Targets="NopClear" />
   </Target>
 
 </Project>

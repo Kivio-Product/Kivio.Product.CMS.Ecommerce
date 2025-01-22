@@ -13,6 +13,9 @@ namespace Nop.Plugin.Payments.Sermepa
 
             endpointRouteBuilder.MapControllerRoute("Plugin.Payments.Sermepa.Error", "Plugins/PaymentSermepa/Error",
                 new { controller = "PaymentSermepaPublic", action = "Error" });
+
+            endpointRouteBuilder.MapControllerRoute("Plugin.Payments.Sermepa.Error", "Plugins/PaymentSermepa/Notification",
+            new { controller = "PaymentSermepaPublic", action = "Notification" });
         }
 
         public int Priority

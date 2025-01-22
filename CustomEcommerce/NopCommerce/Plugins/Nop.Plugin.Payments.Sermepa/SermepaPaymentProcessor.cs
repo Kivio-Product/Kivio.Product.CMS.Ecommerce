@@ -14,6 +14,7 @@ using Nop.Web.Framework;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Nop.Plugin.Payments.Sermepa.Components;
+using Newtonsoft.Json;
 
 namespace Nop.Plugin.Payments.Sermepa
 {
@@ -29,6 +30,10 @@ namespace Nop.Plugin.Payments.Sermepa
         private readonly IWebHelper _webHelper;
         private readonly ILocalizationService _localizationService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+
+        private const string _SIGNATURE_VERSION = "HMAC_SHA256_V1";
+        private const string SANDBOX_URL = "https://sis-t.redsys.es:25443/sis/realizarPago";
+        private const string PRODUCTION_URL = "https://sis.redsys.es/sis/realizarPago";
 
         #endregion
 
@@ -57,8 +62,7 @@ namespace Nop.Plugin.Payments.Sermepa
         /// <returns></returns>
         private string GetSermepaUrl()
         {
-            return _sermepaPaymentSettings.Pruebas ? "https://sis-t.sermepa.es:25443/sis/realizarPago" :
-                "https://sis.sermepa.es/sis/realizarPago";
+            return _sermepaPaymentSettings.Pruebas ? SANDBOX_URL : PRODUCTION_URL;
         }
 
         #endregion
@@ -79,80 +83,74 @@ namespace Nop.Plugin.Payments.Sermepa
         /// <summary>
         /// Post process payment (used by payment gateways that require redirecting to a third-party URL)
         /// </summary>
-        /// <param name="postProcessPaymentRequest">Payment info required for an order processing</param>
+        /// <param name="postProcessPaymentRequest">Payment info required for an order processing</param>public Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
         public Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
         {
-            //Notificación On-Line
-            var strDs_Merchant_MerchantURL = _webHelper.GetStoreLocation(false) + "Plugins/PaymentSermepa/Return";
+            // Preparar los parámetros requeridos
+            var merchantParameters = new Dictionary<string, string>
+            {
+                {"DS_MERCHANT_AMOUNT", ((int)Math.Round(postProcessPaymentRequest.Order.OrderTotal * 100, MidpointRounding.AwayFromZero)).ToString()},
+                {"DS_MERCHANT_ORDER", postProcessPaymentRequest.Order.Id.ToString("0000")},
+                {"DS_MERCHANT_MERCHANTCODE", _sermepaPaymentSettings.FUC},
+                {"DS_MERCHANT_CURRENCY", _sermepaPaymentSettings.Moneda.ToString()},
+                {"DS_MERCHANT_TRANSACTIONTYPE", "0"}, // Tipo de transacción: 0 - Autorización
+                {"DS_MERCHANT_TERMINAL", _sermepaPaymentSettings.Terminal},
+                {"DS_MERCHANT_MERCHANTURL", _webHelper.GetStoreLocation(true) + "Plugins/PaymentSermepa/Notification"},
+                {"DS_MERCHANT_URLOK", _webHelper.GetStoreLocation(true) + "Plugins/PaymentSermepa/Return"},
+                {"DS_MERCHANT_URLKO", _webHelper.GetStoreLocation(true) + "Plugins/PaymentSermepa/Error"}
+            };
 
-            //URL OK
-            var strDs_Merchant_UrlOK = _webHelper.GetStoreLocation(false) + "checkout/completed";
+            // Convertir parámetros a JSON y codificar en Base64
+            string jsonParameters = JsonConvert.SerializeObject(merchantParameters);
+            string dsMerchantParameters = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonParameters));
 
-            //URL KO
-            var strDs_Merchant_UrlKO = _webHelper.GetStoreLocation(false) + "Plugins/PaymentSermepa/Error";
+            // Clave para firma
+            string key = _sermepaPaymentSettings.Pruebas ? _sermepaPaymentSettings.ClavePruebas : _sermepaPaymentSettings.ClaveReal;
+            byte[] decodedKey = Convert.FromBase64String(key);
 
-            //Numero de pedido
-            //You have to change the id of the orders table to begin with a number of at least 4 digits.
-            var strDs_Merchant_Order = postProcessPaymentRequest.Order.Id.ToString("0000");
+            // Generar firma
+            string dsSignature;
+            using (var hmacSha256 = new HMACSHA256(Generate3DESKey(postProcessPaymentRequest.Order.Id.ToString("0000"), decodedKey)))
+            {
+                byte[] signatureBytes = hmacSha256.ComputeHash(Encoding.UTF8.GetBytes(dsMerchantParameters));
+                dsSignature = Convert.ToBase64String(signatureBytes);
+            }
 
-            //Nombre del comercio
-            var strDs_Merchant_MerchantName = _sermepaPaymentSettings.NombreComercio;
-
-            //Importe
-            var amount = ((int)Convert.ToInt64(postProcessPaymentRequest.Order.OrderTotal * 100)).ToString();
-            var strDs_Merchant_Amount = amount;
-
-            //Código de comercio
-            var strDs_Merchant_MerchantCode = _sermepaPaymentSettings.FUC;
-
-            //Moneda
-            var strDs_Merchant_Currency = _sermepaPaymentSettings.Moneda;
-
-            //Terminal
-            var strDs_Merchant_Terminal = _sermepaPaymentSettings.Terminal;
-
-            //Tipo de transaccion (0 - Autorización)
-            var strDs_Merchant_TransactionType = "0";
-
-            //Clave
-            var clave = _sermepaPaymentSettings.Pruebas ? _sermepaPaymentSettings.ClavePruebas : _sermepaPaymentSettings.ClaveReal;
-
-            //Calculo de la firma
-            var sha = string.Format("{0}{1}{2}{3}{4}{5}{6}",
-                strDs_Merchant_Amount,
-                strDs_Merchant_Order,
-                strDs_Merchant_MerchantCode,
-                strDs_Merchant_Currency,
-                strDs_Merchant_TransactionType,
-                strDs_Merchant_MerchantURL,
-                clave);
-
-            SHA1 shaM = new SHA1Managed();
-            var shaResult = shaM.ComputeHash(Encoding.Default.GetBytes(sha));
-            var shaResultStr = BitConverter.ToString(shaResult).Replace("-", "");
-
-            //Creamos el POST
+            // Crear el formulario de redirección
             var remotePostHelper = new RemotePost(_httpContextAccessor, _webHelper)
             {
                 FormName = "form1",
                 Url = GetSermepaUrl()
             };
 
-            remotePostHelper.Add("Ds_Merchant_Amount", strDs_Merchant_Amount);
-            remotePostHelper.Add("Ds_Merchant_Currency", strDs_Merchant_Currency);
-            remotePostHelper.Add("Ds_Merchant_Order", strDs_Merchant_Order);
-            remotePostHelper.Add("Ds_Merchant_MerchantCode", strDs_Merchant_MerchantCode);
-            remotePostHelper.Add("Ds_Merchant_TransactionType", strDs_Merchant_TransactionType);
-            remotePostHelper.Add("Ds_Merchant_MerchantURL", strDs_Merchant_MerchantURL);
-            remotePostHelper.Add("Ds_Merchant_MerchantSignature", shaResultStr);
-            remotePostHelper.Add("Ds_Merchant_Terminal", strDs_Merchant_Terminal);
-            remotePostHelper.Add("Ds_Merchant_MerchantName", strDs_Merchant_MerchantName);
-            remotePostHelper.Add("Ds_Merchant_UrlOK", strDs_Merchant_UrlOK);
-            remotePostHelper.Add("Ds_Merchant_UrlKO", strDs_Merchant_UrlKO);
+            remotePostHelper.Add("Ds_SignatureVersion", "HMAC_SHA256_V1");
+            remotePostHelper.Add("Ds_MerchantParameters", dsMerchantParameters);
+            remotePostHelper.Add("Ds_Signature", dsSignature);
 
+            // Enviar el formulario
             remotePostHelper.Post();
+
             return Task.CompletedTask;
         }
+
+        private byte[] Generate3DESKey(string orderId, byte[] key)
+        {
+            byte[] orderBytes = Encoding.UTF8.GetBytes(orderId);
+            byte[] iv = new byte[8]; // SALT: {0, 0, 0, 0, 0, 0, 0, 0}
+
+            using (var tdes = TripleDES.Create())
+            {
+                tdes.Key = key;
+                tdes.IV = iv;
+                tdes.Mode = CipherMode.CBC;
+                tdes.Padding = PaddingMode.Zeros;
+                {
+                    using var encryptor = tdes.CreateEncryptor();
+                    return encryptor.TransformFinalBlock(orderBytes, 0, orderBytes.Length);
+                }
+            }
+        }
+
 
         /// <summary>
         /// Returns a value indicating whether payment method should be hidden during checkout
@@ -317,11 +315,11 @@ namespace Nop.Plugin.Payments.Sermepa
                 NombreComercio = "",
                 Titular = "",
                 Producto = "",
-                FUC = "",
-                Terminal = "",
-                Moneda = "",
+                FUC = "999008881",
+                Terminal = "001",
+                Moneda = "978",
                 ClaveReal = "",
-                ClavePruebas = "",
+                ClavePruebas = "sq7HjrUOBfKmC576ILgskD5srU870gJ7",
                 Pruebas = true,
                 AdditionalFee = 0,
             };

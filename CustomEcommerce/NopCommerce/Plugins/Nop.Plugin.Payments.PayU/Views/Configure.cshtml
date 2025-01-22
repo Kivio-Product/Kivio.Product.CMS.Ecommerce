@@ -1,0 +1,85 @@
+﻿@model Nop.Plugin.Payments.PayU.Models.ConfigurationModel
+@inject Nop.Core.IWebHelper webHelper
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+@await Component.InvokeAsync("StoreScopeConfiguration")
+
+<form asp-controller="PaymentPayU" asp-action="Configure" method="post">
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="UseSandboxOverrideForStore" asp-input="UseSandbox" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="UseSandbox" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="UseSandbox" />
+                        <span asp-validation-for="UseSandbox"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="AccountId" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="AccountId" />
+                        <span asp-validation-for="AccountId"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="MerchantId" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="MerchantId" />
+                        <span asp-validation-for="MerchantId"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ClientLoginId" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ClientLoginId" />
+                        <span asp-validation-for="ClientLoginId"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ClientSecretKey" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ClientSecretKey" />
+                        <span asp-validation-for="ClientSecretKey"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ClientPublicKey" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ClientPublicKey" />
+                        <span asp-validation-for="ClientPublicKey"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="PaymentDescription" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="PaymentDescription" />
+                        <span asp-validation-for="PaymentDescription"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-9 col-md-offset-3">
+                        <input type="submit" name="save" class="btn bg-primary" value="@T("Admin.Common.Save")" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

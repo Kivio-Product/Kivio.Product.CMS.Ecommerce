@@ -1,37 +1,31 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <Copyright>Copyright © Nop Solutions, Ltd</Copyright>
-    <Company>Nop Solutions, Ltd</Company>
-    <Authors>Nop Solutions, Ltd</Authors>
-    <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageProjectUrl>https://www.nopcommerce.com/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/nopStation/sermepa-plugin-for-nopcommerce</RepositoryUrl>
+    <Copyright>Copyright © Sharpapp Marek Łańduch</Copyright>
+    <Company>Sharpapp Marek Łańduch</Company>
+    <Authors>Sharpapp Marek Łańduch</Authors>
+    <PackageProjectUrl>http://www.sharpapp.net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sharpapp-mareklanduch/payu-plugin-for-nopcommerce</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <OutputPath>$(SolutionDir)NopCommerce\src\Presentation\Nop.Web\Plugins\Payments.Sermepa</OutputPath>
-    <OutDir>$(OutputPath)</OutDir>
-    <!--Set
-    this parameter to true to get the dlls copied from the NuGet cache to the output of your
-    project.
-    You need to set this parameter to true if your plugin has a nuget package 
-    to ensure that the dlls copied from the NuGet cache to the output of your project-->
+    <Version>1.2.0</Version>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>$(SolutionDir)NopCommerce\src\Presentation\Nop.Web\Plugins\Payments.PayU</OutputPath>
+    <OutDir>$(OutputPath)</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>$(SolutionDir)NopCommerce\src\Presentation\Nop.Web\Plugins\Payments.PayU</OutputPath>
+    <OutDir>$(OutputPath)</OutDir>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Remove="logo.jpg" />
     <None Remove="plugin.json" />
     <None Remove="Views\Configure.cshtml" />
-    <None Remove="Views\Create.cshtml" />
-    <None Remove="Views\Configure.cshtml" />
-    <None Remove="Views\Edit.cshtml" />
-    <None Remove="Views\_CreateOrUpdate.cshtml" />
+    <None Remove="Views\PaymentInfo.cshtml" />
     <None Remove="Views\_ViewImports.cshtml" />
   </ItemGroup>
 
@@ -45,10 +39,10 @@
     <Content Include="Views\Configure.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Views\_ViewImports.cshtml">
+    <Content Include="Views\PaymentInfo.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Views\PaymentInfo.cshtml">
+    <Content Include="Views\_ViewImports.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -56,6 +50,7 @@
   <ItemGroup>
     <ProjectReference
       Include="$(SolutionDir)NopCommerce\src\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
+    <ProjectReference Include="$(SolutionDir)NopCommerce\src\Presentation\Nop.Web\Nop.Web.csproj" />
     <ClearPluginAssemblies Include="$(SolutionDir)NopCommerce\src\Build\ClearPluginAssemblies.proj" />
   </ItemGroup>
 
@@ -65,5 +60,4 @@
     <MSBuild Projects="@(ClearPluginAssemblies)" Properties="PluginPath=$(OutDir)"
       Targets="NopClear" />
   </Target>
-
 </Project>

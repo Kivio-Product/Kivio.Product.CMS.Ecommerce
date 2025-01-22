@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Payment methods",
+  "FriendlyName": "PayU Latam",
+  "SystemName": "Payments.PayU",
+  "Version": "1.2.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Sharpapp Marek Łańduch",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Payments.PayU.dll",
+  "Description": "NopCommerce payment plugin PayU Poland"
+}
