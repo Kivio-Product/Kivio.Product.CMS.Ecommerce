@@ -7,9 +7,6 @@ on:
       - "main"
     types:
       - closed
-  push:
-    branches:
-      - "main"
 
 env:
   PUBLISH_OUTPUT_PATH: C:\tmp\kivio_ecommerce_binaries
