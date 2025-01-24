@@ -162,7 +162,7 @@ namespace Nop.Plugin.Payments.PayU.Services
             }
 
             // Generar la cadena para la firma
-            var signatureString = $"{_payUPaymentSettings.ClientSecretKey}~{confirmationResponse.MerchantId}~{confirmationResponse.ReferenceSale}~{confirmationResponse.Value.ToString("F1", CultureInfo.InvariantCulture)}~{confirmationResponse.Currency}~{confirmationResponse.StatePol}";
+            var signatureString = $"{_payUPaymentSettings.ClientSecretKey}~{confirmationResponse.MerchantId}~{confirmationResponse.ReferenceSale}~{confirmationResponse.Value.ToString(CultureInfo.InvariantCulture)}~{confirmationResponse.Currency}~{confirmationResponse.StatePol}";
             var expectedSignature = GenerateMD5Hash(signatureString);
 
             if (!string.Equals(expectedSignature, confirmationResponse.Sign, StringComparison.InvariantCultureIgnoreCase))
@@ -280,7 +280,7 @@ namespace Nop.Plugin.Payments.PayU.Services
             {
                 await _orderService.InsertOrderNoteAsync(new OrderNote
                 {
-                    Note = $"PayU order id {order.CaptureTransactionId}",
+                    Note = $"PayU order id {order.Id}",
                     DisplayToCustomer = false,
                     CreatedOnUtc = DateTime.UtcNow,
                     OrderId = order.Id,

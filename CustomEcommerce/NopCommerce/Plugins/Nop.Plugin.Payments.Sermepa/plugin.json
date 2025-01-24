@@ -1,11 +1,11 @@
 ﻿{
   "Group": "Payment methods",
-  "FriendlyName": "Sermepa",
+  "FriendlyName": "Redsys",
   "SystemName": "Payments.Sermepa",
   "Version": "4.8.0",
   "SupportedVersions": [ "4.80" ],
   "Author": "nopCommerce team, Nop-Station Team",
   "DisplayOrder": -1,
   "FileName": "Nop.Plugin.Payments.Sermepa.dll",
-  "Description": "This plugin allows paying with Sermepa"
+  "Description": "This plugin allows paying with Redsys"
 }

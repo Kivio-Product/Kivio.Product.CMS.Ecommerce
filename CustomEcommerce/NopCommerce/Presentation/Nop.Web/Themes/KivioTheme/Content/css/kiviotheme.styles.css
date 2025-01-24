@@ -626,7 +626,7 @@ label, label + * {
 .footer-tax-shipping a:hover,
 .footer-powered-by a:hover,
 .footer-theme-credit a:hover,
-.footer-designedby a:hover{
+.footer-kivio a:hover {
 	text-decoration: underline;
 }
 .theme-selector select {
@@ -3671,7 +3671,7 @@ select + .product-span {
 }
 .footer-powered-by a,
 .footer-theme-credit a,
-.footer-designedby a{
+.footer-kivio a{
     color: #007aff;
     font-family: 'Poppins', sans-serif;
     font-weight: 500;
@@ -3688,8 +3688,20 @@ select + .product-span {
 .footer-theme-credit,
 .footer-designedby {
     color: #9c9c9c;
-    font-size: 1.1em;
+    font-size: 0.5rem;
 }
+
+.footer-poweredby {
+    text-align: left;
+}
+
+.footer-kivio {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
 .btn-back-to-top {
     position: fixed;
     bottom: 20px;
@@ -5734,7 +5746,7 @@ p {
 }
 .shipping-method .method-description, 
 .payment-method .payment-logo {
-    opacity: 0;
+    opacity: 1;
 }
 .shipping-method .method-label, 
 .payment-method .method-name {

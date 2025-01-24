@@ -5713,7 +5713,7 @@ p {
 }
 .shipping-method .method-description, 
 .payment-method .payment-logo {
-    opacity: 0;
+    opacity: 1;
 }
 .shipping-method .method-label, 
 .payment-method .method-name {
