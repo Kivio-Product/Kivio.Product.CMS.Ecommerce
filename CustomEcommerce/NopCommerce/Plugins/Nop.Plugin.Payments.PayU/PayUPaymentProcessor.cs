@@ -54,13 +54,25 @@ namespace Nop.Plugin.Payments.PayU
             });
 
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.UseSandbox", "Use Sandbox");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.UseSandbox.Hint", "Enable this option to use the sandbox environment for testing purposes.");
+
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.AccountId", "Account ID");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.AccountId.Hint", "Enter the Account ID provided by PayU.");
+
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.MerchantId", "Merchant ID");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.MerchantId.Hint", "Enter the Merchant ID provided by PayU.");
+
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.ClientLoginId", "API Login");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.ClientLoginId.Hint", "Enter the API Login ID provided by PayU.");
+
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.ClientSecretKey", "API Key");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.ClientSecretKey.Hint", "Enter the API Key provided by PayU.");
+
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.ClientPublicKey", "Public Key");
-            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.ClientPublicKey", "Public Key");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.ClientPublicKey.Hint", "Enter the Public Key provided by PayU.");
+
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.PaymentDescription", "Payment Description");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.PaymentDescription.Hint", "Enter a description for the payment that will be displayed to the customer.");
 
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.PaymentMethodDescription",
                   "You will be redirected to PayU site to complete the payment");
@@ -75,12 +87,19 @@ namespace Nop.Plugin.Payments.PayU
             await _settingService.DeleteSettingAsync<PayUPaymentSettings>();
 
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.UseSandbox");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.UseSandbox.Hint");
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.AccountId");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.AccountId.Hint");
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.MerchantId");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.MerchantId.Hint");
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.ClientLoginId");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.ClientLoginId.Hint");
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.ClientSecretKey");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.ClientSecretKey.Hint");
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.ClientPublicKey");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.ClientPublicKey.Hint");
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.PaymentDescription");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.PaymentDescription.Hint");
 
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.PaymentMethodDescription");
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.PaymentInfo");
