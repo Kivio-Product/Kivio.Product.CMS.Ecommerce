@@ -158,9 +158,9 @@
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.Footer, additionalData = Model })
     </div>
 </footer>
-<button type="button" class="btn btn-floating btn-lg btn-back-to-top" id="btn-back-to-top">
+@* <button type="button" class="btn btn-floating btn-lg btn-back-to-top" id="btn-back-to-top">
     <i class="fas fa-arrow-up"></i>
-</button>
+</button> *@
 <script asp-location="Footer" type="text/javascript">
     $(function () {
         //Get the button
