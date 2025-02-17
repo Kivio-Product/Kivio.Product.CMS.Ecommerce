@@ -495,6 +495,7 @@ label, label + * {
     background-color: #fff;
     z-index: 99;
     border-top: 2px solid #007aff;
+    display: block;
 }
 .language-list.active .value,
 .currency-list.active .value{
