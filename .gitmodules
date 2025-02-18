@@ -1,4 +1,4 @@
 [submodule "NopCommerce"]
 	path = NopCommerce
-	url = https://github.com/nopSolutions/nopCommerce.git
-	branch = master
+	url = https://github.com/Kivio-Product/Kivio.Product.CMS.NopCommerce.git
+	branch = release/v4.80.0
