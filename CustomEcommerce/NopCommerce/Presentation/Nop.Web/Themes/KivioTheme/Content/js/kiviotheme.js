@@ -363,30 +363,47 @@ $(function () {
   });
 });
 $(document).ready(function () {
-  // --- LANGUAGE SELECTOR ---
-  $(".language-selector .clickable-menu").on("click", function (e) {
-    e.stopPropagation();
-    console.log("clickable-menu clicked");
+  if ($(window).width() >= 992) {
+      // LOGICA DE HOVER PARA ESCRITORIO
 
-    // Alternar la clase .active en el UL hermano
-    $(this).siblings(".language-list").toggleClass("active");
-  });
+      // LANGUAGE SELECTOR
+      $(".language-selector").hover(
+          function () {
+              // mouseenter en .language-selector
+              $(this).find(".language-list").addClass("active");
+          },
+          function () {
+              // mouseleave en .language-selector
+              $(this).find(".language-list").removeClass("active");
+          }
+      );
 
-  // --- CURRENCY SELECTOR ---
-  $(".currency-selector .currency-menu").on("click", function (e) {
-    e.stopPropagation();
-    console.log("currency-menu clicked");
+      // CURRENCY SELECTOR
+      $(".currency-selector").hover(
+          function () {
+              $(this).find(".currency-list").addClass("active");
+          },
+          function () {
+              $(this).find(".currency-list").removeClass("active");
+          }
+      );
+  }
+  else {
+      // LOGICA DE CLICK PARA MÓVILES (igual a como lo tenías)
+      $(".language-selector .clickable-menu").on("click", function (e) {
+          e.stopPropagation();
+          $(this).siblings(".language-list").toggleClass("active");
+      });
 
-    // Alternar la clase .active en el UL hermano
-    $(this).siblings(".currency-list").toggleClass("active");
-  });
+      $(".currency-selector .currency-menu").on("click", function (e) {
+          e.stopPropagation();
+          $(this).siblings(".currency-list").toggleClass("active");
+      });
 
-  // --- CERRAR AL HACER CLIC FUERA ---
-  $(document).on("click", function (e) {
-    // Si el clic NO sucede dentro de .language-selector NI de .currency-selector
-    if (!$(e.target).closest(".language-selector, .currency-selector").length) {
-      // Cerrar ambas listas
-      $(".language-list, .currency-list").removeClass("active");
-    }
-  });
+      $(document).on("click", function (e) {
+          if (!$(e.target).closest(".language-selector, .currency-selector").length) {
+              $(".language-list, .currency-list").removeClass("active");
+          }
+      });
+  }
 });
