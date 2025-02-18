@@ -20,6 +20,7 @@
     <ProjectReference Include="..\..\..\..\..\NopCommerce\src\Plugins\Nop.Plugin.Payments.CashOnDelivery\Nop.Plugin.Payments.CashOnDelivery.csproj" />
     <ProjectReference Include="..\..\..\..\..\NopCommerce\src\Tests\Nop.Tests\Nop.Tests.csproj" />
     <ProjectReference Include="..\..\Nop.Plugin.Payments.PayU\Nop.Plugin.Payments.PayU.csproj" />
+    <ProjectReference Include="..\..\Nop.Plugin.Payments.Sermepa\Nop.Plugin.Payments.Sermepa.csproj" />
   </ItemGroup>
 
   <ItemGroup>
