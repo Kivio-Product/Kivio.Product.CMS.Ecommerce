@@ -7675,7 +7675,7 @@ textarea {
 .cd-cart {
     position: fixed;
     top: 0;
-    height: 100vh;
+    height: 100dvh;
     width: 100%;
     -webkit-overflow-scrolling: touch;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
