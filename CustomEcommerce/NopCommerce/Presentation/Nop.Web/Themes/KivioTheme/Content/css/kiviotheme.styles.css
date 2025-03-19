@@ -8268,3 +8268,7 @@ a.skip:hover {
     width: 100%;
     font-size: 16px;
 }
+
+.nop-slider .slider-img {
+    width: 100%;
+  }
