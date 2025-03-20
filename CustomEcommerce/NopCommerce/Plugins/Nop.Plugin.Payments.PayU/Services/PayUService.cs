@@ -14,6 +14,7 @@ using Nop.Services.Directory;
 using Nop.Services.Payments;
 using Nop.Services.Logging;
 using Nop.Services.Orders;
+using Nop.Services.Configuration;
 
 namespace Nop.Plugin.Payments.PayU.Services
 {
@@ -27,6 +28,9 @@ namespace Nop.Plugin.Payments.PayU.Services
         private readonly ICurrencyService _currencyService;
         private readonly IOrderService _orderService;
         private readonly IWorkContext _workContext;
+        private readonly ISettingService _settingService;
+        private readonly IStoreContext _storeContext;
+
 
         private string GetPayUUrl => _payUPaymentSettings.UseSandbox
             ? "https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu"
@@ -40,7 +44,9 @@ namespace Nop.Plugin.Payments.PayU.Services
             IOrderProcessingService orderProcessingService,
             ICurrencyService currencyService,
             IOrderService orderService,
-            IWorkContext workContext)
+            IWorkContext workContext,
+            ISettingService settingService,
+            IStoreContext storeContext)
         {
             _logger = logger;
             _payUPaymentSettings = payUPaymentSettings;
@@ -50,6 +56,16 @@ namespace Nop.Plugin.Payments.PayU.Services
             _currencyService = currencyService;
             _orderService = orderService;
             _workContext = workContext;
+            _settingService = settingService;
+            _storeContext = storeContext;
+        }
+
+        public async Task<bool> HidePaymentMethodAsync()
+        {
+            var currentCurrency = (await _workContext.GetWorkingCurrencyAsync()).Id;
+            var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var payUPaymentSettings = await _settingService.LoadSettingAsync<PayUPaymentSettings>(storeScope);
+            return !payUPaymentSettings.SelectedCurrencyIdList.Contains(currentCurrency);
         }
 
         public async void RedirectToPayUPayment(PostProcessPaymentRequest postProcessPaymentRequest)

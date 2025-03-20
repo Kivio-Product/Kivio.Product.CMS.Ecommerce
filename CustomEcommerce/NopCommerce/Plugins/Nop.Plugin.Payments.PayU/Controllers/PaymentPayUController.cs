@@ -11,6 +11,8 @@ using Nop.Services.Stores;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
+using Nop.Services.Directory;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Nop.Plugin.Payments.PayU.Controllers
 {
@@ -18,10 +20,11 @@ namespace Nop.Plugin.Payments.PayU.Controllers
     {
         private readonly ILogger _logger;
         private readonly ISettingService _settingService;
-                private readonly ILocalizationService _localizationService;
+        private readonly ILocalizationService _localizationService;
         private readonly IPayUService _payUService;
         private readonly IStoreContext _storeContext;
         private readonly INotificationService _notificationService;
+        private readonly ICurrencyService _currencyService;
 
 
         public PaymentPayUController(
@@ -30,7 +33,8 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             ILocalizationService localizationService,
             IPayUService payUService,
             IStoreContext storeContext,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            ICurrencyService currencyService)
         {
             _logger = logger;
             _settingService = settingService;
@@ -38,6 +42,7 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             _payUService = payUService;
             _storeContext = storeContext;
             _notificationService = notificationService;
+            _currencyService = currencyService;
         }
 
         [AuthorizeAdmin]
@@ -56,8 +61,18 @@ namespace Nop.Plugin.Payments.PayU.Controllers
                 ClientLoginId = payUPaymentSettings.ClientLoginId,
                 ClientSecretKey = payUPaymentSettings.ClientSecretKey,
                 ClientPublicKey = payUPaymentSettings.ClientPublicKey,
-                PaymentDescription = payUPaymentSettings.PaymentDescription
+                PaymentDescription = payUPaymentSettings.PaymentDescription,
+                SelectedCurrencyIds = payUPaymentSettings.SelectedCurrencyIdList ?? new List<int>()
             };
+
+            var currencies = await _currencyService.GetAllCurrenciesAsync();
+            model.AvailableCurrencies = currencies
+                .Select(c => new SelectListItem
+                {
+                    Text = c.Name,
+                    Value = c.Id.ToString(),
+                    Selected = model.SelectedCurrencyIds.Contains(c.Id)
+                }).ToList();
 
             return View("~/Plugins/Payments.PayU/Views/Configure.cshtml", model);
         }
@@ -67,7 +82,6 @@ namespace Nop.Plugin.Payments.PayU.Controllers
         [Area(AreaNames.ADMIN)]
         public async Task<IActionResult> Configure(ConfigurationModel model)
         {
-
             if (!ModelState.IsValid)
                 return View("~/Plugins/Payments.PayU/Views/Configure.cshtml", model);
 
@@ -81,27 +95,66 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             payUPaymentSettings.ClientSecretKey = model.ClientSecretKey;
             payUPaymentSettings.ClientPublicKey = model.ClientPublicKey;
             payUPaymentSettings.PaymentDescription = model.PaymentDescription;
+            payUPaymentSettings.SelectedCurrencyIdList = model.SelectedCurrencyIds;
 
-            await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
-                x => x.UseSandbox, model.UseSandboxOverrideForStore, storeScope, false);
+            Console.WriteLine($"SelectedCurrencyIds (en el modelo): {string.Join(", ", model.SelectedCurrencyIds)}");
+            Console.WriteLine($"SelectedCurrencyIds (en settings string): {payUPaymentSettings.SelectedCurrencyIds}");
 
-            await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
-                 x => x.AccountId, model.AccountIdOverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(
+                payUPaymentSettings,
+                x => x.UseSandbox,
+                model.UseSandboxOverrideForStore,
+                storeScope,
+                false);
 
-            await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
-                 x => x.MerchantId, model.MerchantIdOverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(
+                payUPaymentSettings,
+                x => x.AccountId,
+                model.AccountIdOverrideForStore,
+                storeScope,
+                false);
 
-            await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
-                 x => x.ClientLoginId, model.ClientLoginIdOverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(
+                payUPaymentSettings,
+                x => x.MerchantId,
+                model.MerchantIdOverrideForStore,
+                storeScope,
+                false);
 
-            await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
-                 x => x.ClientSecretKey, model.ClientSecretKeyOverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(
+                payUPaymentSettings,
+                x => x.ClientLoginId,
+                model.ClientLoginIdOverrideForStore,
+                storeScope,
+                false);
 
-            await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
-                 x => x.ClientPublicKey, model.ClientPublicKeyOverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(
+                payUPaymentSettings,
+                x => x.ClientSecretKey,
+                model.ClientSecretKeyOverrideForStore,
+                storeScope,
+                false);
 
-            await _settingService.SaveSettingOverridablePerStoreAsync(payUPaymentSettings,
-                  x => x.PaymentDescription, model.PaymentDescriptionOverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(
+                payUPaymentSettings,
+                x => x.ClientPublicKey,
+                model.ClientPublicKeyOverrideForStore,
+                storeScope,
+                false);
+
+            await _settingService.SaveSettingOverridablePerStoreAsync(
+                payUPaymentSettings,
+                x => x.PaymentDescription,
+                model.PaymentDescriptionOverrideForStore,
+                storeScope,
+                false);
+
+            await _settingService.SaveSettingOverridablePerStoreAsync(
+                payUPaymentSettings,
+                x => x.SelectedCurrencyIds,
+                model.SelectedCurrencyIdsOverrideForStore,
+                storeScope,
+                false);
 
             await _settingService.ClearCacheAsync();
 
@@ -111,7 +164,7 @@ namespace Nop.Plugin.Payments.PayU.Controllers
         }
 
         [HttpGet]
-         public async Task<IActionResult> Return()
+        public async Task<IActionResult> Return()
         {
             var paymentResponse = PaymentResponse.FromHttpRequest(HttpContext.Request);
 
