@@ -1,4 +1,5 @@
-﻿using Nop.Web.Framework.Models;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Nop.Web.Framework.Models;
 using Nop.Web.Framework.Mvc.ModelBinding;
 
 namespace Nop.Plugin.Payments.Sermepa.Models
@@ -48,6 +49,12 @@ namespace Nop.Plugin.Payments.Sermepa.Models
         [NopResourceDisplayName("Plugins.Payments.Sermepa.Fields.AdditionalFeePercentage")]
         public bool AdditionalFeePercentage { get; set; }
         public bool AdditionalFeePercentage_OverrideForStore { get; set; }
+
+        [NopResourceDisplayName("Plugins.Payments.Sermepa.Fields.SelectedCurrencies")]
+        public IList<int> SelectedCurrencyIds { get; set; }
+        public bool SelectedCurrencyIds_OverrideForStore { get; set; }
+
+        public IList<SelectListItem> AvailableCurrencies { get; set; }
 
         public int ActiveStoreScopeConfiguration { get; set; }
     }

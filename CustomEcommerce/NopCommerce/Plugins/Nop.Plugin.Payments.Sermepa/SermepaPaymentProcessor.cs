@@ -1,6 +1,4 @@
 ﻿//Contributor: Noel Revuelta
-using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using Nop.Core;
@@ -11,7 +9,6 @@ using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Payments;
 using Nop.Web.Framework;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Nop.Plugin.Payments.Sermepa.Components;
 using Newtonsoft.Json;
@@ -30,6 +27,8 @@ namespace Nop.Plugin.Payments.Sermepa
         private readonly IWebHelper _webHelper;
         private readonly ILocalizationService _localizationService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IWorkContext _workContext;
+        private readonly IStoreContext _storeContext;
 
         private const string _SIGNATURE_VERSION = "HMAC_SHA256_V1";
         private const string SANDBOX_URL = "https://sis-t.redsys.es:25443/sis/realizarPago";
@@ -43,13 +42,17 @@ namespace Nop.Plugin.Payments.Sermepa
             ISettingService settingService,
             IWebHelper webHelper,
             ILocalizationService localizationService,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IWorkContext workContext,
+            IStoreContext storeContext)
         {
             _sermepaPaymentSettings = sermepaPaymentSettings;
             _settingService = settingService;
             _webHelper = webHelper;
             _localizationService = localizationService;
             _httpContextAccessor = httpContextAccessor;
+            _workContext = workContext;
+            _storeContext = storeContext;
         }
 
         #endregion
@@ -157,12 +160,12 @@ namespace Nop.Plugin.Payments.Sermepa
         /// </summary>
         /// <param name="cart">Shoping cart</param>
         /// <returns>true - hide; false - display.</returns>
-        public Task<bool> HidePaymentMethodAsync(IList<ShoppingCartItem> cart)
+        public async Task<bool> HidePaymentMethodAsync(IList<ShoppingCartItem> cart)
         {
-            //you can put any logic here
-            //for example, hide this payment method if all products in the cart are downloadable
-            //or hide this payment method if current customer is from certain country
-            return Task.FromResult(false);
+            var currentCurrency = (await _workContext.GetWorkingCurrencyAsync()).Id;
+            var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var sermepaPaymentSettings = await _settingService.LoadSettingAsync<SermepaPaymentSettings>(storeScope);
+            return !sermepaPaymentSettings.SelectedCurrencyIdList.Contains(currentCurrency);
         }
 
         /// <summary>
@@ -322,6 +325,8 @@ namespace Nop.Plugin.Payments.Sermepa
                 ClavePruebas = "sq7HjrUOBfKmC576ILgskD5srU870gJ7",
                 Pruebas = true,
                 AdditionalFee = 0,
+                AdditionalFeePercentage = false,
+                SelectedCurrencyIds = string.Empty
             };
             await _settingService.SaveSettingAsync(settings);
 
@@ -347,6 +352,8 @@ namespace Nop.Plugin.Payments.Sermepa
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.Sermepa.Fields.Pruebas.Hint", "En pruebas");
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.Sermepa.Fields.AdditionalFee.Hint", "Additional fee");
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.Sermepa.Fields.AdditionalFeePercentage.Hint", "Additional fee percentage");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.Sermepa.Fields.SelectedCurrencies", "Allowed Currencies");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.Sermepa.Fields.SelectedCurrencies.Hint", "Select the currencies for which this payment method will be available.");
 
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.Sermepa.RedirectionTip", "You will be redirected to Sermepa site to complete the order.");
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.Sermepa.PaymentMethodDescription", "You will be redirected to Sermepa site to complete the order.");
