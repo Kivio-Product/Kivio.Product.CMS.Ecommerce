@@ -1,5 +1,7 @@
-﻿using Nop.Web.Framework.Models;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Nop.Web.Framework.Models;
 using Nop.Web.Framework.Mvc.ModelBinding;
+using System.Collections.Generic;
 
 namespace Nop.Plugin.Payments.PayU.Models
 {
@@ -34,5 +36,11 @@ namespace Nop.Plugin.Payments.PayU.Models
         [NopResourceDisplayName("Plugins.Payments.PayU.Fields.PaymentDescription")]
         public string PaymentDescription { get; set; }
         public bool PaymentDescriptionOverrideForStore { get; set; }
+
+        [NopResourceDisplayName("Plugins.Payments.PayU.Fields.SelectedCurrencies")]
+        public IList<int> SelectedCurrencyIds { get; set; }
+        public bool SelectedCurrencyIdsOverrideForStore { get; set; }
+
+        public IList<SelectListItem> AvailableCurrencies { get; set; }
     }
 }

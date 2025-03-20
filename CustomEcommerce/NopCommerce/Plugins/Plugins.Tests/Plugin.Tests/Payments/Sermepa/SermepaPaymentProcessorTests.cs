@@ -28,6 +28,8 @@ namespace Nop.Plugin.Payments.Sermepa.Tests
         private Mock<ILocalizationService> _localizationServiceMock;
         private Mock<IHttpContextAccessor> _httpContextAccessorMock;
         private SermepaPaymentProcessor _sermepaPaymentProcessor;
+        private Mock<IWorkContext> _workContextMock;
+        private Mock<IStoreContext> _storeContextMock;
 
         [SetUp]
         public void SetUp()
@@ -37,14 +39,17 @@ namespace Nop.Plugin.Payments.Sermepa.Tests
             _webHelperMock = new Mock<IWebHelper>();
             _localizationServiceMock = new Mock<ILocalizationService>();
             _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+            _workContextMock = new Mock<IWorkContext>();
+            _storeContextMock = new Mock<IStoreContext>();
 
             _sermepaPaymentProcessor = new SermepaPaymentProcessor(
                 _sermepaPaymentSettingsMock.Object,
                 _settingServiceMock.Object,
                 _webHelperMock.Object,
                 _localizationServiceMock.Object,
-                _httpContextAccessorMock.Object
-            );
+                _httpContextAccessorMock.Object,
+                _workContextMock.Object,
+                _storeContextMock.Object);
         }
 
         [Test]
@@ -118,7 +123,7 @@ namespace Nop.Plugin.Payments.Sermepa.Tests
             await _sermepaPaymentProcessor.InstallAsync();
 
             // Assert
-            _settingServiceMock.Verify(x => x.SaveSettingAsync(It.IsAny<SermepaPaymentSettings>(),0), Times.Once);
+            _settingServiceMock.Verify(x => x.SaveSettingAsync(It.IsAny<SermepaPaymentSettings>(), 0), Times.Once);
             _localizationServiceMock.Verify(
                 x => x.AddOrUpdateLocaleResourceAsync(
                     It.IsAny<string>(), // resourceName
@@ -133,7 +138,7 @@ namespace Nop.Plugin.Payments.Sermepa.Tests
         {
             await _sermepaPaymentProcessor.UninstallAsync();
 
-            _localizationServiceMock.Verify(x => x.DeleteLocaleResourcesAsync("Plugins.Payments.Sermepa",null), Times.Once);
+            _localizationServiceMock.Verify(x => x.DeleteLocaleResourcesAsync("Plugins.Payments.Sermepa", null), Times.Once);
         }
 
         [Test]

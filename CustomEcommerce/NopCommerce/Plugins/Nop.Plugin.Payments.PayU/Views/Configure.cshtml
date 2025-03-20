@@ -13,7 +13,8 @@
             <div class="card-body">
                 <div class="form-group row">
                     <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="UseSandboxOverrideForStore" asp-input="UseSandbox" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-override-store-checkbox asp-for="UseSandboxOverrideForStore" asp-input="UseSandbox"
+                            asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
                         <nop-label asp-for="UseSandbox" />
                     </div>
                     <div class="col-md-9">
@@ -73,6 +74,35 @@
                     <div class="col-md-9">
                         <nop-editor asp-for="PaymentDescription" />
                         <span asp-validation-for="PaymentDescription"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="SelectedCurrencyIdsOverrideForStore"
+                            asp-input="SelectedCurrencyIds" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="SelectedCurrencyIds" />
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <nop-select asp-for="SelectedCurrencyIds" asp-items="@Model.AvailableCurrencies"
+                                    asp-multiple="true" />
+                                <script>
+                                    $(function () {
+                                        var currencyIdsInput = $('#@Html.IdFor(model => model.SelectedCurrencyIds)').select2({
+                                            closeOnSelect: false,
+                                             @if (!Model.AvailableCurrencies.Any())
+                                            {
+                                                <text>
+                                                    disabled: true,
+                                                    placeholder: 'No currencies available',
+                                                </text>
+                                            }
+                                        });
+                                    });
+                                </script>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group row">
