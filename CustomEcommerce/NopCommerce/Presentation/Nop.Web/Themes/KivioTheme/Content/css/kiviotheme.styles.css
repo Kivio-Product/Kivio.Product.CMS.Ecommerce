@@ -8272,3 +8272,9 @@ a.skip:hover {
 .nop-slider .slider-img {
     width: 100%;
   }
+
+@media (min-width: 1180px) {
+    .nop-slider {
+        width: 80vw;
+    }
+}
