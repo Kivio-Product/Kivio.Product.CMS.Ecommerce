@@ -25,7 +25,7 @@ namespace Nop.Plugin.Payments.PayU.Controllers
         private readonly IStoreContext _storeContext;
         private readonly INotificationService _notificationService;
         private readonly ICurrencyService _currencyService;
-
+        private readonly IWorkContext _workContext;
 
         public PaymentPayUController(
             ILogger logger,
@@ -34,7 +34,8 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             IPayUService payUService,
             IStoreContext storeContext,
             INotificationService notificationService,
-            ICurrencyService currencyService)
+            ICurrencyService currencyService,
+            IWorkContext workContext)
         {
             _logger = logger;
             _settingService = settingService;
@@ -43,6 +44,7 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             _storeContext = storeContext;
             _notificationService = notificationService;
             _currencyService = currencyService;
+            _workContext = workContext;
         }
 
         [AuthorizeAdmin]
@@ -65,14 +67,22 @@ namespace Nop.Plugin.Payments.PayU.Controllers
                 SelectedCurrencyIds = payUPaymentSettings.SelectedCurrencyIdList ?? new List<int>()
             };
 
+            var storeLanguage = await _workContext.GetWorkingLanguageAsync();
             var currencies = await _currencyService.GetAllCurrenciesAsync();
-            model.AvailableCurrencies = currencies
-                .Select(c => new SelectListItem
+
+            model.AvailableCurrencies = await currencies
+                .SelectAwait(async currency =>
                 {
-                    Text = c.Name,
-                    Value = c.Id.ToString(),
-                    Selected = model.SelectedCurrencyIds.Contains(c.Id)
-                }).ToList();
+                    var localizedName = await _localizationService.GetLocalizedAsync(currency, x => x.Name, storeLanguage.Id);
+
+                    return new SelectListItem
+                    {
+                        Text = localizedName,
+                        Value = currency.Id.ToString(),
+                        Selected = model.SelectedCurrencyIds.Contains(currency.Id)
+                    };
+                })
+                .ToListAsync();
 
             return View("~/Plugins/Payments.PayU/Views/Configure.cshtml", model);
         }
@@ -96,9 +106,6 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             payUPaymentSettings.ClientPublicKey = model.ClientPublicKey;
             payUPaymentSettings.PaymentDescription = model.PaymentDescription;
             payUPaymentSettings.SelectedCurrencyIdList = model.SelectedCurrencyIds;
-
-            Console.WriteLine($"SelectedCurrencyIds (en el modelo): {string.Join(", ", model.SelectedCurrencyIds)}");
-            Console.WriteLine($"SelectedCurrencyIds (en settings string): {payUPaymentSettings.SelectedCurrencyIds}");
 
             await _settingService.SaveSettingOverridablePerStoreAsync(
                 payUPaymentSettings,
