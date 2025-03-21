@@ -24,14 +24,15 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
         private readonly ILocalizationService _localizationService;
         private readonly INotificationService _notificationService;
         private readonly ICurrencyService _currencyService;
-
+        private readonly IWorkContext _workContext;
 
         public PaymentSermepaController(ISettingService settingService,
             IPermissionService permissionService,
             IStoreContext storeContext,
             ILocalizationService localizationService,
             INotificationService notificationService,
-            ICurrencyService currencyService)
+            ICurrencyService currencyService,
+            IWorkContext workContext)
         {
             _settingService = settingService;
             _permissionService = permissionService;
@@ -39,6 +40,7 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
             _localizationService = localizationService;
             _notificationService = notificationService;
             _currencyService = currencyService;
+            _workContext = workContext;
         }
 
         [CheckPermission(StandardPermission.Configuration.MANAGE_PAYMENT_METHODS)]
@@ -65,14 +67,22 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
                 SelectedCurrencyIds = sermepaPaymentSettings.SelectedCurrencyIdList ?? new List<int>(),
             };
 
+            var storeLanguage = await _workContext.GetWorkingLanguageAsync();
             var currencies = await _currencyService.GetAllCurrenciesAsync();
-            model.AvailableCurrencies = currencies
-                .Select(c => new SelectListItem
+
+            model.AvailableCurrencies = await currencies
+                .SelectAwait(async currency =>
                 {
-                    Text = c.Name,
-                    Value = c.Id.ToString(),
-                    Selected = model.SelectedCurrencyIds.Contains(c.Id)
-                }).ToList();
+                    var localizedName = await _localizationService.GetLocalizedAsync(currency, x => x.Name, storeLanguage.Id);
+
+                    return new SelectListItem
+                    {
+                        Text = localizedName,
+                        Value = currency.Id.ToString(),
+                        Selected = model.SelectedCurrencyIds.Contains(currency.Id)
+                    };
+                })
+                .ToListAsync();
 
             if (storeScope <= 0)
                 return View("~/Plugins/Payments.Sermepa/Views/Configure.cshtml", model);
