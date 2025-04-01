@@ -1,0 +1,95 @@
+﻿@using System.Globalization;
+@using Nop.Core.Domain.Common
+@using Nop.Core.Domain.Seo
+@using Nop.Services.Events
+@using Nop.Services.Security
+@using Nop.Web.Framework.Events
+@using Nop.Core
+@using Nop.Core.Events
+@inject CommonSettings commonSettings
+@inject IEventPublisher eventPublisher
+@inject IPermissionService permissionService
+@inject IWorkContext workContext
+@inject SeoSettings seoSettings
+@inject Nop.Services.Localization.ILanguageService languageService
+@inject IThemeContext themeContext
+
+@{ var themeName = await themeContext.GetWorkingThemeNameAsync(); }
+
+@{
+    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"/Themes/{themeName}/Content/slick/slick.min.js");
+    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"/Themes/{themeName}/Content/slick/slick-settings.js");
+    NopHtml.AppendScriptParts(ResourceLocation.Head, $"/lib_npm/jquery/jquery.min.js");
+    
+    
+
+    //custom tag(s);
+    if (!string.IsNullOrEmpty(seoSettings.CustomHeadTags))
+    {
+        NopHtml.AppendHeadCustomParts(seoSettings.CustomHeadTags);
+    }
+
+    //event
+    await eventPublisher.PublishAsync(new PageRenderingEvent(this.NopHtml));
+}
+<!DOCTYPE html>
+<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" dir="@Html.GetUIDirection(!await Html.ShouldUseRtlThemeAsync())" class="@NopHtml.GeneratePageCssClasses()">
+<head>
+    <title>@await NopHtml.GenerateTitleAsync()</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta name="description" content="@NopHtml.GenerateMetaDescriptionAsync()" />
+    <meta name="keywords" content="@NopHtml.GenerateMetaKeywordsAsync()" />
+    <meta name="generator" content="nopCommerce" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    @NopHtml.GenerateHeadCustom()
+    @*This is used so that themes can inject content into the header*@
+    @await Html.PartialAsync("Head")
+
+    
+
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeadHtmlTag })
+    @NopHtml.GenerateCssFiles()
+    @NopHtml.GenerateCanonicalUrls()
+    @await Component.InvokeAsync(typeof(NewsRssHeaderLinkViewComponent))
+    @await Component.InvokeAsync(typeof(BlogRssHeaderLinkViewComponent))
+    @*Insert favicon and app icons head code*@
+            @await Component.InvokeAsync(typeof(FaviconViewComponent))
+    @NopHtml.GenerateScripts(ResourceLocation.Head)
+    @NopHtml.GenerateInlineScripts(ResourceLocation.Head)
+    <!--Powered by nopCommerce - https://www.nopCommerce.com-->
+</head>
+<body>
+    @RenderBody()
+
+     @*<script src="~/Themes/@themeName/Content/slick/slick-settings.js"></script>*@
+     
+    @*<script src="~/lib_npm/jquery/jquery.min.js"></script>*@
+    <script src="~/Themes/@themeName/Content/bootstrap-4.6.0-dist/js/bootstrap.min.js"></script>
+    @*<script src="~/Themes/@themeName/Content/slick/slick-settings.js"></script>*@
+    @*//when jQuery migrate script logging is active you will see the log in the browser console*@
+    @if (commonSettings.JqueryMigrateScriptLoggingActive)
+    {
+        <script src="~/lib_npm/jquery-migrate/jquery-migrate.js"></script>
+    }
+    else
+    {
+        <script src="~/lib_npm/jquery-migrate/jquery-migrate.min.js"></script>
+    }
+
+     <script src="~/lib_npm/jquery-ui-dist/jquery-ui.min.js"></script>
+    <script src="~/lib_npm/jquery-validation/jquery.validate.min.js"></script>
+    <script src="~/lib_npm/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    
+
+    
+
+    
+    <script src="~/js/public.countryselect.js"></script>
+    <script src="~/js/public.ajaxcart.js"></script>
+    <script src="~/js/public.common.js"></script>
+
+
+    @NopHtml.GenerateScripts(ResourceLocation.Footer)
+    @NopHtml.GenerateInlineScripts(ResourceLocation.Footer)
+</body>
+</html>
