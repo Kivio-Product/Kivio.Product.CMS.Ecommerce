@@ -1,0 +1,138 @@
+Release Date: February 25, 2025
+nopAccelerate Simplex Theme version: 2.9.0
+
+Support for nopCommerce 4.80 added
+
+==========================================
+
+
+Release Date: May 09, 2024
+nopAccelerate Simplex Theme version: 2.8.0
+
+Support for nopCommerce 4.70 added
+
+==========================================
+
+Release Date: January 12, 2023
+nopAccelerate Simplex Theme version: 2.7.0
+
+Support for nopCommerce 4.60 added
+
+==========================================
+
+Release Date: June 01, 2022
+nopAccelerate Simplex Theme version: 2.6.3
+
+Support for nopCommerce 4.52 added
+
+==========================================
+
+Release Date: April 08, 2022
+nopAccelerate Simplex Theme version: 2.6.2
+
+Bug Fixed: Fixed RTL issue.
+
+==========================================
+
+Release Date: April 06, 2022
+nopAccelerate Simplex Theme version: 2.6.1
+
+Bug Fixed: Fixed remove cart and wishlist items issue
+
+==========================================
+
+Release Date: March 22, 2022
+nopAccelerate Simplex Theme version: 2.6.0
+
+Support for nopCommerce 4.50 added
+
+==========================================
+
+Release Date: September 20, 2021
+nopAccelerate Simplex Theme version: 2.5.1
+
+Bug Fixed: Filter collapse didn't work in mobile
+Bug Fixed: Make same design structure like nopCommerce product box
+
+==========================================
+
+Release Date: March 30, 2021
+nopAccelerate Simplex Theme version: 2.5.0
+
+Added Feature
+
+Support for nopCommerce 4.40 added
+
+==========================================
+
+Release Date: August 27, 2020
+nopAccelerate Simplex Theme version: 2.4.0
+
+Added Feature
+
+Added support for RTL from nopCommerce 4.30
+
+==========================================
+
+Release Date: July 1, 2020
+nopAccelerate Simplex Theme version: 2.3.0
+
+Added Feature
+
+Support for nopCommerce 4.30 added
+
+==========================================
+
+Release Date: August 21, 2019
+nopAccelerate Simplex Theme version: 2.2.0
+
+Added Feature
+
+Support for nopCommerce 4.20 added
+
+==========================================
+
+Release Date: August 28, 2018
+nopAccelerate Simplex Theme version: 2.1.0
+
+Added Feature
+
+Support for nopCommerce 4.10 added
+
+==========================================
+
+Release Date: November 28, 2017
+nopAccelerate Simplex Theme version: 2.0.0
+
+Added Feature
+
+Support for nopCommerce 4.0 added
+
+==========================================
+
+Release Date: March 17, 2017
+nopAccelerate Simplex Theme version: 1.2.0
+
+Added Feature
+
+Support for nopCommerce 3.90 added
+
+==========================================
+
+Release Date: December 9, 2016
+nopAccelerate Simplex Theme version: 1.1.0
+
+Added Feature
+
+Support for nopCommerce 3.80 added
+Updated FontAwesome to version 4.7.0
+Updated Bootstrap to version 3.3.7
+
+==========================================
+
+Release Date: December 9, 2016
+nopAccelerate Simplex Theme version: 1.0.0
+
+Release nopAccelerate Simplex Theme Initial version 1.0.0.
+
+==========================================
