@@ -47,7 +47,9 @@ namespace Nop.Plugin.Payments.Sermepa.Tests
                 _settingServiceMock.Object,
                 _webHelperMock.Object,
                 _localizationServiceMock.Object,
-                _httpContextAccessorMock.Object);
+                _httpContextAccessorMock.Object,
+                _workContextMock.Object,
+                _storeContextMock.Object);
         }
 
         [Test]
