@@ -1,0 +1,98 @@
+@*
+    // ***	 ** ****** ****** ****** ******* **     ** ****** ***   ** **** ****
+    // ****  ** **  ** **  ** **  **  **  **  **   **  **  ** ****  ** *    *
+    // ** ** ** **  ** ****** ******  **  **   ** **   ****** ** ** ** *    ***
+    // **  **** **  ** **	  **  **  **  **    ***    **  ** **  **** *    *
+    // **   *** ****** **	  **  ** *******     *     **  ** **   *** **** ****
+    //
+    // **************************************************************************
+    // *                                                                		*
+	// *                      Flexo by NopAdvance team                          *
+    // *			Copyright (c) NopAdvance LLP. All Rights Reserved			*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Email:		contact@nopadvance.com										*
+    // * Website:	https://nopadvance.com										*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Please see the  License file for the full End User License Agreement. 	*
+    // * The  complete license agreement is also available on  our  website at 	*
+    // * https://nopadvance.com/license-terms									*
+    // *                                                                       	*
+    // * This  software / plugin  is furnished  under a license  and  may   be  *
+    // * used  and modified  only in accordance with the terms of such license  *
+    // * and with the inclusion of the above copyright notice.  This  software	*
+    // * or any other copies thereof may not be  provided  or  otherwise  made	*
+    // * available  to any other person.  No title to  and  ownership  of  the  *
+    // * software is hereby transferred.                                        *
+    // *                                                                       	*
+    // * You may not reverse  engineer, decompile, defeat  license  encryption 	*
+    // * mechanisms  or  disassemble this software product or software product 	*
+    // * license.  NopAdvance may terminate this  license if you don't  comply 	*
+    // * with any of the terms & conditions set forth in our  end user license	*
+    // * agreement (EULA).  In such event , licensee agrees to return licensor	*
+    // * or destroy  all copies of software  upon termination  of the license.	*
+    // *                                                                       	*
+    // **************************************************************************
+*@
+@model SpecificationFilterModel
+
+<div class="product-filter product-spec-filter">
+    <div class="filter-title">
+        <strong>@T("Filtering.SpecificationFilter")</strong>
+    </div>
+    <div class="filter-content">
+        @foreach (var attr in Model.Attributes)
+        {
+            <ul class="group product-spec-group @(attr.Values.Any(x => !string.IsNullOrEmpty(x.ColorSquaresRgb)) ? "product-spec-color" : null )">
+                <li class="name">
+                    <strong>@attr.Name</strong>
+                </li>
+                @foreach (var value in attr.Values)
+                {
+                    <li class="item @(!string.IsNullOrEmpty(value.ColorSquaresRgb) ? "color-item" : null)">
+                        <div class="custom-checkbox">
+                            <input class="custom-control-input" id="attribute-option-@value.Id" type="checkbox" data-option-id="@value.Id" checked="@value.Selected" />
+                            @if (string.IsNullOrEmpty(value.ColorSquaresRgb))
+                            {
+                                <label class="custom-control-label" for="attribute-option-@value.Id">
+                                    @value.Name
+                                </label>
+                            }
+                            else
+                            {
+                                <label for="attribute-option-@value.Id" class="attribute-squares color-squares custom-control-label">
+                                    <span class="attribute-square" style="background-color: @(value.ColorSquaresRgb);"></span>
+                                    @value.Name
+                                </label>
+                            }
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</div>
+<script asp-location="Footer">
+    $(function() {
+        var $optionEls = $('[data-option-id]');
+        $optionEls.on('change', function () {
+            CatalogProducts.getProducts();
+        });
+
+        $(CatalogProducts).on('before', function (e) {
+            var selectedOptions = $.map($optionEls, function (el) {
+                var $optionEl = $(el);
+                if ($optionEl.is(':checked')) return $optionEl.data('option-id');
+                return null;
+            });
+
+            if (selectedOptions && selectedOptions.length > 0) {
+                e.payload.urlBuilder
+                    .addParameter('specs', selectedOptions.join(','));
+            }
+        });
+    });
+</script>

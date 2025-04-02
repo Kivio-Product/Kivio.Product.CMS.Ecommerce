@@ -1,0 +1,172 @@
+@*
+    // ***	 ** ****** ****** ****** ******* **     ** ****** ***   ** **** ****
+    // ****  ** **  ** **  ** **  **  **  **  **   **  **  ** ****  ** *    *
+    // ** ** ** **  ** ****** ******  **  **   ** **   ****** ** ** ** *    ***
+    // **  **** **  ** **	  **  **  **  **    ***    **  ** **  **** *    *
+    // **   *** ****** **	  **  ** *******     *     **  ** **   *** **** ****
+    //
+    // **************************************************************************
+    // *                                                                		*
+	// *                      Flexo by NopAdvance team                          *
+    // *			Copyright (c) NopAdvance LLP. All Rights Reserved			*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Email:		contact@nopadvance.com										*
+    // * Website:	https://nopadvance.com										*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Please see the  License file for the full End User License Agreement. 	*
+    // * The  complete license agreement is also available on  our  website at 	*
+    // * https://nopadvance.com/license-terms									*
+    // *                                                                       	*
+    // * This  software / plugin  is furnished  under a license  and  may   be  *
+    // * used  and modified  only in accordance with the terms of such license  *
+    // * and with the inclusion of the above copyright notice.  This  software	*
+    // * or any other copies thereof may not be  provided  or  otherwise  made	*
+    // * available  to any other person.  No title to  and  ownership  of  the  *
+    // * software is hereby transferred.                                        *
+    // *                                                                       	*
+    // * You may not reverse  engineer, decompile, defeat  license  encryption 	*
+    // * mechanisms  or  disassemble this software product or software product 	*
+    // * license.  NopAdvance may terminate this  license if you don't  comply 	*
+    // * with any of the terms & conditions set forth in our  end user license	*
+    // * agreement (EULA).  In such event , licensee agrees to return licensor	*
+    // * or destroy  all copies of software  upon termination  of the license.	*
+    // *                                                                       	*
+    // **************************************************************************
+*@
+@model HeaderLinksModel
+@using Nop.Core.Domain.Customers
+@inject Nop.Core.IWebHelper webHelper
+@inject Nop.Core.Domain.Catalog.CatalogSettings _catalogSettings;
+
+<div class="header-links header-linksmobile">
+    <ul>
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderLinksBefore, additionalData = Model })
+
+
+
+        <li class="mobilemenulink mobile-link" tabindex="0"><i class="fa fa-bars" aria-hidden="true"></i></li>
+
+        <li class="mobile-link">
+            <div aria-label="Myaccount" class="myaccount"><i class="fa fa-user" aria-hidden="true"></i></div>
+            <ul class="myaccount-dropdown" style="display: none;">
+                @if (Model.WishlistEnabled)
+                {
+                    <li>
+                        <a href="@Url.RouteUrl("Wishlist")" class="ico-wishlist">
+                            <span class="wishlist-label">@T("Wishlist")</span>
+                            <span class="wishlist-qty">@T("Wishlist.HeaderQuantity", Model.WishlistItems)</span>
+                        </a>
+                    </li>
+                }
+                @if (Model.IsAuthenticated)
+                {
+                    <li><a href="@Url.RouteUrl("CustomerInfo")" class="ico-account">@T("Account.MyAccount")@*@Model.CustomerName*@</a></li>
+                    <li><a href="@Url.RouteUrl("Logout")" class="ico-logout">@T("Account.Logout")</a></li>
+                }
+                @if (Model.AllowPrivateMessages)
+                {
+                    <li class="inbox_message">
+                        <a href="@Url.RouteUrl("PrivateMessages", new { tab = "" })" class="ico-inbox">
+                            <span class="inbox-label">@T("PrivateMessages.Inbox")</span>
+                            <span class="inbox-unread">@Model.UnreadPrivateMessages</span>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    var returnUrl = Context.Request.Query.TryGetValue("returnUrl", out var url) && !StringValues.IsNullOrEmpty(url)
+                        ? url.ToString()
+                        : webHelper.GetRawUrl(Context.Request);
+
+                    @if (Model.RegistrationType != UserRegistrationType.Disabled)
+                    {
+                        <li><a href="@Url.RouteUrl("Register", new { returnUrl })" class="ico-register">@T("Account.Register")</a></li>
+                    }
+                    <li><a href="@Url.RouteUrl("Login", new { returnUrl })" class="ico-login">@T("Account.Login")</a></li>
+                }
+
+            </ul>
+        </li>
+
+
+        @if (Model.ShoppingCartEnabled)
+        {
+            <li class="topcartlink" id="topcartlink">
+                <a href="@Url.RouteUrl("ShoppingCart")" class="ico-cart">
+                    <span class="cart-label">@T("ShoppingCart")</span>
+                    <span class="cart-qty">@T("ShoppingCart.HeaderQuantity", Model.ShoppingCartItems)</span>
+                </a>
+            </li>
+        }
+
+        @if (_catalogSettings.ProductSearchEnabled)
+        {
+            <li class="mobile-search-logo">
+                <i class="fa fa-search" aria-hidden="true"></i>
+            </li>
+        }        
+
+        @if (Model.WishlistEnabled)
+        {
+            <li class="desktop-link">
+                <a href="@Url.RouteUrl("Wishlist")" class="ico-wishlist">
+                    <i aria-hidden="true" class="fa fa-heart"></i>
+                    <span class="wishlist-label">@T("Wishlist")</span>
+                    <span class="wishlist-qty">@T("Wishlist.HeaderQuantity", Model.WishlistItems)</span>
+                </a>
+            </li>
+        }
+        @if (Model.IsAuthenticated)
+        {
+            <li class="desktop-link"><a href="@Url.RouteUrl("CustomerInfo")" class="ico-account">@T("Account.MyAccount")@*@Model.CustomerName*@</a></li>
+            <li class="desktop-link"><a href="@Url.RouteUrl("Logout")" class="ico-logout">@T("Account.Logout")</a></li>
+        }
+        else
+        {
+            <li class="desktop-link"><a href="@Url.RouteUrl("Register")" class="ico-register">@T("Account.Register")</a></li>
+            <li class="desktop-link"><a href="@Url.RouteUrl("Login")" class="ico-login">@T("Account.Login")</a></li>
+        }
+        @if (Model.AllowPrivateMessages)
+        {
+            <li class="desktop-link">
+                <a href="@Url.RouteUrl("PrivateMessages", new { tab = "" })" class="ico-inbox">
+                    <span class="inbox-label">@T("PrivateMessages.Inbox")</span>
+                    <span class="inbox-unread">@Model.UnreadPrivateMessages</span>
+                </a>
+            </li>
+        }
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderLinksAfter, additionalData = Model })
+    </ul>
+    @if (Model.AllowPrivateMessages && !string.IsNullOrEmpty(Model.AlertMessage))
+    {
+        //new private message notification
+        <script asp-location="Footer">
+            $(function() {
+                displayPopupNotification('@Html.Raw(JavaScriptEncoder.Default.Encode(Model.AlertMessage))', 'success', false);
+            });
+        </script>
+    }
+    @if (Model.ShoppingCartEnabled)
+    {
+        <script asp-location="Footer">
+            $(function() {
+                $('.header').on('mouseenter', '#topcartlink', function () {
+                    $('#flyout-cart').addClass('active');
+                });
+                $('.header').on('mouseleave', '#topcartlink', function () {
+                    $('#flyout-cart').removeClass('active');
+                });
+                $('.header').on('mouseenter', '#flyout-cart', function () {
+                    $('#flyout-cart').addClass('active');
+                });
+                $('.header').on('mouseleave', '#flyout-cart', function () {
+                    $('#flyout-cart').removeClass('active');
+                });
+            });
+        </script>
+    }
+</div>

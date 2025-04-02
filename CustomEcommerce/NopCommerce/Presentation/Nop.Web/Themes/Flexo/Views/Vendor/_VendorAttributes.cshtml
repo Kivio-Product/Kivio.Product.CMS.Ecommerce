@@ -1,0 +1,123 @@
+@*
+    // ***	 ** ****** ****** ****** ******* **     ** ****** ***   ** **** ****
+    // ****  ** **  ** **  ** **  **  **  **  **   **  **  ** ****  ** *    *
+    // ** ** ** **  ** ****** ******  **  **   ** **   ****** ** ** ** *    ***
+    // **  **** **  ** **	  **  **  **  **    ***    **  ** **  **** *    *
+    // **   *** ****** **	  **  ** *******     *     **  ** **   *** **** ****
+    //
+    // **************************************************************************
+    // *                                                                		*
+	// *                      Flexo by NopAdvance team                          *
+    // *			Copyright (c) NopAdvance LLP. All Rights Reserved			*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Email:		contact@nopadvance.com										*
+    // * Website:	https://nopadvance.com										*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Please see the  License file for the full End User License Agreement. 	*
+    // * The  complete license agreement is also available on  our  website at 	*
+    // * https://nopadvance.com/license-terms									*
+    // *                                                                       	*
+    // * This  software / plugin  is furnished  under a license  and  may   be  *
+    // * used  and modified  only in accordance with the terms of such license  *
+    // * and with the inclusion of the above copyright notice.  This  software	*
+    // * or any other copies thereof may not be  provided  or  otherwise  made	*
+    // * available  to any other person.  No title to  and  ownership  of  the  *
+    // * software is hereby transferred.                                        *
+    // *                                                                       	*
+    // * You may not reverse  engineer, decompile, defeat  license  encryption 	*
+    // * mechanisms  or  disassemble this software product or software product 	*
+    // * license.  NopAdvance may terminate this  license if you don't  comply 	*
+    // * with any of the terms & conditions set forth in our  end user license	*
+    // * agreement (EULA).  In such event , licensee agrees to return licensor	*
+    // * or destroy  all copies of software  upon termination  of the license.	*
+    // *                                                                       	*
+    // **************************************************************************
+*@
+@model IList<VendorAttributeModel>
+
+@using Nop.Core.Domain.Catalog;
+@using Nop.Services.Vendors
+
+@foreach (var attribute in Model)
+{
+    var controlId = $"{NopVendorDefaults.VendorAttributePrefix}{attribute.Id}";
+    var textPrompt = attribute.Name;
+
+    <div class="inputs vendor-attributes">
+        <label>@textPrompt:</label>
+        
+        @switch (attribute.AttributeControlType)
+        {
+            case AttributeControlType.DropdownList:
+            {
+            <select name="@(controlId)" id="@(controlId)">
+                @if (!attribute.IsRequired)
+                    {
+                    <option value="0">---</option>
+                    }
+                @foreach (var attributeValue in attribute.Values)
+                    {
+                    <option selected="@attributeValue.IsPreSelected" value="@attributeValue.Id">@attributeValue.Name</option>
+                    }
+            </select>
+            }
+                break;
+            case AttributeControlType.RadioList:
+            {
+            <ul class="option-list">
+                @foreach (var attributeValue in attribute.Values)
+                    {
+                            <li class="custom-radio">
+                              
+                                    <input class="custom-control-input" id="@(controlId)_@(attributeValue.Id)" type="radio" name="@(controlId)" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected" />
+                                    <label class="forcheckbox custom-control-label" for="@(controlId)_@(attributeValue.Id)">@attributeValue.Name</label>
+                               
+                       
+                    </li>
+                    }
+            </ul>
+            }
+                break;
+            case AttributeControlType.Checkboxes:
+            case AttributeControlType.ReadonlyCheckboxes:
+            {
+            <ul class="option-list">
+                @foreach (var attributeValue in attribute.Values)
+                    {
+                     <li class="custom-checkbox">
+                                <input class="custom-control-input" id="@(controlId)_@(attributeValue.Id)" type="checkbox" name="@(controlId)" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected" @(attribute.AttributeControlType == AttributeControlType.ReadonlyCheckboxes ? Html.Raw(" disabled=\"disabled\"") : null) />
+                                <label class="custom-control-label" for="@(controlId)_@(attributeValue.Id)">@attributeValue.Name</label>
+                    </li>
+                    }
+            </ul>
+            }
+            break;
+            case AttributeControlType.TextBox:
+            {
+                <input name="@(controlId)" type="text" class="textbox" id="@(controlId)" value="@(attribute.DefaultValue)" />
+            }
+            break;
+            case AttributeControlType.MultilineTextbox:
+            {
+            <textarea id="@(controlId)" name="@(controlId)">@(attribute.DefaultValue)</textarea>
+                }
+                break;
+            case AttributeControlType.Datepicker:
+            case AttributeControlType.FileUpload:
+            case AttributeControlType.ColorSquares:
+            case AttributeControlType.ImageSquares:
+                {
+                    //not support attribute type
+                }
+                break;
+        }
+        @if (attribute.IsRequired)
+        {
+            <nop-required />
+        }
+    </div>
+}

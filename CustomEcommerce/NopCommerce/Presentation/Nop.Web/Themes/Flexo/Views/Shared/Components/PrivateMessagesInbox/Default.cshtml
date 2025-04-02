@@ -1,0 +1,138 @@
+@*
+    // ***	 ** ****** ****** ****** ******* **     ** ****** ***   ** **** ****
+    // ****  ** **  ** **  ** **  **  **  **  **   **  **  ** ****  ** *    *
+    // ** ** ** **  ** ****** ******  **  **   ** **   ****** ** ** ** *    ***
+    // **  **** **  ** **	  **  **  **  **    ***    **  ** **  **** *    *
+    // **   *** ****** **	  **  ** *******     *     **  ** **   *** **** ****
+    //
+    // **************************************************************************
+    // *                                                                		*
+	// *                      Flexo by NopAdvance team                          *
+    // *			Copyright (c) NopAdvance LLP. All Rights Reserved			*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Email:		contact@nopadvance.com										*
+    // * Website:	https://nopadvance.com										*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Please see the  License file for the full End User License Agreement. 	*
+    // * The  complete license agreement is also available on  our  website at 	*
+    // * https://nopadvance.com/license-terms									*
+    // *                                                                       	*
+    // * This  software / plugin  is furnished  under a license  and  may   be  *
+    // * used  and modified  only in accordance with the terms of such license  *
+    // * and with the inclusion of the above copyright notice.  This  software	*
+    // * or any other copies thereof may not be  provided  or  otherwise  made	*
+    // * available  to any other person.  No title to  and  ownership  of  the  *
+    // * software is hereby transferred.                                        *
+    // *                                                                       	*
+    // * You may not reverse  engineer, decompile, defeat  license  encryption 	*
+    // * mechanisms  or  disassemble this software product or software product 	*
+    // * license.  NopAdvance may terminate this  license if you don't  comply 	*
+    // * with any of the terms & conditions set forth in our  end user license	*
+    // * agreement (EULA).  In such event , licensee agrees to return licensor	*
+    // * or destroy  all copies of software  upon termination  of the license.	*
+    // *                                                                       	*
+    // **************************************************************************
+*@
+@model PrivateMessageListModel 
+<div class="private-messages-box">
+    <script asp-location="Footer">
+        $(function() {
+            $('#select-all-inbox').on('click', function () {
+                $('#pm-inbox-table .rowcheckbox').prop('checked', $(this).is(':checked')).trigger('change');
+            });
+
+            $('#pm-inbox-table .rowcheckbox').on('change', function (e) {
+                var numChkBoxes = $('#pm-inbox-table .rowcheckbox').length;
+                var numChkBoxesChecked = $('#pm-inbox-table .rowcheckbox:checked').length;
+                $('#select-all-inbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+            });
+        });
+    </script>
+    @if (Model.Messages.Count > 0)
+    {
+        <form asp-route="PrivateMessagesInbox" method="post">
+            <div class="table-wrapper">
+                <table class="data-table" id="pm-inbox-table">
+                    <colgroup>
+                        <col width="1" />
+                        <col />
+                        <col />
+                        <col width="1" />
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th class="select">
+                            <div class="custom-checkbox">
+                                <input class="custom-control-input" type="checkbox" id="select-all-inbox" />
+                                    <label class="custom-control-label" for="select-all-inbox" class="custom-control-label">check</label>
+                            </div>
+                            
+                        </th>
+                        <th class="from">
+                            @T("PrivateMessages.Inbox.FromColumn")
+                        </th>
+                        <th class="subject">
+                            @T("PrivateMessages.Inbox.SubjectColumn")
+                        </th>
+                        <th class="date">
+                            @T("PrivateMessages.Inbox.DateColumn")
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for (var i = 0; i < Model.Messages.Count; i++)
+                    {
+                        var item = Model.Messages[i];
+                        <tr @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
+                            <td class="select">
+                                <div class="custom-checkbox">
+                                    <input type="checkbox" name="pm@(item.Id)" id="pm@(item.Id)" class="rowcheckbox custom-control-input" />
+                                        <label class="custom-control-label" for="pm@(item.Id)" class="custom-control-label">check</label>
+                                </div>
+                                
+                            </td>
+                            <td class="from">
+                                @if (item.AllowViewingFromProfile)
+                                {
+                                    @Html.RouteLink(item.CustomerFromName, "CustomerProfile", new { Id = item.FromCustomerId })
+                                }
+                                else
+                                {
+                                    @item.CustomerFromName
+                                }
+                            </td>
+                            <td class="subject">
+                                @Html.RouteLink(item.Subject, "ViewPM", new { privateMessageId = item.Id }, new { @class = (item.IsRead) ? "pm-read" : "pm-unread" })
+                            </td>
+                            <td class="date">
+                                @item.CreatedOn
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            @{
+                var pager = await Html.PagerAsync(Model.PagerModel);
+            }
+            @if (!string.IsNullOrEmpty(await pager.RenderHtmlContentAsync()))
+            {
+                <div class="pager">
+                    @pager
+                </div>
+            }
+            <div class="buttons">
+                <button type="submit" class="button-1 delete-selected-pm-button" name="delete-inbox">@T("PrivateMessages.Inbox.DeleteSelected")</button>
+                <button type="submit" name="mark-unread" class="button-2 mark-unread-pm-button">@T("PrivateMessages.Inbox.MarkAsUnread")</button>
+            </div>
+        </form>
+    }
+    else
+    {
+        <div class="no-items">@T("PrivateMessages.Inbox.NoItems")</div>
+    }
+</div>

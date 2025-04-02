@@ -1,0 +1,103 @@
+@*
+    // ***	 ** ****** ****** ****** ******* **     ** ****** ***   ** **** ****
+    // ****  ** **  ** **  ** **  **  **  **  **   **  **  ** ****  ** *    *
+    // ** ** ** **  ** ****** ******  **  **   ** **   ****** ** ** ** *    ***
+    // **  **** **  ** **	  **  **  **  **    ***    **  ** **  **** *    *
+    // **   *** ****** **	  **  ** *******     *     **  ** **   *** **** ****
+    //
+    // **************************************************************************
+    // *                                                                		*
+	// *                      Flexo by NopAdvance team                          *
+    // *			Copyright (c) NopAdvance LLP. All Rights Reserved			*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Email:		contact@nopadvance.com										*
+    // * Website:	https://nopadvance.com										*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Please see the  License file for the full End User License Agreement. 	*
+    // * The  complete license agreement is also available on  our  website at 	*
+    // * https://nopadvance.com/license-terms									*
+    // *                                                                       	*
+    // * This  software / plugin  is furnished  under a license  and  may   be  *
+    // * used  and modified  only in accordance with the terms of such license  *
+    // * and with the inclusion of the above copyright notice.  This  software	*
+    // * or any other copies thereof may not be  provided  or  otherwise  made	*
+    // * available  to any other person.  No title to  and  ownership  of  the  *
+    // * software is hereby transferred.                                        *
+    // *                                                                       	*
+    // * You may not reverse  engineer, decompile, defeat  license  encryption 	*
+    // * mechanisms  or  disassemble this software product or software product 	*
+    // * license.  NopAdvance may terminate this  license if you don't  comply 	*
+    // * with any of the terms & conditions set forth in our  end user license	*
+    // * agreement (EULA).  In such event , licensee agrees to return licensor	*
+    // * or destroy  all copies of software  upon termination  of the license.	*
+    // *                                                                       	*
+    // **************************************************************************
+*@
+@model CheckoutShippingMethodModel
+
+<div class="checkout-data">
+    @if (Model.DisplayPickupInStore && Model.PickupPointsModel.AllowPickupInStore)
+    {
+        @await Html.PartialAsync("_PickupPoints", Model.PickupPointsModel)
+        <script>
+            $(function() {
+                $(document).unbind('checkout_toggle_pickup_in_store');
+                $(document).on('checkout_toggle_pickup_in_store', function (e) {
+                    if (e.checked)
+                        $('#shipping-methods-form').hide();
+                    else
+                        $('#shipping-methods-form').show();
+                });
+            });
+        </script>
+    }
+    @if (Model.PickupPointsModel == null || !Model.PickupPointsModel.PickupInStoreOnly)
+    {
+        <div class="section shipping-method" id="shipping-methods-form">
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OpCheckoutShippingMethodTop, additionalData = Model })
+            @if (!Model.Warnings.Any())
+            {
+                <ul class="method-list">
+                    @for (var i = 0; i < Model.ShippingMethods.Count; i++)
+                    {
+                        var shippingMethod = Model.ShippingMethods[i];
+                        <li>
+                            <div class="method-name custom-radio">
+                                <input class="custom-control-input" id="shippingoption_@(i)" type="radio" name="shippingoption" value="@(shippingMethod.Name)___@(shippingMethod.ShippingRateComputationMethodSystemName)" checked="@shippingMethod.Selected" />
+                                <label class="custom-control-label" for="shippingoption_@(i)">@T("Checkout.SelectShippingMethod.MethodAndFee", shippingMethod.Name, shippingMethod.Fee)</label>
+                            </div>
+                            @if (!string.IsNullOrEmpty(shippingMethod.Description))
+                            {
+                                <div class="method-description">
+                                    @Html.Raw(shippingMethod.Description)
+                                </div>
+                            }
+                        </li>
+                    }
+                </ul>
+                if (Model.NotifyCustomerAboutShippingFromMultipleLocations)
+                {
+                    <div class="multiple-locations">
+                        @T("Checkout.ShippingMethod.ShippingFromMultipleLocations")
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="message-error">
+                    <ul>
+                        @foreach (var warning in Model.Warnings)
+                        {
+                            <li>@warning</li>
+                        }
+                    </ul>
+                </div>
+            }
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OpCheckoutShippingMethodBottom, additionalData = Model })
+        </div>
+    }
+</div>

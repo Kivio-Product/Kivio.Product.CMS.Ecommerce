@@ -1,0 +1,122 @@
+@*
+    // ***	 ** ****** ****** ****** ******* **     ** ****** ***   ** **** ****
+    // ****  ** **  ** **  ** **  **  **  **  **   **  **  ** ****  ** *    *
+    // ** ** ** **  ** ****** ******  **  **   ** **   ****** ** ** ** *    ***
+    // **  **** **  ** **	  **  **  **  **    ***    **  ** **  **** *    *
+    // **   *** ****** **	  **  ** *******     *     **  ** **   *** **** ****
+    //
+    // **************************************************************************
+    // *                                                                		*
+	// *                      Flexo by NopAdvance team                          *
+    // *			Copyright (c) NopAdvance LLP. All Rights Reserved			*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Email:		contact@nopadvance.com										*
+    // * Website:	https://nopadvance.com										*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Please see the  License file for the full End User License Agreement. 	*
+    // * The  complete license agreement is also available on  our  website at 	*
+    // * https://nopadvance.com/license-terms									*
+    // *                                                                       	*
+    // * This  software / plugin  is furnished  under a license  and  may   be  *
+    // * used  and modified  only in accordance with the terms of such license  *
+    // * and with the inclusion of the above copyright notice.  This  software	*
+    // * or any other copies thereof may not be  provided  or  otherwise  made	*
+    // * available  to any other person.  No title to  and  ownership  of  the  *
+    // * software is hereby transferred.                                        *
+    // *                                                                       	*
+    // * You may not reverse  engineer, decompile, defeat  license  encryption 	*
+    // * mechanisms  or  disassemble this software product or software product 	*
+    // * license.  NopAdvance may terminate this  license if you don't  comply 	*
+    // * with any of the terms & conditions set forth in our  end user license	*
+    // * agreement (EULA).  In such event , licensee agrees to return licensor	*
+    // * or destroy  all copies of software  upon termination  of the license.	*
+    // *                                                                       	*
+    // **************************************************************************
+*@
+@model ContactUsModel
+@{
+    Layout = "_ColumnsOne";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.ContactUs").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-contact-page");
+}
+<div class="page contact-page">
+    @*<div class="container">*@   
+    <div class="contact-left">    
+       
+        @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "ContactUs" })
+        <div class="page-body">
+                    
+            
+            <div class="contact_us_form">
+                <div class="title">
+                    <strong>@T("PageTitle.ContactUs")</strong>
+                </div>
+
+                @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ContactUsTop, additionalData = Model })
+                @if (Model.SuccessfullySent)
+                {
+                    <div class="result">
+                        @Model.Result
+                    </div>
+                }
+                else
+                {
+                    <form asp-route="ContactUs" method="post">
+                        <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                        <div class="fieldset">
+                            <div class="form-fields">
+                                <div class="inputs">
+                                    <label asp-for="FullName" asp-postfix=":"></label>
+                                    <input asp-for="FullName" placeholder="@T("ContactUs.FullName.Hint")" class="fullname" />
+                                    <nop-required />
+                                    <span asp-validation-for="FullName"></span>
+                                </div>
+                                <div class="inputs">
+                                    <label asp-for="Email" asp-postfix=":"></label>
+                                    <input asp-for="Email" placeholder="@T("ContactUs.Email.Hint")" class="email" />
+                                    <nop-required />
+                                    <span asp-validation-for="Email"></span>
+                                </div>
+                                @if (Model.SubjectEnabled)
+                                {
+                                    <div class="inputs">
+                                        <label asp-for="Subject" asp-postfix=":"></label>
+                                        <input asp-for="Subject" placeholder="@T("ContactUs.Subject.Hint")" class="subject" />
+                                        <nop-required />
+                                        <span asp-validation-for="Subject"></span>
+                                    </div>
+                                }
+                                <div class="inputs">
+                                    <label asp-for="Enquiry" asp-postfix=":"></label>
+                                    <textarea asp-for="Enquiry" placeholder="@T("ContactUs.Enquiry.Hint")" class="enquiry"></textarea>
+                                    <nop-required />
+                                    <span asp-validation-for="Enquiry"></span>
+                                </div>
+                                @if (Model.DisplayCaptcha)
+                                {
+                                    <div class="captcha-box">
+                                        <nop-captcha />
+                                    </div>
+                                }
+                            </div>
+                            <div class="buttons">
+                                <button type="submit" name="send-email" class="button-1 contact-us-button">@T("ContactUs.Button")</button>
+                            </div>
+                        </div>
+                        
+                    </form>
+                }
+                @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ContactUsBottom, additionalData = Model })
+            </div>
+      
+        </div>
+    </div>
+@*</div>*@
+</div>
