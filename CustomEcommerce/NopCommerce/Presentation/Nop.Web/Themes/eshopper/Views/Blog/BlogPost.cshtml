@@ -1,0 +1,126 @@
+﻿@inject Nop.Services.Html.IHtmlFormatter htmlFormatter
+@model BlogPostModel
+@using Nop.Web.Models.Blogs;
+@{
+    Layout = "_ColumnsTwo";
+
+    //title
+    NopHtml.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Title);
+    //meta
+    NopHtml.AddMetaDescriptionParts(Model.MetaDescription);
+    NopHtml.AddMetaKeywordParts(Model.MetaKeywords);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-blogpost-page");
+}
+@section left {
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.LeftSideColumnBlogBefore, additionalData = Model })
+    @await Component.InvokeAsync(typeof(BlogMonthsViewComponent))
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.LeftSideColumnAfterBlogArchive, additionalData = Model })
+    @await Component.InvokeAsync(typeof(BlogTagsViewComponent))
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.LeftSideColumnBlogAfter, additionalData = Model })
+}
+<div class="page blogpost-page">
+    <!--features_items-->
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.BlogPostPageTop, additionalData = Model })
+    <div class="page-title">
+        <h1>@Model.Title</h1>
+    </div>
+    <div class="page-body">
+        <div class="post-date">
+            @Model.CreatedOn.ToString("D")
+        </div>
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.BlogPostPageBeforeBody, additionalData = Model })
+        <div class="post-body">
+            @Html.Raw(Model.Body)
+        </div>
+        @if (Model.Tags.Count > 0)
+        {
+            <div class="tag pull-right">
+                <label><strong>@T("Blog.Tags"):</strong></label>
+
+                @for (int i = 0; i < Model.Tags.Count; i++)
+                {
+                    var tag = Model.Tags[i];
+                    <a class="color" style="color: black" href="@Url.RouteUrl("BlogByTag", new {tag = tag})">@tag</a>
+                    if (i != Model.Tags.Count - 1)
+                    {
+                        <span class="separator">/</span>
+                    }
+                }
+
+            </div>
+        }
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.BlogPostPageBeforeComments, additionalData = Model })
+        @if (Model.AllowComments)
+        {
+            <div class="">
+                <div class="space15px">&nbsp;</div>
+
+                <div class="blog-comment-notifications">
+                    <div class="message-error">@Html.ValidationSummary(true)</div>
+                    @{
+                        var result = TempData["nop.blog.addcomment.result"] as string;
+                    }
+                    @if (!String.IsNullOrEmpty(result))
+                    {
+                        <div class="alert alert-success square-box result">@result</div>
+                    }
+                </div>
+
+                <form asp-controller="Blog" asp-action="BlogCommentAdd" asp-route-blogpostid="@Model.Id" method="post">
+                    <div class="form-fields">
+                        <div class="inputs">
+                            <label asp-for="AddNewComment.CommentText" asp-postfix=":"></label>
+                            <textarea asp-for="AddNewComment.CommentText" class="enter-comment-text" asp-disabled="@Model.PreventNotRegisteredUsersToLeaveComments"></textarea>
+                            <nop-required />
+                            <span asp-validation-for="AddNewComment.CommentText"></span>
+                        </div>
+                        @if (Model.AddNewComment.DisplayCaptcha)
+                        {
+                            <nop-captcha action-name="BlogCommentAdd" />
+                        }
+                    </div>
+                    @if (!Model.PreventNotRegisteredUsersToLeaveComments)
+                    {
+                        <div class="buttons">
+                            <button type="submit" name="add-comment" class="button-1 blog-post-add-comment-button">@T("Blog.Comments.SubmitButton")</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="message-error">@T("Blog.Comments.OnlyRegisteredUsersLeaveComments")</div>
+                    }
+                </form>
+
+                @if (Model.Comments.Count > 0)
+                {
+                    <div class="fieldset">
+                        <div id="legend">
+                            <legend>@T("Blog.Comments")</legend>
+                        </div>
+
+                    </div>
+                    foreach (var comment in Model.Comments)
+                    {
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="blog-post-area">
+                                    <div class="single-blog-post">
+                                        <div class="post-meta">
+                                            <ul>
+                                                <li><i class="fa fa-user"></i>@(comment.CustomerName)</li>
+                                                <li><i class="fa fa-clock-o"></i>  @Model.CreatedOn.ToString("T")</li>
+                                                <li><i class="fa fa-calendar"></i>  @Model.CreatedOn.ToString("D")</li>
+                                            </ul>
+                                        </div>
+                                        <p class="comment-text">@Html.Raw(htmlFormatter.FormatText(comment.CommentText, false, true, false, false, false, false))</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>
