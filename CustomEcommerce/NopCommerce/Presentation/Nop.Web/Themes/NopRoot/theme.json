@@ -1,0 +1,7 @@
+﻿{
+  "SystemName": "NopRoot",
+  "FriendlyName": "Nop Station Root",
+  "SupportRTL": true,
+  "PreviewImageUrl": "~/Themes/NopRoot/preview.jpg",
+  "PreviewText": "The 'NopRoot' site theme"
+}
