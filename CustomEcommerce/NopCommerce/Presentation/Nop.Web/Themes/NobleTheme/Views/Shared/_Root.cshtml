@@ -1,0 +1,64 @@
+﻿@{
+    Layout = "_Root.Head";
+}
+@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.BodyStartHtmlTagAfter })
+@{
+    await Html.RenderPartialAsync("_Notifications");
+}
+@{
+    await Html.RenderPartialAsync("_JavaScriptDisabledWarning");
+}
+<div class="master-wrapper-page">
+    <div class="admin-header-link">
+        <ul>
+            @await Component.InvokeAsync(typeof(AdminHeaderLinksViewComponent))
+        </ul>
+    </div>
+    @{
+        await Html.RenderPartialAsync("_Header");
+    }
+    <script asp-location="Footer">
+        var localized_data = {
+            AjaxCartFailure: "@T("AjaxCart.Failure")"
+        };
+        AjaxCart.init(false, '.header-links .cart-qty', '.header-links .wishlist-qty', '#flyout-cart', localized_data);
+    </script>
+    <div class="header-menu">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    @await Component.InvokeAsync(typeof(TopMenuViewComponent))
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="master-wrapper-content" id="main" role="main">
+        @if (IsSectionDefined("HomePageSlider"))
+        {
+            @RenderSection("HomePageSlider")
+        }
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ContentBefore })
+                </div>
+            </div>
+            @*ajax loading window*@
+            <div class="ajax-loading-block-window" style="display: none">
+                <div class="loading-image">
+                </div>
+            </div>
+        </div>
+        <div class="master-column-wrapper">
+            <div class="container">
+                <div class="row">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ContentAfter })
+    </div>
+    @await Component.InvokeAsync(typeof(FooterViewComponent))
+</div>
+@await Component.InvokeAsync(typeof(EuCookieLawViewComponent))
+@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.BodyEndHtmlTagBefore })
