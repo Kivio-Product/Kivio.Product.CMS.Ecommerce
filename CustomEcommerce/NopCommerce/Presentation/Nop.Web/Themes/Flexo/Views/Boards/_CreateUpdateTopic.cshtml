@@ -1,0 +1,107 @@
+@*
+    // ***	 ** ****** ****** ****** ******* **     ** ****** ***   ** **** ****
+    // ****  ** **  ** **  ** **  **  **  **  **   **  **  ** ****  ** *    *
+    // ** ** ** **  ** ****** ******  **  **   ** **   ****** ** ** ** *    ***
+    // **  **** **  ** **	  **  **  **  **    ***    **  ** **  **** *    *
+    // **   *** ****** **	  **  ** *******     *     **  ** **   *** **** ****
+    //
+    // **************************************************************************
+    // *                                                                		*
+	// *                      Flexo by NopAdvance team                          *
+    // *			Copyright (c) NopAdvance LLP. All Rights Reserved			*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Email:		contact@nopadvance.com										*
+    // * Website:	https://nopadvance.com										*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Please see the  License file for the full End User License Agreement. 	*
+    // * The  complete license agreement is also available on  our  website at 	*
+    // * https://nopadvance.com/license-terms									*
+    // *                                                                       	*
+    // * This  software / plugin  is furnished  under a license  and  may   be  *
+    // * used  and modified  only in accordance with the terms of such license  *
+    // * and with the inclusion of the above copyright notice.  This  software	*
+    // * or any other copies thereof may not be  provided  or  otherwise  made	*
+    // * available  to any other person.  No title to  and  ownership  of  the  *
+    // * software is hereby transferred.                                        *
+    // *                                                                       	*
+    // * You may not reverse  engineer, decompile, defeat  license  encryption 	*
+    // * mechanisms  or  disassemble this software product or software product 	*
+    // * license.  NopAdvance may terminate this  license if you don't  comply 	*
+    // * with any of the terms & conditions set forth in our  end user license	*
+    // * agreement (EULA).  In such event , licensee agrees to return licensor	*
+    // * or destroy  all copies of software  upon termination  of the license.	*
+    // *                                                                       	*
+    // **************************************************************************
+*@
+@model EditForumTopicModel
+@using Nop.Core.Domain.Forums;
+@{
+    //page class
+    NopHtml.AppendPageCssClassParts("html-forum-edit-page");
+}
+
+@await Component.InvokeAsync(typeof(ForumBreadcrumbViewComponent), new { forumId = Model.ForumId, forumTopicId = Model.Id })
+<div class="page forum-edit-page">
+    <div class="page-title">
+        @if (Model.IsEdit)
+        {
+            <h1>@T("Forum.EditTopic")</h1>
+        }
+        else
+        {
+            <h1>@T("Forum.NewTopic")</h1>
+        }
+    </div>
+    <div class="page-body">
+        <div asp-validation-summary="ModelOnly" class="message-error"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ForumId" />
+        <div class="fieldset">
+            <div class="form-fields">
+                <div class="inputs">
+                    <label>@T("Forum.ForumName"):</label>
+                    <strong>@Model.ForumName</strong>
+                </div>
+                <div class="inputs">
+                    <label>@T("Forum.TopicTitle"):</label>
+                    <input aria-label="Topic Title" asp-for="Subject" class="forum-topic-title-text" />
+                    <span asp-validation-for="Subject"></span>
+                </div>
+                <div class="inputs">
+                    @if (Model.ForumEditor == EditorType.BBCodeEditor)
+                    {
+                        <nop-bb-code-editor asp-for="Text" />
+                    }
+                    <textarea aria-label="forum post text" asp-for="Text" class="forum-post-text"></textarea>
+                    <span asp-validation-for="Text"></span>
+                </div>
+                @if (Model.IsCustomerAllowedToSetTopicPriority)
+                {
+                    <div class="inputs">
+                        <label>@T("Forum.Priority"):</label>
+                        <select asp-for="TopicTypeId" asp-items="@(new SelectList(Model.TopicPriorities, "Value", "Text", Model.TopicTypeId))"></select>
+                    </div>
+                }
+                @if (Model.IsCustomerAllowedToSubscribe)
+                {
+                    <div class="inputs reversed custom-checkbox">
+                        <input class="custom-control-input" asp-for="Subscribed" />
+                        <label class="custom-control-label" asp-for="Subscribed">@T("Forum.NotifyWhenSomeonePostsInThisTopic")</label>
+                    </div>
+                }
+                @if (Model.DisplayCaptcha)
+                {
+                    <nop-captcha />
+                }
+            </div>
+        </div>
+        <div class="buttons">
+            <button type="submit" class="button-1 submit-topic-button">@T("Forum.Submit")</button>
+            <button type="button" class="button-2 cancel-topic-button" onclick="setLocation('@Url.RouteUrl("ForumSlug", new { id = Model.ForumId, slug = Model.ForumSeName })')">@T("Forum.Cancel")</button>
+        </div>
+    </div>
+</div>

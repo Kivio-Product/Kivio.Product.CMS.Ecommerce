@@ -1,0 +1,121 @@
+@*
+    // ***	 ** ****** ****** ****** ******* **     ** ****** ***   ** **** ****
+    // ****  ** **  ** **  ** **  **  **  **  **   **  **  ** ****  ** *    *
+    // ** ** ** **  ** ****** ******  **  **   ** **   ****** ** ** ** *    ***
+    // **  **** **  ** **	  **  **  **  **    ***    **  ** **  **** *    *
+    // **   *** ****** **	  **  ** *******     *     **  ** **   *** **** ****
+    //
+    // **************************************************************************
+    // *                                                                		*
+	// *                      Flexo by NopAdvance team                          *
+    // *			Copyright (c) NopAdvance LLP. All Rights Reserved			*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Email:		contact@nopadvance.com										*
+    // * Website:	https://nopadvance.com										*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Please see the  License file for the full End User License Agreement. 	*
+    // * The  complete license agreement is also available on  our  website at 	*
+    // * https://nopadvance.com/license-terms									*
+    // *                                                                       	*
+    // * This  software / plugin  is furnished  under a license  and  may   be  *
+    // * used  and modified  only in accordance with the terms of such license  *
+    // * and with the inclusion of the above copyright notice.  This  software	*
+    // * or any other copies thereof may not be  provided  or  otherwise  made	*
+    // * available  to any other person.  No title to  and  ownership  of  the  *
+    // * software is hereby transferred.                                        *
+    // *                                                                       	*
+    // * You may not reverse  engineer, decompile, defeat  license  encryption 	*
+    // * mechanisms  or  disassemble this software product or software product 	*
+    // * license.  NopAdvance may terminate this  license if you don't  comply 	*
+    // * with any of the terms & conditions set forth in our  end user license	*
+    // * agreement (EULA).  In such event , licensee agrees to return licensor	*
+    // * or destroy  all copies of software  upon termination  of the license.	*
+    // *                                                                       	*
+    // **************************************************************************
+*@
+@model TopicModel
+@if (Model.IsPasswordProtected)
+{
+<script asp-location="Footer">
+        $(function() {
+            $('#button-password-@Model.Id').on('click', function() {
+                var postData = {
+                    id: $("#topic-@Model.Id").val(),
+                    password: $('#password-@Model.Id').val()
+                };
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@Url.RouteUrl("TopicAuthenticate")",
+                    data: postData,
+                    dataType: "json",
+                    success: function (data, textStatus, jqXHR) {
+                        if (data.Authenticated) {
+                            $('#ph-topic-@Model.Id #ph-title-@Model.Id h2').html(data.Title);
+                            if ($('#ph-topic-@Model.Id #ph-title-@Model.Id h2').text().length == 0) {
+                                $('#ph-title-@Model.Id').hide();
+                            }
+                            $('#ph-topic-@Model.Id .topic-block-body').html(data.Body);
+                            $('#ph-password-@Model.Id').hide();
+                            $('#ph-topic-@Model.Id').show();
+                            //we need to re-run the validation plugin after the content is loaded after successful authentication
+                            $.validator.unobtrusive.parse('#ph-topic-@Model.Id');
+                        } else {
+                            $('#password-error-@Model.Id').text(data.Error).fadeIn("slow");
+                            $('#ph-password-@Model.Id #password-@Model.Id').select().focus();
+                        }
+                    }
+                });
+                return false;
+            });
+        });
+
+        $(function() {
+            $('#ph-topic-@Model.Id').hide();
+            $('#ph-password-@Model.Id #password-@Model.Id').select().focus();
+        });
+</script>
+    <div class="topic-password" id="ph-password-@Model.Id">
+        <form asp-route="TopicAuthenticate" method="post" autocomplete="off">
+            <input asp-for="Id" id="topic-@Model.Id" type="hidden"/>
+            <div class="enter-password-title">
+                @T("Topic.EnterPassword")
+            </div>
+            <div class="enter-password-form">
+                <input name="password" type="password" id="password-@(Model.Id)" />
+                <button type="submit" id="button-password-@Model.Id" class="button-1 topic-password-button">@T("Topic.Button")</button>
+            </div>
+            <div class="password-error" id="password-error-@Model.Id" style="display: none;"></div>
+        </form>
+    </div>
+    <div class="topic-block" id="ph-topic-@Model.Id">
+        <div class="topic-block-title" id="ph-title-@Model.Id">
+            <h2>@Model.Title</h2>
+        </div>
+        <div class="topic-block-body">
+            @Html.Raw(Model.Body)
+        </div>
+    </div>
+}
+else
+{
+<div class="topic-block">
+    @if (!string.IsNullOrEmpty(Model.Title))
+    {
+        <div class="topic-block-title">
+            <h2>@Model.Title</h2>
+        </div>
+    }
+    @Html.Raw(Model.Body)
+
+    @*<div class="topic-block-body">
+            @Html.Raw(Model.Body)
+        </div>*@
+</div>
+}

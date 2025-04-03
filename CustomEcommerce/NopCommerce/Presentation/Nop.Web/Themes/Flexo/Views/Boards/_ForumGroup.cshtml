@@ -1,0 +1,97 @@
+@*
+    // ***	 ** ****** ****** ****** ******* **     ** ****** ***   ** **** ****
+    // ****  ** **  ** **  ** **  **  **  **  **   **  **  ** ****  ** *    *
+    // ** ** ** **  ** ****** ******  **  **   ** **   ****** ** ** ** *    ***
+    // **  **** **  ** **	  **  **  **  **    ***    **  ** **  **** *    *
+    // **   *** ****** **	  **  ** *******     *     **  ** **   *** **** ****
+    //
+    // **************************************************************************
+    // *                                                                		*
+	// *                      Flexo by NopAdvance team                          *
+    // *			Copyright (c) NopAdvance LLP. All Rights Reserved			*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Email:		contact@nopadvance.com										*
+    // * Website:	https://nopadvance.com										*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Please see the  License file for the full End User License Agreement. 	*
+    // * The  complete license agreement is also available on  our  website at 	*
+    // * https://nopadvance.com/license-terms									*
+    // *                                                                       	*
+    // * This  software / plugin  is furnished  under a license  and  may   be  *
+    // * used  and modified  only in accordance with the terms of such license  *
+    // * and with the inclusion of the above copyright notice.  This  software	*
+    // * or any other copies thereof may not be  provided  or  otherwise  made	*
+    // * available  to any other person.  No title to  and  ownership  of  the  *
+    // * software is hereby transferred.                                        *
+    // *                                                                       	*
+    // * You may not reverse  engineer, decompile, defeat  license  encryption 	*
+    // * mechanisms  or  disassemble this software product or software product 	*
+    // * license.  NopAdvance may terminate this  license if you don't  comply 	*
+    // * with any of the terms & conditions set forth in our  end user license	*
+    // * agreement (EULA).  In such event , licensee agrees to return licensor	*
+    // * or destroy  all copies of software  upon termination  of the license.	*
+    // *                                                                       	*
+    // **************************************************************************
+*@
+@model ForumGroupModel
+<div class="forums-table-section forum-group">
+    <div class="forums-table-section-title">
+        @Html.RouteLink(Model.Name, "ForumGroupSlug", new { id = Model.Id, slug = Model.SeName })
+    </div>
+    <div class="forums-table-section-body">
+        <div class="table-wrapper">
+            <table class="forum-table">
+                <colgroup>
+                    <col class="colWidth1"/>
+                    <col />
+                    <col class="colWidth1" />
+                    <col class="colWidth1" />
+                    <col class="colWidth1" />
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="forum-details" colspan="2">
+                            @T("Forum.Forum")
+                        </th>
+                        <th class="topics">
+                            @T("Forum.Topics")
+                        </th>
+                        <th class="posts">
+                            @T("Forum.Posts")
+                        </th>
+                        <th class="latest-post">
+                            @T("Forum.LatestPost")
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var forum in Model.Forums)
+                    {
+                        <tr>
+                            <td class="image">
+                                <div class="post"></div>
+                            </td>
+                            <td class="forum-details">
+                                <div class="forum-title">
+                                    @Html.RouteLink(forum.Name, "ForumSlug", new { id = forum.Id, slug = forum.SeName })
+                                </div>
+                                <div class="forum-description">
+                                    @forum.Description
+                                </div>
+                            </td>
+                            <td class="topics">@forum.NumTopics</td>
+                            <td class="posts">@forum.NumPosts</td>
+                            <td class="latest-post">
+                                @await Component.InvokeAsync(typeof(ForumLastPostViewComponent), new {forumPostId = forum.LastPostId, showTopic = true})
+                            </td>
+                        </tr>            
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
