@@ -1,0 +1,183 @@
+/************************************
+ * VULTURE THEME 4.0.0|| nopCypher *
+ * Copyright 2024 NOPCYPHER.COM      *
+ ************************************/
+
+
+@font-face {
+    font-family: 'Vulture';
+    src: url('../fonts/Vulture.eot?uzptdf');
+    src: url('../fonts/Vulture.eot?uzptdf#iefix') format('embedded-opentype'), url('../fonts/Vulture.ttf?uzptdf') format('truetype'), url('../fonts/Vulture.woff?uzptdf') format('woff'), url('../fonts/Vulture.svg?uzptdf#Vulture') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+
+[class^="Vult-"], [class*=" Vult-"] {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'Vulture' !important;
+    speak: never;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+
+
+.Vult-empty-cart:before {
+    content: "\e928";
+    font-size: 100px;
+    display: block;
+    margin-bottom: 20px;
+    color: #333;
+}
+.Vult-checked:before {
+    content: "\e927";
+}
+.Vult-chevron-left:before {
+  content: "\e925";
+}
+.Vult-chevron-right:before {
+  content: "\e926";
+}
+.Vult-home:before {
+    content: "\e924";
+}
+.Vult-arrow-right:before {
+    content: "\e923";
+}
+.Vult-checkout-cart:before {
+  content: "\e91d";
+}
+.Vult-checkout-address:before {
+  content: "\e91e";
+}
+.Vult-checkout-complate:before {
+  content: "\e91f";
+}
+.Vult-checkout-confirm:before {
+  content: "\e920";
+}
+.Vult-checkout-payment:before {
+  content: "\e921";
+}
+.Vult-checkout-shipping:before {
+  content: "\e922";
+}
+.Vult-replay:before {
+  content: "\e919";
+}
+.Vult-move:before {
+  content: "\e91a";
+}
+.Vult-close:before {
+  content: "\e91b";
+}
+.Vult-edit1:before {
+  content: "\e91c";
+}
+.Vult-cancel-menu:before {
+    content: "\e90a";
+    font-size: 20px;
+    color: #fff;
+}
+.Vult-hemberg-menu:before {
+    content: "\e90b";
+    font-size: 20px;
+}
+.Vult-left-arrow:before {
+    content: "\e90c";
+    font-size: 20px;
+    color: #fff;
+}
+.Vult-right-arrow:before {
+    content: "\e90d";
+    font-size: 20px;
+    color: #fff;
+}
+.Vult-newsletter:before {
+    content: "\e90e";
+    font-size: 50px;
+}
+.Vult-filter:before {
+  content: "\e90f";
+  font-size: 12px;
+}
+.Vult-cart:before {
+    content: "\e900";
+    font-size: 20px;
+}
+.Vult-search:before {
+    content: "\e901";
+    font-size: 20px;
+}
+.Vult-setting:before {
+    content: "\e902";
+    font-size: 20px;
+}
+.Vult-fill-wishlist:before {
+    content: "\e903";
+    color: #f00;
+}
+.Vult-safe:before {
+    content: "\e904";
+    font-size: 35px;
+}
+.Vult-help-center:before {
+    content: "\e905";
+    font-size: 35px;
+}
+.Vult-free-delivery:before {
+    content: "\e906";
+    font-size: 35px;
+}
+.Vult-compair:before {
+    content: "\e907";
+    font-size: 20px;
+    color: #fff;
+}
+.Vult-Confidence:before {
+    content: "\e908";
+    font-size: 35px;
+}
+.Vult-mail:before {
+    content: "\e909";
+    font-size: 15px;
+}
+.Vult-grid-view:before {
+  content: "\e910";
+  font-size: 30px;
+}
+.Vult-list-view:before {
+  content: "\e911";
+  font-size: 30px;
+}
+.Vult-collapse:before {
+    content: "\e912";
+}
+.Vult-delete:before {
+    content: "\e914";
+    color: #fff;
+}
+.Vult-wishlist:before {
+    content: "\e913";
+    font-size: 20px;
+}
+.Vult-edit:before {
+    content: "\e915";
+    color: #fff;
+}
+.Vult-eye-close:before {
+  content: "\e916";
+}
+.Vult-eye:before {
+  content: "\e917";
+}
+.Vult-plus:before {
+  content: "\e918";
+}

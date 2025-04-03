@@ -1,0 +1,105 @@
+﻿@model PrivateMessageListModel 
+<div class="private-messages-box">
+    <script asp-location="Footer">
+        $(function () {
+            $('#select-all-inbox').on('click', function () {
+                $('#pm-inbox-table .rowcheckbox').prop('checked', $(this).is(':checked')).trigger('change');
+            });
+
+            $('#pm-inbox-table .rowcheckbox').on('change', function (e) {
+                var numChkBoxes = $('#pm-inbox-table .rowcheckbox').length;
+                var numChkBoxesChecked = $('#pm-inbox-table .rowcheckbox:checked').length;
+                $('#select-all-inbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+            });
+        });
+    </script>
+    @if (Model.Messages.Count > 0)
+    {
+        <form asp-route="PrivateMessagesInbox" method="post">
+            <div class="table-wrapper">
+                <table class="data-table" id="pm-inbox-table">
+                    <colgroup>
+                        <col width="1" />
+                        <col />
+                        <col />
+                        <col width="1" />
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th class="vult-pm-select">
+                            <input class="inp-cbx" type="checkbox" id="select-all-inbox" />
+                            <label class="cbx" for="select-all-inbox">
+                                <span>
+                                    <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                        <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                    </svg>
+                                </span>
+                            </label>
+                        </th>
+                        <th class="from">
+                            @T("PrivateMessages.Inbox.FromColumn")
+                        </th>
+                        <th class="subject">
+                            @T("PrivateMessages.Inbox.SubjectColumn")
+                        </th>
+                        <th class="date">
+                            @T("PrivateMessages.Inbox.DateColumn")
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for (var i = 0; i < Model.Messages.Count; i++)
+                    {
+                        var item = Model.Messages[i];
+                        <tr @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
+                            <td class="vult-pm-select">
+                                <input type="checkbox" name="pm@(item.Id)" id="pm@(item.Id)" class="rowcheckbox inp-cbx" />
+                                <label class="cbx" for="pm@(item.Id)">
+                                    <span>
+                                        <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                            <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                        </svg>
+                                    </span>
+                                </label>
+                            </td>
+                            <td class="from">
+                                @if (item.AllowViewingFromProfile)
+                                {
+                                    @Html.RouteLink(item.CustomerFromName, "CustomerProfile", new { Id = item.FromCustomerId })
+                                }
+                                else
+                                {
+                                    @item.CustomerFromName
+                                }
+                            </td>
+                            <td class="subject">
+                                @Html.RouteLink(item.Subject, "ViewPM", new { privateMessageId = item.Id }, new { @class = (item.IsRead) ? "pm-read" : "pm-unread" })
+                            </td>
+                            <td class="date">
+                                @item.CreatedOn
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            @{
+                var pager = await Html.PagerAsync(Model.PagerModel);
+            }
+            @if (!string.IsNullOrEmpty(await pager.RenderHtmlContentAsync()))
+            {
+                <div class="pager">
+                    @pager
+                </div>
+            }
+            <div class="buttons">
+                <button type="submit" class="button-1 delete-selected-pm-button primary-btn" name="delete-inbox"><span>@T("PrivateMessages.Inbox.DeleteSelected")</span></button>
+                <button type="submit" name="mark-unread" class="button-2 mark-unread-pm-button primary-btn"><span>@T("PrivateMessages.Inbox.MarkAsUnread")</span></button>
+            </div>
+        </form>
+    }
+    else
+    {
+        <div class="no-items">@T("PrivateMessages.Inbox.NoItems")</div>
+    }
+</div>

@@ -1,0 +1,43 @@
+﻿@model CheckoutProgressModel
+<div class="order-progress">
+    <div class="order-progress-inner-section">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CheckoutProgressBefore, additionalData = Model })
+        <div @(Model.CheckoutProgressStep == CheckoutProgressStep.Cart ? @Html.Raw(" class=\"vult-order-progress-section active-step\"") : @Html.Raw(" class=\"vult-order-progress-section inactive-step\""))>
+            <a class="vult-order-progress-btn" @(Model.CheckoutProgressStep != CheckoutProgressStep.Complete ? @Html.Raw(string.Format(" href=\"{0}\"", Url.RouteUrl("ShoppingCart"))) : null)>
+                <span class="Vult-checkout-cart"></span>
+                <span>@T("Checkout.Progress.Cart")</span>
+            </a>
+        </div>
+        <div @(Model.CheckoutProgressStep == CheckoutProgressStep.Address ? @Html.Raw(" class=\"vult-order-progress-section active-step\"") : @Html.Raw(" class=\"vult-order-progress-section inactive-step\""))>
+            <a @(Model.CheckoutProgressStep != CheckoutProgressStep.Cart && Model.CheckoutProgressStep != CheckoutProgressStep.Complete ? @Html.Raw($" href=\"{Url.RouteUrl("CheckoutBillingAddress")}\"") : null)>
+                <span class="Vult-checkout-address"></span>
+                <span>@T("Checkout.Progress.Address")</span>
+            </a>
+        </div>
+        <div @(Model.CheckoutProgressStep == CheckoutProgressStep.Shipping ? @Html.Raw(" class=\"vult-order-progress-section active-step\"") : @Html.Raw(" class=\"vult-order-progress-section inactive-step\""))>
+            <a @(Model.CheckoutProgressStep != CheckoutProgressStep.Cart && Model.CheckoutProgressStep != CheckoutProgressStep.Address && Model.CheckoutProgressStep != CheckoutProgressStep.Complete ? @Html.Raw($" href=\"{Url.RouteUrl("CheckoutShippingMethod")}\"") : null)>
+                <span class="Vult-checkout-shipping"></span>
+                <span>@T("Checkout.Progress.Shipping")</span>
+            </a>
+        </div>
+        <div @(Model.CheckoutProgressStep == CheckoutProgressStep.Payment ? @Html.Raw(" class=\"vult-order-progress-section active-step\"") : @Html.Raw(" class=\"vult-order-progress-section inactive-step\""))>
+            <a @(Model.CheckoutProgressStep != CheckoutProgressStep.Cart && Model.CheckoutProgressStep != CheckoutProgressStep.Address && Model.CheckoutProgressStep != CheckoutProgressStep.Shipping && Model.CheckoutProgressStep != CheckoutProgressStep.Complete ? @Html.Raw($" href=\"{Url.RouteUrl("CheckoutPaymentMethod")}\"") : null)>
+                <span class="Vult-checkout-payment"></span>
+                <span>@T("Checkout.Progress.Payment")</span>
+            </a>
+        </div>
+        <div @(Model.CheckoutProgressStep == CheckoutProgressStep.Confirm ? @Html.Raw(" class=\"vult-order-progress-section active-step\"") : @Html.Raw(" class=\"vult-order-progress-section inactive-step\""))>
+            <a @(Model.CheckoutProgressStep != CheckoutProgressStep.Cart && Model.CheckoutProgressStep != CheckoutProgressStep.Address && Model.CheckoutProgressStep != CheckoutProgressStep.Shipping && Model.CheckoutProgressStep != CheckoutProgressStep.Payment && Model.CheckoutProgressStep != CheckoutProgressStep.Complete ? @Html.Raw($" href=\"{Url.RouteUrl("CheckoutConfirm")}\"") : null)>
+                <span class="Vult-checkout-confirm"></span>
+                <span>@T("Checkout.Progress.Confirm")</span>
+            </a>
+        </div>
+        <div @(Model.CheckoutProgressStep == CheckoutProgressStep.Complete ? @Html.Raw(" class=\"vult-order-progress-section active-step\"") : @Html.Raw(" class=\"vult-order-progress-section inactive-step\""))>
+            <a @(Model.CheckoutProgressStep != CheckoutProgressStep.Cart && Model.CheckoutProgressStep != CheckoutProgressStep.Address && Model.CheckoutProgressStep != CheckoutProgressStep.Shipping && Model.CheckoutProgressStep != CheckoutProgressStep.Payment && Model.CheckoutProgressStep != CheckoutProgressStep.Complete ? @Html.Raw(string.Format(" href=\"{0}\" class=\"farsh-order-progress-btn\"", Url.RouteUrl("CheckoutComplete"))) : @Html.Raw(string.Format(" class=\"farsh-order-progress-btn disabled\"")))>
+                <span class="Vult-checkout-complate"></span>
+                <span>@T("Checkout.Progress.Complete")</span>
+            </a>
+        </div>
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CheckoutProgressAfter, additionalData = Model })
+    </div>
+</div>

@@ -1,0 +1,47 @@
+﻿@model IList<ProductOverviewModel>
+@if (Model.Count > 0)
+{
+    <div class="related-products-grid product-grid">
+        <div class="section-head">
+            <h2>@T("Products.RelatedProducts")</h2>
+        </div>
+        <div class="item-grid related-products-slider owl-carousel">
+            @foreach (var item in Model)
+            {
+                <div class="item-box">@await Html.PartialAsync("_ProductBox", item)</div>
+            }
+        </div>
+    </div>
+}
+
+<script asp-location="Footer">
+    $(".related-products-slider").owlCarousel({
+        autoplay: true,
+        loop: true,
+        rtl: true,
+        margin: 0,
+        responsiveClass: true,
+        autoHeight: true,
+        autoplayTimeout: 7000,
+        smartSpeed: 800,
+        dots: false,
+        nav: false,
+        responsive: {
+            0: {
+                items: 1
+            },
+
+            600: {
+                items: 2
+            },
+
+            1024: {
+                items: 4
+            },
+
+            1441: {
+                items: 5
+            }
+        }
+    });
+</script>

@@ -1,0 +1,122 @@
+﻿@{
+    Layout = "_Root.Head";
+}
+@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.BodyStartHtmlTagAfter })
+@{ await Html.RenderPartialAsync("_Notifications"); }
+@{ await Html.RenderPartialAsync("_JavaScriptDisabledWarning"); }
+
+<style>
+    .preloader {
+        width: 100%;
+        height: 100%;
+        background-color: #fff;
+        display: inline-block;
+        position: fixed;
+        z-index: 999;
+    }
+    .preloader-inner {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        z-index: 999;
+        width: 40px;
+        height: 40px;
+        margin: -20px;
+        aspect-ratio: 1/1;
+        border-radius: 50%;
+        border: 5px solid transparent;
+        border-top-color: #333;
+        border-bottom-color: #00baa3;
+        transform: rotateZ(-45deg);
+        animation: super-spinner 5s linear infinite;
+    }
+    .preloader-inner::after{
+        content: '';
+        position: absolute;
+        inset: -16px;
+        aspect-ratio: 1/1;
+        border-radius: 50%;
+        border: 5px solid transparent;
+        border-right-color: #333;
+        border-left-color: #00baa3;
+        animation: super-spinner 5s linear infinite;
+    }
+</style>
+
+<div class="master-wrapper-page">
+    <div class="preloader">
+        <div class="preloader-inner">
+        </div>
+    </div>
+    @await Component.InvokeAsync(typeof(AdminHeaderLinksViewComponent))
+    @{ await Html.RenderPartialAsync("_Header"); }
+    <script asp-location="Footer">
+        var localized_data = {
+            AjaxCartFailure: "@T("AjaxCart.Failure")"
+        };
+        AjaxCart.init(false, '#topcartlink .cart-qty', '.header-links-wrapper .wishlist-qty', '.flyout-cart', localized_data);
+    </script>
+
+    <div class="master-wrapper-content id="main" role="main">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ContentBefore })
+
+        @if (IsSectionDefined("Breadcrumb"))
+        {
+            @RenderSection("Breadcrumb")
+        }
+        @if (IsSectionDefined("CustomHeading"))
+        {
+            @RenderSection("CustomHeading")
+        }
+        @if (IsSectionDefined("VultSubcategory"))
+        {
+            @RenderSection("VultSubcategory")
+        }
+        @if (IsSectionDefined("VultCatalogFilter"))
+        {
+            @RenderSection("VultCatalogFilter")
+        }
+        <div class="master-column-wrapper">
+            @RenderBody()
+        </div>
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ContentAfter })
+    </div>
+    @await Component.InvokeAsync(typeof(FooterViewComponent))
+    <a id="button">
+        <span class="Vult-left-arrow"></span>
+    </a>
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = "vulture_WatsApp_Chat" })
+    <div id="sticky-product-addcart"></div>
+</div>
+
+@await Component.InvokeAsync(typeof(EuCookieLawViewComponent))
+@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.BodyEndHtmlTagBefore })
+
+
+
+<script asp-location="Footer">
+    $(document).ready(function () {
+        $('.title').on('click', function () {
+            $(this).toggleClass("rotate-arrow");
+       });
+    });
+
+    var btn = $('#button');
+
+    $(window).scroll(function () {
+        if ($(window).scrollTop() > 300) {
+            btn.addClass('show');
+        } else {
+            btn.removeClass('show');
+        }
+    });
+
+    btn.on('click', function (e) {
+        e.preventDefault();
+        $('html, body').animate({ scrollTop: 0 }, '300');
+    });
+
+    jQuery(window).on('load', function (event) {
+        jQuery('.preloader').delay(500).fadeOut(500);
+    });
+</script>

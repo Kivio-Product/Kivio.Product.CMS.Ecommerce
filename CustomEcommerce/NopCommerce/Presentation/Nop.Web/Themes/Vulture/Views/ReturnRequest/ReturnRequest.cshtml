@@ -1,0 +1,268 @@
+﻿@model SubmitReturnRequestModel
+
+@using Nop.Core.Domain.Catalog
+
+@{
+    Layout = "_ColumnsOne";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.ReturnItems").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-return-request-page");
+}
+<div class="page return-request-page section-padding">
+    <div class="section-width">
+        <div class="vult-page-title">
+            <h2>@Html.Raw(string.Format(T("ReturnRequests.Title").Text, Url.RouteUrl("OrderDetails", new { orderId = Model.OrderId }), Model.CustomOrderNumber))</h2>
+        </div>
+        <div class="page-body">
+            @if (!string.IsNullOrEmpty(Model.Result))
+            {
+                <div class="result">
+                    @Model.Result
+                </div>
+            }
+            else
+            {
+                <form asp-route="ReturnRequest" method="post">
+                    <div class="section">
+                        <div class="vult-order-summry-title">
+                            <h4>@T("ReturnRequests.SelectProduct(s)")</h4>
+                        </div>
+
+                        <div class="vult-order-list vult-order-list-desktop">
+                            <div class="table-wrapper">
+                                <table class="vult-data-table">
+                                    <colgroup>
+                                        <col width="80%" />
+                                        <col width="10%" />
+                                        <col width="10%" />
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th class="product">
+                                                @T("ReturnRequests.Products.Name")
+                                            </th>
+                                            <th class="unit-price">
+                                                @T("ReturnRequests.Products.Price")
+                                            </th>
+                                            <th class="quantity">
+                                                @T("ReturnRequests.Products.Quantity")
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.Items)
+                                        {
+                                            <tr>
+                                                <td class="product">
+                                                    <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@item.ProductName</a>
+                                                    @if (!string.IsNullOrEmpty(item.AttributeInfo))
+                                                    {
+                                                        <div class="attributes">
+                                                            @Html.Raw(item.AttributeInfo)
+                                                        </div>
+                                                    }
+                                                </td>
+                                                <td class="unit-price">
+                                                    @item.UnitPrice
+                                                </td>
+                                                <td class="quantity">
+                                                    <select class="vult-common-select" name="quantity@(item.Id)">
+                                                        @for (var i = 0; i <= item.Quantity; i++)
+                                                        {
+                                                            <option value="@(i)">@(i)</option>
+                                                        }
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                            <tr class="spacer"></tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="vult-order-list vult-order-list-mobile">
+                            <div class="vult-order-list-title">
+                                <div class="product">
+                                    @T("ReturnRequests.Products.Name")
+                                </div>
+                                <div class="unit-price">
+                                    @T("ReturnRequests.Products.Price")
+                                </div>
+                                <div class="quantity">
+                                    @T("ReturnRequests.Products.Quantity")
+                                </div>
+                            </div>
+
+                            <div class="vult-oder-tabel-main-data">
+                                @foreach (var item in Model.Items)
+                                {
+                                    <div class="vult-mobile-order-table">
+                                        <div class="vult-customer-order-table">
+                                            <div class="vult-order-detail-data">
+                                                <div>
+                                                    <div class="product">
+                                                        <label>@T("ReturnRequests.Products.Name"):</label>
+
+                                                        <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
+                                                        @if (!string.IsNullOrEmpty(item.AttributeInfo))
+                                                        {
+                                                            <div class="attributes">
+                                                                @Html.Raw(item.AttributeInfo)
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div class="unit-price">
+                                                        <label>@T("ReturnRequests.Products.Price"):</label>
+                                                        @item.UnitPrice
+                                                    </div>
+                                                    <div class="quantity">
+                                                        <label>@T("ReturnRequests.Products.Quantity"):</label>
+                                                        <select class="vult-common-select" name="quantity@(item.Id)">
+                                                            @for (var i = 0; i <= item.Quantity; i++)
+                                                            {
+                                                                <option value="@(i)">@(i)</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="spacer"></div>
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="fieldset">
+                        <div class="vult-order-summry-title">
+                            <h4>@T("ReturnRequests.WhyReturning")</h4>
+                        </div>
+                        <div class="vult-form">
+                            <div class="vult-form-fields">
+                                <div class="inputs">
+                                    <label asp-for="ReturnRequestReasonId" asp-postfix=":"></label>
+                                    <div class="vult-input">
+                                        @{
+                                            var reasonsSelectList = Model.AvailableReturnReasons.Select(x => new SelectListItem
+                                            {
+                                                Text = x.Name,
+                                                Value = x.Id.ToString()
+                                            }).ToList();
+                                        }
+                                        <select asp-for="ReturnRequestReasonId" asp-items="@reasonsSelectList" class="return-reasons vult-input-effect vult-common-select"></select>
+                                        <span class="focus-border"><i></i></span>
+                                    </div>
+                                </div>
+                                <div class="inputs">
+                                    <label asp-for="ReturnRequestActionId" asp-postfix=":"></label>
+                                    <div class="vult-input">
+                                        @{
+                                            var actionsSelectList = Model.AvailableReturnActions.Select(x => new SelectListItem
+                                            {
+                                                Text = x.Name,
+                                                Value = x.Id.ToString()
+                                            }).ToList();
+                                        }
+                                        <select asp-for="ReturnRequestActionId" asp-items="@actionsSelectList" class="return-actions vult-input-effect vult-common-select"></select>
+                                        <span class="focus-border"><i></i></span>
+                                    </div>
+                                </div>
+                                @if (Model.AllowFiles)
+                                {
+                                    @* register CSS and JS *@
+                                    <link rel="stylesheet" href="~/lib_npm/fine-uploader/fine-uploader/fine-uploader.min.css" />
+                                    <script asp-exclude-from-bundle="true" src="~/lib_npm/fine-uploader/jquery.fine-uploader/jquery.fine-uploader.min.js" asp-location="Footer"></script>
+
+
+                                    var allowedFileExtensionsList = new List<string>();
+                                    //allowedFileExtensionsList.Add("jpg");
+                                    //allowedFileExtensionsList.Add("jpeg");
+                                    //allowedFileExtensionsList.Add("jpeg");
+                                    //ex. ['jpg', 'jpeg', 'jpeg', 'gif'] or []
+                                    var allowedFileExtensions = string.Join(", ", allowedFileExtensionsList.Select(x => "'" + x.Trim() + "'").ToList());
+                                    var controlId = Html.IdFor(model => model.UploadedFileGuid);
+                                    <div class="inputs return-request-file">
+                                        <label asp-for="UploadedFileGuid" asp-postfix=":"></label>
+                                        <input id="@(controlId)" name="@(controlId)" type="hidden" />
+
+                                        @*fine uploader container*@
+                                        <div id="@(controlId)uploader" class="uploadedfileinput"></div>
+                                        @*fine uploader template (keep it synchronized to \Content\fineuploader\templates\default.html)*@
+                                        <script type="text/template" asp-location="Footer" id="@(controlId)-qq-template">
+                                            <div class="qq-uploader-selector qq-uploader">
+                                                <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
+                                                    <span>@T("Common.FileUploader.DropFiles")</span>
+                                                </div>
+                                                <div class="qq-upload-button-selector qq-upload-button">
+                                                    <div>@T("Common.FileUploader.Upload")</div>
+                                                </div>
+                                                <span class="qq-drop-processing-selector qq-drop-processing">
+                                                    <span>@T("Common.FileUploader.Processing")</span>
+                                                    <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
+                                                </span>
+                                                <ul class="qq-upload-list-selector qq-upload-list">
+                                                    <li>
+                                                        <div class="qq-progress-bar-container-selector">
+                                                            <div class="qq-progress-bar-selector qq-progress-bar"></div>
+                                                        </div>
+                                                        <span class="qq-upload-spinner-selector qq-upload-spinner"></span>
+                                                        <span class="qq-edit-filename-icon-selector qq-edit-filename-icon"></span>
+                                                        <span class="qq-upload-file-selector qq-upload-file"></span>
+                                                        <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
+                                                        <span class="qq-upload-size-selector qq-upload-size"></span>
+                                                        <a class="qq-upload-cancel-selector qq-upload-cancel" href="#">@T("Common.FileUploader.Cancel")</a>
+                                                        <a class="qq-upload-retry-selector qq-upload-retry" href="#">@T("Common.FileUploader.Retry")</a>
+                                                        <a class="qq-upload-delete-selector qq-upload-delete" href="#">@T("Common.FileUploader.Delete")</a>
+                                                        <span class="qq-upload-status-text-selector qq-upload-status-text"></span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </script>
+                                        <script asp-location="Footer">
+                                            $(function () {
+                                                $("#@(controlId)uploader").fineUploader({
+                                                    request: {
+                                                        endpoint: '@(Url.RouteUrl("UploadFileReturnRequest"))'
+                                                    },
+                                                    template: "@(controlId)-qq-template",
+                                                    multiple: false,
+                                                    validation: {
+                                                        allowedExtensions: [@Html.Raw(allowedFileExtensions)]
+                                                    }
+                                                }).on("complete",
+                                                    function(event, id, name, responseJSON, xhr) {
+                                                        $("#@(controlId)").val(responseJSON.downloadGuid);
+
+                                                        if (responseJSON.message) {
+                                                            alert(responseJSON.message);
+                                                        }
+                                                    });
+                                            });
+                                        </script>
+                                    </div>
+                                }
+                                <div class="inputs">
+                                    <label asp-for="Comments" asp-postfix=":"></label>
+                                    <div class="vult-input">
+                                        <textarea asp-for="Comments" class="comment vult-input-effect"></textarea>
+                                        <span class="focus-border"><i></i></span>
+                                        <span asp-validation-for="Comments"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="buttons">
+                                <button type="submit" name="submit-return-request" class="button-1 submit-return-request-button primary-btn"><span>@T("ReturnRequests.Submit")</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>

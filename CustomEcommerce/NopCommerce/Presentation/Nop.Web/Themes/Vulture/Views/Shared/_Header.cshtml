@@ -1,0 +1,115 @@
+﻿<div class="topbar">
+    <div class="vult-header-upper section-width">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = "vulture_theme_header_text" })
+    </div>
+</div>
+
+<div class="vult-mobile-logo">
+    <div class="header-logo">
+        @await Component.InvokeAsync(typeof(LogoViewComponent))
+    </div>
+</div>
+
+<div class="header sticky vult-header-mobile">
+    <div class="section-width">
+        <a class="skip" href="#main">@T("Header.SkipNavigation.Text")</a>
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderBefore })
+
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderMiddle })
+        <div class="header-lower">
+            <div class="vult-logo-menu">
+                <div class="Vult-hemberg-menu" style="cursor:pointer" onclick="openNav()">
+                </div>
+
+                <div class="header-logo vult-desktop-logo">
+                    @await Component.InvokeAsync(typeof(LogoViewComponent))
+                </div>
+            </div>
+            <div class="header-nav-setting">
+                <div class="header-nav-inner">
+                    <div class="header-menu">
+                        @await Component.InvokeAsync(typeof(TopMenuViewComponent))
+                    </div>
+                    <div class="header-upper">
+                        <div class="header-selectors-wrapper">
+                            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderSelectors })
+                        </div>
+                        <div class="header-links-wrapper">
+                            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderLinksBefore })
+                            @await Component.InvokeAsync(typeof(HeaderLinksViewComponent))
+                            <div class="vult_cart_overlay"></div>
+                            @await Component.InvokeAsync(typeof(FlyoutShoppingCartViewComponent))
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderAfter })
+    </div>
+</div>
+
+<script asp-location="Footer">
+
+    $(window).scroll(function () {
+        if ($(window).scrollTop() >= 300) {
+            $('.vult-header-mobile').addClass('fixed-header');
+        }
+        else {
+            $('.vult-header-mobile').removeClass('fixed-header');
+        }
+    });
+
+    $(document).ready(function () {
+        $(window).bind('scroll', function () {
+            var navHeight = $(window).height() - 70;
+            if ($(window).scrollTop() > navHeight) {
+                $('.vult-header-mobile-box').addClass('fixed');
+            }
+            else {
+                $('.vult-header-mobile-box').removeClass('fixed');
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        $(".hamburger").click(function () {
+            $(this).toggleClass("is-active");
+        });
+    });
+
+    $(".vult_search-mobile").click(function () {
+        $('.header-upper').addClass('vult_search-bar');
+        $('.vult_search-desktop').addClass('search-open');
+        if ($('.vult_search-desktop').hasClass('search-open')) {
+            $('.search-open').slideDown();
+            $("input.search-box-text").focus();
+            $('.vult_search-desktop.search-open').css('opacity', 1);
+        } else {
+            $('.bs_search_bar').slideUp();
+            $('.vult_search-desktop').css('opacity', 0);
+        }
+        if ($(this).hasClass('s-open')) {
+            $('.vult_search-desktop').removeClass('search-open');
+            $('.header-upper').removeClass('vult_search-bar');
+            $('.bs_search_bar').slideUp();
+            $('.vult_search-desktop').css('opacity', 0);
+            $(this).addClass('s-close');
+            $(this).removeClass('s-open');
+        }
+        else {
+            $(this).addClass('s-open');
+            $(this).removeClass('s-close');
+        }
+    });
+
+    $(document).on('keydown', function (e) {
+        if (e.keyCode === 27) {
+            $('.search-open').css('opacity', 0);
+            $('.vult_search-desktop').removeClass('search-open');
+            $('.header-upper').removeClass('vult_search-bar');
+            // $('.bs_search_bar').hide();
+            $('.vult_search-mobile').removeClass('s-open');
+            $('.vult_search-mobile').addClass('s-close');
+        }
+    });
+</script>

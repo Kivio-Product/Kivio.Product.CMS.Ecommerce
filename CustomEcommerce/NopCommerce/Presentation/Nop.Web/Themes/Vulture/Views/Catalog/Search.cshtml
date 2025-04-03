@@ -1,0 +1,162 @@
+﻿@model Nop.Web.Models.Catalog.SearchModel
+@{
+    Layout = "_ColumnsTwo-Category";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.Search").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-search-page");
+}
+<script asp-location="Footer">
+    $(function () {
+        $("#@Html.IdFor(model => model.advs)").on('click', toggleAdvancedSearch);
+        toggleAdvancedSearch();
+    });
+
+    function toggleAdvancedSearch() {
+        if ($('#@Html.IdFor(model => model.advs)').is(':checked')) {
+            $('#advanced-search-block').show();
+        }
+        else {
+            $('#advanced-search-block').hide();
+        }
+    }
+</script>
+
+@section CatalogFilters {
+    @await Html.PartialAsync("_CatalogFilters", Model.CatalogProductsModel)
+}
+
+<div class="page search-page">
+    <div class="vult-page-title">
+        <h2>@T("Search")</h2>
+    </div>
+    <div class="page-body">
+        <div class="search-input">
+            <form asp-route="ProductSearch" method="get">
+                <div class="vult-form">
+                    <div class="vult-form-fields">
+                        <div class="basic-search">
+                            <div class="inputs">
+                                <div class="vult-input">
+                                    <input asp-for="q" class="vult-input-effect search-text" placeholder="@T("forum.search.searchkeyword")" />
+                                    <label asp-for="q">@T("Search.SearchTerm")</label>
+                                    <span class="focus-border"><i></i></span>
+                                </div>
+                            </div>
+                            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductSearchPageBasic, additionalData = Model })
+                            <div class="inputs reversed">
+                                <input class="inp-cbx" asp-for="advs" />
+                                <label class="cbx" asp-for="advs">
+                                    @T("Search.AdvancedSearch")
+                                    <span>
+                                        <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                            <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                        </svg>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="advanced-search" id="advanced-search-block">
+                            @if (Model.AvailableCategories.Count > 0)
+                            {
+                                <div class="inputs">
+                                    <div class="vult-input">
+                                        <label asp-for="cid">@T("Search.Category"):</label>
+                                        <select class="vult-input-effect vult-common-select" asp-for="cid" asp-items="Model.AvailableCategories"></select>
+                                        <span class="focus-border"><i></i></span>
+                                    </div>
+                                </div>
+                                <div class="inputs reversed">
+                                    <input class="inp-cbx" asp-for="isc" />
+                                    <label class="cbx" asp-for="isc">
+                                        @T("Search.IncludeSubCategories")
+                                        <span>
+                                            <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                                <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                            </svg>
+                                        </span>
+                                    </label>
+                                </div>
+                            }
+                            @if (Model.AvailableManufacturers.Count > 0)
+                            {
+                                <div class="inputs">
+                                    <div class="vult-input">
+                                        <label asp-for="mid">@T("Search.Manufacturer"):</label>
+                                        <select class="vult-input-effect vult-common-select" asp-for="mid" asp-items="Model.AvailableManufacturers"></select>
+                                        <span class="focus-border"><i></i></span>
+                                    </div>
+                                </div>
+                            }
+                            @if (Model.asv && Model.AvailableVendors.Count > 0)
+                            {
+                                <div class="inputs">
+                                    <div class="vult-input">
+                                        <label asp-for="vid">@T("Search.Vendor"):</label>
+                                        <select class="vult-input-effect vult-common-select" asp-for="vid" asp-items="Model.AvailableVendors"></select>
+                                        <span class="focus-border"><i></i></span>
+                                    </div>
+                                </div>
+                            }
+                            <div class="inputs reversed">
+                                <input class="inp-cbx" asp-for="sid" />
+                                <label class="cbx" asp-for="sid">
+                                    @T("Search.SearchInDescriptions")
+                                    <span>
+                                        <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                            <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                        </svg>
+                                    </span>
+                                </label>
+                            </div>
+                            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductSearchPageAdvanced, additionalData = Model })
+                        </div>
+                    </div>
+                    <div class="buttons">
+                        <button type="submit" class="button-1 search-button primary-btn"><span>@T("Search.Button")</span></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        @await Html.PartialAsync("_CatalogSelectors", Model.CatalogProductsModel)
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductSearchPageBeforeResults, additionalData = Model })
+        <div class="search-results">
+            @{
+                var catalogProductsViewData = new ViewDataDictionary(ViewData);
+                catalogProductsViewData["fetchUrl"] = Html.Raw(Url.RouteUrl("SearchProducts"));
+            }
+            @await Html.PartialAsync("_CatalogProducts", Model.CatalogProductsModel, catalogProductsViewData)
+            <script asp-location="Footer">
+                $(function () {
+                    $(CatalogProducts).on('before', function (e) {
+                        var isAdvanced = $('#@Html.IdFor(model => model.advs)').is(':checked');
+
+                        e.payload.urlBuilder
+                            .addParameter('q', $('#@Html.IdFor(model => model.q)').val())
+                            .addParameter('advs', isAdvanced);
+
+                        if (isAdvanced) {
+                            e.payload.urlBuilder
+                                .addParameter('cid', $('#@Html.IdFor(model => model.cid)').val())
+                                .addParameter('isc', $('#@Html.IdFor(model => model.isc)').is(':checked'))
+                                .addParameter('mid', $('#@Html.IdFor(model => model.mid)').val())
+                                .addParameter('vid', $('#@Html.IdFor(model => model.vid)').val())
+                                .addParameter('sid', $('#@Html.IdFor(model => model.sid)').is(':checked'));
+                        }
+                    });
+                });
+            </script>
+        </div>
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductSearchPageAfterResults, additionalData = Model })
+    </div>
+</div>
+
+<script asp-location="Footer">
+    $(document).ready(function () {
+        $(".vult-common-select").select2({
+            allowClear: true,
+            dropdownCssClass: "vult-dropdown-select-height"
+        });
+    });
+</script>

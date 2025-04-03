@@ -1,0 +1,57 @@
+﻿@model SendPrivateMessageModel
+@{
+    Layout = "_ColumnsOne";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.SendPM").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-private-messages");
+    NopHtml.AppendPageCssClassParts("html-private-message-send-page");
+}
+<form asp-route="SendPM" method="post">
+    <div asp-validation-summary="ModelOnly" class="message-error"></div>
+    <div class="page private-messages private-message-send-page section-width">
+        <div class="section-padding">
+            <div class="vult-page-title">
+                <h2>@T("PrivateMessages.Send.PostMessage")</h2>
+            </div>
+            <div class="page-body">
+                <input type="hidden" asp-for="ToCustomerId" />
+                <input type="hidden" asp-for="ReplyToMessageId" />
+                <div class="vult-form vult-form-width">
+                    <div class="inputs">
+                        <label>@T("PrivateMessages.Send.To")</label>
+                        @if (Model.AllowViewingToProfile)
+                        {
+                            <a href="@Url.RouteUrl("CustomerProfile", new {id = Model.ToCustomerId})">@(Model.CustomerToName)</a>
+                        }
+                        else
+                        {
+                            <span>@Model.CustomerToName</span>
+                        }
+                    </div>
+                    <div class="inputs">
+                        <div class="vult-input">
+                            @*<label>@T("PrivateMessages.Send.Subject")</label>*@
+                            <input asp-for="Subject" class="pm-title-text vult-input-effect" placeholder="@T("PrivateMessages.Send.Subject")" />
+                            <span class="focus-border"><i></i></span>
+                        </div>
+                        <span asp-validation-for="Subject"></span>
+                    </div>
+                    <div class="inputs message">
+                        @*<label>@T("PrivateMessages.Send.Message")</label>*@
+                        <nop-bb-code-editor asp-for="Message" />
+                        <div class="vult-input">
+                            <textarea asp-for="Message" class="bb-editor-text vult-input-effect"></textarea>
+                            <span asp-validation-for="Message"></span>
+                        </div>
+                    </div>
+                    <div class="buttons">
+                        <button type="submit" class="button-1 send-pm-button primary-btn"><span>@T("PrivateMessages.Send.SendButton")</span></button>
+                        <button type="button" class="button-2 cancel-pm-button primary-btn" onclick="setLocation('@Url.RouteUrl("PrivateMessages")')"><span>@T("PrivateMessages.Send.CancelButton")</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,131 @@
+﻿@model ApplyVendorModel
+@{
+    Layout = "_ColumnsOne";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.Vendors.Apply").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-apply-vendor-page");
+}
+<div class="page apply-vendor-page section-padding">
+    <div class="section-width">
+        <div class="vult-page-title">
+            <h2>@T("PageTitle.Vendors.Apply")</h2>
+        </div>
+        <div class="page-body">
+            @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "ApplyVendor" })
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ApplyVendorTop, additionalData = Model })
+            @if (Model.DisableFormInput)
+            {
+                <div class="result">
+                    @Model.Result
+                </div>
+            }
+            else
+            {
+                <form asp-route="ApplyVendorAccount" method="post" enctype="multipart/form-data">
+                    <div class="vult-form vult-form-width">
+                        <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                        <div class="vult-form-fields">
+                            <div class="inputs">
+                                <div class="vult-input">
+                                    <label asp-for="Name"></label>
+                                    <input asp-for="Name" class="name vult-input-effect" placeholder="@T("Vendors.ApplyAccount.Name.Hint")" />
+                                    <nop-required />
+                                    <span class="focus-border"><i></i></span>
+                                </div>
+                                <span asp-validation-for="Name"></span>
+                            </div>
+                            <div class="inputs">
+                                <div class="vult-input">
+                                    <label asp-for="Email"></label>
+                                    <input asp-for="Email" class="name vult-input-effect" placeholder="@T("Vendors.ApplyAccount.Email.Hint")" />
+                                    <nop-required />
+                                    <span class="focus-border"><i></i></span>
+                                </div>
+                                <span asp-validation-for="Email"></span>
+                            </div>
+                            <div class="inputs">
+                                <div class="vult-input">
+                                    <label asp-for="Description"></label>
+                                    <textarea asp-for="Description" class="description vult-input-effect"></textarea>
+                                    <span class="focus-border"><i></i></span>
+                                </div>
+                            </div>
+                            <div class="inputs">
+                                <div class="vult-input">
+                                    <label>@T("Vendors.ApplyAccount.Picture"):</label>
+                                    <input name="uploadedFile" type="file" accept="image/*" />
+                                </div>
+                                @if (Model.DisplayCaptcha)
+                                {
+                                    <nop-captcha />
+                                }
+                                @if (Model.TermsOfServiceEnabled)
+                                {
+                                    <script asp-location="Footer">
+                                        $(function () {
+                                            $('#apply-vendor').on('click', function() {
+                                                if ($('#termsofservice').is(':checked')) {
+                                                    //do some stuff
+                                                    return true;
+                                                } else {
+                                                    //just show validation errors, dont post
+                                                    Swal.fire({
+                                                title: '<strong>@Html.Raw(JavaScriptEncoder.Default.Encode(T("Vendors.ApplyAccount.AcceptTermsOfService.Required").Text))</strong>',
+                                                icon: 'warning',
+                                                customClass: {
+                                                    confirmButton: 'primary-btn',
+                                                },
+                                                    confirmButtonColor: '#333',
+                                                    confirmButtonText: '<span>@T("Theme.Vulture.Header.Search.Button.Text")</span>',
+                                                })
+                                                    event.preventDefault();
+                                                    return false;
+                                                }
+                                            });
+                                        });
+                                    </script>
+                                    <div class="terms-of-service">
+                                        <input class="inp-cbx" id="termsofservice" type="checkbox" name="termsofservice" />
+                                        <label class="vult-info-newsletter cbx" for="termsofservice">
+                                            @T("Vendors.ApplyAccount.AcceptTermsOfService")
+                                            <span>
+                                                <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                                    <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                                </svg>
+                                            </span>
+                                        </label>
+                                        @if (Model.TermsOfServicePopup)
+                                        {
+                                            <span class="read" id="read-acceptterms">@T("Vendors.ApplyAccount.AcceptTermsOfService.Read")</span>
+                                            <script asp-location="Footer">
+                                                $(function () {
+                                                    $('#read-acceptterms').on('click',
+                                                        function (e) {
+                                                            displayPopupContentFromUrl(
+                                                                '@Url.RouteUrl("TopicPopup", new {SystemName = "VendorTermsOfService"})',
+                                                                '@T("Vendors.ApplyAccount.AcceptTermsOfService")');
+                                                        });
+                                                });
+                                            </script>
+                                        }
+                                        else
+                                        {
+                                            <a class="read" id="read-acceptterms" href="@Url.RouteTopicUrl("VendorTermsOfService")">@T("Vendors.ApplyAccount.AcceptTermsOfService.Read")</a>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            @await Html.PartialAsync("_VendorAttributes", Model.VendorAttributes)
+                        </div>
+                        <div class="buttons">
+                            <button type="submit" id="apply-vendor" name="apply-vendor" class="button-1 apply-vendor-button primary-btn"><span>@T("Vendors.ApplyAccount.Button")</span></button>
+                        </div>
+                    </div>
+                </form>
+            }
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ApplyVendorBottom, additionalData = Model })
+        </div>
+    </div>
+</div>

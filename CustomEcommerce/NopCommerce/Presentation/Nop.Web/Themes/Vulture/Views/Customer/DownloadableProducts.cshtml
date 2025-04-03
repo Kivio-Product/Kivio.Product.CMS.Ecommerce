@@ -1,0 +1,205 @@
+﻿@model CustomerDownloadableProductsModel
+
+@using Nop.Core.Domain.Catalog
+
+@{
+    Layout = "_ColumnsTwo-Account";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.Account").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-account-page");
+    NopHtml.AppendPageCssClassParts("html-downloadable-products-page");
+}
+
+@section CustomHeading
+{
+    @await Html.PartialAsync("_MyAccountTitleSection", T("Account.DownloadableProducts").Text)
+}
+
+@section left
+{
+    @await Component.InvokeAsync(typeof(CustomerNavigationViewComponent), new { selectedTabId = CustomerNavigationEnum.DownloadableProducts })
+}
+<div class="page account-page downloadable-products-page">
+    <div class="vult-page-title">
+        <h1 class="vult-account-title">@T("Account.MyAccount") - @T("Account.DownloadableProducts")</h1>
+    </div>
+    <div class="page-body">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CustomerDownloadableProductsTop, additionalData = Model })
+        @if (Model.Items.Count > 0)
+        {
+            <div class="vult-order-list vult-order-list-desktop">
+                <div class="table-wrapper">
+                    <table class="vult-data-table">
+                        <colgroup>
+                            <col width="10%" />
+                            <col width="10%" />
+                            <col width="70%" />
+                            <col width="10%" />
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th class="order">
+                                    @T("DownloadableProducts.Fields.Order")
+                                </th>
+                                <th class="date">
+                                    @T("DownloadableProducts.Fields.Date")
+                                </th>
+                                <th class="product">
+                                    @T("DownloadableProducts.Fields.Product")
+                                </th>
+                                <th class="download">
+                                    @T("DownloadableProducts.Fields.Download")
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < Model.Items.Count; i++)
+                            {
+                                var item = Model.Items[i];
+                                <tr @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
+                                    <td class="order">
+                                        <a href="@Url.RouteUrl("OrderDetails", new { orderId = item.OrderId })">@item.CustomOrderNumber</a>
+                                    </td>
+                                    <td class="date">
+                                        @item.CreatedOn.ToString("d")
+                                    </td>
+                                    <td class="product">
+                                        <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@item.ProductName</a>
+                                        @if (!string.IsNullOrEmpty(item.ProductAttributes))
+                                        {
+                                            <div class="attributes">
+                                                @Html.Raw(item.ProductAttributes)
+                                            </div>
+                                        }
+                                    </td>
+                                    <td class="download">
+                                        @if (item.DownloadId > 0)
+                                        {
+                                            <div>
+                                                <a class="primary-btn" href="@Url.RouteUrl("GetDownload", new { orderItemId = item.OrderItemGuid })"><span>@T("DownloadableProducts.Fields.Download")</span></a>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div>
+                                                @T("DownloadableProducts.Fields.Download.NA")
+                                            </div>
+                                        }
+                                        @if (item.LicenseId > 0)
+                                        {
+                                            <div>
+                                                <a class="primary-btn" href="@Url.RouteUrl("GetLicense", new { orderItemId = item.OrderItemGuid })"><span>@T("DownloadableProducts.Fields.DownloadLicense")</span></a>
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr class="spacer"></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="vult-order-list vult-order-list-mobile">
+                <div class="vult-order-list-title">
+                    <div class="order">
+                        @T("DownloadableProducts.Fields.Order")
+                    </div>
+                    <div class="product">
+                        @T("DownloadableProducts.Fields.Product")
+                    </div>
+                </div>
+
+                <div class="vult-oder-tabel-main-data">
+                    @for (var i = 0; i < Model.Items.Count; i++)
+                    {
+                        var item = Model.Items[i];
+                        <div class="vult-mobile-order-table">
+                            <div class="vult-customer-order-table">
+                                <div class="vult-order-table-data">
+                                    <div class="order">
+                                        @*<label>@T("DownloadableProducts.Fields.Order") :</label>*@
+                                        <a href="@Url.RouteUrl("OrderDetails", new { orderId = item.OrderId })">@item.CustomOrderNumber</a>
+                                    </div>
+                                    <div class="product">
+                                        @*<label>@T("DownloadableProducts.Fields.Product") :</label>*@
+                                        <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
+                                        @if (!string.IsNullOrEmpty(item.ProductAttributes))
+                                        {
+                                            <div class="attributes">
+                                                @Html.Raw(item.ProductAttributes)
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="vult-order-table-bottom-data">
+                                    <div class="vult-order-date-total">
+                                        <div class="vult-rr-date">
+                                            <div class="vult-order-title">
+                                                @T("DownloadableProducts.Fields.Date") :
+                                            </div>
+                                            <div class="date">
+                                                @item.CreatedOn.ToString("d")
+                                            </div>
+                                        </div>
+
+                                        <div class="vult-rr-download">
+                                            <div class="vult-order-title">
+                                                @T("DownloadableProducts.Fields.Download") :
+                                            </div>
+                                            <div class="download">
+                                                @if (item.DownloadId > 0)
+                                                {
+                                                    <div>
+                                                        <a class="primary-btn" href="@Url.RouteUrl("GetDownload", new { orderItemId = item.OrderItemGuid })"><span>@T("DownloadableProducts.Fields.Download")</span></a>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div>
+                                                        @T("DownloadableProducts.Fields.Download.NA")
+                                                    </div>
+                                                }
+                                                @if (item.LicenseId > 0)
+                                                {
+                                                    <div>
+                                                        <a class="primary-btn" href="@Url.RouteUrl("GetLicense", new { orderItemId = item.OrderItemGuid })"><span>@T("DownloadableProducts.Fields.DownloadLicense")</span></a>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="m-up-down-arrow">
+                                <div class="transform-class">
+                                    <span class="Vult-left-arrow"></span>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="no-data">
+                @T("DownloadableProducts.NoItems")
+            </div>
+        }
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CustomerDownloadableProductsBottom, additionalData = Model })
+    </div>
+</div>
+
+<script asp-location="Footer">
+    $(".m-up-down-arrow").each(function () {
+        $(this).click(function () {
+            var eSpan = $(this).find("span");
+            eSpan.toggleClass('transform-class');
+            $(this).siblings(".vult-customer-order-table").find(".vult-order-table-bottom-data").slideToggle("slow");
+        });
+    });
+</script>

@@ -1,0 +1,65 @@
+﻿@model WishlistEmailAFriendModel
+@{
+    Layout = "_ColumnsOne";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.WishlistEmailAFriend").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-email-a-friend-page");
+}
+<div class="page email-a-friend-page section-padding">
+    <div class="section-width">
+        <div class="vult-page-title">
+            <h2>@T("Wishlist.EmailAFriend.Title")</h2>
+        </div>
+        <div class="page-body">
+            @if (Model.SuccessfullySent)
+            {
+                <div class="result">
+                    @Model.Result
+                </div>
+            }
+            else
+            {
+                <form asp-route="EmailWishlist" method="post">
+                    <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                    <div class="vult-form vult-form-width">
+                        <div class="vult-form-fields">
+                            <div class="inputs">
+                                <div class="vult-input">
+                                    <label asp-for="FriendEmail"></label>
+                                    <input asp-for="FriendEmail" class="friend-email vult-input-effect" placeholder="@T("Wishlist.EmailAFriend.FriendEmail.Hint")" />
+                                    <span class="focus-border"><i></i></span>
+                                </div>
+                                <span asp-validation-for="FriendEmail"></span>
+                            </div>
+                            <div class="inputs">
+                                <div class="vult-input">
+                                    <label asp-for="YourEmailAddress"></label>
+                                    <input asp-for="YourEmailAddress" class="your-email vult-input-effect" placeholder="@T("Wishlist.EmailAFriend.YourEmailAddress.Hint")" />
+                                    <span class="focus-border"><i></i></span>
+                                </div>
+                                <span asp-validation-for="YourEmailAddress"></span>
+                            </div>
+                            <div class="inputs">
+                                <div class="vult-input">
+                                    <label asp-for="PersonalMessage"></label>
+                                    <textarea asp-for="PersonalMessage" placeholder="@T("Wishlist.EmailAFriend.PersonalMessage.Hint")" class="personal-message vult-input-effect"></textarea>
+                                    <span class="focus-border"><i></i></span>
+                                </div>
+                                <span asp-validation-for="PersonalMessage"></span>
+                            </div>
+                            @if (Model.DisplayCaptcha)
+                            {
+                                <nop-captcha />
+                            }
+                        </div>
+                        <div class="buttons">
+                            <button type="submit" name="send-email" class="button-1 send-email-a-friend-button primary-btn"><span>@T("Wishlist.EmailAFriend.Button")</span></button>
+                        </div>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>

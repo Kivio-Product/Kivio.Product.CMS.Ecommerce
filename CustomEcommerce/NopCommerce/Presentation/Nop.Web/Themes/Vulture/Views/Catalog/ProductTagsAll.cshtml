@@ -1,0 +1,31 @@
+﻿@model PopularProductTagsModel
+
+@using Nop.Core.Domain.Catalog
+
+@{
+    Layout = "_ColumnsTwo-Category";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.AllProductTags").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-product-tags-all-page");
+}
+<div class="page product-tags-all-page section-padding">
+    <div class="vult-page-title">
+        <h2>@T("Products.Tags.All")</h2>
+    </div>
+    <div class="page-body">
+        @if (Model.Tags.Count > 0)
+        {
+            <ul class="product-tags-list">
+                @foreach (var item in Model.Tags)
+                {
+                    <li>
+                        <a href="@(Url.RouteUrl<ProductTag>(new { SeName = item.SeName }))" class="producttag">
+                        @item.Name</a>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</div>
