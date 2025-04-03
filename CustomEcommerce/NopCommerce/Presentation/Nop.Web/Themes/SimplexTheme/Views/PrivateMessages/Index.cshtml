@@ -1,0 +1,47 @@
+﻿@model PrivateMessageIndexModel
+@{
+    Layout = "_ColumnsOne";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.PrivateMessages").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-private-messages");
+    NopHtml.AppendPageCssClassParts("html-private-messages-page");
+}
+<div class="page private-messages private-messages-page">
+    <div class="page-title panel-heading">
+        <h1>@T("PrivateMessages.PrivateMessages")</h1>
+    </div>
+    <div class="page-body">
+        @{
+            var selectSentTab = Model.SentItemsTabSelected ? ".tabs( 'option', 'active', 1 )" : "";
+        }
+        <script asp-location="Footer">
+            $(function () {
+                //we use a small workaround to avoid bug with <base> tag (https://bugs.jqueryui.com/ticket/8637/)
+                $.fn.__tabs = $.fn.tabs;
+                $.fn.tabs = function (a, b, c, d, e, f) {
+                    var base = window.location.href.replace(/#.*$/, '');
+                    $('ul>li>a[href^="#"]', this).each(function () {
+                        var href = $(this).attr('href');
+                        $(this).attr('href', base + href);
+                    });
+                    $(this).__tabs(a, b, c, d, e, f);
+                };
+                $("#tabs").tabs()@Html.Raw(selectSentTab);
+            });
+        </script>
+        <ul id="tabs" class="nav nav-tabs">
+            <li class="active"><a href="#tabs-1" data-toggle="tab">@T("PrivateMessages.Inbox")</a></li>
+            <li><a href="#tabs-2" data-toggle="tab">@T("PrivateMessages.SentItems")</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="tabs-1" class="tab-pane active">
+                @await Component.InvokeAsync(typeof(PrivateMessagesInboxViewComponent), new { pageNumber = Model.InboxPage, tab = "inbox" })
+            </div>
+            <div id="tabs-2" class="tab-pane">
+                @await Component.InvokeAsync(typeof(PrivateMessagesSentItemsViewComponent), new { pageNumber = Model.SentItemsPage, tab = "sent" })
+            </div>
+        </div>
+    </div>
+</div>

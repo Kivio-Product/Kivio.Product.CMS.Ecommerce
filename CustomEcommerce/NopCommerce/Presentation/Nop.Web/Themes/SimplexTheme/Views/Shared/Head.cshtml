@@ -1,0 +1,39 @@
+﻿@using Nop.Core
+@using Nop.Core.Domain.Catalog
+@using Nop.Services.Helpers
+
+@inject CatalogSettings catalogSettings
+@inject IThemeContext themeContext
+@inject IUserAgentHelper userAgentHelper
+
+@inject IWorkContext workContext
+
+@{
+    var supportRtl = (await workContext.GetWorkingLanguageAsync()).Rtl;
+
+    //add main CSS file
+    if (supportRtl)
+    {
+        NopHtml.AppendCssFileParts($"~/Themes/SimplexTheme/Content/css/simplex.styles.responsive.rtl.css");
+        NopHtml.AppendCssFileParts($"~/Themes/SimplexTheme/Content/css/simplex.styles.rtl.css");
+        NopHtml.AppendCssFileParts($"~/Themes/SimplexTheme/Content/css/bootstrap.min.rtl.css");
+    }
+    else
+    {
+        NopHtml.AppendCssFileParts($"~/Themes/SimplexTheme/Content/css/simplex.styles.responsive.css");
+        NopHtml.AppendCssFileParts($"~/Themes/SimplexTheme/Content/css/simplex.styles.css");
+        NopHtml.AppendCssFileParts($"~/Themes/SimplexTheme/Content/css/bootstrap.min.css");
+    }
+
+    NopHtml.AppendCssFileParts($"~/Themes/SimplexTheme/Content/css/owl.carousel.min.css");
+    NopHtml.AppendCssFileParts($"~/Themes/SimplexTheme/Content/css/font-awesome.min.css");
+
+    //add swiper css file
+    if (catalogSettings.DisplayAllPicturesOnCatalogPages)
+    {
+        NopHtml.AppendCssFileParts("~/lib_npm/swiper/swiper-bundle.min.css");
+    }
+
+    //add jQuery UI css file
+    NopHtml.AppendCssFileParts("~/lib_npm/jquery-ui-dist/jquery-ui.min.css");
+}
