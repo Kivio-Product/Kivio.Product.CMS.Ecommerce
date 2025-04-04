@@ -1,0 +1,24 @@
+﻿@model RegisterResultModel
+@{
+    Layout = "_ColumnsOne";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.Register").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-registration-result-page");
+}
+<div class="page registration-result-page section-width">
+    <div class="section-padding">
+        <div class="vult-page-title">
+            <h1 class="vult-account-title">@T("Account.Register")</h1>
+        </div>
+        <div class="page-body">
+            <div class="result">
+                @Model.Result
+            </div>
+            <div class="buttons">
+                <a href="@Model.ReturnUrl" class="button-1 register-continue-button primary-btn"><span>@T("Common.Continue")</span></a>
+            </div>
+        </div>
+    </div>
+</div>

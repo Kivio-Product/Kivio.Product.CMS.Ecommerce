@@ -1,0 +1,189 @@
+﻿@model CustomerRewardPointsModel
+@{
+    Layout = "_ColumnsTwo-Account";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.Account").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-account-page");
+    NopHtml.AppendPageCssClassParts("html-reward-points-page");
+}
+
+@section CustomHeading
+{
+    @await Html.PartialAsync("_MyAccountTitleSection", T("Account.RewardPoints").Text)
+}
+
+@section left
+{
+    @await Component.InvokeAsync(typeof(CustomerNavigationViewComponent), new { selectedTabId = CustomerNavigationEnum.RewardPoints })
+}
+<div class="page account-page reward-points-page">
+    <div class="vult-page-title">
+        <h2>@T("Account.RewardPoints")</h2>
+    </div>
+    <div class="page-body">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CustomerRewardPointsTop, additionalData = Model })
+        <div class="reward-points-overview">
+            <div class="current-balance">@T("RewardPoints.CurrentBalance", Model.RewardPointsBalance, Model.RewardPointsAmount)</div>
+            @if (Model.MinimumRewardPointsBalance > 0)
+            {
+                <div class="min-balance">@T("RewardPoints.MinimumBalance", Model.MinimumRewardPointsBalance, Model.MinimumRewardPointsAmount)</div>
+            }
+        </div>
+        <div class="reward-points-history">
+            @*<div class="title">
+                    <strong>@T("RewardPoints.History")</strong>
+                </div>*@
+            @if (Model.RewardPoints.Count > 0)
+            {
+                <div class="vult-order-list vult-order-list-desktop">
+                    <div class="table-wrapper">
+                        <table class="vult-data-table">
+                            <colgroup>
+                                <col />
+                                <col />
+                                <col />
+                                <col />
+                                <col />
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th class="date">
+                                        @T("RewardPoints.Fields.CreatedDate")
+                                    </th>
+                                    <th class="points">
+                                        @T("RewardPoints.Fields.Points")
+                                    </th>
+                                    <th class="message">
+                                        @T("RewardPoints.Fields.Message")
+                                    </th>
+                                    <th class="endDate">
+                                        @T("RewardPoints.Fields.EndDate")
+                                    </th>
+                                    <th class="points-balance">
+                                        @T("RewardPoints.Fields.PointsBalance")
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (var i = 0; i < Model.RewardPoints.Count; i++)
+                                {
+                                    var item = Model.RewardPoints[i];
+                                    <tr @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
+                                        <td class="date">
+                                            @item.CreatedOn
+                                        </td>
+                                        <td class="points">
+                                            @item.Points
+                                        </td>
+                                        <td class="message">
+                                            @item.Message
+                                        </td>
+                                        <td class="endDate">
+                                            @item.EndDate
+                                        </td>
+                                        <td class="points-balance">
+                                            @item.PointsBalance
+                                        </td>
+                                    </tr>
+                                    <tr class="spacer"></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="vult-order-list vult-order-list-mobile">
+                    <div class="vult-order-list-title vult-reward-history">
+                        <div class="date vult-order-title">
+                            @T("RewardPoints.Fields.CreatedDate")
+                        </div>
+                        <div class="points vult-order-title">
+                            @T("RewardPoints.Fields.Points")
+                        </div>
+                        <div class="points-balance vult-order-title">
+                            @T("RewardPoints.Fields.PointsBalance")
+                        </div>
+                    </div>
+                    <div class="vult-oder-tabel-main-data">
+                        @for (var i = 0; i < Model.RewardPoints.Count; i++)
+                        {
+                            var item = Model.RewardPoints[i];
+                            <div class="vult-data-table" @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
+                                <div class="vult-customer-order-table">
+                                    <div class="vult-reward-table">
+                                        <div class="date">
+                                            @item.CreatedOn
+                                        </div>
+                                        <div class="points">
+                                            @item.Points
+                                        </div>
+                                        <div class="points-balance">
+                                            @item.PointsBalance
+                                        </div>
+                                    </div>
+
+                                    <div class="vult-order-table-bottom-data">
+                                        <div class="vult-order-date-total">
+                                            <div class="vult-reward-history-message">
+                                                <div class="message">
+                                                    <label>@T("RewardPoints.Fields.Message") :</label>
+                                                </div>
+                                                <div class="message">
+                                                    @item.Message
+                                                </div>
+                                            </div>
+
+                                            <div class="vult-reward-history-enddate">
+                                                <div class="endDate">
+                                                    <label>@T("RewardPoints.Fields.EndDate") :</label>
+                                                </div>
+                                                <div class="endDate">
+                                                    @item.EndDate
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a class="m-up-down-arrow">
+                                    <div class="">
+                                        <span class="Vult-left-arrow"></span>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+
+
+                var pager = await Html.PagerAsync(Model.PagerModel);
+                if (!string.IsNullOrEmpty(await pager.RenderHtmlContentAsync()))
+                {
+                    <div class="pager">
+                        @pager
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-data">
+                    @T("RewardPoints.NoHistory")
+                </div>
+            }
+        </div>
+    </div>
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CustomerRewardPointsBottom, additionalData = Model })
+</div>
+
+
+<script asp-location="Footer">
+    $(".m-up-down-arrow").each(function () {
+        $(this).click(function () {
+            var eSpan = $(this).find("span");
+            eSpan.toggleClass('transform-class');
+            $(this).siblings(".vult-customer-order-table").find(".vult-order-table-bottom-data").slideToggle("slow");
+        });
+    });
+</script>

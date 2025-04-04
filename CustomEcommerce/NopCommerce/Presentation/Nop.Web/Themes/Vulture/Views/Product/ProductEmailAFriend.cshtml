@@ -1,0 +1,75 @@
+﻿@model ProductEmailAFriendModel
+
+@using Nop.Core.Domain.Catalog
+
+@{
+    Layout = "_ColumnsOne";
+
+    //title
+    NopHtml.AddTitleParts(Model.ProductName);
+    //page class
+    NopHtml.AddTitleParts(T("PageTitle.ProductEmailAFriend").Text);
+    NopHtml.AppendPageCssClassParts("html-email-a-friend-page");
+}
+<div class="page email-a-friend-page section-padding">
+    <div class="section-width">
+        <div class="vult-page-title">
+            <h2>@T("Products.EmailAFriend.Title")</h2>
+        </div>
+        <div class="page-body">
+            <div class="title">
+                <h2><a href="@(Url.RouteUrl<Product>(new { SeName = Model.ProductSeName }))" class="product">@Model.ProductName</a></h2>
+            </div>
+            @if (Model.SuccessfullySent)
+            {
+                <div class="result">
+                    @Model.Result
+                </div>
+            }
+            else
+            {
+                <form asp-route="ProductEmailAFriend" method="post">
+                    <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                    <div class="vult-form vult-form-width">
+                        <div class="vult-form-fields">
+                            <div class="inputs">
+                                <div class="vult-input">
+                                    <label asp-for="FriendEmail"></label>
+                                    <input asp-for="FriendEmail" class="friend-email vult-input-effect" placeholder="@T("Products.EmailAFriend.FriendEmail.Hint")" />
+                                    <nop-required />
+                                    <span class="focus-border"><i></i></span>
+                                </div>
+                                <span asp-validation-for="FriendEmail"></span>
+                            </div>
+                            <div class="inputs">
+                                <div class="vult-input">
+                                    <label asp-for="YourEmailAddress"></label>
+                                    <input asp-for="YourEmailAddress" class="your-email vult-input-effect" placeholder="@T("Products.EmailAFriend.YourEmailAddress.Hint")" />
+                                    <nop-required />
+                                    <span class="focus-border"><i></i></span>
+                                </div>
+                                <span asp-validation-for="YourEmailAddress"></span>
+                            </div>
+                            <div class="inputs">
+                                <div class="vult-input">
+                                    <label asp-for="PersonalMessage"></label>
+                                    <textarea asp-for="PersonalMessage" class="your-email vult-input-effect" placeholder="@T("Products.EmailAFriend.PersonalMessage.Hint")"></textarea>
+                                    <span class="focus-border"><i></i></span>
+                                </div>
+                                <span asp-validation-for="PersonalMessage"></span>
+                            </div>
+                            @if (Model.DisplayCaptcha)
+                            {
+                                <nop-captcha />
+                            }
+                        </div>
+                        <div class="buttons">
+                            <button type="submit" name="send-email" class="button-1 send-email-a-friend-button primary-btn"><span>@T("Products.EmailAFriend.Button")</span></button>
+                        </div>
+                    </div>
+
+                </form>
+            }
+        </div>
+    </div>
+</div>

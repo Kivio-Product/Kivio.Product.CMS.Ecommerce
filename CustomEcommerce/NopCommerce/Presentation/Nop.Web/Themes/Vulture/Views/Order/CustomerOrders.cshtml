@@ -1,0 +1,416 @@
+﻿@model CustomerOrderListModel
+@{
+    Layout = "_ColumnsTwo-Account";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.Account").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-account-page");
+    NopHtml.AppendPageCssClassParts("html-order-list-page");
+}
+
+@section CustomHeading
+{
+    @await Html.PartialAsync("_MyAccountTitleSection", T("Account.CustomerOrders").Text)
+}
+
+@section left
+{
+    @await Component.InvokeAsync(typeof(CustomerNavigationViewComponent), new { selectedTabId = CustomerNavigationEnum.Orders })
+}
+<div class="page account-page order-list-page">
+    <div class="vult-page-title">
+        <h2>@T("Account.CustomerOrders")</h2>
+    </div>
+    <div class="page-body">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CustomerOrdersTop, additionalData = Model })
+        @if (Model.RecurringOrders.Count > 0)
+        {
+            <div class="section recurring-payments">
+                <div class="vult-order-summry-title">
+                    <h4>@T("Account.CustomerOrders.RecurringOrders")</h4>
+                </div>
+                <form asp-route="CustomerOrders" method="post">
+                    @{
+                        var canRetryRecurringOrders = Model.RecurringOrders.Any(recurring => recurring.CanRetryLastPayment);
+                    }
+                    <div class="vult-order-list vult-order-list-desktop">
+                        <div class="table-wrapper">
+                            <table class="vult-data-table">
+                                <colgroup>
+                                    <col />
+                                    <col />
+                                    <col />
+                                    <col />
+                                    <col />
+                                    <col />
+                                    @if (canRetryRecurringOrders)
+                                    {
+                                        <col />
+                                    }
+                                    <col />
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th class="img">
+                                            @T("Theme.Vulture.Order.Image")
+                                        </th>
+                                        <th class="start-date">
+                                            @T("Account.CustomerOrders.RecurringOrders.StartDate")
+                                        </th>
+                                        <th class="cycle-info">
+                                            @T("Account.CustomerOrders.RecurringOrders.CycleInfo")
+                                        </th>
+                                        <th class="next-payment">
+                                            @T("Account.CustomerOrders.RecurringOrders.NextPayment")
+                                        </th>
+                                        <th class="total-cycles">
+                                            @T("Account.CustomerOrders.RecurringOrders.TotalCycles")
+                                        </th>
+                                        <th class="cycles-remaining">
+                                            @T("Account.CustomerOrders.RecurringOrders.CyclesRemaining")
+                                        </th>
+                                        <th class="initial-order">
+                                            @T("Account.CustomerOrders.RecurringOrders.InitialOrder")
+                                        </th>
+                                        @if (canRetryRecurringOrders)
+                                        {
+                                            <th class="retry">
+                                                @T("Account.CustomerOrders.RecurringOrders.RetryLastPayment")
+                                            </th>
+                                        }
+                                        <th class="cancel">
+                                            @T("Account.CustomerOrders.RecurringOrders.Cancel")
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.RecurringOrders)
+                                    {
+                                        <tr>
+                                            <td class="order-image">
+                                                @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = "vulture_Orderlist_ProductImage", additionalData = item.InitialOrderId })
+                                            </td>
+                                            <td class="start-date">
+                                                @item.StartDate
+                                            </td>
+                                            <td class="cycle-info">
+                                                @item.CycleInfo
+                                            </td>
+                                            <td class="next-payment">
+                                                @item.NextPayment
+                                            </td>
+                                            <td class="total-cycles">
+                                                @item.TotalCycles
+                                            </td>
+                                            <td class="cycles-remaining">
+                                                @item.CyclesRemaining
+                                            </td>
+                                            <td class="initial-order">
+                                                <a href="@Url.RouteUrl("OrderDetails", new { orderId = item.InitialOrderId })">@string.Format(T("Account.CustomerOrders.RecurringOrders.ViewInitialOrder").Text, item.InitialOrderNumber)</a>
+                                            </td>
+                                            @if (canRetryRecurringOrders)
+                                            {
+                                                <td class="retry">
+                                                    @if (item.CanRetryLastPayment)
+                                                    {
+                                                        <button type="submit" name="retryLastPayment_@(item.Id)" class="button-2 retry-recurring-order-button primary-btn"><span>@T("Account.CustomerOrders.RecurringOrders.RetryLastPayment")</span></button>
+                                                    }
+                                                </td>
+                                            }
+                                            <td class="cancel">
+                                                @if (item.CanCancel)
+                                                {
+                                                    <button type="submit" name="cancelRecurringPayment@(item.Id)" class="button-2 cancel-recurring-order-button primary-btn"><span>@T("Account.CustomerOrders.RecurringOrders.Cancel")</span></button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="vult-order-list vult-order-list-mobile">
+                        <div class="vult-order-list-title">
+                            <div class="img">
+                                @T("Theme.Vulture.Order.Image")
+                            </div>
+                            <div class="start-date">
+                                @T("Account.CustomerOrders.RecurringOrders.StartDate")
+                            </div>
+                            <div class="cycle-info">
+                                @T("Account.CustomerOrders.RecurringOrders.CycleInfo")
+                            </div>
+                            <div class="next-payment">
+                                @T("Account.CustomerOrders.RecurringOrders.NextPayment")
+                            </div>
+                            <div class="cancel">
+                                @T("Account.CustomerOrders.RecurringOrders.Cancel")
+                            </div>
+                        </div>
+
+                        <div class="vult-oder-tabel-main-data">
+                            @foreach (var item in Model.RecurringOrders)
+                            {
+                                <div class="vult-mobile-order-table">
+                                    <div class="vult-customer-order-table">
+                                        <div class="vult-order-table-data">
+                                            <div class="order-image">
+                                                @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = "vulture_Orderlist_ProductImage", additionalData = item.InitialOrderId })
+                                            </div>
+                                            <div class="start-date">
+                                                @item.StartDate
+                                            </div>
+                                            <div class="cycle-info">
+                                                <label>@T("Account.CustomerOrders.RecurringOrders.CycleInfo") :</label>
+                                                @item.CycleInfo
+                                            </div>
+                                            <div class="next-payment">
+                                                <label>@T("Account.CustomerOrders.RecurringOrders.NextPayment") :</label>
+                                                @item.NextPayment
+                                            </div>
+                                            <div class="cancel">
+                                                @if (item.CanCancel)
+                                                {
+                                                    <button type="submit" name="cancelRecurringPayment@(item.Id)" class="button-2 cancel-recurring-order-button primary-btn"><span>@T("Account.CustomerOrders.RecurringOrders.Cancel")</span></button>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="vult-order-table-bottom-data">
+                                            <div class="vult-order-date-total">
+                                                <div class="total-cycles">
+                                                    <label>@T("Account.CustomerOrders.RecurringOrders.TotalCycles") :</label>
+                                                    @item.TotalCycles
+                                                </div>
+
+                                                <div class="cycles-remaining">
+                                                    <label>@T("Account.CustomerOrders.RecurringOrders.CyclesRemaining") :</label>
+                                                    @item.CyclesRemaining
+                                                </div>
+
+                                                <div class="initial-order">
+                                                    <label>@T("Account.CustomerOrders.RecurringOrders.InitialOrder") :</label>
+                                                    <a href="@Url.RouteUrl("OrderDetails", new { orderId = item.InitialOrderId })">@string.Format(T("Account.CustomerOrders.RecurringOrders.ViewInitialOrder").Text, item.InitialOrderNumber)</a>
+                                                </div>
+
+                                                @if (canRetryRecurringOrders)
+                                                {
+                                                    <div class="retry">
+                                                        <label>@T("Account.CustomerOrders.RecurringOrders.RetryLastPayment") :</label>
+                                                        @if (item.CanRetryLastPayment)
+                                                        {
+                                                            <button type="submit" name="retryLastPayment_@(item.Id)" class="button-2 retry-recurring-order-button primary-btn"><span>@T("Account.CustomerOrders.RecurringOrders.RetryLastPayment")</span></button>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a class="m-up-down-arrow">
+                                        <div class="transform-class">
+                                            <span class="Vult-left-arrow"></span>
+                                        </div>
+                                    </a>
+                                </div>
+
+                            }
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+            if (Model.RecurringPaymentErrors.Any())
+            {
+                <div class="message-error">
+                    <ul>
+                        @foreach (var error in Model.RecurringPaymentErrors)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                </div>
+            }
+        }
+
+        @if (Model.Orders.Count > 0)
+        {
+            <div class="vult-order-list vult-order-list-desktop">
+                <div class="table-wrapper">
+                    <table class="vult-data-table">
+                        <colgroup>
+                            <col />
+                            <col />
+                            <col />
+                            <col />
+                            <col />
+                            <col />
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th class="img">
+                                    @T("Theme.Vulture.Order.Image")
+                                </th>
+                                <th class="vult-order-number">
+                                    @T("Theme.Vulture.Order.Number")
+                                </th>
+                                <th class="vult-order-status">
+                                    @T("Theme.Vulture.Order.Status")
+                                </th>
+                                <th class="vult-order-date">
+                                    @T("Theme.Vulture.Order.Date")
+                                </th>
+                                <th class="vult-order-total">
+                                    @T("Theme.Vulture.Order.Total")
+                                </th>
+                                <th class="vult-order-detail">
+                                    @T("Theme.Vulture.Order.detail")
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model.Orders)
+                            {
+                                <tr>
+                                    <td class="order-image">
+                                        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = "vulture_Orderlist_ProductImage", additionalData = order.Id })
+                                    </td>
+                                    <td class="order-number">
+                                        #@order.CustomOrderNumber
+                                    </td>
+                                    <td class="vult-order-status @order.OrderStatusEnum.ToString().ToLowerInvariant()">
+                                        <div class="vult-order-status-info">@order.OrderStatusEnum.ToString().ToLowerInvariant()</div>
+                                    </td>
+                                    <td class="order-date">
+                                        @order.CreatedOn.ToString()
+                                    </td>
+                                    <td class="order-total">
+                                        @order.OrderTotal
+                                    </td>
+                                    <td class="buttons">
+                                        @if (order.IsReturnRequestAllowed)
+                                        {
+                                            <button type="button" class="button-2 return-items-button primary-btn" onclick="setLocation('@Url.RouteUrl("ReturnRequest", new { orderId = order.Id })')"><span>@T("Account.CustomerOrders.ReturnItems")</span></button>
+                                        }
+                                        <button type="button" class="button-2 order-details-button primary-btn" onclick="setLocation('@Url.RouteUrl("OrderDetails", new { orderId = order.Id })')"><span>@T("Account.CustomerOrders.OrderDetails")</span></button>
+                                    </td>
+                                </tr>
+                                <tr class="spacer"></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="vult-order-list vult-order-list-mobile">
+                <div class="vult-order-list-title">
+                    <div class="vult-order-image vult-order-title">
+                        @T("Theme.Vulture.Order.Image")
+                    </div>
+                    <div class="vult-order-number vult-order-title">
+                        @T("Theme.Vulture.Order.Number")
+                    </div>
+                    <div class="vult-order-total vult-order-title">
+                        @T("Theme.Vulture.Order.Total")
+                    </div>
+                </div>
+
+                <div class="vult-oder-tabel-main-data">
+                    @foreach (var order in Model.Orders)
+                    {
+                        <div class="vult-mobile-order-table">
+                            <div class="vult-customer-order-table">
+                                <div class="vult-order-table-data">
+                                    <div class="vult-order-img">
+                                        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = "vulture_Orderlist_ProductImage", additionalData = order.Id })
+
+                                    </div>
+                                    <div class="order-number">
+                                        #@order.CustomOrderNumber
+                                    </div>
+                                    <div class="order-total">
+                                        @order.OrderTotal
+                                    </div>
+                                    <div class="vult-order_info-btn">
+                                        @if (order.IsReturnRequestAllowed)
+                                        {
+                                            <button type="button" class="button-2 return-items-button primary-btn" onclick="setLocation('@Url.RouteUrl("ReturnRequest", new { orderId = order.Id })')"><span>@T("Account.CustomerOrders.ReturnItems")</span></button>
+                                        }
+                                        <button type="button" class="button-2 order-details-button primary-btn" onclick="setLocation('@Url.RouteUrl("OrderDetails", new { orderId = order.Id })')"><span>@T("Account.CustomerOrders.OrderDetails")</span></button>
+                                    </div>
+                                </div>
+
+                                <div class="vult-order-table-bottom-data">
+                                    <div class="vult-order-date-total">
+                                        <div class="vult-order-table-process">
+                                            <div class="vult-order-title">
+                                                @T("Theme.Vulture.Order.Status")
+                                            </div>
+                                            <div class="vult-order-status @order.OrderStatusEnum.ToString().ToLowerInvariant()">
+                                                <div class="vult-order-status-info">
+                                                    @order.OrderStatus
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="vult-order-table-date">
+                                            <div class="vult-order-title">
+                                                @T("Theme.Vulture.Order.Date")
+                                            </div>
+                                            <div class="vult-order-date">
+                                                @order.CreatedOn.ToString()
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="m-up-down-arrow">
+                                <div class="transform-class">
+                                    <span class="Vult-left-arrow"></span>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+
+                @*@foreach (var order in Model.Orders)
+                    {
+                        <div class="section order-item">
+                            <div class="title">
+                                <strong>@T("Account.CustomerOrders.OrderNumber"): @order.CustomOrderNumber</strong>
+                            </div>
+                            <ul class="info">
+                                <li>@T("Account.CustomerOrders.OrderStatus"): <span class="order-status @order.OrderStatusEnum.ToString().ToLowerInvariant()">@order.OrderStatus</span></li>
+                                <li>@T("Account.CustomerOrders.OrderDate"): <span class="order-date">@order.CreatedOn.ToString()</span></li>
+                                <li>@T("Account.CustomerOrders.OrderTotal"): <span class="order-total">@order.OrderTotal</span></li>
+                            </ul>
+                            <div class="buttons">
+                                @if (order.IsReturnRequestAllowed)
+                                {
+                                    <button type="button" class="button-2 return-items-button" onclick="setLocation('@Url.RouteUrl("ReturnRequest", new { orderId = order.Id })')">@T("Account.CustomerOrders.ReturnItems")</button>
+                                }
+                                <button type="button" class="button-2 order-details-button" onclick="setLocation('@Url.RouteUrl("OrderDetails", new { orderId = order.Id })')">@T("Account.CustomerOrders.OrderDetails")</button>
+                            </div>
+                        </div>
+                    }*@
+            </div>
+        }
+        else
+        {
+            <div class="no-data">
+                @T("Account.CustomerOrders.NoOrders")
+            </div>
+        }
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CustomerOrdersBottom, additionalData = Model })
+    </div>
+</div>
+
+<script asp-location="Footer">
+    $(".m-up-down-arrow").each(function () {
+        $(this).click(function () {
+            var eSpan = $(this).find("span");
+            eSpan.toggleClass('transform-class');
+            $(this).siblings(".vult-customer-order-table").find(".vult-order-table-bottom-data").slideToggle("slow");
+        });
+    });
+</script>

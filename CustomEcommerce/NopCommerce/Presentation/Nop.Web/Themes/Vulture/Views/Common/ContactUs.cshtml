@@ -1,0 +1,83 @@
+﻿@model ContactUsModel
+@{
+    Layout = "_ColumnsOne";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.ContactUs").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-contact-page");
+}
+<div class="page contact-page section-padding">
+    <div class="section-width">
+        <div class="vult-page-title">
+            <h2>@T("PageTitle.ContactUs")</h2>
+        </div>
+        <div class="page-body">
+            @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "ContactUs" })
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ContactUsTop, additionalData = Model })
+            @if (Model.SuccessfullySent)
+            {
+                <div class="result">
+                    @Model.Result
+                </div>
+            }
+            else
+            {
+                <form asp-route="ContactUs" method="post">
+                    <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                    <div class="vult-form vult-form-width">
+                        <div class="vult-form-fields">
+                            <div class="inputs">
+                                <div class="vult-input">
+                                    <label asp-for="FullName"></label>
+                                    <input asp-for="FullName" placeholder="@T("ContactUs.FullName.Hint")" class="fullname vult-input-effect" />
+                                    <nop-required />
+                                    <span class="focus-border"><i></i></span>
+                                </div>
+                                <span asp-validation-for="FullName"></span>
+                            </div>
+                            <div class="inputs">
+                                <div class="vult-input">
+                                    <label asp-for="Email"></label>
+                                    <input asp-for="Email" placeholder="@T("ContactUs.Email.Hint")" class="email vult-input-effect" />
+                                    <nop-required />
+                                    <span class="focus-border"><i></i></span>
+                                </div>
+                                <span asp-validation-for="Email"></span>
+                            </div>
+                            @if (Model.SubjectEnabled)
+                            {
+                                <div class="inputs">
+                                    <div class="vult-input">
+                                        <label asp-for="Subject"></label>
+                                        <input asp-for="Subject" placeholder="@T("ContactUs.Subject.Hint")" class="subject vult-input-effect" />
+                                        <nop-required />
+                                        <span class="focus-border"><i></i></span>
+                                    </div>
+                                    <span asp-validation-for="Subject"></span>
+                                </div>
+                            }
+                            <div class="inputs">
+                                <div class="vult-input">
+                                    <label asp-for="Enquiry"></label>
+                                    <textarea asp-for="Enquiry" placeholder="@T("ContactUs.Enquiry.Hint")" class="enquiry vult-input-effect"></textarea>
+                                    <nop-required />
+                                    <span class="focus-border"><i></i></span>
+                                </div>
+                                <span asp-validation-for="Enquiry"></span>
+                            </div>
+                            @if (Model.DisplayCaptcha)
+                            {
+                                <nop-captcha />
+                            }
+                        </div>
+                        <div class="buttons">
+                            <button type="submit" name="send-email" class="button-1 contact-us-button primary-btn"><span>@T("ContactUs.Button")</span></button>
+                        </div>
+                    </div>
+                </form>
+            }
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ContactUsBottom, additionalData = Model })
+        </div>
+    </div>
+</div>

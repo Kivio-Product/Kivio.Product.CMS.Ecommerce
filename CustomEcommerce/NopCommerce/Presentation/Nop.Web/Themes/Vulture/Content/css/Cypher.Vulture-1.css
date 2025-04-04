@@ -1,0 +1,389 @@
+/************************************
+ * VULTURE THEME 3.3.0|| nopCypher *
+ * Copyright 2023 NOPCYPHER.COM      *
+ ************************************/
+/*-------background-color:##00BAA3---*/
+
+.eu-cookie-bar-notification button,
+.footer,
+.block .view-all a:hover,
+.block .view-all a:focus,
+.item-box .product-box-add-to-cart-button > span:hover,
+.item-box .product-box-add-to-cart-button > span:focus,
+.item-box .add-to-compare-list-button > span,
+.item-box .add-to-wishlist-button > span,
+.pager li a,
+.pager li span,
+.pager li.previous-page *,
+.pager li.next-page *,
+.overview .add-to-cart-button,
+.ui-datepicker-header,
+.attribute-squares .selected-value .attribute-square-container,
+.enter-password-form button[type="submit"],
+.email-revalidation-page .button-1,
+.account-activation-page .button-1,
+.opc .allow .step-title,
+.order-details-page .page-title a.print-order-button,
+.order-details-page .repost .button-2,
+.user-agreement-page .button-1,
+.forum-topic-page .topic-actions .actions a:hover,
+.topic-post .post-actions .quote-post-button:hover,
+.topic-post .post-actions .quote-post-button:focus,
+.menu-toggle,
+.vult-input-effect ~ .focus-border:before,
+.vult-input-effect ~ .focus-border:after,
+.vult-input-effect ~ .focus-border i:before,
+.vult-input-effect ~ .focus-border i:after,
+.header-links-wrapper a.ico-wishlist span.wishlist-qty,
+.header-links-wrapper a.ico-cart span.cart-qty,
+.header-links-wrapper a.ico-inbox span.inbox-unread,
+ul.tabs li.current,
+.vult-buttons button.primary-btn span.vult-btn,
+.select2-container--default .select2-results__option--selected,
+.primary-btn > span:hover,
+.ui-state-default,
+.ui-widget-content .ui-state-default,
+.ui-widget-header .ui-state-default,
+.ui-button,
+html .ui-button.ui-state-disabled:hover,
+html .ui-button.ui-state-disabled:active {
+  background-color: #00BAA3;
+}
+/*-------background-color:#00BAA3 !important-------*/
+
+.theme-custom .nivo-controlNav a.active,
+.search-box.header-search .ui-autocomplete a:hover,
+.search-box.header-search .ui-autocomplete a:focus,
+.search-box.header-search .ui-autocomplete a.ui-state-focus,
+.testimonial-slider .slick-prev:hover,
+.testimonial-slider .slick-next:hover {
+  background-color: #00BAA3 !important;
+}
+/*--------responsive background-color:#00BAA3-------*/
+
+@media all and (max-width: 991px) {
+  .m-up-down-arrow {
+    background-color: #00BAA3;
+  }
+}
+/*--------border-color:#00BAA3-------*/
+
+.header-links li.selected,
+.block .tags li,
+.product-tags-all-page li,
+.item-box .buttons button.button-2.add-to-wishlist-button::before,
+.item-box .buttons button.button-2.add-to-compare-list-button::before,
+.item-box .buttons button.button-2.add-to-wishlist-button::after,
+.item-box .buttons button.button-2.add-to-compare-list-button::after,
+.product-tags-list li,
+.sidebar-button,
+.product-sorting,
+.product-page-size,
+.vult-order-progress-section.active-step a span[class^="Vult-"]:before,
+.select2-container--default .select2-results > .select2-results__options::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb {
+  border-color: #00BAA3;
+}
+/*--------border-color:#00BAA3 !important------- */
+
+.ui-state-hover,
+.ui-widget-content .ui-state-hover,
+.ui-widget-header .ui-state-hover,
+.ui-state-focus,
+.ui-widget-content .ui-state-focus,
+.ui-widget-header .ui-state-focus,
+.ui-button:hover,
+.ui-button:focus,
+.px_loginpage-register .buttons button:hover {
+  border-color: #00BAA3 !important;
+}
+/*--------border-left-color:#00BAA3 !important-------*/
+
+.swal2-actions.swal2-loading .swal2-styled.swal2-confirm,
+.ajax-loading-block-window::after,
+.products-container .ajax-products-busy::after {
+  border-left-color: #00BAA3 !important;
+}
+/*--------border-bottom-color:#00BAA3-------*/
+
+.ajax-loading-block-window,
+.products-container .ajax-products-busy {
+  border-bottom-color: #00BAA3;
+}
+/*--------border-right-color:#00BAA3 !important-------*/
+
+.swal2-actions.swal2-loading .swal2-styled.swal2-confirm {
+  border-right-color: #00BAA3 !important;
+}
+/*--------outline-color:#00BAA3-------*/
+
+.ui-datepicker-calendar .ui-state-active {
+  outline-color: #00BAA3;
+}
+/*--------color:#00BAA3-------*/
+
+.cart a,
+.data-table a,
+.forum-table a,
+.cart .product a:hover,
+.cart .product a:focus,
+.data-table .product a:hover,
+.data-table .product a:focus,
+.data-table .info a:hover,
+.data-table .info a:focus,
+.cart .product .edit-item a,
+.cart td.subtotal .discount,
+.cart td.subtotal .discount-additional-info,
+.eu-cookie-bar-notification a,
+.header-links li.selected a span,
+.header-links a:hover,
+.header-links a:focus,
+.block .list .active > a,
+.block .list a:hover,
+.block .list a:focus,
+.block .tags li a:hover,
+.block .tags li a:focus,
+.product-tags-all-page li a:hover,
+.product-tags-all-page li a:focus,
+.breadcrumb a:hover,
+.breadcrumb a:focus,
+.item-box .product-title a:hover,
+.item-box .product-title a:focus,
+.item-box .tax-shipping-info a,
+.vendor-grid .title a:hover,
+.vendor-grid .title a:focus,
+.product-review-links a:hover,
+.product-review-links a:focus,
+.overview .value a,
+.variant-overview .value a,
+.overview .tax-shipping-info a,
+.variant-overview .tax-shipping-info a,
+.tier-prices .item-price,
+.ui-datepicker-calendar .ui-state-active,
+.product-reviews-page h1 a,
+.product-review-item .review-info a,
+.product-review-helpfulness .vote,
+.wishlist-content .tax-shipping-info a,
+.wishlist-page .share-info a:hover,
+.wishlist-page .share-info a:focus,
+.compare-products-table .product-name td a:hover,
+.compare-products-table .product-name td a:focus,
+.email-a-friend-page .title h2,
+.apply-vendor-page .terms-of-service span,
+.apply-vendor-page .terms-of-service a,
+.inputs.accept-consent span,
+.inputs.accept-consent a,
+.return-request-page h1 a,
+.login-page .returning-wrapper .inputs.reversed a:hover,
+.login-page .returning-wrapper .inputs.reversed a:focus,
+.external-auth-association a,
+.add-more-external-records a,
+.address-list-page .button-2:hover,
+.address-list-page .button-2:focus,
+.order-list-page .button-2:hover,
+.order-list-page .button-2:focus,
+.recurring-payments table td.initial-order a:hover,
+.return-request-list-page a,
+.shopping-cart-page .checkout-attributes a,
+.shopping-cart-page .tax-shipping-info a,
+.cart-total .order-total,
+.terms-of-service a,
+.order-completed .details a,
+.order-details-page .order-overview .order-total strong,
+.order-details-page .download a,
+.order-details-page .tax-shipping-info a,
+.sitemap-page .entity a:hover,
+.sitemap-page .entity a:focus,
+.post-title:hover,
+.post-title:focus,
+.news-title:hover,
+.news-title:focus,
+.blog-page .tags a,
+.blogpost-page .tags a,
+.blog-posts .buttons .read-comments:hover,
+.blog-posts .buttons .read-comments:focus,
+.comment-info a.username:hover,
+.comment-info a.username:focus,
+.news-list-homepage .view-all a:hover,
+.news-list-homepage .view-all a:focus,
+.forum-search-box .advanced a:hover,
+.forum-search-box .advanced a:focus,
+.forums-table-section-title a:hover,
+.forums-table-section-title a:focus,
+.forums-table-section .forum-title a:hover,
+.forums-table-section .forum-title a:focus,
+.forums-table-section .topic-title a:hover,
+.forums-table-section .topic-title a:focus,
+.topic-post a.username:hover,
+.topic-post a.username:focus,
+.topic-post .post-actions .edit-post-button:hover,
+.topic-post .post-actions .edit-post-button:focus,
+.topic-post .post-actions .delete-post-button:hover,
+.topic-post .post-actions .delete-post-button:focus,
+.topic-post .post-actions .post-link-button,
+.private-message-send-page a,
+.private-messages-page td.subject a.pm-unread,
+.latest-posts .topic-title a:hover,
+.latest-posts .topic-title a:focus,
+.service_content h3,
+.category-grid .item-box .picture h2,
+.vult-order-list table .product a:hover,
+.reward-points-overview .current-balance,
+.cart .add-to-cart .Vult-cart:hover:before,
+.cart .remove-from-cart .Vult-delete:hover:before,
+.vult-order-progress-section.active-step a span[class^="Vult-"]:before,
+.vult-order-progress-section.active-step a span:last-child,
+.vult-cart-data-info .product span.sku-number,
+.vult-cart-data-info .product .unit-price span.product-unit-price,
+.vult-cart-data-info .vult-price-qty-remove .subtotal,
+.vult-page-title h2 a,
+.vult-data-table tbody td.view-details a,
+.vult_mini_shopping_cart_title h2,
+.mini-shopping-cart .name a,
+.mini-shopping-cart .name a:hover,
+.mini-shopping-cart .name a:focus,
+.vult-product-info-price .vult-saved-price,
+.vult-product-info-price .prices .tax-shipping-info a,
+.bar-notification-container,
+.bar-notification .content,
+.discount-detail span:hover {
+  color: #00BAA3;
+}
+/*-------color:#00BAA3 !important---*/
+
+.ui-datepicker-calendar .ui-state-active {
+  color: #00BAA3 !important;
+}
+/*-------color:#00BAA3 !important---*/
+
+@media all and (max-width: 1000px) {
+  .header .search-box span.pi-search {
+    color: #00BAA3 !important;
+  }
+}
+@media all and (max-width: 1024px) {
+  .footer-block .list a:hover,
+  .footer-block .list a:focus {
+    color: #00BAA3;
+  }
+}
+@media all and (min-width: 769px) {
+  .shipment-details-page .tracking-number .tracking-url {
+    color: #00BAA3;
+  }
+}
+@media all and (min-width: 1001px) {
+  .header-menu > ul > li > a:hover,
+  .header-menu > ul > li > a:focus,
+  .header-menu .sublist li:hover > a,
+  .header-menu .sublist li:focus > a,
+  .header-menu .sublist li:hover > a .Vult-right-arrow:before,
+  .header-menu .sublist li:focus > a .Vult-right-arrow:before {
+    color: #00BAA3;
+  }
+}
+/*-------background-color:#333---*/
+
+.admin-header-links,
+.footer-block .title,
+.block .view-all a,
+.poll .buttons button span,
+.item-box .product-box-add-to-cart-button > span,
+.item-box .add-to-compare-list-button > span:hover,
+.item-box .add-to-compare-list-button > span:focus,
+.item-box .add-to-wishlist-button > span:hover,
+.item-box .add-to-wishlist-button > span:focus,
+.pager li a:hover,
+.pager li a:focus,
+.opc .allow .step-title .number,
+.topic-post .post-actions .quote-post-button,
+.primary-btn > span,
+label.vult-radio:before,
+.line,
+.cbx span:first-child:before,
+.inp-cbx:checked + .cbx span:first-child,
+.setting-inner .my-account div a,
+.search-box.header-search .ui-autocomplete,
+.category-grid .item-box .picture h2,
+.owl-nav button span,
+.vult-product-attributes::after,
+ul.tabs li,
+.vult-buttons button.primary-btn > span,
+.vult-order-progress-section::after,
+.checkout-attributes .qq-upload-button,
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable,
+.select2-container--default .select2-results > .select2-results__options::-webkit-scrollbar,
+.select2-container--default .select2-results > .select2-results__options::-webkit-scrollbar-thumb,
+input.inp-cbx:disabled ~ .cbx span:first-child,
+::-webkit-scrollbar,
+::-webkit-scrollbar-thumb,
+.ui-slider .ui-slider-range,
+.pager li.current-page span,
+.bar-notification,
+#button {
+  background-color: #333;
+}
+/*-------background-color:#333 !important---*/
+
+.theme-custom .nivo-controlNav a,
+.testimonial-slider .slick-prev,
+.testimonial-slider .slick-next {
+  background-color: #333 !important;
+}
+@media all and (min-width: 1001px) {
+  .header-menu .sublist li:hover > a {
+    background-color: #333;
+  }
+}
+@media all and (max-width: 1000px) {
+  #mySidenav {
+    background-color: #333;
+  }
+}
+/****** border-color: #333   ******/
+
+.header-links li,
+.item-box .product-item,
+.news-list-homepage .news-item,
+.forum-edit-page .toolbar .button:hover,
+.forum-edit-page .toolbar .button:focus,
+.private-message-send-page .toolbar .button:hover,
+.private-message-send-page .toolbar .button:focus {
+  border-color: #333;
+}
+/****** border-color: #333 !important   ******/
+
+.attribute-squares .attribute-square,
+.bullet,
+.cbx span:first-child,
+.cbx:hover span:first-child,
+.inp-cbx:checked + .cbx span:first-child,
+.search-box.header-search .ui-autocomplete,
+.order-progress-inner-section a span[class^="Vult-"]:before,
+.order-completed-alert::before {
+  border-color: #333 !important;
+}
+/****** border-bottom-color: #333   ******/
+
+.noscript,
+.primary-btn::after {
+  border-bottom-color: #333;
+}
+/****** border-top-color: #333   ******/
+
+.primary-btn::before,
+.ajax-loading-block-window,
+.products-container .ajax-products-busy {
+  border-top-color: #333;
+}
+/****** border-left-color: #333   ******/
+
+.primary-btn::after {
+  border-left-color: #333;
+}
+/****** border-right-color: #333   ******/
+
+.primary-btn::before,
+.ajax-loading-block-window::after {
+  border-right-color: #333;
+}

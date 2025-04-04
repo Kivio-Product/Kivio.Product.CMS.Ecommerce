@@ -1,0 +1,69 @@
+﻿@model HomepageNewsItemsModel
+
+@using Nop.Core.Domain.News
+
+@if (Model.NewsItems.Count > 0)
+{
+    <div class="section-padding">
+        <div class="news-list-homepage section-width">
+            <div class="section-head">
+                <h2>@T("News")</h2>
+            </div>
+            <div class="news-items news_slider owl-carousel">
+                @foreach (var item in Model.NewsItems)
+                {
+                    <div class="news-box">
+                        <div class="news-item">
+                            <div class="newsbox-up">
+                                <div class="news-head">
+                                    <a class="news-title" href="@(Url.RouteUrl<NewsItem>(new { SeName = item.SeName }))">@item.Title</a>
+                                    <span class="news-date">-@item.CreatedOn.ToString("D")</span>
+                                </div>
+                                <div class="news-body">
+                                    @Html.Raw(item.Short)
+                                </div>
+                                <div class="buttons">
+                                    <a href="@(Url.RouteUrl<NewsItem>(new { SeName = item.SeName }))" class="read-more primary-btn"><span>@T("News.MoreInfo")</span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="view-all">
+                <a class="primary-btn" href="@Url.RouteUrl("NewsArchive")"><span>@T("News.ViewAll")</span></a>
+            </div>
+        </div>
+    </div>
+
+}
+
+<script asp-location="Footer">
+    $(".news_slider").owlCarousel({
+        autoplay: true,
+        loop: true,
+        rtl: true,
+        responsiveClass: true,
+        autoHeight: true,
+        navigation: true,
+        dots: false,
+        nav: false,
+        responsive: {
+            0: {
+                items: 1
+            },
+
+            600: {
+                items: 2
+            },
+
+            1024: {
+                items: 3
+            },
+
+            1366: {
+                items: 4
+            }
+        }
+    });
+</script>

@@ -1,0 +1,49 @@
+﻿@model LanguageSelectorModel
+
+@inject Nop.Core.IWebHelper webHelper
+
+@if (Model.AvailableLanguages.Count > 1)
+{
+    <div class="language-selector">
+        <h3>@T("Theme.Vulture.Language.Selector.Title")</h3>
+        @{
+            var returnUrl = webHelper.GetRawUrl(Context.Request);
+            if (Model.UseImages)
+            {
+                <ul class="language-list">
+                    @foreach (var lang in Model.AvailableLanguages)
+                    {
+                        <li @(lang.Id == Model.CurrentLanguageId ? " class=selected" : null)>
+                            <a href="@Url.RouteUrl("ChangeLanguage", new { langid = lang.Id, returnUrl }, webHelper.GetCurrentRequestProtocol())" title="@lang.Name">
+                                <img title='@lang.Name' alt='@lang.Name'
+                                     src="@Url.Content("~/images/flags/" + @lang.FlagImageFileName) " />
+                                <span> @lang.Name</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                var languages = await Model.AvailableLanguages.SelectAwait(async lang => new SelectListItem
+                {
+                    Text = lang.Name,
+                    Value = Url.RouteUrl("ChangeLanguage", new { langid = lang.Id, returnUrl }, webHelper.GetCurrentRequestProtocol()),
+                    Selected = lang.Id.Equals(Model.CurrentLanguageId)
+                }).ToListAsync();
+
+                <ul class="language-list">
+                    @foreach (var lang in Model.AvailableLanguages)
+                    {
+
+                        <li @(lang.Id == Model.CurrentLanguageId ? " class=selected" : null)>
+                            <a href="@Url.RouteUrl("ChangeLanguage", new { langid = lang.Id, returnUrl }, webHelper.GetCurrentRequestProtocol())" title="@lang.Name">
+                                <span> @lang.Name</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+        }
+    </div>
+}

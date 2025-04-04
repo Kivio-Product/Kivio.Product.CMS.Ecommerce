@@ -1,0 +1,108 @@
+﻿@model IList<AddressAttributeModel>
+@using Nop.Core.Domain.Catalog;
+@foreach (var attribute in Model)
+{
+    var controlId = attribute.ControlId;
+    var textPrompt = attribute.Name;
+
+    <div class="inputs custom-attributes">
+        <label>@textPrompt</label>
+        <div class="vult-input">
+            @switch (attribute.AttributeControlType)
+            {
+                case AttributeControlType.DropdownList:
+                    {
+                        <select class="vult-input-effect vult-common-select-without-search" name="@(controlId)" id="@(controlId)">
+                            @if (!attribute.IsRequired)
+                            {
+                                <option value="0">---</option>
+                            }
+                            @foreach (var attributeValue in attribute.Values)
+                            {
+                                <option selected="@attributeValue.IsPreSelected" value="@attributeValue.Id">@attributeValue.Name</option>
+                            }
+                        </select>
+                        <span class="focus-border"><i></i></span>
+                        <script asp-location="Footer">
+                            $(document).ready(function () {
+                                $(".vult-common-select-without-search").select2({
+                                    minimumResultsForSearch: -1,
+                                    allowClear: true,
+                                    dropdownCssClass: "vult-dropdown-select-height"
+                                });
+                            });
+                        </script>
+                    }
+                    break;
+                case AttributeControlType.RadioList:
+                    {
+                        <ul class="option-list">
+                            @foreach (var attributeValue in attribute.Values)
+                            {
+                                <li>
+                                    <input id="@(controlId)_@(attributeValue.Id)" type="radio" name="@(controlId)" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected" />
+                                    <label class="vult-radio" for="@(controlId)_@(attributeValue.Id)">@attributeValue.Name</label>
+                                    <div class="bullet">
+                                        <div class="line zero"></div>
+                                        <div class="line one"></div>
+                                        <div class="line two"></div>
+                                        <div class="line three"></div>
+                                        <div class="line four"></div>
+                                        <div class="line five"></div>
+                                        <div class="line six"></div>
+                                        <div class="line seven"></div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    break;
+                case AttributeControlType.Checkboxes:
+                case AttributeControlType.ReadonlyCheckboxes:
+                    {
+                        <ul class="option-list">
+                            @foreach (var attributeValue in attribute.Values)
+                            {
+                                <li>
+                                    <input class="inp-cbx" id="@(controlId)_@(attributeValue.Id)" type="checkbox" name="@(controlId)" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected" @(attribute.AttributeControlType == AttributeControlType.ReadonlyCheckboxes ? Html.Raw(" disabled=\"disabled\"") : null) />
+                                    <label class="cbx" for="@(controlId)_@(attributeValue.Id)">
+                                        @attributeValue.Name
+                                        <span>
+                                            <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                                <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                            </svg>
+                                        </span>
+                                    </label>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    break;
+                case AttributeControlType.TextBox:
+                    {
+                        <input name="@(controlId)" type="text" class="textbox vult-input-effect" id="@(controlId)" value="@textPrompt" />
+                        <span class="focus-border"><i></i></span>
+                    }
+                    break;
+                case AttributeControlType.MultilineTextbox:
+                    {
+                        <textarea class="vult-input-effect" id="@(controlId)" name="@(controlId)">@textPrompt</textarea>
+                        <span class="focus-border"><i></i></span>
+                    }
+                    break;
+                case AttributeControlType.Datepicker:
+                case AttributeControlType.FileUpload:
+                case AttributeControlType.ColorSquares:
+                case AttributeControlType.ImageSquares:
+                    {
+                        //not support attribute type
+                    }
+                    break;
+            }
+            @if (attribute.IsRequired)
+            {
+                <nop-required />
+            }
+        </div>
+    </div>
+}

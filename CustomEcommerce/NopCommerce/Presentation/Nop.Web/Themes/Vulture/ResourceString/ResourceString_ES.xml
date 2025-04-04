@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Language Name="Spanish">
+  
+  <LocaleResource Name="Theme.Vulture.Language.Selector.Title">
+      <Value>SELECCIONAR IDIOMA</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Currency.Selector.Title">
+      <Value>SELECCIONAR MONEDA</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Homepage.Category.Title">
+      <Value>Categorías</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Filter.Title">
+      <Value>Mostrar filtros</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Product.Detail">
+      <Value>Detalles</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Product.Specifications">
+      <Value>Especificaciones</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Order.Image">
+      <Value>Imagen</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Order.Number">
+      <Value>Número de pedido</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Order.Status">
+      <Value>Estado del pedido</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Order.Date">
+      <Value>Fecha del pedido</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Order.Total">
+      <Value>Total del pedido</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Order.detail">
+      <Value>Detalle</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Order.Summary.Title">
+      <Value>Resumen</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Tax.Selector.Title">
+      <Value>SELECCIONAR IMPUESTOS</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Login.RegisterLink.Title">
+      <Value>¿No tienes una cuenta todavía?</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Customer.Upload.Avtar">
+      <Value>seleccionar archivo</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Clear.wishlist">
+      <Value>Vaciar lista de deseos</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Move.Wishlistitemtocart.Confirmation.Title">
+      <Value>¿Añadir este artículo al carrito?</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Move.Wishitemtocart.Confirmation.Description">
+      <Value>¿Estás seguro de que quieres añadir este artículo al carrito desde la lista de deseos?</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Move.Itemtocart.Confirmation.Confirmbuttontext">
+      <Value>¡Sí, moverlo!</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Clear.Wishlistitem.Confirmation.Title">
+      <Value>¿Eliminar este artículo de la lista de deseos?</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Clear.Wishlist.Confirmation.Description">
+      <Value>¿Estás seguro de que quieres eliminar este artículo de la lista de deseos?</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Clear.Cart.Confirmation.Confirmbuttontext">
+      <Value>¡Sí, eliminarlo!</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Clear.wishlist.confirmation.title">
+      <Value>¿Eliminar todos los artículos de la lista de deseos?</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Clear.wishlistall.confirmation.Description">
+      <Value>¿Estás seguro de que quieres eliminar todos los artículos de la lista de deseos?</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Move.Wishlisttocart.Confirmation.Title">
+      <Value>¿Añadir todos los artículos al carrito?</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Move.Allwishlist.Confirmation.Description">
+      <Value>¿Estás seguro de que quieres añadir todos estos artículos al carrito desde la lista de deseos?</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Clear.Cart">
+      <Value>Vaciar carrito</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Clear.Cart.Confirmation">
+      <Value>¿Eliminar todos los artículos del carrito?</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Clear.Cart.Confirmation.Description">
+      <Value>¿Estás seguro de que quieres eliminar todos los artículos del carrito?</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Clear.Cartitem.confirmation">
+      <Value>¿Eliminar este artículo del carrito?</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Clear.Cartitem.Confirmation.Description">
+      <Value>¿Estás seguro de que quieres eliminar este artículo del carrito?</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Mini.Shopping.Cart">
+      <Value>Carrito de compras</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Customerinfo.Hi.Title">
+      <Value>HOLA</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Cart.Remove.Item.Button">
+      <Value>Eliminar</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Clear.Cart.Confirmation.Cancelbuttontext">
+      <Value>Cancelar</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Header.Search.Button.Text">
+      <Value>ACEPTAR</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Select.Primary.Color">
+      <Value>Seleccionar color primario del tema</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Select.Custome.Primary.Color">
+      <Value>Seleccionar color primario personalizado</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Select.Secondry.Color">
+    <Value>Seleccionar color secundario del tema</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Select.Custome.Secondry.Color">
+    <Value>Seleccionar color secundario personalizado</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Footer.AboutusText">
+    <Value>Este es el texto sobre nosotros en el pie de página. Puedes modificarlo desde admin > idioma > Editar > Cadena de recursos actualizando el valor de la cadena de recursos Theme.Vulture.Footer.AboutusText.</Value>
+  </LocaleResource>
+   
+</Language>

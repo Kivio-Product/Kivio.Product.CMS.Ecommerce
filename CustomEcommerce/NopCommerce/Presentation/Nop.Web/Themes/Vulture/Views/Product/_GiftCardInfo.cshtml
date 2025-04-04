@@ -1,0 +1,41 @@
+﻿@model ProductDetailsModel.GiftCardModel
+@if (Model.IsGiftCard)
+{
+    <div class="giftcard">
+        <div class="vult-input">
+            <label asp-for="RecipientName"></label>
+            <input asp-for="RecipientName" class="recipient-name vult-input-effect" placeholder="@T("products.giftcard.recipientname")" />
+            <span class="focus-border"><i></i></span>
+            <nop-required />
+        </div>
+        @if (Model.GiftCardType == Nop.Core.Domain.Catalog.GiftCardType.Virtual)
+        {
+            <div class="vult-input">
+                <label asp-for="RecipientEmail"></label>
+                <input asp-for="RecipientEmail" class="recipient-email vult-input-effect" placeholder="@T("products.giftcard.recipientemail")" />
+                <span class="focus-border"><i></i></span>
+                <nop-required />
+            </div>
+        }
+        <div class="vult-input">
+            <label asp-for="SenderName"></label>
+            <input asp-for="SenderName" class="sender-name vult-input-effect" placeholder="@T("products.giftcard.sendername")" />
+            <span class="focus-border"><i></i></span>
+            <nop-required />
+        </div>
+        @if (Model.GiftCardType == Nop.Core.Domain.Catalog.GiftCardType.Virtual)
+        {
+            <div class="vult-input">
+                <label asp-for="SenderEmail"></label>
+                <input asp-for="SenderEmail" class="sender-email vult-input-effect" placeholder="@T("products.giftcard.senderemail")" />
+                <span class="focus-border"><i></i></span>
+                <nop-required />
+            </div>
+        }
+        <div class="vult-input">
+            <label asp-for="Message"></label>
+            <textarea asp-for="Message" class="message vult-input-effect" placeholder="@T("products.giftcard.message")"></textarea>
+            <span class="focus-border"><i></i></span>
+        </div>
+    </div>
+}

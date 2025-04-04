@@ -1,0 +1,112 @@
+﻿@model CheckoutPaymentMethodModel
+@{
+    Layout = "_ColumnsOne";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.Checkout").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-checkout-page");
+    NopHtml.AppendPageCssClassParts("html-payment-method-page");
+}
+<div class="page checkout-page payment-method-page section-padding">
+    @await Component.InvokeAsync(typeof(CheckoutProgressViewComponent), new { step = CheckoutProgressStep.Payment })
+    <div class="section-width">
+        <div class="vult-page-title">
+            <h2>@T("Checkout.SelectPaymentMethod")</h2>
+        </div>
+        <div class="page-body checkout-data">
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CheckoutPaymentMethodTop, additionalData = Model })
+            <div class="payment-method">
+                <form asp-route="CheckoutPaymentMethod" method="post">
+                    @if (Model.DisplayRewardPoints && Model.PaymentMethods.Count > 0)
+                    {
+                        <div class="use-reward-points">
+                            <input class="inp-cbx" asp-for="UseRewardPoints" />
+                            <label class="cbx" asp-for="UseRewardPoints">
+                                @string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsToUse, Model.RewardPointsBalance, Model.RewardPointsToUseAmount)
+                                <span>
+                                    <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                        <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                    </svg>
+                                </span>
+                            </label>
+                            @if (Model.RewardPointsEnoughToPayForOrder)
+                            {
+                                <script asp-location="Footer">
+                                    $(function() {
+                                        $("#@Html.IdFor(model => model.UseRewardPoints)")
+                                            .on('change', toggleUseRewardPoints);
+                                        toggleUseRewardPoints();
+                                    });
+
+                                    function toggleUseRewardPoints() {
+                                        if ($('#@Html.IdFor(model => model.UseRewardPoints)').is(':checked')) {
+                                            $('#payment-method-block').hide();
+                                        } else {
+                                            $('#payment-method-block').show();
+                                        }
+                                    }
+                                </script>
+                            }
+                        </div>
+                    }
+                    @if (Model.PaymentMethods.Count > 0)
+                    {
+                        <ul class="method-list" id="payment-method-block">
+                            @for (var i = 0; i < Model.PaymentMethods.Count; i++)
+                            {
+                                var paymentMethod = Model.PaymentMethods[i];
+                                var paymentMethodName = paymentMethod.Name;
+                                if (!string.IsNullOrEmpty(paymentMethod.Fee))
+                                {
+                                    paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
+                                }
+                                <li>
+                                    <div class="method-name">
+                                        @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
+                                        {
+                                            <div class="payment-logo">
+                                                <label for="paymentmethod_@(i)">
+                                                    <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
+                                                </label>
+                                            </div>
+                                        }
+                                    <div class="payment-details">
+                                        <div class="vult-payment-method">
+                                            <input id="paymentmethod_@(i)" type="radio" name="paymentmethod" value="@(paymentMethod.PaymentMethodSystemName)" checked="@paymentMethod.Selected" />
+                                            <label class="vult-radio" for="paymentmethod_@(i)">@paymentMethodName</label>
+                                            <div class="bullet">
+                                                <div class="line zero"></div><div class="line one"></div><div class="line two"></div><div class="line three"></div><div class="line four"></div><div class="line five"></div><div class="line six"></div><div class="line seven"></div>
+                                            </div>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(paymentMethod.Description))
+                                        {
+                                            <div class="payment-description">@paymentMethod.Description</div>
+                                        }
+                                    </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                        <div class="buttons">
+                            <button type="submit" name="nextstep" class="button-1 payment-method-next-step-button primary-btn"><span>@T("Checkout.NextButton")</span></button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="message-error">
+                            @T("Checkout.NoPaymentMethods")
+                        </div>
+                    }
+                </form>
+            </div>
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CheckoutPaymentMethodBottom, additionalData = Model })
+            <div class="order-summary">
+                <div class="vult-checkout-title">
+                    <h2>@T("Checkout.OrderSummary")</h2>
+                </div>
+                @await Component.InvokeAsync(typeof(OrderSummaryViewComponent))
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,92 @@
+﻿@model HeaderLinksModel
+@using Nop.Core.Domain.Customers
+@inject Nop.Core.IWebHelper webHelper
+
+<div class="header-links">
+    <div class="">
+        <span class="setting">
+            <span class="Vult-setting dropdown-toggle"></span>
+            <div class="setting-inner dropdown">
+                <div class="my-account">
+                    @if (Model.IsAuthenticated)
+                    {
+                        <div><a href="@Url.RouteUrl("CustomerInfo")" class="ico-account">@T("Account.MyAccount")@*@Model.CustomerName*@</a></div>
+                        <div><a href="@Url.RouteUrl("Logout")" class="ico-logout">@T("Account.Logout")</a></div>
+                    }
+                    else
+                    {
+                        var returnUrl = Context.Request.Query.TryGetValue("returnUrl", out var url) && !StringValues.IsNullOrEmpty(url)
+                        ? url.ToString()
+                        : webHelper.GetRawUrl(Context.Request);
+                        @if (Model.RegistrationType != UserRegistrationType.Disabled)
+                        {
+                            <div><a href="@Url.RouteUrl("Register", new { returnUrl })" class="ico-register">@T("Account.Register")</a></div>
+                        }
+                        <div><a href="@Url.RouteUrl("Login", new { returnUrl })" class="ico-login">@T("Account.Login")</a></div>
+                    }
+                </div>
+                @await Component.InvokeAsync(typeof(TaxTypeSelectorViewComponent))
+                @await Component.InvokeAsync(typeof(CurrencySelectorViewComponent))
+                @await Component.InvokeAsync(typeof(LanguageSelectorViewComponent))
+            </div>
+        </span>
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderLinksAfter })
+    </div>
+</div>
+
+@await Component.InvokeAsync(typeof(SearchBoxViewComponent))
+    
+@if (Model.AllowPrivateMessages)
+{
+    <div>
+        <a href="@Url.RouteUrl("PrivateMessages", new { tab = "" })" class="ico-inbox">
+            <span class="inbox-label">@*@T("PrivateMessages.Inbox")*@ <span class="Vult-mail"></span></span>
+            @if (!string.IsNullOrWhiteSpace(Model.UnreadPrivateMessages))
+            {
+                <span class="inbox-unread">@Model.UnreadPrivateMessages</span>
+            }
+            else
+            {
+                var unreadMessage = string.Format(T("PrivateMessages.TotalUnread").Text, 0);
+                <span class="inbox-unread">@unreadMessage</span>
+            }
+        </a>
+    </div>
+}
+@if (Model.WishlistEnabled)
+{
+    <div>
+        <a href="@Url.RouteUrl("Wishlist")" class="ico-wishlist">
+            <span class="wishlist-label">@*@T("Wishlist")*@ <span class="Vult-wishlist"></span></span>
+            <span class="wishlist-qty">@T("Wishlist.HeaderQuantity", Model.WishlistItems)</span>
+        </a>
+    </div>
+}
+@if (Model.ShoppingCartEnabled)
+{
+    <div id="topcartlink">
+        <a href="javascript:void(0)" class="ico-cart">
+            <span class="cart-label">@*@T("ShoppingCart")*@ <span class="Vult-cart"></span></span>
+            <span class="cart-qty">@T("ShoppingCart.HeaderQuantity", Model.ShoppingCartItems)</span>
+        </a>
+    </div>
+}
+
+@if (Model.AllowPrivateMessages && !string.IsNullOrEmpty(Model.AlertMessage))
+{
+    //new private message notification
+    <script asp-location="Footer">
+        $(function () {
+			displayPopupNotification('@Html.Raw(JavaScriptEncoder.Default.Encode(Model.AlertMessage))', 'success', false);
+		});
+    </script>
+}
+
+
+<script asp-location="Footer">
+    $(function () { // Dropdown toggle
+        $('.dropdown-toggle').click(function () {
+            $(this).next('.dropdown').slideToggle();
+        });
+    });
+</script>

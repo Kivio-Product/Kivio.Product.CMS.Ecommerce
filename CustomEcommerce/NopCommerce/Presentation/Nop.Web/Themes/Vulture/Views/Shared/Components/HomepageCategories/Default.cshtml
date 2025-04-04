@@ -1,0 +1,69 @@
+﻿@model IList<CategoryModel>
+
+@using Nop.Core.Domain.Catalog
+
+@if (Model.Count > 0)
+{
+    <div class="section-bg section-padding">
+        <div class="section-width">
+            <div class="section-head">
+                <h2>@T("Theme.Vulture.Homepage.Category.Title")</h2>
+            </div>
+            <div class="category-grid home-page-category-grid">
+                <div class="item-grid category_slider owl-carousel">
+                    @foreach (var item in Model)
+                    {
+                        <div class="item-box">
+                            <div class="category-item">
+                                
+                                <div class="picture">
+                                    <a href="@(Url.RouteUrl<Category>(new { SeName = item.SeName }))" title="@item.PictureModel.Title">
+                                        <img alt="@item.PictureModel.AlternateText" src="@item.PictureModel.ImageUrl" title="@item.PictureModel.Title" />
+                                        <h2 class="title">
+                                            @*<a href="@(Url.RouteUrl<Category>(new { SeName = item.SeName }))" title="@item.PictureModel.Title">*@
+                                                @item.Name
+                                            @*</a>*@
+                                        </h2>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script asp-location="Footer">
+    $(".category_slider").owlCarousel({
+        autoplay: true,
+        loop: true,
+        rtl: true,
+        margin: 0,
+        responsiveClass: true,
+        autoHeight: true,
+        autoplayTimeout: 7000,
+        smartSpeed: 800,
+        dots: false,
+        nav: false,
+        responsive: {
+            0: {
+                items: 1
+            },
+
+            600: {
+                items: 2
+            },
+
+            1024: {
+                items: 3
+            },
+
+            1366: {
+                items: 5
+            }
+        }
+    });
+
+</script>

@@ -1,0 +1,39 @@
+﻿@model CheckoutPaymentInfoModel
+@{
+    Layout = "_ColumnsOne";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.Checkout").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-checkout-page");
+    NopHtml.AppendPageCssClassParts("html-payment-info-page");
+}
+<div class="page checkout-page payment-info-page section-padding">
+    @await Component.InvokeAsync(typeof(CheckoutProgressViewComponent), new { step = CheckoutProgressStep.Payment })
+    <div class="section-width">
+        <div class="vult-page-title">
+            <h2>@T("Checkout.PaymentInfo")</h2>
+        </div>
+        <div class="page-body checkout-data">
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CheckoutPaymentInfoTop, additionalData = Model })
+            <div class="section payment-info">
+                <form asp-route="CheckoutPaymentInfo" method="post">
+                    <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                    <div class="info">
+                        @await Component.InvokeAsync(Model.PaymentViewComponent)
+                    </div>
+                    <div class="buttons">
+                        <button type="submit" name="nextstep" class="button-1 payment-info-next-step-button primary-btn"><span>@T("Checkout.NextButton")</span></button>
+                    </div>
+                </form>
+            </div>
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CheckoutPaymentInfoBottom, additionalData = Model })
+            <div class="order-summary">
+                <div class="vult-checkout-title">
+                    <h2>@T("Checkout.OrderSummary")</h2>
+                </div>
+                @await Component.InvokeAsync(typeof(OrderSummaryViewComponent), "ShoppingCart")
+            </div>
+        </div>
+    </div>
+</div>
