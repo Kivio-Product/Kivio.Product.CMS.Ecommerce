@@ -5,7 +5,9 @@
 @using Nop.Core.Domain.Topics
 
 @inject IWorkContext workContext
-
+@{
+    var kivioLink = T("Footer.KivioLink").ToString() ?? "https://www.kivio.com.co/";
+}
 <div class="footer">
     <div class="container footer-upper">
         <div class="row">
@@ -136,6 +138,9 @@
                     Powered by <a href="@(Nop.Services.Common.NopLinksDefaults.OfficialSite.Main)">nopCommerce</a>
                     <a href="https://brainstation-23.com/"> Brainstation </a>
                     <span class="footer-disclaimer">@T("Content.CopyrightNotice", DateTime.Now.Year, Model.StoreName)</span>
+                    <h2 class="footer-kivio">
+                        Powered by <a href="@kivioLink" target="_blank">Kivio</a>
+                    </h2>
                 </div>
             }
         </div>
