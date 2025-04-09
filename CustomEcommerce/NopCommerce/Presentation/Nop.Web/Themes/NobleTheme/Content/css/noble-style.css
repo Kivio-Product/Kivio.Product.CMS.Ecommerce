@@ -201,6 +201,22 @@ ul.nav.navbar-nav li {
 }
 
 /* FOOTER */
+.footer-kivio {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ddd;
+    margin: 0;
+}
+
+.footer-kivio a{
+    color: #007aff !important;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+.footer-kivio a:hover {
+	text-decoration: underline;
+}
 .change-device {
     clear: both;
     text-align: right;
