@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Language Name="Spanish">
+
+  <LocaleResource Name="Theme.Phoenix.Header.Shipping.Freereturn">
+    <Value>DEVOLUCIONES ESTÁNDAR GRATIS</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Header.Free.Delivery">
+    <Value>Envío GRATIS</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Header.Payment.Secure">
+    <Value>Pago 100% Seguro</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Homepage.Category">
+    <Value>Comprar por categoría</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Product.Share.Button">
+    <Value>Compartir en redes:</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Also.Purchased">
+    <Value>también comprado</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Clear.Cart">
+    <Value>Vaciar carrito</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Clear.Cart.Confirmation">
+    <Value>¿Eliminar todos los artículos del carrito?</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Clear.Cart.Confirmation.Description">
+    <Value>¿Estás seguro de que quieres eliminar todos los artículos del carrito?</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Clear.Cartitem.Confirmation">
+    <Value>¿Eliminar este artículo del carrito?</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Clear.Wishlistitem.Confirmation.Title">
+    <Value>¿Eliminar este artículo de la lista de deseos?</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Clear.Cartitem.Confirmation.Description">
+    <Value>¿Estás seguro de que quieres eliminar este artículo del carrito?</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Clear.Wishlist.Confirmation.Title">
+    <Value>¿Eliminar todos los artículos de la lista de deseos?</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Clear.Wishlistall.Confirmation.Description">
+    <Value>¿Estás seguro de que quieres eliminar todos los artículos de la lista de deseos?</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Move.Wishlistitemtocart.Confirmation.Title">
+    <Value>¿Añadir este artículo al carrito?</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Move.Itemtocart.Confirmation.Confirmbuttontext">
+    <Value>¡Sí, moverlo!</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Move.Wishlistitemtocart.Confirmation.Description">
+    <Value>¿Estás seguro de que quieres añadir este artículo al carrito desde la lista de deseos?</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Clear.Cart.Confirmation.Confirmbuttontext">
+    <Value>¡Sí, eliminarlo!</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Account.Avatar.ChooseFile">
+    <Value>SELECCIONAR ARCHIVO</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.select">
+    <Value>Seleccionar</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Hello">
+    <Value>Hola</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Create.Account">
+    <Value>Crear cuenta</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.PrivateMessages.Send.Subject">
+    <Value>Asunto</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.PrivateMessages.Send.Message">
+    <Value>Mensaje</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Mini.Shopping.Cart">
+    <Value>Carrito de compras</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Search.SearchBox.Text.Label">
+    <Value>Escribe y presiona enter para buscar...</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.MyAccount.Address.Delete.Confirmation">
+    <Value>¿Estás seguro de eliminar esta dirección?</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.MyAccount.Address.Delete.Confirmation.Description">
+    <Value>¿Estás seguro? La dirección eliminada no se puede recuperar.</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Move.Wishlisttocart.Confirmation.Title">
+    <Value>¿Añadir todos los artículos al carrito?</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Clear.Wishlist.Confirmation.Description">
+    <Value>¿Estás seguro de que quieres eliminar este artículo de la lista de deseos?</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Move.Allwishlist.Confirmation.Description">
+    <Value>¿Estás seguro de que quieres añadir todos estos artículos al carrito desde la lista de deseos?</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Select.Primary.Color">
+    <Value>Seleccionar color primario del tema</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Select.Custome.Primary.Color">
+    <Value>Seleccionar color primario personalizado</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Select.Secondry.Color">
+    <Value>Seleccionar color secundario del tema</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Select.Custome.Secondry.Color">
+    <Value>Seleccionar color secundario personalizado</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Product.Detail.Title">
+    <Value>detalles</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="privatemessages.totalunread">
+    <Value>{0}</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Products.Price.TaxShipping.ExclTax">
+    <Value><![CDATA[ex. <a href="{0}">envío  <span class="pi-shipped"></span></a>]]></Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.GDPR.Delete.Account">
+    <Value>¿Estás seguro de eliminar esta cuenta?</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Allshoppingcart.Addtocart">
+    <Value>Añadir todos los artículos al carrito</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Clear.Wishlist">
+    <Value>Vaciar lista de deseos</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Footer.Followus.title">
+    <Value>Síguenos</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Phoenix.Footer.Payment.Option.title">
+    <Value>Métodos de pago</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="theme.phoenix.clear.cart.clearbuttontext">
+    <Value>Cancelar</Value>
+  </LocaleResource>
+
+</Language>
