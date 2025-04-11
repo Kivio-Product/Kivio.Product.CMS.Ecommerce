@@ -1392,7 +1392,6 @@ body:not(.is-loaded):after { background-image: url("../images/loading.gif");back
 
 .theme-selector {
   margin: 10px 0 0;
-  display:none;
 }
 
   .theme-selector select {
