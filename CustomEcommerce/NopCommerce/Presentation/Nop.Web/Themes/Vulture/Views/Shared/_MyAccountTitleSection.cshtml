@@ -1,0 +1,35 @@
+﻿@using Nop.Core
+@using Nop.Core.Domain.Orders
+@using Nop.Services.Customers
+@using Nop.Services.Orders
+@using Nop.Services.Stores
+@inject IWorkContext workContext
+@inject ICustomerService customerService
+@inject IShoppingCartService shoppingCartService
+@inject IStoreService storeService
+@model String
+@{
+    var customer = await workContext.GetCurrentCustomerAsync();
+    var customerName = await customerService.GetCustomerFullNameAsync(customer);
+
+    // cart
+    var cart = await shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, storeId: 0);
+    int lastCartStoreId = 0;
+    string storeURL = "";
+    if (cart.Any())
+    {
+        lastCartStoreId = cart.OrderByDescending(c => c.Id).FirstOrDefault().StoreId;
+        var store = await storeService.GetStoreByIdAsync(lastCartStoreId);
+        storeURL = new Uri(store.Url).AbsoluteUri.ToString();
+    }
+}
+
+<div class="vult-account-bg section-width">
+    <div class="side-2">
+        <span>@T("Theme.Vulture.Customerinfo.Hi.Title"), </span>
+        <h3>@customerName </h3>
+    </div>
+    <div class="center-2">
+        <h3 class="vult-account-title">@Model</h3>
+    </div>
+</div>

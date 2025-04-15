@@ -1,0 +1,52 @@
+﻿@model CustomerAvatarModel
+@{
+    Layout = "_ColumnsTwo-Account";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.Account").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-account-page");
+    NopHtml.AppendPageCssClassParts("html-avatar-page");
+}
+
+@section CustomHeading
+{
+    @await Html.PartialAsync("_MyAccountTitleSection", T("Account.Avatar").Text)
+}
+
+@section left
+{
+    @await Component.InvokeAsync(typeof(CustomerNavigationViewComponent), new { selectedTabId = CustomerNavigationEnum.Avatar })
+}
+<form asp-route="CustomerAvatar" method="post" enctype="multipart/form-data">
+    <div class="page account-page avatar-page">
+        <div class="vult-page-title">
+            <h1 class="vult-account-title">@T("Account.Avatar")</h1>
+        </div>
+        <div class="page-body">
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CustomerAvatarTop, additionalData = Model })
+            <div asp-validation-summary="ModelOnly" class="message-error"></div>
+            <div class="vult-avtar">
+                @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                {
+                    <div class="image">
+                        <img src="@(Model.AvatarUrl)" alt="avatar" />
+                    </div>
+                }
+                <input class="vult-avtar-input upload-image" name="uploadedFile" id="uploadedFile" accept="image/jpeg, image/gif" type="file" />
+                <label for="uploadedFile" class="primary-btn"><span>@T("Theme.Vulture.Customer.Upload.Avtar")</span></label>
+            </div>
+            <div class="buttons">
+                <button type="submit" name="upload-avatar" class="button-1 upload-avatar-button primary-btn"><span>@T("Common.Upload")</span></button>
+                @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                {
+                    <button type="submit" name="remove-avatar" class="button-2 remove-avatar-button primary-btn"><span>@T("Account.Avatar.RemoveAvatar")</span></button>
+                }
+            </div>
+            <div class="info">
+                @T("Account.Avatar.UploadRules")
+            </div>
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CustomerAvatarBottom, additionalData = Model })
+        </div>
+    </div>
+</form>

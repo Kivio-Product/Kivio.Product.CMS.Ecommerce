@@ -74,6 +74,9 @@ namespace Nop.Plugin.Payments.PayU
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.PaymentDescription", "Payment Description");
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.PaymentDescription.Hint", "Enter a description for the payment that will be displayed to the customer.");
 
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.SelectedCurrencies", "Allowed Currencies");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.SelectedCurrencies.Hint", "Select the currencies for which this payment method will be available.");
+
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.PaymentMethodDescription",
                   "You will be redirected to PayU site to complete the payment");
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.PaymentInfo",
@@ -100,6 +103,8 @@ namespace Nop.Plugin.Payments.PayU
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.ClientPublicKey.Hint");
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.PaymentDescription");
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.PaymentDescription.Hint");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.SelectedCurrencies");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.SelectedCurrencies.Hint");
 
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.PaymentMethodDescription");
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.PaymentInfo");
@@ -137,7 +142,7 @@ namespace Nop.Plugin.Payments.PayU
 
         public Task<bool> HidePaymentMethodAsync(IList<ShoppingCartItem> cart)
         {
-            return Task.FromResult(false);
+            return _payUService.HidePaymentMethodAsync();
         }
 
         public Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)

@@ -1,0 +1,77 @@
+﻿@model CheckoutPaymentMethodModel
+<div class="checkout-data">
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OpCheckoutPaymentMethodTop, additionalData = Model })
+    <div class="section payment-method">
+        @if (Model.DisplayRewardPoints && Model.PaymentMethods.Count > 0)
+        {
+            <div class="use-reward-points">
+                @if (Model.RewardPointsEnoughToPayForOrder)
+                {
+                    <input class="inp-cbx" type="checkbox" id="UseRewardPoints" onclick="PaymentMethod.toggleUseRewardPoints(this)" />
+                }
+                else
+                {
+                    <input class="inp-cbx" asp-for="UseRewardPoints" />
+                }
+                <label class="cbx" for="UseRewardPoints">
+                    @string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsToUse, Model.RewardPointsBalance, Model.RewardPointsToUseAmount)
+                    <span>
+                        <svg width="12px" height="10px" viewBox="0 0 12 10"><polyline points="1.5 6 4.5 9 10.5 1"></polyline></svg>
+                    </span>
+                </label>
+                @if (Model.RewardPointsEnoughToPayForOrder)
+                {
+                    <script>
+                        $(function () {
+                            PaymentMethod.toggleUseRewardPoints($('#@Html.IdFor(model => model.UseRewardPoints)'));
+                        });
+                    </script>
+                }
+            </div>
+        }
+        @if (Model.PaymentMethods.Count > 0)
+        {
+            <ul class="method-list" id="payment-method-block">
+                @for (var i = 0; i < Model.PaymentMethods.Count; i++)
+                {
+                    var paymentMethod = Model.PaymentMethods[i];
+                    var paymentMethodName = paymentMethod.Name;
+                    if (!string.IsNullOrEmpty(paymentMethod.Fee))
+                    {
+                        paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
+                    }
+                    <li>
+                        <div class="method-name">
+                            @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
+                            {
+                                <div class="payment-logo">
+                                    <label for="paymentmethod_@(i)">
+                                        <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
+                                    </label>
+                                </div>
+                            }
+                        <div class="payment-details">
+                            <div class="vult-payment-method">
+                                <input id="paymentmethod_@(i)" type="radio" name="paymentmethod" value="@(paymentMethod.PaymentMethodSystemName)" checked="@paymentMethod.Selected" />
+                                <label class="vult-radio" for="paymentmethod_@(i)">@paymentMethodName</label>
+                                <div class="bullet"><div class="line zero"></div><div class="line one"></div><div class="line two"></div><div class="line three"></div><div class="line four"></div><div class="line five"></div><div class="line six"></div><div class="line seven"></div></div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(paymentMethod.Description))
+                            {
+                                <div class="payment-description">@paymentMethod.Description</div>
+                            }
+                        </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="message-error">
+                @T("Checkout.NoPaymentMethods")
+            </div>
+        }
+    </div>
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OpCheckoutPaymentMethodBottom, additionalData = Model })
+</div>

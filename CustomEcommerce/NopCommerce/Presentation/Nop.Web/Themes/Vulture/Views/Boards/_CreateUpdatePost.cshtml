@@ -1,0 +1,65 @@
+﻿@model EditForumPostModel
+@using Nop.Core.Domain.Forums;
+@{
+    //page class
+    NopHtml.AppendPageCssClassParts("html-forum-edit-page");
+}
+
+@await Component.InvokeAsync(typeof(ForumBreadcrumbViewComponent), new { forumTopicId = Model.ForumTopicId })
+<div class="page forum-edit-page section-padding">
+    <div class="section-width">
+        <div class="vult-page-title">
+            @if (Model.IsEdit)
+            {
+                <h2>@T("Forum.EditPost")</h2>
+            }
+            else
+            {
+                <h2>@T("Forum.NewPost")</h2>
+            }
+        </div>
+        <div class="page-body">
+            <div asp-validation-summary="ModelOnly" class="message-error"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ForumTopicId" />
+            <div class="vult-form vult-form-width">
+                <div class="vult-form-fields">
+                    <div class="inputs">
+                        <label>@T("Forum.ForumName"):</label>
+                        <strong class="forum-subject">@Model.ForumName</strong>
+                    </div>
+                </div>
+                <div class="inputs">
+                    <label>@T("Forum.TopicTitle"):</label>
+                    <strong class="topic-subject">@Model.ForumTopicSubject</strong>
+                </div>
+                <div class="inputs">
+                    @if (Model.ForumEditor == EditorType.BBCodeEditor)
+                    {
+                        <nop-bb-code-editor asp-for="Text" />
+                    }
+                    <div class="vult-input">
+                        <textarea asp-for="Text" class="forum-post-text vult-input-effect"></textarea>
+                        <span class="focus-border"><i></i></span>
+                    </div>
+                    <span asp-validation-for="Text"></span>
+                </div>
+                @if (Model.IsCustomerAllowedToSubscribe)
+                {
+                    <div class="inputs reversed">
+                        <input asp-for="Subscribed" />
+                        <label asp-for="Subscribed">@T("Forum.NotifyWhenSomeonePostsInThisTopic")</label>
+                    </div>
+                }
+                @if (Model.DisplayCaptcha)
+                {
+                    <nop-captcha />
+                }
+                <div class="buttons">
+                    <button type="submit" class="button-1 submit-post-button primary-btn"><span>@T("Forum.Submit")</span></button>
+                    <button type="button" class="button-2 cancel-post-button primary-btn" onclick="setLocation('@Url.RouteUrl("TopicSlug", new {id = Model.ForumTopicId, slug = Model.ForumTopicSeName})')"><span>@T("Forum.Cancel")</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

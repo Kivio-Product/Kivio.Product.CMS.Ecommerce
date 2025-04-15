@@ -1,0 +1,73 @@
+@*
+    // ***	 ** ****** ****** ****** ******* **     ** ****** ***   ** **** ****
+    // ****  ** **  ** **  ** **  **  **  **  **   **  **  ** ****  ** *    *
+    // ** ** ** **  ** ****** ******  **  **   ** **   ****** ** ** ** *    ***
+    // **  **** **  ** **	  **  **  **  **    ***    **  ** **  **** *    *
+    // **   *** ****** **	  **  ** *******     *     **  ** **   *** **** ****
+    //
+    // **************************************************************************
+    // *                                                                		*
+	// *                      Flexo by NopAdvance team                          *
+    // *			Copyright (c) NopAdvance LLP. All Rights Reserved			*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Email:		contact@nopadvance.com										*
+    // * Website:	https://nopadvance.com										*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Please see the  License file for the full End User License Agreement. 	*
+    // * The  complete license agreement is also available on  our  website at 	*
+    // * https://nopadvance.com/license-terms									*
+    // *                                                                       	*
+    // * This  software / plugin  is furnished  under a license  and  may   be  *
+    // * used  and modified  only in accordance with the terms of such license  *
+    // * and with the inclusion of the above copyright notice.  This  software	*
+    // * or any other copies thereof may not be  provided  or  otherwise  made	*
+    // * available  to any other person.  No title to  and  ownership  of  the  *
+    // * software is hereby transferred.                                        *
+    // *                                                                       	*
+    // * You may not reverse  engineer, decompile, defeat  license  encryption 	*
+    // * mechanisms  or  disassemble this software product or software product 	*
+    // * license.  NopAdvance may terminate this  license if you don't  comply 	*
+    // * with any of the terms & conditions set forth in our  end user license	*
+    // * agreement (EULA).  In such event , licensee agrees to return licensor	*
+    // * or destroy  all copies of software  upon termination  of the license.	*
+    // *                                                                       	*
+    // **************************************************************************
+*@
+@model UserAgreementModel
+@{
+    Layout = "_ColumnsOne";
+
+    //page class
+    NopHtml.AppendPageCssClassParts("html-user-agreement-page");
+}
+<script asp-location="Footer">
+    $(function() {
+        $("#agreement-agree").on('click', toggleContinueButton);
+        toggleContinueButton();
+    });
+    function toggleContinueButton() {
+        if ($('#agreement-agree').is(':checked')) {
+            $('#continue-downloading').prop('disabled', false);
+        } else {
+            $('#continue-downloading').prop('disabled', true);
+        }
+    }
+</script>
+<div class="page user-agreement-page">
+    <div class="page-title">
+        <h1>@T("DownloadableProducts.UserAgreement")</h1>
+    </div>
+    <div class="page-body">
+        <div class="terms-of-agreement custom-checkbox">
+            <input class="custom-control-input" id="agreement-agree" type="checkbox" value="@T("DownloadableProducts.IAgree")" />
+            <label class="custom-control-label" for="agreement-agree"></label>@Html.Raw(Model.UserAgreementText)
+        </div>
+        <div class="buttons">
+            <button type="submit" id="continue-downloading" class="button-1 user-agreement-button" onclick="setLocation('@Url.RouteUrl("GetDownload", new { orderItemId = Model.OrderItemGuid, agree = true })')">@T("Common.Continue")</button>
+        </div>
+    </div>
+</div>

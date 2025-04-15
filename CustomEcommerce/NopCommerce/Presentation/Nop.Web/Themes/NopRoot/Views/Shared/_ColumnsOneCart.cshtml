@@ -1,0 +1,90 @@
+﻿@{
+    Layout = "_Root";
+}
+
+@await RenderSectionAsync("Breadcrumb", false)
+
+<div class="container rec-banners">
+    <div class="row">
+        <div class="col-lg-2 col-md-2 col-sm-4 col-6">
+            <div class="rec-banner active_position">
+                <div class="banner text-center">
+                    <h4>
+                        <a>
+                            <div><i class="fa fa-shopping-cart fa-lg"></i></div>
+                            Cart
+                        </a>
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-4 col-6">
+            <div class="rec-banner deactive_position">
+                <div class="banner text-center">
+                    <h4>
+                        <a>
+                            <div><i class="fa fa-map-marker fa-lg"></i></div>
+                            Address
+                        </a>
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-4 col-6">
+            <div class="rec-banner deactive_position">
+                <div class="banner text-center">
+                    <h4>
+                        <a>
+                            <div><i class="fa fa-truck fa-lg"></i></div>
+                            Shipping
+                        </a>
+                    </h4>
+                    <p></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-4 col-6">
+            <div class="rec-banner deactive_position">
+                <div class="banner text-center">
+                    <h4>
+                        <a>
+                            <div><i class="fa fa-credit-card fa-lg"></i></div>
+                            Payment
+                        </a>
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-4 col-6">
+            <div class="rec-banner deactive_position">
+                <div class="banner text-center">
+                    <h4>
+                        <a>
+                            <div><i class="fa fa-thumbs-up fa-lg"></i></div>
+                            Confirm
+                        </a>
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-4 col-6">
+            <div class="rec-banner deactive_position">
+                <div class="banner text-center">
+                    <h4>
+                        <a>
+                            <div><i class="fa fa-check fa-lg"></i></div>
+                            Complete
+                        </a>
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+</div>
+
+<div class="center-1">
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.MainColumnBefore })
+    @RenderBody()
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.MainColumnAfter })
+</div>

@@ -24,6 +24,11 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
+      - name: Display input parameters
+        run: |
+          echo "Branch selected: ${{ github.event.inputs.branch }}"
+          echo "Environment selected: ${{ github.event.inputs.env }}"
+
       - name: Check out repository with submodules
         uses: actions/checkout@v4
         with:

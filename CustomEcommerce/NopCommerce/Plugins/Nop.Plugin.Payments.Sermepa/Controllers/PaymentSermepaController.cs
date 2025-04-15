@@ -1,8 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Plugin.Payments.Sermepa.Models;
 using Nop.Services.Configuration;
+using Nop.Services.Directory;
 using Nop.Services.Localization;
 using Nop.Services.Messages;
 using Nop.Services.Security;
@@ -21,18 +23,24 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
         private readonly IStoreContext _storeContext;
         private readonly ILocalizationService _localizationService;
         private readonly INotificationService _notificationService;
+        private readonly ICurrencyService _currencyService;
+        private readonly IWorkContext _workContext;
 
         public PaymentSermepaController(ISettingService settingService,
             IPermissionService permissionService,
             IStoreContext storeContext,
             ILocalizationService localizationService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            ICurrencyService currencyService,
+            IWorkContext workContext)
         {
             _settingService = settingService;
             _permissionService = permissionService;
             _storeContext = storeContext;
             _localizationService = localizationService;
             _notificationService = notificationService;
+            _currencyService = currencyService;
+            _workContext = workContext;
         }
 
         [CheckPermission(StandardPermission.Configuration.MANAGE_PAYMENT_METHODS)]
@@ -55,8 +63,26 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
                 Pruebas = sermepaPaymentSettings.Pruebas,
                 AdditionalFee = sermepaPaymentSettings.AdditionalFee,
                 AdditionalFeePercentage = sermepaPaymentSettings.AdditionalFeePercentage,
-                ActiveStoreScopeConfiguration = storeScope
+                ActiveStoreScopeConfiguration = storeScope,
+                SelectedCurrencyIds = sermepaPaymentSettings.SelectedCurrencyIdList ?? new List<int>(),
             };
+
+            var storeLanguage = await _workContext.GetWorkingLanguageAsync();
+            var currencies = await _currencyService.GetAllCurrenciesAsync();
+
+            model.AvailableCurrencies = await currencies
+                .SelectAwait(async currency =>
+                {
+                    var localizedName = await _localizationService.GetLocalizedAsync(currency, x => x.Name, storeLanguage.Id);
+
+                    return new SelectListItem
+                    {
+                        Text = localizedName,
+                        Value = currency.Id.ToString(),
+                        Selected = model.SelectedCurrencyIds.Contains(currency.Id)
+                    };
+                })
+                .ToListAsync();
 
             if (storeScope <= 0)
                 return View("~/Plugins/Payments.Sermepa/Views/Configure.cshtml", model);
@@ -71,6 +97,7 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
             model.Pruebas_OverrideForStore = await _settingService.SettingExistsAsync(sermepaPaymentSettings, x => x.Pruebas, storeScope);
             model.AdditionalFee_OverrideForStore = await _settingService.SettingExistsAsync(sermepaPaymentSettings, x => x.AdditionalFee, storeScope);
             model.AdditionalFeePercentage_OverrideForStore = await _settingService.SettingExistsAsync(sermepaPaymentSettings, x => x.AdditionalFeePercentage, storeScope);
+            model.SelectedCurrencyIds_OverrideForStore = await _settingService.SettingExistsAsync(sermepaPaymentSettings, x => x.SelectedCurrencyIdList, storeScope);
 
             return View("~/Plugins/Payments.Sermepa/Views/Configure.cshtml", model);
         }
@@ -99,6 +126,7 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
             sermepaPaymentSettings.Pruebas = model.Pruebas;
             sermepaPaymentSettings.AdditionalFee = model.AdditionalFee;
             sermepaPaymentSettings.AdditionalFeePercentage = model.AdditionalFeePercentage;
+            sermepaPaymentSettings.SelectedCurrencyIdList = model.SelectedCurrencyIds;
 
             /* We do not clear cache after each setting update.
              * This behavior can increase performance because cached settings will not be cleared 
@@ -114,13 +142,14 @@ namespace Nop.Plugin.Payments.Sermepa.Controllers
             await _settingService.SaveSettingOverridablePerStoreAsync(sermepaPaymentSettings, x => x.Pruebas, model.Pruebas_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(sermepaPaymentSettings, x => x.AdditionalFee, model.AdditionalFee_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(sermepaPaymentSettings, x => x.AdditionalFeePercentage, model.AdditionalFeePercentage_OverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(sermepaPaymentSettings, x => x.SelectedCurrencyIds, model.SelectedCurrencyIds_OverrideForStore, storeScope, false);
 
             //now clear settings cache
             await _settingService.ClearCacheAsync();
 
             _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
 
-           return await Configure();
+            return await Configure();
         }
     }
 }

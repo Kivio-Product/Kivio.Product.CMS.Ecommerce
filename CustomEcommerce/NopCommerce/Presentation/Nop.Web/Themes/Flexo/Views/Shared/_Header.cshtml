@@ -1,0 +1,84 @@
+@*
+    // ***	 ** ****** ****** ****** ******* **     ** ****** ***   ** **** ****
+    // ****  ** **  ** **  ** **  **  **  **  **   **  **  ** ****  ** *    *
+    // ** ** ** **  ** ****** ******  **  **   ** **   ****** ** ** ** *    ***
+    // **  **** **  ** **	  **  **  **  **    ***    **  ** **  **** *    *
+    // **   *** ****** **	  **  ** *******     *     **  ** **   *** **** ****
+    //
+    // **************************************************************************
+    // *                                                                		*
+	// *                      Flexo by NopAdvance team                          *
+    // *			Copyright (c) NopAdvance LLP. All Rights Reserved			*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Email:		contact@nopadvance.com										*
+    // * Website:	https://nopadvance.com										*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Please see the  License file for the full End User License Agreement. 	*
+    // * The  complete license agreement is also available on  our  website at 	*
+    // * https://nopadvance.com/license-terms									*
+    // *                                                                       	*
+    // * This  software / plugin  is furnished  under a license  and  may   be  *
+    // * used  and modified  only in accordance with the terms of such license  *
+    // * and with the inclusion of the above copyright notice.  This  software	*
+    // * or any other copies thereof may not be  provided  or  otherwise  made	*
+    // * available  to any other person.  No title to  and  ownership  of  the  *
+    // * software is hereby transferred.                                        *
+    // *                                                                       	*
+    // * You may not reverse  engineer, decompile, defeat  license  encryption 	*
+    // * mechanisms  or  disassemble this software product or software product 	*
+    // * license.  NopAdvance may terminate this  license if you don't  comply 	*
+    // * with any of the terms & conditions set forth in our  end user license	*
+    // * agreement (EULA).  In such event , licensee agrees to return licensor	*
+    // * or destroy  all copies of software  upon termination  of the license.	*
+    // *                                                                       	*
+    // **************************************************************************
+*@
+@inject Nop.Services.Helpers.IUserAgentHelper userAgentHelper;
+@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderBefore })
+<div class="header">
+    <a class="skip" href="#main">@T("Header.SkipNavigation.Text")</a>
+    <div class="mobile-header">@await Component.InvokeAsync(typeof(HeaderLinksViewComponent))</div>
+    <div class="header-upper">
+        <div class="container">
+            <div class="header-selectors-wrapper">
+            @await Component.InvokeAsync(typeof(TaxTypeSelectorViewComponent))
+            @await Component.InvokeAsync(typeof(CurrencySelectorViewComponent))
+            @await Component.InvokeAsync(typeof(LanguageSelectorViewComponent))
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderSelectors })
+        </div>
+
+            @if (!userAgentHelper.IsMobileDevice())
+            {
+                <div class="search-box store-search-box">
+                    <a class="searchclick"></a>
+                    @await Component.InvokeAsync(typeof(SearchBoxViewComponent))
+                </div>
+            }
+
+        </div>
+    </div>
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderMiddle })
+    <div class="header-lower">
+        <div class="container">
+            <div class="header-logo">
+                 @await Component.InvokeAsync(typeof(LogoViewComponent))
+            </div>
+            <div class="header-right">
+                <div class="header-links-wrapper">
+                    @await Component.InvokeAsync(typeof(HeaderLinksViewComponent))
+                    @await Component.InvokeAsync(typeof(FlyoutShoppingCartViewComponent))
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (userAgentHelper.IsMobileDevice())  
+    {
+        <div class="mobilesearch dropdown-search-mobile">@await Component.InvokeAsync(typeof(SearchBoxViewComponent))</div>
+    }
+</div>
+@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderAfter })
+

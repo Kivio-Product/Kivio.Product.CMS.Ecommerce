@@ -1,0 +1,66 @@
+﻿@model IList<ProductOverviewModel>
+@if (Model.Count > 0)
+{
+    <div class="section-bg section-padding">
+        <div class="section-width">
+            <div class="product-grid bestsellers">
+                <div class="section-head">
+                    <h2>@T("Bestsellers")</h2>
+                </div>
+                <div class="item-grid">
+                    @foreach (var item in Model)
+                    {
+                        <div class="item-box">
+                            @await Html.PartialAsync("_ProductBox-bestsellers", item)
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+@*<script asp-location="Footer">
+    if (jQuery(window).width() <= 991) {
+        $(".bestseller_slider").owlCarousel({
+            autoplay: false,
+            loop: true,
+            responsiveClass: true,
+            autoHeight: true,
+            navigation: true,
+            dots: false,
+            nav: true,
+            responsive: {
+                0: {
+                    items: 1
+                },
+
+                600: {
+                    items: 2
+                },
+
+                1024: {
+                    items: 3
+                },
+
+                1366: {
+                    items: 5
+                }
+            }
+        });
+    }
+    
+    if (jQuery(window).width() <= 767) {
+        jQuery('.owl-carousel').owlCarousel({
+            stagePadding: 0,
+            loop: false,
+            responsiveClass: true,
+            dots: false,
+            nav: true,
+            autoHeight: true,
+            items: 1
+        });
+    }
+</script>*@

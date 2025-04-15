@@ -1,0 +1,16 @@
+﻿<div class="search-box forum-search-box">
+    <form asp-route="Search" method="get">
+        <div class="basic">
+            <div class="inputs">
+                <div class="vult-input">
+                    <input type="text" class="search-box-text vult-input-effect" id="forums-small-searchterms" name="searchterms" placeholder="@T("Forum.SearchForumsTooltip")" />
+                    <button type="submit" class="button-2 primary-btn"><span>@T("Forum.SearchButton")</span></button>
+                    <span class="focus-border"><i></i></span>
+                </div>
+            </div>
+        </div>
+        <div class="advanced">
+            @Html.RouteLink(T("Forum.AdvancedSearch").Text, "Search", new { advs = true }, new { title = T("Forum.AdvancedSearch").Text })
+        </div>
+    </form>
+</div>

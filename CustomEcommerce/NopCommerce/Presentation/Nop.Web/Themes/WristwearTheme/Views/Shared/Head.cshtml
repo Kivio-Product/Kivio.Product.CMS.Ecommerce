@@ -1,0 +1,35 @@
+﻿@using Nop.Core
+@using Nop.Core.Domain.Catalog
+@inject IWorkContext workContext
+
+@inject CatalogSettings catalogSettings
+@{
+    var supportRtl = (await workContext.GetWorkingLanguageAsync()).Rtl;
+
+    //add main CSS file
+    if (supportRtl)
+    {
+        NopHtml.AppendCssFileParts($"~/Themes/WristwearTheme/Content/css/wristwear.styles.responsive.rtl.css");
+        NopHtml.AppendCssFileParts($"~/Themes/WristwearTheme/Content/css/wristwear.styles.rtl.css");
+        NopHtml.AppendCssFileParts($"~/Themes/WristwearTheme/Content/css/bootstrap.min.rtl.css");
+    }
+    else
+    {
+        NopHtml.AppendCssFileParts($"~/Themes/WristwearTheme/Content/css/wristwear.styles.responsive.css");
+        NopHtml.AppendCssFileParts($"~/Themes/WristwearTheme/Content/css/wristwear.styles.css");
+        NopHtml.AppendCssFileParts($"~/Themes/WristwearTheme/Content/css/bootstrap.min.css");
+    }
+
+    NopHtml.AppendCssFileParts($"~/Themes/WristwearTheme/Content/css/font-awesome.min.css");
+    NopHtml.AppendCssFileParts($"~/Themes/WristwearTheme/Content/css/owl.carousel.min.css");
+
+    //add swiper css file
+    if (catalogSettings.DisplayAllPicturesOnCatalogPages)
+    {
+        NopHtml.AppendCssFileParts("~/lib_npm/swiper/swiper-bundle.min.css");
+    }
+    
+    //add jQuery UI css file
+    NopHtml.AppendCssFileParts("~/lib_npm/jquery-ui-dist/jquery-ui.min.css");
+
+}

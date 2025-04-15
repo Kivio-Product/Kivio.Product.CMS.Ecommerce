@@ -1,0 +1,486 @@
+@model ShoppingCartModel
+@using Nop.Core
+@using Nop.Core.Domain.Catalog
+@using Nop.Core.Domain.Media
+@using Nop.Core.Domain.Orders
+@using Nop.Core.Domain.Tax
+@inject IWebHelper webHelper
+@inject IWorkContext workContext
+@inject MediaSettings mediaSettings
+@inject OrderSettings orderSettings
+<div class="order-summary-content">
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryContentBefore, additionalData = Model })
+    @await Html.PartialAsync("_OrderReviewData", Model.OrderReviewData)
+    @if (Model.Items.Count > 0)
+    {
+        if (Model.Warnings.Count > 0)
+        {
+            <div class="message-error">
+                <ul>
+                    @foreach (var warning in Model.Warnings)
+                    {
+                        <li>@warning</li>
+                    }
+                </ul>
+            </div>
+        }
+        @*we add enctype = "multipart/form-data" because "File upload" attribute control type requires it*@
+        <form asp-route="ShoppingCart" method="post" enctype="multipart/form-data" id="shopping-cart-form">
+            <div class="vult-cart-flex">
+                <div class="vult-cart-table">
+                    <div class="table-wrapper">
+
+                        <div class="shopping-cart">
+                            <div class="vult-cart-data">
+                                @foreach (var item in Model.Items)
+                                {
+                                    <div class="vult-cart-data-info">
+                                        @if (Model.ShowProductImages)
+                                        {
+                                            <div class="product-picture text-center">
+                                                <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">
+                                                    <img alt="@item.Picture.AlternateText" src="@item.Picture.ImageUrl" title="@item.Picture.Title" width="@mediaSettings.DefaultImageQuality" />
+                                                </a>
+                                            </div>
+                                        }
+                                        <div class="product">
+                                            <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))" class="product-name">@item.ProductName</a>
+                                            @if (Model.ShowSku && !String.IsNullOrEmpty(item.Sku))
+                                            {
+                                                <span class="sku-number">@item.Sku</span>
+                                            }
+                                            @if (Model.ShowVendorName)
+                                            {
+                                                <div class="vendor">
+                                                    <label class="td-title">@T("ShoppingCart.VendorName"):</label>
+                                                    <span class="vendor-name">@item.VendorName</span>
+                                                </div>
+                                            }
+                                            @if (!String.IsNullOrEmpty(item.AttributeInfo))
+                                            {
+                                                <div class="attributes small">
+                                                    @Html.Raw(item.AttributeInfo)
+                                                </div>
+                                            }
+                                            <div class="unit-price">
+                                                <span class="unit-price-text">@T("ShoppingCart.UnitPrice"):</span>
+                                                <span class="product-unit-price price">@item.UnitPrice</span>
+                                            </div>
+                                            @if (!String.IsNullOrEmpty(item.RecurringInfo))
+                                            {
+                                                <div class="recurring-info">
+                                                    @Html.Raw(item.RecurringInfo)
+                                                </div>
+                                            }
+                                            @if (Model.IsEditable && item.AllowItemEditing)
+                                            {
+                                                var editCartItemUrl = Url.RouteUrl<Product>(new { SeName = item.ProductSeName }, webHelper.GetCurrentRequestProtocol());
+                                                editCartItemUrl = webHelper.ModifyQueryString(editCartItemUrl, "updatecartitemid", item.Id.ToString());
+                                                <div class="edit-item">
+                                                    <a class="primary-btn" href="@editCartItemUrl"><span>@T("Common.Edit")</span></a>
+                                                </div>
+                                            }
+
+                                            @if (item.Warnings.Any())
+                                            {
+                                                <div class="message-error">
+                                                    <ul>
+                                                        @foreach (var warning in item.Warnings)
+                                                        {
+                                                            <li>@warning</li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="vult-price-qty-remove">
+                                            <div class="subtotal">
+                                                <label class="td-title">@T("ShoppingCart.ItemTotal"):</label>
+                                                <span class="product-subtotal">@item.SubTotal</span>
+                                                @if (!string.IsNullOrEmpty(item.Discount))
+                                                {
+                                                    @*<div class="discount">
+                                        @T("ShoppingCart.ItemYouSave", item.Discount)
+                                        </div>*@
+
+                                                    <div class="discount">
+                                                        <label>@T("ShoppingCart.ItemYouSave")</label>
+                                                        @(item.Discount)
+                                                    </div>
+
+                                                    if (item.MaximumDiscountedQty.HasValue)
+                                                    {
+                                                        <div class="discount-additional-info">
+                                                            @T("ShoppingCart.MaximumDiscountedQty", item.MaximumDiscountedQty.Value)
+                                                        </div>
+                                                    }
+                                                }
+                                            </div>
+                                            <div class="vult-cart-btn">
+                                                <div class="vult-qty">
+                                                    @if (Model.IsEditable)
+                                                    {
+                                                        if (item.AllowedQuantities.Count > 0)
+                                                        {
+                                                            <div class="quantity">
+                                                                @*<span>@T("ShoppingCart.Quantity")</span>*@
+                                                                @{
+                                                                    var option_id = 1;
+                                                                }
+                                                                <select id="itemquantity@(item.Id)" name="itemquantity@(item.Id)" class="custom-select form-control qty-dropdown vult-common-select">
+                                                                    @foreach (var qty in item.AllowedQuantities)
+                                                                    {
+                                                                        <option id="itemqty@(item.Id)_@option_id" selected="@qty.Selected" value="@qty.Value">@qty.Value</option>
+
+                                                                        option_id++;
+                                                                    }
+                                                                </select>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="quantity">
+                                                                <div class="vult-qty-inner d-flex align-items-center">
+                                                                        @* <input id="itemquantity@(item.Id)" name="itemquantity@(item.Id)" type="text" value="@(item.Quantity)" class="qty-input form-control" />
+                                                                        
+                                                                        <div class="vult-addmore">
+                                                                            <div class="quantity up" id="quantity-up-@(item.Id)">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" width="512" height="512" x="0" y="0" viewBox="0 0 512.011 512.011" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g transform="matrix(-1,-1.2246467991473532e-16,1.2246467991473532e-16,-1,512.0111808776855,512.0112609863281)"><path d="M505.755 123.592c-8.341-8.341-21.824-8.341-30.165 0L256.005 343.176 36.421 123.592c-8.341-8.341-21.824-8.341-30.165 0s-8.341 21.824 0 30.165l234.667 234.667a21.275 21.275 0 0 0 15.083 6.251 21.275 21.275 0 0 0 15.083-6.251l234.667-234.667c8.34-8.341 8.34-21.824-.001-30.165z" fill="#000000" data-original="#000000" class=""></path></g></svg>
+                                                                            </div>
+                                                                            <div class="quantity down" id="quantity-down-@(item.Id)">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" width="512" height="512" x="0" y="0" viewBox="0 0 512.011 512.011" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M505.755 123.592c-8.341-8.341-21.824-8.341-30.165 0L256.005 343.176 36.421 123.592c-8.341-8.341-21.824-8.341-30.165 0s-8.341 21.824 0 30.165l234.667 234.667a21.275 21.275 0 0 0 15.083 6.251 21.275 21.275 0 0 0 15.083-6.251l234.667-234.667c8.34-8.341 8.34-21.824-.001-30.165z" fill="#000000" data-original="#000000"></path></g></svg>
+                                                                            </div>
+                                                                        </div> *@
+
+                                                                    <input name="itemquantity@(item.Id)" id="itemquantity@(item.Id)" type="text" value="@(item.Quantity)" class="qty-input" aria-label="@T("ShoppingCart.Quantity")" onchange="$('#updatecart').trigger('click');" />
+                                                                    <div class="product-quantity vult-addmore">
+                                                                        <div class="quantity up" id="quantity-up-@(item.Id)">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" width="512" height="512" x="0" y="0" viewBox="0 0 512.011 512.011" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g transform="matrix(-1,-1.2246467991473532e-16,1.2246467991473532e-16,-1,512.0111808776855,512.0112609863281)"><path d="M505.755 123.592c-8.341-8.341-21.824-8.341-30.165 0L256.005 343.176 36.421 123.592c-8.341-8.341-21.824-8.341-30.165 0s-8.341 21.824 0 30.165l234.667 234.667a21.275 21.275 0 0 0 15.083 6.251 21.275 21.275 0 0 0 15.083-6.251l234.667-234.667c8.34-8.341 8.34-21.824-.001-30.165z" fill="#000000" data-original="#000000" class=""></path></g></svg>
+                                                                        </div>
+                                                                        <div class="quantity down" id="quantity-down-@(item.Id)">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" width="512" height="512" x="0" y="0" viewBox="0 0 512.011 512.011" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M505.755 123.592c-8.341-8.341-21.824-8.341-30.165 0L256.005 343.176 36.421 123.592c-8.341-8.341-21.824-8.341-30.165 0s-8.341 21.824 0 30.165l234.667 234.667a21.275 21.275 0 0 0 15.083 6.251 21.275 21.275 0 0 0 15.083-6.251l234.667-234.667c8.34-8.341 8.34-21.824-.001-30.165z" fill="#000000" data-original="#000000"></path></g></svg>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <script asp-location="Footer">
+                                                                        $(function () {
+                                                                            $('#quantity-up-@(item.Id)').on('click',
+                                                                                function (e) {
+                                                                                    var input = $(document).find('#itemquantity@(item.Id)');
+                                                                                    var oldValue = parseInt(input.val());
+                                                                                    var newVal = oldValue + 1;
+                                                                                    input.val(newVal.toString());
+                                                                                    input.trigger("change");
+                                                                                });
+
+                                                                            $('#quantity-down-@(item.Id)').on('click',
+                                                                                function (e) {
+                                                                                    var input = $(document).find('#itemquantity@(item.Id)');
+                                                                                    var oldValue = parseInt(input.val());
+                                                                                    var newVal = oldValue - 1;
+                                                                                    input.val(newVal.toString());
+                                                                                    input.trigger("change");
+                                                                                });
+                                                                        });
+                                                                    </script>
+                                                                </div>
+                                                            </div>
+                                                        }
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="quantity">
+                                                            <input id="itemquantity@(item.Id)" name="itemquantity@(item.Id)" type="text" value="@(item.Quantity)" class="qty-input-ro form-control text-center" readonly />
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="vult-remove-btn">
+                                                    @if (Model.IsEditable)
+                                                    {
+                                                        <div class="remove-from-cart">
+                                                            <input type="checkbox" name="removefromcart" id="removefromcart@(item.Id)" value="@(item.Id)" aria-label="@T("ShoppingCart.Remove")" />
+                                                            <button type="button" name="updatecart" class="remove-btn vult_remove_item primary-btn"><span>@T("Theme.Vulture.Cart.Remove.Item.Button")</span></button>
+                                                            @*<a class="Vult-delete vult_remove_item"></a>*@
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cart-page-both-button text-sm-right" style="display:none;">
+                                        <button type="submit" name="updatecart" class="btn btn-info update-cart-button justify-content-center">
+                                            <span class="d-sm-block">@T("ShoppingCart.UpdateCart")</span>
+                                        </button>
+                                        <button type="submit" name="continueshopping" class="btn btn-secondary d-flex justify-content-center continue-shopping-button ml-sm-1"><i class="linearicons-check pr-1"></i><span class="d-sm-block">@T("ShoppingCart.ContinueShopping")</span></button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="cart-options vult-btn-group">
+                            @if (Model.IsEditable)
+                            {
+                                <div class="common-buttons">
+                                    <button type="submit" name="updatecart" id="updatecart" class="button-2 update-cart-button primary-btn"><span>@T("ShoppingCart.UpdateCart")</span></button>
+
+                                    <button type="submit" name="continueshopping" class="button-2 continue-shopping-button primary-btn"><span>@T("ShoppingCart.ContinueShopping")</span></button>
+
+                                    @await Component.InvokeAsync(typeof(ShoppingCartEstimateShippingViewComponent))
+                                </div>
+                            }
+                            <div class="vult_clear_cart_button">
+                                <button class="primary-btn">
+                                    <span>@T("Theme.Vulture.Clear.Cart")</span>
+                                </button>
+                            </div>
+                            @if (Model.IsEditable && Model.Items.Count > 0 && Model.DisplayTaxShippingInfo)
+                            {
+                                var inclTax = await workContext.GetTaxDisplayTypeAsync() == TaxDisplayType.IncludingTax;
+                                //tax info is already included in the price (incl/excl tax). that's why we display only shipping info here
+                                //of course, you can modify appropriate locales to include VAT info there
+                                <div class="tax-shipping-info">
+                                    @T(inclTax ? "ShoppingCart.TaxShipping.InclTax" : "ShoppingCart.TaxShipping.ExclTax", Url.RouteTopicUrl("shippinginfo"))
+                                </div>
+                            }
+                        </div>
+                        <div class="vult-cart-attributes">
+                            @if (Model.IsEditable)
+                            {
+                                @await Html.PartialAsync("_CheckoutAttributes", Model)
+                            }
+                            @await Component.InvokeAsync(typeof(SelectedCheckoutAttributesViewComponent))
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cart-footer">
+                    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryCartFooter, additionalData = Model })
+
+                    @if (Model.IsEditable)
+                    {
+                        <div class="cart-collaterals">
+                            <div class="deals">
+                                @await Html.PartialAsync("_DiscountBox", Model.DiscountBox)
+                                @await Html.PartialAsync("_GiftCardBox", Model.GiftCardBox)
+                                @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryContentDeals, additionalData = Model })
+                            </div>
+                        </div>
+                    }
+                    <div class="totals">
+                        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryTotals, additionalData = Model })
+                        @await Component.InvokeAsync(typeof(OrderTotalsViewComponent), new { isEditable = Model.IsEditable })
+                        @if (Model.IsEditable)
+                        {
+                            if (!string.IsNullOrEmpty(Model.MinOrderSubtotalWarning))
+                            {
+                                <div class="min-amount-warning">
+                                    @Model.MinOrderSubtotalWarning
+                                </div>
+                            }
+                        }
+                        @if (Model.IsEditable)
+                        {
+                            if (Model.TermsOfServiceOnShoppingCartPage)
+                            {
+                                <div id="terms-of-service-warning-box" title="@T("Checkout.TermsOfService")" style="display: none;">
+                                    <p>@T("Checkout.TermsOfService.PleaseAccept")</p>
+                                </div>
+                                <div class="terms-of-service">
+                                    <input class="inp-cbx" id="termsofservice" type="checkbox" name="termsofservice" />
+                                    <label class="cbx" for="termsofservice">
+                                        @T("Checkout.TermsOfService.IAccept")
+                                        <span>
+                                            <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                                <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                            </svg>
+                                        </span>
+                                    </label>
+                                    @if (Model.TermsOfServicePopup)
+                                    {
+                                        <a class="read" id="read-terms">@T("Checkout.TermsOfService.Read")</a>
+                                        <script asp-location="Footer">
+                                            $(function () {
+                                                $('#read-terms').on('click',
+                                                    function (e) {
+                                                        e.preventDefault();
+                                                        displayPopupContentFromUrl(
+                                                            '@Url.RouteUrl("TopicPopup", new {SystemName = "conditionsofuse"})',
+                                                            '@T("Checkout.TermsOfService")');
+                                                    });
+                                            });
+                                        </script>
+                                    }
+                                    else
+                                    {
+                                        <a class="read" id="read-terms" href="@Url.RouteTopicUrl("conditionsofuse")">@T("Checkout.TermsOfService.Read")</a>
+                                    }
+                                </div>
+                            }
+                            <div class="checkout-buttons">
+                                @if (string.IsNullOrEmpty(Model.MinOrderSubtotalWarning) && !Model.HideCheckoutButton)
+                                {
+                                    <script asp-location="Footer">
+                                        $(function () {
+                                            $('#checkout').on('click', function () {
+                                                //terms of service
+                                                var termOfServiceOk = true;
+                                                if ($('#termsofservice').length > 0) {
+                                                    //terms of service element exists
+                                                    if (!$('#termsofservice').is(':checked')) {
+                                                        Swal.fire({
+                                                            title: '<strong>@Html.Raw(JavaScriptEncoder.Default.Encode(T("Checkout.TermsOfService").Text))</strong>',
+                                                            icon: 'warning',
+                                                            text: '@Html.Raw(JavaScriptEncoder.Default.Encode(T("Checkout.TermsOfService.PleaseAccept").Text))',
+                                                            customClass: {
+                                                                confirmButton: 'primary-btn',
+                                                            },
+                                                            confirmButtonColor: '#333',
+                                                            confirmButtonText: '<span>@T("Theme.Vulture.Header.Search.Button.Text")</span>',
+                                                        })
+                                                        //$("#terms-of-service-warning-box").dialog();
+                                                        termOfServiceOk = false;
+                                                    } else {
+                                                        termOfServiceOk = true;
+                                                    }
+                                                }
+                                                return termOfServiceOk;
+                                            });
+                                        });
+                                    </script>
+                                    if (orderSettings.CheckoutDisabled)
+                                    {
+                                        <div class="checkout-disabled">
+                                            @T("Checkout.Disabled")
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" id="checkout" name="checkout" value="checkout" class="button-1 checkout-button primary-btn">
+                                            <span>@T("Checkout.Button")</span>
+                                        </button>
+                                    }
+                                }
+                            </div>
+                            <div class="addon-buttons">
+                                @*Payment method buttons (e.g. GoogleCheckoutButton, Paypal Express)*@
+                                @foreach (var pm in Model.ButtonPaymentMethodViewComponents)
+                                {
+                                    @await Component.InvokeAsync(pm)
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            @if (Model.IsEditable)
+            {
+                @await Component.InvokeAsync(typeof(CrossSellProductsViewComponent))
+            }
+        </form>
+    }
+    else
+    {
+        <div class="no-data">
+            <span class="Vult-empty-cart"></span>
+            @T("ShoppingCart.CartIsEmpty")
+        </div>
+    }
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryContentAfter, additionalData = Model })
+</div>
+
+<script asp-location="Footer">
+    // CLEAR ALL CART ITEMS
+    $(".vult_clear_cart_button button").click(function () {
+        ClearItem(this, "removeall", "@Html.Raw(JavaScriptEncoder.Default.Encode(T("Theme.Vulture.Clear.Cart.Confirmation").Text))", "@Html.Raw(JavaScriptEncoder.Default.Encode(T("Theme.Vulture.Clear.Cart.Confirmation.Description").Text))");
+        return false;
+    });
+    // REMOVE SPECIFIC CART ITEM
+    $(".vult_remove_item").click(function () {
+        ClearItem($(this), "removeitem", "@Html.Raw(JavaScriptEncoder.Default.Encode(T("Theme.Vulture.Clear.Cartitem.confirmation").Text))", "@Html.Raw(JavaScriptEncoder.Default.Encode(T("Theme.Vulture.Clear.Cartitem.Confirmation.Description").Text))");
+        return false;
+    });
+    function ClearItem(element, button, title, text) {
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: 'warning',
+            showCancelButton: true,
+            customClass: {
+                confirmButton: 'primary-btn',
+                cancelButton: 'primary-btn',
+            },
+
+            confirmButtonColor: '#333',
+            cancelButtonColor: '#333',
+            confirmButtonText: "<span>@Html.Raw(JavaScriptEncoder.Default.Encode(T("Theme.Vulture.Clear.Cart.confirmation.Confirmbuttontext").Text))</span>",
+            cancelButtonText: "<span>@Html.Raw(JavaScriptEncoder.Default.Encode(T("Theme.Vulture.Clear.Cart.Confirmation.Cancelbuttontext").Text))</span>",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (button == "removeall") {
+                    // remove all items from cart
+                    $("input[name='removefromcart']:checkbox").prop('checked', true);
+                } else {
+                    // remove specific item
+                    if (element.parent().find('input').prop('checked') == true) {
+                        element.parent().find('input').prop('checked', false)
+                    }
+                    else {
+                        element.parent().find('input').prop('checked', true)
+                    };
+                }
+                $(".update-cart-button").trigger("click");
+                swal.fire({
+                    title: '',
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    //timer: 2000,
+                    onOpen: () => {
+                        swal.showLoading();
+                    }
+                })
+            }
+        })
+        return false;
+    }
+</script>
+
+
+
+<script asp-location="Footer">
+
+    function ChangeShoppingCart() {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: $('#shopping-cart-form').serialize(),
+            url: '@Url.RouteUrl("UpdateCart")',
+            success: function (data) {
+                $(AjaxCart.flyoutcartselector).replaceWith(data.flyoutshoppingcart);
+                $(AjaxCart.topcartselector).html(data.totalproducts);
+                $('#ordersummarypagecart').replaceWith(data.cart);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to retrieve Shopping Cart Page.');
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $(".deleteshoppingcartitem").click(function () {
+            var href = $(this).closest('[data-href]').data('href');
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: href,
+                success: function (data) {
+                    $(AjaxCart.flyoutcartselector).replaceWith(data.flyoutshoppingcart);
+                    $(AjaxCart.topcartselector).html(data.totalproducts);
+                    $('#ordersummarypagecart').replaceWith(data.cart);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve Shopping Cart Page.');
+                }
+            });
+        });
+    });
+</script>

@@ -495,6 +495,7 @@ label, label + * {
     background-color: #fff;
     z-index: 99;
     border-top: 2px solid #007aff;
+    display: block;
 }
 .language-list.active .value,
 .currency-list.active .value{
@@ -7674,7 +7675,7 @@ textarea {
 .cd-cart {
     position: fixed;
     top: 0;
-    height: 100vh;
+    height: 100dvh;
     width: 100%;
     -webkit-overflow-scrolling: touch;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
@@ -8266,4 +8267,14 @@ a.skip:hover {
     text-align: center;
     width: 100%;
     font-size: 16px;
+}
+
+.nop-slider .slider-img {
+    width: 100%;
+  }
+
+@media (min-width: 1180px) {
+    .nop-slider {
+        width: 80vw;
+    }
 }

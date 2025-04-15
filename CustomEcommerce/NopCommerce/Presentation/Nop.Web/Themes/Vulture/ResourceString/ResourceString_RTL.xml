@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Language Name="Arabic">
+
+  <LocaleResource Name="Theme.Vulture.Language.Selector.Title">
+    <Value>اختار اللغة</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Currency.Selector.Title">
+    <Value>اختر العملة</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Homepage.Category.Title">
+    <Value>فئات</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Filter.Title">
+    <Value>اظهر الفلاتر</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Product.Detail">
+    <Value>تفاصيل</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Product.Specifications">
+    <Value>تحديد</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Order.Image">
+    <Value>صورة</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Order.Number">
+    <Value>رقم الأمر</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Order.Status">
+    <Value>حالة الطلب</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Order.Date">
+    <Value>تاريخ الطلب</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Order.Total">
+    <Value>الطلب الكلي</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Order.detail">
+    <Value>التفاصيل</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Order.Summary.Title">
+    <Value>ملخص</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Tax.Selector.Title">
+    <Value>حدد ضريبة الأسعار</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Login.RegisterLink.Title">
+    <Value>لا تملك حسابا حتى الآن؟</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Customer.Upload.Avtar">
+    <Value>اختيار ملف</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Clear.wishlist">
+    <Value>مسح قائمة الرغبات</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Move.Wishlistitemtocart.Confirmation.Title">
+    <Value>أضف إلى عربة التسوق هذا العنصر؟</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Move.Wishitemtocart.Confirmation.Description">
+    <Value>هل أنت متأكد من أنك تريد إضافة هذا العنصر إلى سلة التسوق من قائمة الرغبات؟</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Move.Itemtocart.Confirmation.Confirmbuttontext">
+    <Value>نعم انقلها!</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Clear.Wishlistitem.Confirmation.Title">
+    <Value>حذف عنصر قائمة الرغبات هذا؟</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Clear.Wishlist.Confirmation.Description">
+    <Value>هل أنت متأكد من أنك تريد إزالة هذا العنصر من قائمة الرغبات؟</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Clear.Cart.Confirmation.Confirmbuttontext">
+    <Value>نعم ، احذفها!</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Clear.wishlist.confirmation.title">
+    <Value>هل تريد حذف جميع عناصر قائمة الرغبات؟</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Clear.wishlistall.confirmation.Description">
+    <Value>هل أنت متأكد من أنك تريد إزالة جميع العناصر من قائمة الرغبات؟</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Move.Wishlisttocart.Confirmation.Title">
+    <Value>إضافة إلى عربة كل العناصر؟</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Move.Allwishlist.Confirmation.Description">
+    <Value>هل أنت متأكد من أنك تريد إضافة جميع العناصر من قائمة الرغبات إلى سلة التسوق؟</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Clear.Cart">
+    <Value>مسح السلة</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Clear.Cart.Confirmation">
+    <Value>هل تريد حذف كافة عناصر سلة التسوق؟</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Clear.Cart.Confirmation.Description">
+    <Value>هل أنت متأكد من أنك تريد إزالة جميع العناصر من سلة التسوق؟</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Clear.Cartitem.confirmation">
+    <Value>هل تريد حذف عنصر سلة التسوق هذا؟</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Clear.Cartitem.Confirmation.Description">
+    <Value>هل أنت متأكد من رغبتك في إزالة هذا العنصر من سلة التسوق؟</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Mini.Shopping.Cart">
+    <Value>عربة التسوق</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Customerinfo.Hi.Title">
+    <Value>أهلا</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Theme.Vulture.Cart.Remove.Item.Button">
+    <Value>إزالة</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Clear.Cart.Confirmation.Cancelbuttontext">
+    <Value>يلغي</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Header.Search.Button.Text">
+    <Value>نعم</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Select.Primary.Color">
+    <Value>حدد اللون الأساسي للسمة</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Select.Custome.Primary.Color">
+    <Value>حدد لون أساسي مخصص</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Select.Secondry.Color">
+    <Value>حدد موضوع ثانوي اللون</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Select.Custome.Secondry.Color">
+    <Value>حدد لون ثانوي مخصص</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Theme.Vulture.Footer.AboutusText">
+    <Value>This is footer about us text. This you can modify from admin > language > Edit > Resource string by update value of resource string Theme.Vulture.Footer.AboutusText.</Value>
+  </LocaleResource>
+
+</Language>

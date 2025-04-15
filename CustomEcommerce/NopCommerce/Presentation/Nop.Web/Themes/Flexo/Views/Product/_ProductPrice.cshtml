@@ -1,0 +1,119 @@
+@*
+    // ***	 ** ****** ****** ****** ******* **     ** ****** ***   ** **** ****
+    // ****  ** **  ** **  ** **  **  **  **  **   **  **  ** ****  ** *    *
+    // ** ** ** **  ** ****** ******  **  **   ** **   ****** ** ** ** *    ***
+    // **  **** **  ** **	  **  **  **  **    ***    **  ** **  **** *    *
+    // **   *** ****** **	  **  ** *******     *     **  ** **   *** **** ****
+    //
+    // **************************************************************************
+    // *                                                                		*
+	// *                      Flexo by NopAdvance team                          *
+    // *			Copyright (c) NopAdvance LLP. All Rights Reserved			*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Email:		contact@nopadvance.com										*
+    // * Website:	https://nopadvance.com										*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Please see the  License file for the full End User License Agreement. 	*
+    // * The  complete license agreement is also available on  our  website at 	*
+    // * https://nopadvance.com/license-terms									*
+    // *                                                                       	*
+    // * This  software / plugin  is furnished  under a license  and  may   be  *
+    // * used  and modified  only in accordance with the terms of such license  *
+    // * and with the inclusion of the above copyright notice.  This  software	*
+    // * or any other copies thereof may not be  provided  or  otherwise  made	*
+    // * available  to any other person.  No title to  and  ownership  of  the  *
+    // * software is hereby transferred.                                        *
+    // *                                                                       	*
+    // * You may not reverse  engineer, decompile, defeat  license  encryption 	*
+    // * mechanisms  or  disassemble this software product or software product 	*
+    // * license.  NopAdvance may terminate this  license if you don't  comply 	*
+    // * with any of the terms & conditions set forth in our  end user license	*
+    // * agreement (EULA).  In such event , licensee agrees to return licensor	*
+    // * or destroy  all copies of software  upon termination  of the license.	*
+    // *                                                                       	*
+    // **************************************************************************
+*@
+@model ProductPriceModel
+
+@using Nop.Core
+@using Nop.Core.Domain.Tax
+
+@inject IWorkContext workContext
+
+@if (!Model.CustomerEntersPrice)
+{
+    <div class="prices">
+        @if (Model.CallForPrice)
+        {
+            @*call for price*@
+            <div class="product-price call-for-price">
+                <span>@T("Products.CallForPrice")</span>
+            </div>
+        }
+        else
+        {
+            if (Model.IsRental)
+            {
+                <div class="rental-price">
+                    <span>@T("Products.Price.RentalPrice"):</span>
+                    <span>@Model.RentalPrice</span>
+                </div>
+            }
+            if (!string.IsNullOrWhiteSpace(Model.OldPrice))
+            {
+                @*old price*@
+                <div class="old-product-price">
+                    <span>@T("Products.Price.OldPrice"):</span>
+                    <span>@Model.OldPrice</span>
+                </div>
+            }
+            <div class="@if (string.IsNullOrWhiteSpace(Model.PriceWithDiscount))
+                        {
+                            <text>product-price</text>
+                        }
+                        else
+                        {
+                            <text>non-discounted-price</text>
+                        }">
+                @if (!string.IsNullOrWhiteSpace(Model.OldPrice) || !string.IsNullOrWhiteSpace(Model.PriceWithDiscount))
+                {
+                    @*display "Price:" label if we have old price or discounted one*@
+                    <label for="price-value-@(Model.ProductId)">@T("Products.Price"):</label>
+                }
+                @*render price*@
+                <span @if (string.IsNullOrWhiteSpace(Model.PriceWithDiscount)) { <text> id="price-value-@(Model.ProductId)" class="price-value-@(Model.ProductId)" </text> }>
+                    @Html.Raw(Model.Price)
+                </span>
+            </div>
+            if (!string.IsNullOrWhiteSpace(Model.PriceWithDiscount))
+            {
+                @*discounted price*@
+                <div class="product-price discounted-price">
+                    <span>@T("Products.Price.WithDiscount"):</span>
+                    <span class="price-value-@(Model.ProductId)">
+                        @Html.Raw(Model.PriceWithDiscount)
+                    </span>
+                </div>
+            }
+            if (!string.IsNullOrEmpty(Model.BasePricePAngV))
+            {
+                <div class="base-price-pangv" id="base-price-pangv-@Model.ProductId">
+                    @Model.BasePricePAngV
+                </div>
+            }
+            if (Model.DisplayTaxShippingInfo)
+            {
+                var inclTax = await workContext.GetTaxDisplayTypeAsync() == TaxDisplayType.IncludingTax;
+                //tax info is already included in the price (incl/excl tax). that's why we display only shipping info here
+                //of course, you can modify appropriate locales to include VAT info there
+                <div class="tax-shipping-info">
+                    @T(inclTax ? "Products.Price.TaxShipping.InclTax" : "Products.Price.TaxShipping.ExclTax", Url.RouteTopicUrl("shippinginfo"))
+                </div>
+            }
+        }
+    </div>
+}

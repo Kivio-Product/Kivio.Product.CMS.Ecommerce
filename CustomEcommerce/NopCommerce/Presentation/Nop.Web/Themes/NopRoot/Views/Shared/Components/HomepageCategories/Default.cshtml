@@ -1,0 +1,72 @@
+﻿@model IList<CategoryModel>
+@if (Model.Count > 0)
+{
+    <div class="category-grid home-page-category-grid">
+        <div class="row item-grid">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-3 col-sm-4 col-6">
+                    <div class="category-item">
+                        <h2 class="title">
+                            <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                                @item.Name
+                            </a>
+                        </h2>
+                        <div class="picture">
+                            <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                                <img class="img-fluid" alt="@item.PictureModel.AlternateText" src="@item.PictureModel.ImageUrl" title="@item.PictureModel.Title" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@*
+@if (Model.Count > 0)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Categories</strong></div>
+        <div class="panel-body">
+            <div class="panel-group" id="accordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p class="panel-title"><i class="fa fa-caret-right"></i>&nbsp;<a href="/computers"> Computers </a></p>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p class="panel-title"><i class="fa fa-caret-right"></i>&nbsp;<a href="/electronics"> Electronics </a></p>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p class="panel-title"><i class="fa fa-caret-right"></i>&nbsp;<a href="/apparel"> Apparel </a></p>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p class="panel-title"><i class="fa fa-caret-right"></i>&nbsp;<a href="/digital-downloads"> Digital downloads </a></p>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p class="panel-title"><i class="fa fa-caret-right"></i>&nbsp;<a href="/books"> Books </a></p>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p class="panel-title"><i class="fa fa-caret-right"></i>&nbsp;<a href="/jewelry"> Jewelry </a></p>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p class="panel-title"><i class="fa fa-caret-right"></i>&nbsp;<a href="/gift-cards"> Gift Cards </a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}*@
