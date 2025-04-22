@@ -918,6 +918,23 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 
 
 /* FOOTER SECTION STYLE */
+.footer-kivio {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
+.footer-kivio a{
+    color: #007aff;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+.footer-kivio a:hover {
+	text-decoration: underline;
+}
+
 .change-device {
     clear: both;
     text-align: right;
@@ -1123,6 +1140,7 @@ input[type="file"]:focus, input[type="checkbox"]:focus, input[type="radio"]:focu
 
     .footer-lower .poweredby, .footer-designedby {
         color: #fff;
+        font-size: 9px;
     }
 
 .footer-middle .payment-method ul li {

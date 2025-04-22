@@ -200,6 +200,22 @@ input[type=checkbox], input[type=radio] {margin: 4px 2px 0 0;}
 
 
 /* FOOTER SECTION STYLE */
+.footer-kivio {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
+.footer-kivio a{
+    color: #007aff;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+.footer-kivio a:hover {
+	text-decoration: underline;
+}
 .change-device{clear:both;text-align:right;}
 .designedby{text-align:right;}
 .footer-store-theme{text-align:center;}
@@ -236,7 +252,7 @@ input[type=checkbox], input[type=radio] {margin: 4px 2px 0 0;}
 .footer-lower{padding:20px 0px;background:#222;color:#fff;}
 .footer-lower a{color:var(--red);}
 .footer-lower a:hover{color:#fff;}
-.footer-lower .poweredby,.footer-designedby{color:#999999;}
+.footer-lower .poweredby,.footer-designedby{color:#999999; font-size: 9px;}
 .footer-lower .payment-method ul li{background:url(../images/payment-method.png) no-repeat left center;float:left;width:55px;height:30px;}
 .footer-lower .payment-method ul .payment-method2{background-position:-55px center;}
 .footer-lower .payment-method ul .payment-method3{background-position:-110px center;}

@@ -1203,6 +1203,23 @@ body:not(.is-loaded):after { background-image: url("../images/loading.gif");back
   color: #969696
 }
 
+.footer-kivio {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ddd;
+  margin: 0;
+}
+
+.footer-kivio a{
+  color: #007aff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+}
+
+.footer-kivio a:hover {
+text-decoration: underline;
+}
+
 .footer-upper {
   width: 100%;
   margin: auto;
@@ -1392,7 +1409,6 @@ body:not(.is-loaded):after { background-image: url("../images/loading.gif");back
 
 .theme-selector {
   margin: 10px 0 0;
-  display:none;
 }
 
   .theme-selector select {

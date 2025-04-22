@@ -429,6 +429,23 @@ ul.sub-menu {
 *******Footer CSS******
 **************************/
 
+.footer-kivio {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
+.footer-kivio a{
+    color: #007aff;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+.footer-kivio a:hover {
+	text-decoration: underline;
+}
+
 #footer {
     background: #F0F0E9;
 }
