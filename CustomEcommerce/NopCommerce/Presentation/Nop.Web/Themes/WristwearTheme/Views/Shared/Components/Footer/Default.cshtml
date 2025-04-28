@@ -5,6 +5,9 @@
 @using Nop.Core.Domain.Topics
 
 @inject IWorkContext workContext
+@{
+    var kivioLink = T("Footer.KivioLink").ToString() ?? "https://www.kivio.com.co/";
+}
 <div class="footer">
     <div class="footer-upper">
         <div class="container">
@@ -144,6 +147,12 @@
         <div class="container">
             <div class="row">
                 <div class="col-xs-12 col-sm-5 col-md-5">
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="designedby pull-right">
+                            <div class="footer-theme-credit"><a href="http://themes.nopaccelerate.com/themes/wristwear-nopcommerce-theme/" target="_blank" title="Responsive Wristwear Theme for nopCommerce">Wristwear Theme</a></div>
+                            <div class="footer-designedby">Theme by <a target="_blank" href="http://www.nopaccelerate.com/">nopAccelerate</a></div>
+                        </div>
+                    </div>
                     <div class="footer-information">
                         @if (Model.DisplayTaxShippingInfoFooter)
                         {
@@ -168,11 +177,10 @@
                 <div class="col-xs-12 col-sm-3 col-md-3 footer-store-theme">
                     @await Component.InvokeAsync(typeof(StoreThemeSelectorViewComponent))
                 </div>
-                <div class="col-xs-12 col-sm-4 col-md-4">
-                    <div class="designedby pull-right">
-                        <div class="footer-theme-credit"><a href="http://themes.nopaccelerate.com/themes/wristwear-nopcommerce-theme/" target="_blank" title="Responsive Wristwear Theme for nopCommerce">Wristwear Theme</a></div>
-                        <div class="footer-designedby">Theme by <a target="_blank" href="http://www.nopaccelerate.com/">nopAccelerate</a></div>
-                    </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 text-right">
+                    <h2 class="footer-kivio">
+                        Powered by <a href="@kivioLink" target="_blank">Kivio</a>
+                    </h2>
                 </div>
             </div>
         </div>

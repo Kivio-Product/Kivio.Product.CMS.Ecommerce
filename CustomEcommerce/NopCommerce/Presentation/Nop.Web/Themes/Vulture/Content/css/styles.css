@@ -1281,7 +1281,7 @@ label, label + * {
   margin: auto;
   overflow: hidden;
   padding: 20px 0;
-  font-size: 12px;
+  font-size: 18px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1301,6 +1301,7 @@ label, label + * {
 
 .footer-powered-by {
     width: 20%;
+    font-size: 9px;
 }
 
 .vult-footer-selector {

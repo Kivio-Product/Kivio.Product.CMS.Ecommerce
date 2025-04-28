@@ -1008,7 +1008,22 @@ label, label + * {
 
 
 /*********** FOOTER ***********/
+.footer-kivio {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ddd;
+  margin: 0;
+}
 
+.footer-kivio a{
+  color: #007aff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+}
+
+.footer-kivio a:hover {
+text-decoration: underline;
+}
 
 .footer {
   background-color: #102C5A;
@@ -1249,8 +1264,8 @@ label, label + * {
 }
 .footer-powered-by {
   float: left;
-  margin: 0;
-  font-size: 14px;
+  margin: 10px !important;
+  font-size: 9px;
   font-weight: 600;
   color: #fff;
 }

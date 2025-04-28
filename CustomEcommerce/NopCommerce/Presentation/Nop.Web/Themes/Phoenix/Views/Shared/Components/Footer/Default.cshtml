@@ -8,6 +8,9 @@
 @inject IWorkContext workContext
 @inject IStoreContext _storeContext
 @inject ISettingService _settingService
+@{
+    var kivioLink = T("Footer.KivioLink").ToString() ?? "https://www.kivio.com.co/";
+}
 
 <div class="footer">
     <div class="px_footer_upper">
@@ -137,6 +140,11 @@
         </div>
         <div class="footer-lower">
             <div class="footer-info">
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 text-right">
+                    <h2 class="footer-kivio">
+                        Powered by <a href="@kivioLink" target="_blank">Kivio</a>
+                    </h2>
+                </div>
                 <span class="footer-disclaimer">@T("Content.CopyrightNotice", DateTime.Now.Year, Model.StoreName)</span>
                 @if (Model.DisplayTaxShippingInfoFooter)
                 {

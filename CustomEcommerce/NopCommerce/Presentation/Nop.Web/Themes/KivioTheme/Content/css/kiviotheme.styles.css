@@ -3734,6 +3734,7 @@ select + .product-span {
 }
 .theme-selector select {
     padding: 0 30px 0 15px;
+    margin-left: 30%;
 }
 .footer .payment-icons div {
     display: inline-block;
