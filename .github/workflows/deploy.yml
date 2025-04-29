@@ -113,7 +113,8 @@ jobs:
           SERVICE_NAME: KivioCMS_Ecommerce:${{ env.ENVIRONMENT }}
           RUN_DEPLOY_COMMAND: ${{ vars.KIVIO_ECOMMERCE_RUN_DEPLOY_COMMAND_BASE }}
           DOTNET_PATH: ${{ vars.KIVIO_ECOMMERCE_DOTNET_PATH }}
+          PM2_PATH: ${{ vars.KIVIO_ECOMMERCE_PM2_PATH }}
         run: |
           ssh -o StrictHostKeyChecking=no $SSH_USER@$EC2_HOST " 
-            $RUN_DEPLOY_COMMAND --app_name $APP_NAME --env $ENV --app_base_dir $APP_BASE_DIR --compressed_file $BINARIES_PATH/$COMPRESSED_FILE --service_name $SERVICE_NAME --dotnet_path $DOTNET_PATH
+            $RUN_DEPLOY_COMMAND --app_name $APP_NAME --env $ENV --app_base_dir $APP_BASE_DIR --compressed_file $BINARIES_PATH/$COMPRESSED_FILE --service_name $SERVICE_NAME --dotnet_path $DOTNET_PATH --pm2_path $PM2_PATH
           "
