@@ -8,6 +8,10 @@ using Nop.Services.Localization;
 using Nop.Services.Orders;
 using Nop.Services.Payments;
 using Nop.Services.Plugins;
+using Nop.Services.Customers;
+using Nop.Services.Common;
+using Nop.Services.Catalog;
+using Nop.Services.Directory;
 
 namespace Nop.Plugin.Payments.CashOnDelivery;
 
@@ -24,6 +28,12 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
     private readonly ISettingService _settingService;
     private readonly IShoppingCartService _shoppingCartService;
     private readonly IWebHelper _webHelper;
+    private readonly IOrderService _orderService;
+    private readonly ICustomerService _customerService;
+    private readonly IAddressService _addressService;
+    private readonly IProductService _productService;
+    private readonly IStateProvinceService _stateProvinceService;
+    private readonly ICountryService _countryService;
 
     #endregion
 
@@ -34,7 +44,13 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
         IOrderTotalCalculationService orderTotalCalculationService,
         ISettingService settingService,
         IShoppingCartService shoppingCartService,
-        IWebHelper webHelper)
+        IWebHelper webHelper,
+        IOrderService orderService,
+        ICustomerService customerService,
+        IAddressService addressService,
+        IProductService productService,
+        IStateProvinceService stateProvinceService,
+        ICountryService countryService)
     {
         _cashOnDeliveryPaymentSettings = cashOnDeliveryPaymentSettings;
         _localizationService = localizationService;
@@ -42,6 +58,12 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
         _settingService = settingService;
         _shoppingCartService = shoppingCartService;
         _webHelper = webHelper;
+        _orderService = orderService;
+        _customerService = customerService;
+        _addressService = addressService;
+        _productService = productService;
+        _stateProvinceService = stateProvinceService;
+        _countryService = countryService;
     }
 
     #endregion
@@ -62,10 +84,56 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
     /// Post process payment (used by payment gateways that require redirecting to a third-party URL)
     /// </summary>
     /// <param name="postProcessPaymentRequest">Payment info required for an order processing</param>
-    public Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
+    public async Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
     {
-        //nothing
-        return Task.CompletedTask;
+        var order = await _orderService.GetOrderByIdAsync(postProcessPaymentRequest.Order.Id);
+        if (order == null)
+            return;
+
+        var customer = await _customerService.GetCustomerByIdAsync(order.CustomerId);
+        if (customer == null)
+            return;
+
+        var billingAddress = await _addressService.GetAddressByIdAsync(order.BillingAddressId);
+        var shippingAddress = order.ShippingAddressId.HasValue 
+            ? await _addressService.GetAddressByIdAsync(order.ShippingAddressId.Value) 
+            : billingAddress;
+
+        var message = $"Hola, soy {customer.FirstName} {customer.LastName} y quiero confirmar mi pedido.\n\n" +
+                     $"Referencia del pedido: {order.CustomOrderNumber}\n" +
+                     $"Productos:\n";
+
+        var orderItems = await _orderService.GetOrderItemsAsync(order.Id);
+        foreach (var item in orderItems)
+        {
+            var product = await _productService.GetProductByIdAsync(item.ProductId);
+            message += $"- {product.Name} x {item.Quantity}\n";
+        }
+
+        var stateProvince = shippingAddress.StateProvinceId.HasValue 
+            ? await _stateProvinceService.GetStateProvinceByIdAsync(shippingAddress.StateProvinceId.Value) 
+            : null;
+        var country = shippingAddress.CountryId.HasValue 
+            ? await _countryService.GetCountryByIdAsync(shippingAddress.CountryId.Value) 
+            : null;
+
+        message += $"\nDirección de envío:\n" +
+                  $"{shippingAddress.FirstName} {shippingAddress.LastName}\n" +
+                  $"{shippingAddress.Address1}\n" +
+                  $"{shippingAddress.City}, {stateProvince?.Name} {shippingAddress.ZipPostalCode}\n" +
+                  $"{country?.Name}\n" +
+                  $"Teléfono: {shippingAddress.PhoneNumber}\n\n" +
+                  $"Total del pedido: {order.OrderTotal:C}";
+
+        var whatsappNumber = _cashOnDeliveryPaymentSettings.WhatsAppNumber?.TrimStart('+');
+        var whatsappUrl = $"https://wa.me/{whatsappNumber}?text={Uri.EscapeDataString(message)}";
+
+        // Redirigir al cliente a WhatsApp
+        await Task.Run(() => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = whatsappUrl,
+            UseShellExecute = true
+        }));
     }
 
     /// <summary>
@@ -175,7 +243,8 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
         var settings = new CashOnDeliveryPaymentSettings
         {
             DescriptionText = "<p>In cases where an order is placed, an authorized representative will contact you, personally or over telephone, to confirm the order.<br />After the order is confirmed, it will be processed.<br />Orders once confirmed, cannot be cancelled.</p><p>P.S. You can edit this text from admin panel.</p>",
-            SkipPaymentInfo = false
+            SkipPaymentInfo = false,
+            WhatsAppNumber = "+1234567890" // Número de WhatsApp por defecto
         };
 
         await _settingService.SaveSettingAsync(settings);
@@ -193,7 +262,9 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
             ["Plugins.Payment.CashOnDelivery.ShippableProductRequired.Hint"] = "An option indicating whether shippable products are required in order to display this payment method during checkout.",
             ["Plugins.Payment.CashOnDelivery.PaymentMethodDescription"] = "Pay by \"Cash on delivery\"",
             ["Plugins.Payment.CashOnDelivery.SkipPaymentInfo"] = "Skip payment information page",
-            ["Plugins.Payment.CashOnDelivery.SkipPaymentInfo.Hint"] = "An option indicating whether we should display a payment information page for this plugin."
+            ["Plugins.Payment.CashOnDelivery.SkipPaymentInfo.Hint"] = "An option indicating whether we should display a payment information page for this plugin.",
+            ["Plugins.Payment.CashOnDelivery.WhatsAppNumber"] = "WhatsApp Number",
+            ["Plugins.Payment.CashOnDelivery.WhatsAppNumber.Hint"] = "Enter the WhatsApp number where customers will be redirected to confirm their order."
         });
 
         await base.InstallAsync();

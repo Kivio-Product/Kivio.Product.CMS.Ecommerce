@@ -31,4 +31,9 @@ public class CashOnDeliveryPaymentSettings : ISettings
     /// Gets a value indicating whether we should display a payment information page for this plugin
     /// </summary>
     public virtual bool SkipPaymentInfo { get; set; }
+
+    /// <summary>
+    /// Gets or sets the WhatsApp number for order confirmation
+    /// </summary>
+    public string WhatsAppNumber { get; set; }
 }
