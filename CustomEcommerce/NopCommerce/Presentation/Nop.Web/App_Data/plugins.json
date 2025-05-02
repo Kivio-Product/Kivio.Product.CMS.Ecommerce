@@ -26,6 +26,10 @@
     {
       "SystemName": "Widgets.Swiper",
       "Version": "4.80.1"
+    },
+    {
+      "SystemName": "Nop.Plugin.Api",
+      "Version": "4.8.0"
     }
   ],
   "PluginNamesToUninstall": [],
