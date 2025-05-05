@@ -35,5 +35,5 @@ public class CashOnDeliveryPaymentSettings : ISettings
     /// <summary>
     /// Gets or sets the WhatsApp number for order confirmation
     /// </summary>
-    public string WhatsAppNumber { get; set; }
+    public virtual string WhatsAppNumber { get; set; }
 }

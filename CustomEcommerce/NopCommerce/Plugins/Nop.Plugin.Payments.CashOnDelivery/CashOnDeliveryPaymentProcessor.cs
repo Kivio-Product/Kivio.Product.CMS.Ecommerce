@@ -99,15 +99,17 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
             ? await _addressService.GetAddressByIdAsync(order.ShippingAddressId.Value) 
             : billingAddress;
 
-        var message = $"Hola, soy {customer.FirstName} {customer.LastName} y quiero confirmar mi pedido.\n\n" +
-                     $"Referencia del pedido: {order.CustomOrderNumber}\n" +
-                     $"Productos:\n";
+        var message = $"¡Hola! Soy {customer.FirstName} {customer.LastName} y quiero confirmar mi pedido.\n\n" +
+                     $"*Detalles del Pedido*\n" +
+                     $"Referencia: {order.CustomOrderNumber}\n" +
+                     $"Fecha: {order.CreatedOnUtc:dd/MM/yyyy HH:mm}\n\n" +
+                     $"*Productos:*\n";
 
         var orderItems = await _orderService.GetOrderItemsAsync(order.Id);
         foreach (var item in orderItems)
         {
             var product = await _productService.GetProductByIdAsync(item.ProductId);
-            message += $"- {product.Name} x {item.Quantity}\n";
+            message += $"• {product.Name} x {item.Quantity} - {item.PriceInclTax:C}\n";
         }
 
         var stateProvince = shippingAddress.StateProvinceId.HasValue 
@@ -117,15 +119,24 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
             ? await _countryService.GetCountryByIdAsync(shippingAddress.CountryId.Value) 
             : null;
 
-        message += $"\nDirección de envío:\n" +
+        message += $"\n*Dirección de Envío:*\n" +
                   $"{shippingAddress.FirstName} {shippingAddress.LastName}\n" +
                   $"{shippingAddress.Address1}\n" +
                   $"{shippingAddress.City}, {stateProvince?.Name} {shippingAddress.ZipPostalCode}\n" +
                   $"{country?.Name}\n" +
                   $"Teléfono: {shippingAddress.PhoneNumber}\n\n" +
-                  $"Total del pedido: {order.OrderTotal:C}";
+                  $"*Resumen de Pago:*\n" +
+                  $"Subtotal: {order.OrderSubtotalInclTax:C}\n" +
+                  $"Envío: {order.OrderShippingInclTax:C}\n" +
+                  $"Total: {order.OrderTotal:C}\n\n" +
+                  $"Por favor, confirma mi pedido y avísame cuando esté listo para envío. ¡Gracias!";
 
         var whatsappNumber = _cashOnDeliveryPaymentSettings.WhatsAppNumber?.TrimStart('+');
+        if (string.IsNullOrEmpty(whatsappNumber))
+        {
+            throw new NopException("El número de WhatsApp no está configurado. Por favor, configure el número en la configuración del plugin.");
+        }
+
         var whatsappUrl = $"https://wa.me/{whatsappNumber}?text={Uri.EscapeDataString(message)}";
 
         // Redirigir al cliente a WhatsApp
@@ -341,6 +352,11 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
     /// Gets a value indicating whether we should display a payment information page for this plugin
     /// </summary>
     public bool SkipPaymentInfo => _cashOnDeliveryPaymentSettings.SkipPaymentInfo;
+
+    /// <summary>
+    /// Gets a whatsapp number
+    /// </summary>
+    public string WhatsAppNumber => _cashOnDeliveryPaymentSettings.WhatsAppNumber;
 
     #endregion
 }
