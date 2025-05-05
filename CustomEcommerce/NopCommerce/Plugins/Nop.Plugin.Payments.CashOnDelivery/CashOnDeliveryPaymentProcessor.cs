@@ -34,6 +34,7 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
     private readonly IProductService _productService;
     private readonly IStateProvinceService _stateProvinceService;
     private readonly ICountryService _countryService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     #endregion
 
@@ -50,7 +51,8 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
         IAddressService addressService,
         IProductService productService,
         IStateProvinceService stateProvinceService,
-        ICountryService countryService)
+        ICountryService countryService,
+        IHttpContextAccessor httpContextAccessor)
     {
         _cashOnDeliveryPaymentSettings = cashOnDeliveryPaymentSettings;
         _localizationService = localizationService;
@@ -64,6 +66,7 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
         _productService = productService;
         _stateProvinceService = stateProvinceService;
         _countryService = countryService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     #endregion
@@ -100,7 +103,7 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
             : billingAddress;
 
         var message = $"¡Hola! Soy {customer.FirstName} {customer.LastName} y quiero confirmar mi pedido.\n\n" +
-                     $"*Detalles del Pedido*\n" +
+                     $"*Detalles del Pedido contraentrega*\n" +
                      $"Referencia: {order.CustomOrderNumber}\n" +
                      $"Fecha: {order.CreatedOnUtc:dd/MM/yyyy HH:mm}\n\n" +
                      $"*Productos:*\n";
@@ -129,22 +132,24 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
                   $"Subtotal: {order.OrderSubtotalInclTax:C}\n" +
                   $"Envío: {order.OrderShippingInclTax:C}\n" +
                   $"Total: {order.OrderTotal:C}\n\n" +
-                  $"Por favor, confirma mi pedido y avísame cuando esté listo para envío. ¡Gracias!";
+                  $"Por favor, confirma mi pedido contraentrega y avísame cuando esté listo para envío. ¡Gracias!";
 
         var whatsappNumber = _cashOnDeliveryPaymentSettings.WhatsAppNumber?.TrimStart('+');
         if (string.IsNullOrEmpty(whatsappNumber))
         {
-            throw new NopException("El número de WhatsApp no está configurado. Por favor, configure el número en la configuración del plugin.");
+            return;
         }
 
         var whatsappUrl = $"https://wa.me/{whatsappNumber}?text={Uri.EscapeDataString(message)}";
 
-        // Redirigir al cliente a WhatsApp
-        await Task.Run(() => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext != null)
         {
-            FileName = whatsappUrl,
-            UseShellExecute = true
-        }));
+            httpContext.Response.Clear();
+            httpContext.Response.ContentType = "text/html";
+            var scriptRedirect = $"<script>window.location.href='{whatsappUrl}';</script>";
+            await httpContext.Response.WriteAsync(scriptRedirect);
+        }
     }
 
     /// <summary>
@@ -271,7 +276,7 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
             ["Plugins.Payment.CashOnDelivery.AdditionalFeePercentage.Hint"] = "Determines whether to apply a percentage additional fee to the order total. If not enabled, a fixed value is used.",
             ["Plugins.Payment.CashOnDelivery.ShippableProductRequired"] = "Shippable product required",
             ["Plugins.Payment.CashOnDelivery.ShippableProductRequired.Hint"] = "An option indicating whether shippable products are required in order to display this payment method during checkout.",
-            ["Plugins.Payment.CashOnDelivery.PaymentMethodDescription"] = "Pay by \"Cash on delivery\"",
+            ["Plugins.Payment.CashOnDelivery.PaymentMethodDescription"] = "Será redireccionado a Whatsapp para completar el pedido",
             ["Plugins.Payment.CashOnDelivery.SkipPaymentInfo"] = "Skip payment information page",
             ["Plugins.Payment.CashOnDelivery.SkipPaymentInfo.Hint"] = "An option indicating whether we should display a payment information page for this plugin.",
             ["Plugins.Payment.CashOnDelivery.WhatsAppNumber"] = "WhatsApp Number",
@@ -346,7 +351,7 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
     /// <summary>
     /// Gets a payment method type
     /// </summary>
-    public PaymentMethodType PaymentMethodType => PaymentMethodType.Standard;
+    public PaymentMethodType PaymentMethodType => PaymentMethodType.Redirection;
 
     /// <summary>
     /// Gets a value indicating whether we should display a payment information page for this plugin

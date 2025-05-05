@@ -33,6 +33,7 @@
         private Mock<IStateProvinceService> _mockStateProvinceService;
         private Mock<ICountryService> _mockCountryService;
         private CashOnDeliveryPaymentProcessor _paymentProcessor;
+        private Mock<IHttpContextAccessor>  _mockHttpContextAccessor;
 
         [SetUp]
         public void Setup()
@@ -50,6 +51,7 @@
             _mockProductService = new Mock<IProductService>();
             _mockStateProvinceService = new Mock<IStateProvinceService>();
             _mockCountryService = new Mock<ICountryService>();
+            _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
 
             // Create an instance of the class under test
             _paymentProcessor = new CashOnDeliveryPaymentProcessor(
@@ -64,7 +66,8 @@
                 _mockAddressService.Object,
                 _mockProductService.Object,
                 _mockStateProvinceService.Object,
-                _mockCountryService.Object
+                _mockCountryService.Object,
+                _mockHttpContextAccessor.Object
             );
         }
 
