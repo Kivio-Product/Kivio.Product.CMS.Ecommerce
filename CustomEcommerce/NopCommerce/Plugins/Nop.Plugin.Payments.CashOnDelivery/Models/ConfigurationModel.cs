@@ -38,4 +38,9 @@ public record ConfigurationModel : BaseNopModel, ILocalizedModel<ConfigurationLo
     public bool SkipPaymentInfo { get; set; }
 
     public bool SkipPaymentInfo_OverrideForStore { get; set; }
+
+    [NopResourceDisplayName("Plugins.Payment.CashOnDelivery.WhatsAppNumber")]
+    public string WhatsAppNumber { get; set; }
+
+    public bool WhatsAppNumber_OverrideForStore { get; set; }
 }
