@@ -105,7 +105,6 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
         var message = $"¡Hola! Soy {customer.FirstName} {customer.LastName} y quiero confirmar mi pedido.\n\n" +
                      $"*Detalles del Pedido contraentrega*\n" +
                      $"Referencia: {order.CustomOrderNumber}\n" +
-                     $"Fecha: {order.CreatedOnUtc:dd/MM/yyyy HH:mm}\n\n" +
                      $"*Productos:*\n";
 
         var orderItems = await _orderService.GetOrderItemsAsync(order.Id);
