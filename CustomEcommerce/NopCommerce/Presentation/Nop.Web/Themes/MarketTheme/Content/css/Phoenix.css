@@ -96,10 +96,10 @@
   border: none;
 }
 .header-selectors-wrapper > div > select {
-  color: #000000;
   text-align-last: right;
   font-size: 12px;
   cursor: pointer;
+  font-weight: 600;
 }
 .header-selectors-wrapper > div > select > option{
     color: #000;
@@ -143,13 +143,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #102C5A;
-  color: #fff;
+  background: #ffffff;
+  color: #000000;
   font-size: 25px;
   border-radius: 10px;
   cursor: pointer;
   position: absolute;
-  right: 5px;
+  left: 10px;
   z-index: 9;
   border: 0;
   top: 50%;
@@ -266,6 +266,7 @@ ul.login-list li :hover{
 }
 .header-links ul li a{
   position: relative;
+  margin-top: 14px
 }
 .header-links ul li .login-list > li,
 .header-links ul li .login-list > li > a {

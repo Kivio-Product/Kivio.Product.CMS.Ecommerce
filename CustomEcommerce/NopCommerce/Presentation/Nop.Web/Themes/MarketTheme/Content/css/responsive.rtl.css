@@ -1160,7 +1160,7 @@
   }
   .header-lower,
   .header-selectors-wrapper {
-    justify-content: space-between;
+    justify-content: center;
   }
   .px-header-mobile-logo .px-logo-menuicon-mobile {
     justify-content: center;
@@ -1902,12 +1902,6 @@
         width: calc(33.33% - 30px);
         margin: 0 15px 30px;
     }
-}
-
-@media all and (min-width: 1001px ) and (max-width: 1199px) {
-  .header .search-box {
-    width: calc(100% - 400px );
-  }
 }
 
 @media all and (max-width: 1024px) and (min-width: 769px) {

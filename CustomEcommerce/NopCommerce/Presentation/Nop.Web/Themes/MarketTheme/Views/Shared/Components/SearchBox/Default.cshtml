@@ -7,12 +7,12 @@
 <form asp-route="ProductSearch" method="get" id="small-search-box-form">
     @if (Model.ShowSearchBox)
     {
-        <input type="text" class="search-box-text" id="small-searchterms" autocomplete="off" name="q" placeholder="@T("search.searchbox.tooltip")" aria-label="@T("Theme.Phoenix.Search.SearchBox.Text.Label")" />
-        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.SearchBoxBeforeSearchButton, additionalData = Model })
-
         <button type="submit" class="search-box-button">
             <span class="pi-search"></span>
         </button>
+
+        <input type="text" class="search-box-text" id="small-searchterms" autocomplete="off" name="q" placeholder="@T("search.searchbox.tooltip")" aria-label="@T("Theme.Phoenix.Search.SearchBox.Text.Label")" />
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.SearchBoxBeforeSearchButton, additionalData = Model })
 
         @if (Model.SearchTermMinimumLength > 0)
         {

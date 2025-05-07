@@ -8,6 +8,7 @@
         @if (Model.IsAuthenticated)
             {
                 <li><a href="@Url.RouteUrl("CustomerInfo")" class="ico-account login-list-item">@T("Account.MyAccount")</a></li>
+                <span class="header-plica-separator">|</span>
                 <li><a href="@Url.RouteUrl("Logout")" class="ico-logout login-list-item">@T("Account.Logout")</a></li>
             }
         else
@@ -19,6 +20,7 @@
                 @if (Model.RegistrationType != UserRegistrationType.Disabled)
                 {
                     <li><a href="@Url.RouteUrl("Register", new { returnUrl })" class="ico-register login-list-item">@T("Account.Register")</a></li>
+                    <span class="header-plica-separator">|</span>
                     <li><a href="@Url.RouteUrl("Login", new { returnUrl })" class="ico-login login-list-item">@T("Account.Login")</a>                                </li>
                 }
             }

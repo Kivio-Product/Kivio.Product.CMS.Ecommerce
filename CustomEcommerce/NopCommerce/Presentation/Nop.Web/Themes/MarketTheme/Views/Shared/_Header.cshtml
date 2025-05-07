@@ -26,6 +26,7 @@
                 @await Component.InvokeAsync(typeof(TaxTypeSelectorViewComponent))
                 @await Component.InvokeAsync(typeof(CurrencySelectorViewComponent))
                 @await Component.InvokeAsync(typeof(LanguageSelectorViewComponent))
+                <span class="header-plica-separator">|</span>
                 @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderSelectors })
                 @await Component.InvokeAsync(typeof(HeaderLinksViewComponent))
             </div>
@@ -33,47 +34,19 @@
     </div>
 </div>
 
-<div class="px-header-mobile-logo">
-    <div class="px-logo-menuicon-mobile">
+<div class="header sticky">
+    <div class="header-lower">
         <div class="header-logo">
             @await Component.InvokeAsync(typeof(LogoViewComponent))
         </div>
-    </div>
-</div>
-<div class="header sticky px-header-mobile">
-    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderBefore })
-    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderMiddle })
-    <div class="header-lower">
-        <div class="px-logo-menuicon-mobile">
-            <div class="pi-hemberg hemberg-menu-desktop" style="cursor:pointer" onclick="openNav()"></div>
-            <div class="header-logo px-header-logo-desktop">
-                @await Component.InvokeAsync(typeof(LogoViewComponent))
-            </div>
+        
+        <div class="search-box store-search-box px_search-desktop">
+            @await Component.InvokeAsync(typeof(SearchBoxViewComponent))
         </div>
-
-        <div class="px-serch-hederlink-mobile">
-            <div class="px-serch-hederlink-mobile-sub">
-                <div class="px_search-mobile"><span class="pi-search"></span></div>
-                <div class="search-box store-search-box px_search-desktop">
-                    @await Component.InvokeAsync(typeof(SearchBoxViewComponent))
-                </div>
-                <div class="px-my-Account">
-                    <div class="px_cart_overlay"></div>
-                    @await Component.InvokeAsync(typeof(FlyoutShoppingCartViewComponent))
-                </div>
-            </div>
-        </div>
-
-        <div class="header-links">
-            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderLinksBefore, additionalData = Model })
+        <div class="header-links header-links-icons">
             <ul>
-                <li id="topcartlink" class="px-cart-mobile">
+                <li>
                     <a href="@Url.RouteUrl("ShoppingCart")" class="pi-px-shopping-cart">
-                        <span class="cart-qty px-unread-qty">@T("ShoppingCart.HeaderQuantity", ShoppingCartItems)</span>
-                    </a>
-                </li>
-                <li id="topcartlink" class="px-cart-desktop">
-                    <a href="javascript:void(0)" class="pi-px-shopping-cart">
                         <span class="cart-qty px-unread-qty">@T("ShoppingCart.HeaderQuantity", ShoppingCartItems)</span>
                     </a>
                 </li>
@@ -85,7 +58,11 @@
                     </a>
                 </li>
             </ul>
-            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderLinksAfter, additionalData = Model })
+        </div>
+    </div>
+    <div class="header-lower header-lower-mobile">
+        <div class="search-box store-search-box px_search-desktop">
+            @await Component.InvokeAsync(typeof(SearchBoxViewComponent))
         </div>
     </div>
 </div>
