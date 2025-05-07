@@ -81,7 +81,7 @@ body {
   max-width: 100%;
   overflow-x: hidden;
   background-color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #777;
 }
 h1, h2, h3, h4, h5, h6 {
@@ -107,7 +107,7 @@ textarea, select {
   border: 1px solid #ddd;
   padding: 8px;
   vertical-align: middle;
-  font: 400 16px 'Poppins', sans-serif;
+  font: 400 16px 'Inter', sans-serif;
   outline: 0 !important;
 }
   input[type="text"]:focus,
@@ -120,7 +120,7 @@ textarea, select {
   }
 .input, textarea, select , button {
   font-size: 16px;
-  font-family: 'Poppins', sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
   color: #777;
 }
 .input, textarea {
@@ -322,7 +322,7 @@ label, label + * {
   max-width: 100%;
   min-height: 40px;
   background-color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 .inputs.custom-attributes {
   white-space: inherit;
@@ -659,7 +659,7 @@ label, label + * {
   /*override jQuery UI styles, do not delete doubled properties*/
   border-radius: 0;
   padding: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 .ui-dialog:before {
   content: "";
@@ -902,7 +902,6 @@ label, label + * {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
   border-bottom: 1px solid #E0D2D2;
   padding-top: 5px !important;
   padding-bottom: 5px !important;
@@ -945,7 +944,7 @@ label, label + * {
   margin: 0 -1px 0 0;
   height: 50px;
   padding: 10px 60px 10px 20px;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 .header .search-box input.search-box-text:focus{
     outline: 1px solid #000 !important;
@@ -972,7 +971,7 @@ label, label + * {
   /*override jQuery UI styles, do not delete doubled properties*/
   border-radius: 0;
   padding: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 .ui-autocomplete li {
   border-top: 1px solid #ddd;
@@ -1017,7 +1016,7 @@ label, label + * {
 
 .footer-kivio a{
   color: #007aff;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 500;
 }
 
@@ -1163,7 +1162,7 @@ text-decoration: underline;
   border-radius: 10px;
   border: 0;
   font-size: 16px;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 .newsletter-email input[type="email"]::placeholder {
   color: #aaa;
@@ -2635,7 +2634,7 @@ button.email-a-friend-button:hover{
   border: none;
   border-radius: 0;
   padding: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #777;
 }
 .ui-datepicker-header {
@@ -5784,7 +5783,7 @@ button.email-a-friend-button:hover{
   border-radius: 0;
   background: none;
   padding: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #777;
 }
 .ui-widget.ui-widget-content.ui-tabs {
@@ -5909,7 +5908,7 @@ button.email-a-friend-button:hover{
   /*override jQuery UI styles, do not delete doubled properties*/
   line-height: normal;
   font-size: 14px;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #777;
 }
 .profile-info-box .user-details {
@@ -6053,7 +6052,7 @@ pre {
 }
 .order-summary-content .px_total .ui-accordion {
   border: 1px solid #E0D2D2;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 .order-summary-content .px_total .ui-accordion h3 .title{
   margin: 0;

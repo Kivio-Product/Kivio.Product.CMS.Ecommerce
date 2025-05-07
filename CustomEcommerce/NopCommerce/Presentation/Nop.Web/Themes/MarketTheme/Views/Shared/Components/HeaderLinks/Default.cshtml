@@ -7,23 +7,8 @@
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderLinksBefore, additionalData = Model })
         @if (Model.IsAuthenticated)
             {
-            <li>
-                <ul class="nav-content-list">
-                    <li class="nav-content-item account-login">
-                        <span class="pi-user-6"></span>
-                        <h4 class="login-text">
-                            <div class="account-option">
-                                @T("Theme.Phoenix.Hello") <strong>@Model.CustomerName</strong>
-                            </div>
-                        </h4>
-                        <ul class="login-list">                      
-                            <li><a href="@Url.RouteUrl("CustomerInfo")" class="ico-account login-list-item">@T("Account.MyAccount")</a></li>
-                            <li><a href="@Url.RouteUrl("Logout")" class="ico-logout login-list-item">@T("Account.Logout")</a></li>
-                        </ul>
-                    </li>
-
-                </ul>
-            </li>
+                <li><a href="@Url.RouteUrl("CustomerInfo")" class="ico-account login-list-item">@T("Account.MyAccount")</a></li>
+                <li><a href="@Url.RouteUrl("Logout")" class="ico-logout login-list-item">@T("Account.Logout")</a></li>
             }
         else
             {
@@ -33,24 +18,8 @@
 
                 @if (Model.RegistrationType != UserRegistrationType.Disabled)
                 {
-                    <li>
-
-                         <ul class="nav-content-list">
-                             <li class="nav-content-item account-login">
-                                 <span class="pi-user-6"></span>
-                                 <h4 class="login-text">
-                                     <div class="account-option">
-                                         @T("Theme.Phoenix.Hello"), <strong>@T("Theme.Phoenix.Create.Account")</strong>
-                                     </div>
-                                 </h4>
-                                 <ul class="login-list">
-                                     <li><a href="@Url.RouteUrl("Register", new { returnUrl })" class="ico-register login-list-item">@T("Account.Register")</a></li>
-                                     <li><a href="@Url.RouteUrl("Login", new { returnUrl })" class="ico-login login-list-item">@T("Account.Login")</a>                                </li>
-                                 </ul>
-                             </li>
-                          </ul>
-                    </li>
-                    
+                    <li><a href="@Url.RouteUrl("Register", new { returnUrl })" class="ico-register login-list-item">@T("Account.Register")</a></li>
+                    <li><a href="@Url.RouteUrl("Login", new { returnUrl })" class="ico-login login-list-item">@T("Account.Login")</a>                                </li>
                 }
             }
         @if (Model.AllowPrivateMessages)
@@ -60,30 +29,6 @@
                 <a href="@Url.RouteUrl("PrivateMessages", new { tab = "" })" class="pi-mail-2">
                     
                     <span class="inbox-unread px-unread-qty">@totalMessageText</span>
-                </a>
-            </li>
-         }
-        @if (Model.WishlistEnabled)
-         {
-            <li>
-                <a href="@Url.RouteUrl("Wishlist")" class="pi-heart">
-                    <span class="wishlist-qty px-unread-qty">@T("Wishlist.HeaderQuantity", Model.WishlistItems)</span>
-                </a>
-            </li>
-          }
-        @if (Model.ShoppingCartEnabled)
-          {
-            <li id="topcartlink" class="px-cart-desktop">
-                <a href="javascript:void(0)" class="pi-px-shopping-cart">
-                    <span class="cart-qty px-unread-qty">@T("ShoppingCart.HeaderQuantity", Model.ShoppingCartItems)</span>
-                </a>
-            </li>
-         }
-        @if (Model.ShoppingCartEnabled)
-          {
-            <li id="topcartlink" class="px-cart-mobile">
-                <a href="@Url.RouteUrl("ShoppingCart")" class="pi-px-shopping-cart">
-                    <span class="cart-qty px-unread-qty">@T("ShoppingCart.HeaderQuantity", Model.ShoppingCartItems)</span>
                 </a>
             </li>
          }

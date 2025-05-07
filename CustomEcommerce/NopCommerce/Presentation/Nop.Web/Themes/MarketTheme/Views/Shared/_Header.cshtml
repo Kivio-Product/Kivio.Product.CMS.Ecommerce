@@ -1,4 +1,24 @@
-﻿<div class="topbar">
+﻿@using Nop.Core
+@using Nop.Core.Domain.Orders
+@using Nop.Services.Customers
+@using Nop.Services.Orders
+@using Nop.Services.Stores
+@inject IShoppingCartService _shoppingCartService
+@inject IWorkContext _workContext
+@inject IStoreContext _storeContext
+
+@{
+    var customer = await _workContext.GetCurrentCustomerAsync();
+    var store = await _storeContext.GetCurrentStoreAsync();
+    
+    var ShoppingCartItems = (await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id))
+                    .Sum(item => item.Quantity);
+
+    var WishlistItems = (await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.Wishlist, store.Id))
+                    .Sum(item => item.Quantity);
+}
+
+<div class="topbar">
     <div class="header-upper">        
           @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = "phoenix_theme_header_text" })
         <div class="topmenu-right">
@@ -7,6 +27,7 @@
                 @await Component.InvokeAsync(typeof(CurrencySelectorViewComponent))
                 @await Component.InvokeAsync(typeof(LanguageSelectorViewComponent))
                 @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderSelectors })
+                @await Component.InvokeAsync(typeof(HeaderLinksViewComponent))
             </div>
         </div>
     </div>
@@ -37,20 +58,36 @@
                     @await Component.InvokeAsync(typeof(SearchBoxViewComponent))
                 </div>
                 <div class="px-my-Account">
-                    @await Component.InvokeAsync(typeof(HeaderLinksViewComponent))
                     <div class="px_cart_overlay"></div>
                     @await Component.InvokeAsync(typeof(FlyoutShoppingCartViewComponent))
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="header-navbar">
-        <div class="header-menu">
-            @await Component.InvokeAsync(typeof(TopMenuViewComponent))
+        <div class="header-links">
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderLinksBefore, additionalData = Model })
+            <ul>
+                <li id="topcartlink" class="px-cart-mobile">
+                    <a href="@Url.RouteUrl("ShoppingCart")" class="pi-px-shopping-cart">
+                        <span class="cart-qty px-unread-qty">@T("ShoppingCart.HeaderQuantity", ShoppingCartItems)</span>
+                    </a>
+                </li>
+                <li id="topcartlink" class="px-cart-desktop">
+                    <a href="javascript:void(0)" class="pi-px-shopping-cart">
+                        <span class="cart-qty px-unread-qty">@T("ShoppingCart.HeaderQuantity", ShoppingCartItems)</span>
+                    </a>
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <a href="@Url.RouteUrl("Wishlist")" class="pi-heart">
+                        <span class="wishlist-qty px-unread-qty">@T("Wishlist.HeaderQuantity", WishlistItems)</span>
+                    </a>
+                </li>
+            </ul>
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderLinksAfter, additionalData = Model })
         </div>
     </div>
-    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderAfter })
 </div>
 
 <script asp-location="Footer">

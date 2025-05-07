@@ -80,7 +80,7 @@ body {
   max-width: 100%;
   overflow-x: hidden;
   background-color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #777;
 }
 h1, h2, h3, h4, h5, h6 {
@@ -106,7 +106,7 @@ textarea, select {
   border: 1px solid #ddd;
   padding: 8px;
   vertical-align: middle;
-  font: 400 16px 'Poppins', sans-serif;
+  font: 400 16px 'Inter', sans-serif;
   outline: 0 !important;
 }
 input[type="text"]:focus,
@@ -119,7 +119,7 @@ select:focus {
 }
 .input, textarea, select, button {
   font-size: 16px;
-  font-family: 'Poppins', sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
   color: #777;
 }
 .input, textarea {
@@ -321,7 +321,7 @@ label, label + * {
   max-width: 100%;
   min-height: 40px;
   background-color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 .inputs.custom-attributes {
   white-space: inherit;
@@ -661,7 +661,7 @@ label, label + * {
   /*override jQuery UI styles, do not delete doubled properties*/
   border-radius: 0;
   padding: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 .ui-dialog:before {
   content: "";
@@ -951,7 +951,7 @@ profile-page .ui-widget.ui-widget-content,
   margin: 0 -1px 0 0;
   height: 50px;
   padding: 10px 20px 10px 60px;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 .header .search-box input.search-box-text:focus {
   outline: 1px solid #000 !important;
@@ -978,7 +978,7 @@ profile-page .ui-widget.ui-widget-content,
   /*override jQuery UI styles, do not delete doubled properties*/
   border-radius: 0;
   padding: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 .ui-autocomplete li {
   border-top: 1px solid #ddd;
@@ -1154,7 +1154,7 @@ profile-page .ui-widget.ui-widget-content,
   border-radius: 10px;
   border: 0;
   font-size: 16px;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 .newsletter-email input[type="email"]::placeholder {
   color: #aaa;
@@ -2664,7 +2664,7 @@ profile-page .ui-widget.ui-widget-content,
   border: none;
   border-radius: 0;
   padding: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #777;
 }
 .ui-datepicker-header {
@@ -5821,7 +5821,7 @@ profile-page .ui-widget.ui-widget-content,
   border-radius: 0;
   background: none;
   padding: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #777;
 }
 .ui-widget.ui-widget-content.ui-tabs {
@@ -5946,7 +5946,7 @@ profile-page .ui-widget.ui-widget-content,
   /*override jQuery UI styles, do not delete doubled properties*/
   line-height: normal;
   font-size: 14px;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #777;
 }
 .profile-info-box .user-details {
@@ -6093,7 +6093,7 @@ pre {
 }
 .order-summary-content .px_total .ui-accordion {
   border: 1px solid #E0D2D2;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 .order-summary-content .px_total .ui-accordion h3 .title {
   margin: 0;
