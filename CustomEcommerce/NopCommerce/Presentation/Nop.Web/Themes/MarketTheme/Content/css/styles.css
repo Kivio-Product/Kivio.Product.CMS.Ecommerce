@@ -933,8 +933,8 @@ label, label + * {
 .header-links.header-links-icons {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  min-width: 220px;
+  justify-content: center;
+  min-width: 70px;
 }
 .header-links.header-links-icons ul {
   display: flex;
@@ -942,6 +942,7 @@ label, label + * {
   gap: 18px;
   margin: 0;
   padding: 0;
+  margin-right: 20px;
 }
 .header-links.header-links-icons li {
   list-style: none;
@@ -949,7 +950,6 @@ label, label + * {
   padding: 0;
 }
 .header-links.header-links-icons a {
-  color: #222;
   font-size: 22px;
   position: relative;
   padding: 0 6px;
@@ -991,7 +991,7 @@ label, label + * {
 .header .search-box input.search-box-text {
   width: 100%;
   margin: 0 -1px 0 0;
-  height: 50px;
+  height: 40px;
   padding: 10px 60px 10px 50px;
   font-family: 'Inter', sans-serif;
 }
@@ -1734,7 +1734,6 @@ text-decoration: underline;
   text-align: left;
   transition: all 0.3s;
   background: #fff;
-  border: 1px solid #E0D2D2;
   border-radius: 5px;
   overflow: hidden;
 }
@@ -1759,6 +1758,7 @@ text-decoration: underline;
   top: 0;
   right: 0;
   bottom: 0;
+  padding: 20px;
   left: 0;
   max-width: 100%;
   max-height: 100%;
@@ -1934,10 +1934,8 @@ text-decoration: underline;
 .home-page-category-grid .title,
 .sub-category-grid .title {
   text-align: center;
-  font-size: 22px;
+  font-size: 15px;
   font-weight: normal;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
 }
 .home-page-category-grid .title a,
 .sub-category-grid .title a {
@@ -7340,6 +7338,7 @@ a.ui-button:active, .ui-button:active,
   }
   .flyout-cart.slideright.active {      
     transform: none;  
+    display: block;
   }
   .mini-shopping-cart .count {
     padding: 5px 20px 15px;
@@ -7912,4 +7911,33 @@ a.ui-button:active, .ui-button:active,
 
 .header-plica-separator{
   color:#D5D7DA;
+}
+
+.category-name{
+  font-size: 12px;
+  font-weight: inherit;
+  margin: 0 0 0px;
+}
+
+.category-name-wrapper{
+  margin: 0 0 0px;
+  /*centering*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.home-page-category-grid{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.home-page-category-grid .px_category_slider{
+  width: 100%;
+  max-width: 1050px;
+  margin: 0 auto;
+  text-align: center;
 }

@@ -38,9 +38,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.pi-px-shopping-cart:before {
-  content: "\e99b";
-  font-size: 25px;
+.pi-px-shopping-cart {
+  background: url('../images/cart-icon.png') center no-repeat;
+  width: 25px;
+  height: 25px;
 }
 .pi-reply-message:before {
   content: "\e999";

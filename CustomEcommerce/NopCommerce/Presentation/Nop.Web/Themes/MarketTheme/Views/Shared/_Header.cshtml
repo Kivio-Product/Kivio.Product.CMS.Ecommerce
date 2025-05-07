@@ -46,7 +46,7 @@
         <div class="header-links header-links-icons">
             <ul>
                 <li>
-                    <a href="@Url.RouteUrl("ShoppingCart")" class="pi-px-shopping-cart">
+                    <a href="javascript:void(0);" class="pi-px-shopping-cart" id="topcartlink">
                         <span class="cart-qty px-unread-qty">@T("ShoppingCart.HeaderQuantity", ShoppingCartItems)</span>
                     </a>
                 </li>
@@ -59,6 +59,8 @@
                 </li>
             </ul>
         </div>
+        <div class="px_cart_overlay"></div>
+        @await Component.InvokeAsync(typeof(FlyoutShoppingCartViewComponent))
     </div>
     <div class="header-lower header-lower-mobile">
         <div class="search-box store-search-box px_search-desktop">

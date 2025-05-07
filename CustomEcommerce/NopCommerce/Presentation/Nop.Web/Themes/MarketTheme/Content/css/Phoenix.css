@@ -139,7 +139,7 @@
 }
 .header .search-box .search-box-button {
   width: 40px;
-  height: 40px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -290,7 +290,7 @@ ul.login-list li :hover{
   margin: 0 !important;
 }
 .section-padding{
-  padding: 50px 0;
+  padding: 30px 0;
 }
 .category-grid {
   width: 100%;
@@ -328,32 +328,7 @@ ul.login-list li :hover{
   border-radius: 0;
   border: 0;
 }
-.px_category:hover .px_category_hover,
-.px_manufacturer:hover .px_category_hover {
-  top: 20px;
-  left: 20px;
-  right: 20px;
-  bottom: 20px;
-  visibility: visible;
-}
-.px_category_hover {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255,255,255,0.4);
-  opacity: 1;
-  visibility: hidden;
-  z-index: 11;
-  transition: all 0.3s;
-}
-.px_category:hover .category-item h2 a,
-.px_category:hover .sub-category-item h2 a,
-.px_manufacturer:hover .manufacturer-item h2 a {
-  background-color: transparent !important;
-  color: #102C5A !important;
-}
+
 .item-box:hover .category-item h2,
 .item-box:hover .sub-category-item h2,
 .item-box:hover .manufacturer-item h2 {
