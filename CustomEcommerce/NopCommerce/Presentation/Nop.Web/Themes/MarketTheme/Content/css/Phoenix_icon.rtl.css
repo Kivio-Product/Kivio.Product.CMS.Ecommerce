@@ -66,7 +66,7 @@
   content: "\e993";
   font-size: 30px;
   font-weight: 600;
-  color: #102c5a;
+  color: #7A37F0;
 }
 .pi-cancel:before {
   content: "\e994";
@@ -218,13 +218,13 @@
 .pi-gift-card:before {
   content: "\e95a";
   font-size: 120px;
-  color: #102c5a;
+  color: #7A37F0;
   opacity: .3;
 }
 .pi-discount:before {
   content: "\e95b";
   font-size: 120px;
-  color: #102c5a;
+  color: #7A37F0;
   opacity: .3;
 }
 .pi-shopping .path1:before {
@@ -615,14 +615,14 @@
   height: 50px;
   line-height: 50px;
   text-align: center;
-  background-color: #102C5A;
+  background-color: #7A37F0;
   color: #fff;
   z-index: 9;
   opacity: 1;
 }
 .pi-caret-down:before {
   content: "\e920";
-  color: #102c5a;
+  color: #7A37F0;
   font-size: 12px;
 }
 .pi-check:before {

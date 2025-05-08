@@ -2,7 +2,7 @@
  * PHOENIX THEME 1.3.0|| nopCypher *
  * Copyright 2021 NOPCYPHER.COM      *
  ************************************/
-/*-------background-color:#102c5a---*/
+/*-------background-color:#7A37F0---*/
 
 .topbar,
 .header-links ul li a span.px-unread-qty,
@@ -77,7 +77,7 @@ button.button-2.apply-gift-card-coupon-code-button:hover,
 .manufacturer-item h2 a {
   background-color: #7286D3;
 }
-/*-------background-color:#102c5a !important-------*/
+/*-------background-color:#7A37F0 !important-------*/
 
 .swal2-styled.swal2-confirm,
 .swal2-styled.swal2-cancel,
@@ -86,7 +86,7 @@ button.mfp-close,
 button.mfp-arrow {
   background-color: #7286D3 !important;
 }
-/*--------responsive background-color:#102c5a-------*/
+/*--------responsive background-color:#7A37F0-------*/
 
 @media all and (max-width: 1000px) {
   #mySidenav,
@@ -108,7 +108,7 @@ button.mfp-arrow {
     background-color: #7286D3;
   }
 }
-/*--------border-color:#102c5a-------*/
+/*--------border-color:#7A37F0-------*/
 
 .circle--outer,
 .block .tags li,
@@ -131,7 +131,7 @@ html .ui-button.ui-state-disabled:hover,
 html .ui-button.ui-state-disabled:active {
   border-color: #7286D3;
 }
-/*--------border-color:#102c5a !important------- */
+/*--------border-color:#7A37F0 !important------- */
 
 .ui-state-hover,
 .ui-widget-content .ui-state-hover,
@@ -144,23 +144,23 @@ html .ui-button.ui-state-disabled:active {
 .px_loginpage-register .buttons button:hover {
   border-color: #7286D3 !important;
 }
-/*--------border-active-color:#102c5a-------*/
+/*--------border-active-color:#7A37F0-------*/
 
 .checkbox {
   --border-active: #7286D3;
 }
-/*--------border-bottom-color:#102c5a-------*/
+/*--------border-bottom-color:#7A37F0-------*/
 
 .px-my-Account ul li > ul.login-list,
 .skltbs-tab-group .skltbs-tab-item .skltbs-tab.skltbs-active {
   border-bottom-color: #7286D3;
 }
-/*--------outline-color:#102c5a-------*/
+/*--------outline-color:#7A37F0-------*/
 
 .ui-datepicker-calendar .ui-state-active {
   outline-color: #7286D3;
 }
-/*--------color:#102c5a-------*/
+/*--------color:#7A37F0-------*/
 
 .section-head h2,
 .section-head h1,
@@ -352,7 +352,7 @@ button#check-availability-button:hover,
 .pi-hemberg:before {
   color: #7286D3;
 }
-/*-------color:#102c5a !important---*/
+/*-------color:#7A37F0 !important---*/
 
 .ui-datepicker-calendar .ui-state-active,
 .address-list-page .button-2:hover,
@@ -366,7 +366,7 @@ button#check-availability-button:hover,
 .px_manufacturer:hover .manufacturer-item h2 a {
   color: #7286D3 !important;
 }
-/*-------color:#102c5a !important---*/
+/*-------color:#7A37F0 !important---*/
 
 @media all and (max-width: 1000px) {
   .header .search-box span.pi-search {

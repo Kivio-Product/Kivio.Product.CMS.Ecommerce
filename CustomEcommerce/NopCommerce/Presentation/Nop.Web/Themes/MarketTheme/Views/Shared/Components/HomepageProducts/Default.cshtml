@@ -5,8 +5,26 @@
 {
     <div class="section-padding section-bg product-grid home-page-product-grid">
         <div class="section-width">
-            <div class="section-head title">
-                <h2>@T("Homepage.Products")</h2>
+            <div class="flash-sale-container">
+                <div class="flash-sale-info">
+                    <div class="flash-icon"></div>
+                    <h2 class="flash-title">Ofertas Flash</h2>
+                    <div class="timer-section">
+                        <span class="timer-label">Termina en</span>
+                        <div class="countdown-timer">
+                            <span class="time-segment" id="hours">00</span>
+                            <span class="separator">:</span>
+                            <span class="time-segment" id="minutes">00</span>
+                            <span class="separator">:</span>
+                            <span class="time-segment" id="seconds">00</span>
+                        </div>
+                    </div>
+                    <div class="decorative-arrow"></div>
+                </div>
+                <a href="#" class="view-all-button">
+                    Ver todo
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </a>
             </div>
             <div class="item-grid px_featured owl-carousel">
                 @foreach (var item in Model)
@@ -48,4 +66,59 @@
             }
         }
     });
+
+    function startCountdown() {
+            const hoursElement = document.getElementById('hours');
+            const minutesElement = document.getElementById('minutes');
+            const secondsElement = document.getElementById('seconds');
+
+            // Colombia es UTC-5. 6 PM son las 18:00 horas.
+            const targetHourCOL = 18;
+            const targetMinuteCOL = 0;
+            const targetSecondCOL = 0;
+
+            function updateTimer() {
+                const now = new Date();
+                
+                // Crear la fecha objetivo en UTC para hoy
+                let targetDate = new Date(Date.UTC(
+                    now.getUTCFullYear(),
+                    now.getUTCMonth(),
+                    now.getUTCDate(),
+                    targetHourCOL + 5, // Sumamos 5 para convertir 18:00 COL a UTC (18+5=23 UTC)
+                    targetMinuteCOL,
+                    targetSecondCOL
+                ));
+
+                // Si la hora actual (en UTC) ya pasó la hora objetivo de hoy (en UTC)
+                // entonces el objetivo es mañana a las 6 PM COL
+                if (now.getTime() > targetDate.getTime()) {
+                    targetDate.setUTCDate(targetDate.getUTCDate() + 1);
+                }
+
+                const diff = targetDate.getTime() - now.getTime();
+
+                if (diff <= 0) {
+                    hoursElement.textContent = '00';
+                    minutesElement.textContent = '00';
+                    secondsElement.textContent = '00';
+                    return;
+                }
+
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                hoursElement.textContent = String(hours).padStart(2, '0');
+                minutesElement.textContent = String(minutes).padStart(2, '0');
+                secondsElement.textContent = String(seconds).padStart(2, '0');
+            }
+
+            updateTimer(); 
+            setInterval(updateTimer, 1000); 
+        }
+
+        if (document.getElementById('hours') && document.getElementById('minutes') && document.getElementById('seconds')) {
+            document.addEventListener('DOMContentLoaded', startCountdown);
+        }
 </script>
