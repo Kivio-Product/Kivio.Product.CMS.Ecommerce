@@ -7,8 +7,8 @@
         <div class="section-width">
             <div class="flash-sale-container">
                 <div class="flash-sale-info">
-                    <div class="flash-icon"></div>
-                    <h2 class="flash-title">Ofertas Flash</h2>
+                    <div class="flash-icon"><div class="flash-icon-image"></div></div>
+                    <h2 class="flash-title">@T("HomePageProducts.Title")</h2>
                     <div class="timer-section">
                         <span class="timer-label">Termina en</span>
                         <div class="countdown-timer">
@@ -19,10 +19,12 @@
                             <span class="time-segment" id="seconds">00</span>
                         </div>
                     </div>
-                    <div class="decorative-arrow"></div>
+                    <div class="decorative-arrow">
+                        <div class="decorative-arrow-image"></div>
+                    </div>
                 </div>
                 <a href="#" class="view-all-button">
-                    Ver todo
+                    @T("HomePageProducts.Button.ViewAll")
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </a>
             </div>

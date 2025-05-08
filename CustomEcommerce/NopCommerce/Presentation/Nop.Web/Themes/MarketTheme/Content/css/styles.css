@@ -7970,12 +7970,11 @@ a.ui-button:active, .ui-button:active,
 
 /* FLASH SALE CONTAINER */
 .flash-sale-container {
-padding: 10px 10px;
+padding: 25px 10px;
 display: flex;
 justify-content: space-between;
 align-items: center;
 width: 100%;
-box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
 box-sizing: border-box;
 }
 
@@ -7988,14 +7987,18 @@ position: relative; /* Para la flecha decorativa */
 
 .flash-sale-container .flash-icon {
 background-color: #6f42c1;
-background-image: url('../images/flash-icon.png') center no-repeat;
 border-radius: 50%;
 width: 40px;
 height: 40px;
 display: flex;
 justify-content: center;
-
 align-items: center;
+}
+
+.flash-sale-container .flash-icon-image{
+  background: url('../images/flash-icon.png') center no-repeat;
+  width: 100%;
+  height: 100%;
 }
 
 
@@ -8003,7 +8006,7 @@ align-items: center;
 font-size: 22px;
 font-weight: bold;
 color: #333;
-margin: 0; /* Resetea el margen por defecto de h2 */
+margin: 0;
 }
 
 .flash-sale-container .timer-section {
@@ -8011,6 +8014,7 @@ display: flex;
 align-items: center;
 gap: 8px; /* Espacio entre "Termina en" y los números */
 margin-left: 15px;
+flex-direction: column;
 }
 
 .flash-sale-container .timer-label {
@@ -8047,15 +8051,19 @@ color: #333;
 }
 
 .flash-sale-container .decorative-arrow {
-background-image: url('../images/Hand-drawn\ arrow.png');
-position: absolute;
-left: calc(100% + 5px); 
-top: 25px; 
-width: 40px; 
-height: auto;
-stroke: #333; 
-stroke-width: 1.5;
-fill: none;
+  transform: translateY(40%);
+  width: 80px; 
+  height: 80px; 
+  display: flex; 
+  justify-content: center;
+  align-items: center;
+}
+
+.flash-sale-container .decorative-arrow-image {
+  background: url('../images/Hand-drawn arrow.png') center no-repeat;
+  width: 100%; 
+  height: 100%; 
+  display: block; 
 }
 
 .flash-sale-container .view-all-button {
@@ -8102,7 +8110,7 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
     width: 100%; /* Para que ocupe el ancho y el contador no se desborde tanto */
     justify-content: flex-start; /* Alinea el contador a la izquierda */
 }
-  .flash-sale-container .decorative-arrow svg {
+  .flash-sale-container .decorative-arrow {
     display: none; /* Ocultar la flecha en móvil */
 }
 .flash-sale-container .view-all-button {

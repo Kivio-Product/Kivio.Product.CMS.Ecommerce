@@ -316,7 +316,7 @@
     margin-bottom: 0;
   }
   .section-padding {
-    padding: 70px 0;
+    padding-top: 20px;
   }
   .section-head h2,
   .section-head h1 {
@@ -540,7 +540,7 @@
     right: 15px;
   }
   .section-padding {
-    padding: 60px 0;
+    padding-top: 20px;
   }
   .section-head h2,
   .section-head h1,
@@ -908,7 +908,7 @@
       max-width: 100%;
   }
   .section-padding {
-    padding: 50px 0;
+    padding-top: 20px;
   }
   .item-box .product-title,
   .footer-block .title strong {
@@ -1160,7 +1160,7 @@
     margin: 0;
   }
   .section-padding {
-    padding: 40px 0;
+    padding-top: 20px;
   }
   .section-head h2,
   .section-head h1 {
@@ -1340,7 +1340,7 @@
     max-width: max-content;
   }
   .section-padding {
-    padding: 30px 0;
+    padding-top: 20px;
   }
   .section-head h2,
   .section-head h1 {
