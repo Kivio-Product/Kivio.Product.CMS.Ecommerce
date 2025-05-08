@@ -1209,10 +1209,8 @@ text-decoration: underline;
   overflow: visible;
 }
 .newsletter-email input[type="email"] {
-  float: left;
-  min-width: 410px;
-  height: auto;
-  padding: 12px 150px 12px 20px;
+  max-width: 280px;
+  height: 44px;
   border-radius: 10px;
   border: 0;
   font-size: 16px;
@@ -1222,24 +1220,21 @@ text-decoration: underline;
   color: #aaa;
 }
 .newsletter-subscribe-button {
-  float: left;
   height: auto;
   border: none;
-  background-color: #102C5A;
+  background-color: #FDC243;
   padding: 0 15px;
   text-align: center;
   color: #fff;
-  text-transform: uppercase;
 }
 .newsletter-email .newsletter-subscribe-button {
-  position: absolute;
   right: 8px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 16px;
   font-weight: 500;
-  min-width: 120px;
-  height: 35px;
+  min-width: 124px;
+  height: 40px;
   padding: 0;
   z-index: 9;
   min-height: auto;
@@ -7959,4 +7954,15 @@ a.ui-button:active, .ui-button:active,
   min-width: 550px;
   max-width: 600px;
   margin: auto;
+}
+
+.newsletter-subscribe .newsletter-subscribe-title {
+  font-size: 24px;
+  color: black;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.newsletter-subscribe .newsletter-subscribe-text {
+  font-size: 18px;
 }
