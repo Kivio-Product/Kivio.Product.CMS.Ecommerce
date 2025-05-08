@@ -32,10 +32,6 @@
                     {
                         <li><a href="@Url.RouteUrl("Sitemapss")">@T("Sitemap")</a></li>
                     }
-                    @foreach (var topic in Model.Topics.Where(x => x.IncludeInFooterColumn1).ToList())
-                    {
-                        <li><a href="@(Url.RouteUrl<Topic>(new { SeName = topic.SeName }))">@topic.Name</a></li>
-                    }
                     @if (Model.DisplayContactUsFooterItem)
                     {
                         <li><a href="@Url.RouteUrl("ContactUs")">@T("ContactUs")</a></li>

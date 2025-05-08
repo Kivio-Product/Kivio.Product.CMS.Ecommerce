@@ -7358,7 +7358,7 @@ a.ui-button:active, .ui-button:active,
     float: left;
     width: 40%;
     margin: 0;
-    text-align: center;
+    padding-left: 50px;
   }
   .footer-block .social li {
     margin: 0 10px 0 0;
@@ -7632,6 +7632,10 @@ a.ui-button:active, .ui-button:active,
   .forum-table td {
     padding: 20px;
   }  
+  
+  .px_footer_upper{
+    display: inline;
+  }
 }
 
 @media all and (min-width: 1367px) {
@@ -8000,14 +8004,14 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 }
 
 .footer .footer-block {
-  flex-basis: 200px; /* Default basis for link columns */
+  flex-basis: 10%; /* Default basis for link columns */
   flex-grow: 1;
   line-height: 10px;
 }
 
 /* Logo and Follow Us Block */
 .footer .footer-block.follow-us {
-  flex-basis: 250px; /* More space for logo and text */
+  flex-basis: 40%; /* More space for logo and text */
   flex-grow: 1.5; /* Allow it to take a bit more space */
 }
 
@@ -8073,13 +8077,6 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
   display: inline-block; /* To allow padding and vertical alignment */
   line-height: 1; /* Adjust for better vertical centering of text */
 }
-/* Example: if your blog link is specifically identifiable */
-/* .footer .footer-block ul.list li a[href*="/blog"] + .new-badge { ... } */
-/* Or if the text "Blog" is followed by the badge */
-.footer .footer-block ul.list li a: Poner aqui la logica para el badge {
-/* Suponiendo que el modelo tiene una propiedad para identificar "Blog New" */
-}
-
 
 /* Lower Footer Section */
 .footer .footer-lower .footer-info {
@@ -8147,7 +8144,7 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 
 @media (max-width: 767px) { /* Small devices (tablets in portrait, phones in landscape) */
   .footer {
-      padding: 30px 0;
+      padding: 0px 30px;
       text-align: left; /* Align text to left on mobile */
   }
 
