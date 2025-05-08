@@ -1073,132 +1073,6 @@ label, label + * {
 text-decoration: underline;
 }
 
-.footer {
-  background-color: #ffffff;
-  text-align: center;
-  position: relative;
-  z-index: 9;
-  color:Gray;
-}
-
-.footer .strong{
-  color:gray;
-}
-.footer-upper {
-  width: 100%;
-  display: flex;
-  vertical-align: top;
-  overflow: hidden;
-  font-size: 0;
-  border-bottom: 1px solid #fff;
-  padding: 0 0 80px 0;
-}
-.footer-block {
-  width: 15%;
-  display: inline-block;
-  float: left;
-  padding: 0 15px;
-  text-align: left;
-  font-size: 14px; /*reset zeroing*/
-}
-.footer-block .title {
-  margin: 0 0 1px;
-  background: #CAD2DF url('../images/toggle-white.png') right center no-repeat;
-  padding: 10px 15px;
-  cursor: pointer;
-}
-.footer-block .title strong {
-  font-size: 20px;
-  font-weight: 700;
-  color: gray;
-  padding: 0 0 10px 0;
-  border-bottom: 1px solid hsla(0,0%,100%,.1);
-  position: relative;
-}
-.footer-block .title strong:before {
-  content: '';
-  position: absolute;
-  width: 50px;
-  height: 1px;
-  left: 0;
-  background: gray;
-  bottom: -1px;
-}
-.footer-block .list {
-  display: none;
-  margin: 0 0 20px;
-  background-color: #f4f4f4;
-  padding: 10px 15px;
-}
-.footer-block .list a {
-  display: block;
-  padding: 10px 15px;
-  font-size: 16px;
-  color: gray;
-  transition: all 0.3s;
-}
-.footer-block .list a:hover,
-.footer-block .list a:focus {
-  color: gray;
-}
-.follow-us {
-  margin: 30px auto 0;
-  text-align: center;
-}
-.follow-us .title {
-  margin: 0 0 10px;
-  background: none;
-  color: #444;
-  cursor: auto;
-}
-.footer-block .social ul {
-  margin: 5px 0;
-  display: flex;
-  flex-wrap: wrap;
-}
-.footer-block .social li {
-  display: inline-block;
-  margin: 0 5px;
-}
-.footer-block .social a {
-  display: block;
-  width: 38px;
-  height: 38px;
-  background: url('../images/social-sprite.png') no-repeat;
-  background-size: cover;
-  font-size: 0;
-}
-.footer-block .social .facebook a {
-  background-position: 0 0;
-}
-.footer-block .social .twitter a {
-  background-position: -38px 0;
-}
-.footer-block .social .rss a {
-  background-position: -76px 0;
-}
-.footer-block .social .youtube a {
-  background-position: -114px 0;
-}
-.follow-us .social .google-plus a {
-  background-position: -152px 0;
-}
-.footer-block .social .pintrest a {
-    background-image: url('../images/pinterest.png');
-    background-size: 38px;
-}
-.footer-block .social .vimeo a {
-    background-image: url('../images/vimeo.png');
-    background-size: 38px;
-}
-.footer-block .social .instagram a {
-    background-image: url('../images/instagram.png');
-    background-size: 38px;
-}
-.footer-block .social .linkedin a {
-    background-image: url('../images/linkedin.png');
-    background-size: 38px;
-}
 .newsletter-email {
   display: inline-block;
   overflow: hidden;
@@ -1278,58 +1152,7 @@ text-decoration: underline;
 /*.newsletter-validation .please-wait {
 	display: none !important; 
 }*/
-.footer-lower {
-  width: 100%;
-  display: inline-block;
-  vertical-align: top;
-  overflow: hidden;
-  padding: 25px 0;
-  font-size: 12px;
-}
-.footer-tax-shipping a {
-  font-weight: bold;
-  color: #CAD2DF;
-}
-.footer-tax-shipping a:hover,
-.footer-tax-shipping a:focus {
-  text-decoration: underline;
-}
-.footer-powered-by {
-  margin: 10px 0 0;
-}
-.footer-powered-by a {
-  font-weight: 600;
-  color: #CAD2DF;
-}
-.footer-powered-by a:hover,
-.footer-powered-by a:focus {
-  text-decoration: underline;
-}
-.footer-info {
-  float: right;
-  font-size: 14px;
-  color: #fff;
-}
-.footer-powered-by {
-  float: left;
-  margin: 10px !important;
-  font-size: 9px;
-  font-weight: 600;
-  color: #fff;
-}
-.footer .newsletter .options span{
-    position: relative;
-}
-.footer .newsletter .options span .circle{
-    top: 0;
-    left: -25px;
-}
-.footer .newsletter .options .circle--outer {
-  border-color: #fff;
-}
-.footer .newsletter .options .circle--inner{
-    background: #fff;
-}
+
 .theme-selector {
   float: left;
   margin: 0 0 0 15px;
@@ -8140,4 +7963,253 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
     /* O reducir su tamaño de fuente */
     font-size: 11px;
 }
+}
+
+/* General Footer Styles */
+.footer {
+  background-color: #f8f9fa; /* Light gray background */
+  padding: 40px 0; /* Vertical padding, horizontal will be handled by inner containers if needed */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  color: #343a40; /* Dark gray text */
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.footer a {
+  color: #343a40;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: #0056b3; /* Or your primary link hover color */
+  text-decoration: underline;
+}
+
+.footer .px_footer_upper,
+.footer .footer-lower {
+  max-width: 1140px; /* Standard container width, adjust as needed */
+  margin: 0 auto;
+  padding: 0 15px; /* Horizontal padding for container content */
+}
+
+/* Upper Footer Section */
+.footer .footer-upper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px; /* Space between blocks */
+  padding-bottom: 30px;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #dee2e6; /* Separator line for desktop */
+}
+
+.footer .footer-block {
+  flex-basis: 200px; /* Default basis for link columns */
+  flex-grow: 1;
+}
+
+/* Logo and Follow Us Block */
+.footer .footer-block.follow-us {
+  flex-basis: 250px; /* More space for logo and text */
+  flex-grow: 1.5; /* Allow it to take a bit more space */
+}
+
+.footer .footer_px_logo img {
+  max-width: 150px; /* Adjust as per your logo size */
+  height: auto;
+  margin-bottom: 10px;
+}
+/* If LogoViewComponent renders text or SVG, you might need to style its contents directly */
+/* e.g. .footer .footer_px_logo .logo-text { font-size: 24px; color: #6f42c1; } */
+
+
+.footer .footer-logo-title {
+  font-size: 0.9rem;
+  color: #6c757d; /* Lighter text color for description */
+  max-width: 280px;
+}
+
+/* Link Columns (Information, Customer Service, My Account) */
+.footer .footer-block .title {
+  margin-bottom: 15px;
+}
+
+.footer .footer-block .title strong {
+  font-size: 1rem; /* 16px */
+  font-weight: 600; /* Semibold */
+  color: #212529; /* Darker title */
+}
+
+.footer .footer-block ul.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer .footer-block ul.list li {
+  margin-bottom: 8px;
+}
+
+.footer .footer-block ul.list li a {
+  font-size: 0.9rem; /* 14.4px */
+  color: #495057;
+}
+
+.footer .footer-block ul.list li a:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* "New" Badge Styling */
+.footer .new-badge {
+  background-color: #20c997; /* Tealish green from design */
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 5px;
+  font-weight: bold;
+  vertical-align: middle;
+  display: inline-block; /* To allow padding and vertical alignment */
+  line-height: 1; /* Adjust for better vertical centering of text */
+}
+/* Example: if your blog link is specifically identifiable */
+/* .footer .footer-block ul.list li a[href*="/blog"] + .new-badge { ... } */
+/* Or if the text "Blog" is followed by the badge */
+.footer .footer-block ul.list li a: Poner aqui la logica para el badge {
+/* Suponiendo que el modelo tiene una propiedad para identificar "Blog New" */
+}
+
+
+/* Lower Footer Section */
+.footer .footer-lower .footer-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens if needed */
+  gap: 15px;
+}
+
+.footer .footer-disclaimer {
+  font-size: 0.85rem; /* 13.6px */
+  color: #6c757d;
+}
+
+.footer .social ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 15px; /* Space between social icons */
+}
+
+.footer .social ul li a img,
+.footer .social ul li a svg { /* If using SVG icons */
+  width: 20px;  /* Adjust size of social icons */
+  height: 20px; /* Adjust size of social icons */
+  opacity: 0.7;
+  transition: opacity 0.2s ease-in-out;
+}
+.footer .social ul li a:hover img,
+.footer .social ul li a:hover svg {
+  opacity: 1;
+}
+/* If social buttons are text/font icons, style them directly */
+/* .footer .social ul li a { font-size: 20px; color: #6c757d; } */
+/* .footer .social ul li a:hover { color: #343a40; } */
+
+
+/* Hiding NopCommerce specific elements not in the design */
+.footer .footer-kivio,
+.footer .footer-tax-shipping,
+.footer .footer-powered-by,
+.footer .store-selector, /* Assuming StoreThemeSelectorViewComponent renders with this class or similar */
+.footer .px-footer-lines {
+  display: none !important;
+}
+
+/* Mobile Styles */
+@media (max-width: 991px) { /* Medium devices and down */
+  .footer .footer-upper {
+      /* Blocks are already flex-wrap: wrap, gap will handle spacing */
+  }
+  .footer .footer-block {
+      flex-basis: calc(50% - 15px); /* Two columns on tablets, accounting for gap */
+  }
+  .footer .footer-block.follow-us {
+      flex-basis: 100%; /* Full width for logo area on tablets */
+  }
+}
+
+@media (max-width: 767px) { /* Small devices (tablets in portrait, phones in landscape) */
+  .footer {
+      padding: 30px 0;
+      text-align: left; /* Align text to left on mobile */
+  }
+
+  .footer .footer-upper {
+      flex-direction: column;
+      align-items: flex-start; /* Align items to the start */
+      border-bottom: none; /* Remove line as per mobile design */
+      margin-bottom: 20px;
+      padding-bottom: 0;
+  }
+
+  .footer .footer-block {
+      flex-basis: 100%; /* Full width for all blocks */
+      width: 100%;
+      margin-bottom: 20px; /* Space between stacked blocks */
+  }
+  .footer .footer-block:last-child {
+      margin-bottom: 0;
+  }
+
+  .footer .footer-block.follow-us .footer_px_logo {
+      margin-bottom: 10px;
+  }
+   .footer .footer_px_logo img {
+      max-width: 120px;
+  }
+
+  .footer .footer-block.follow-us .footer-logo-title {
+      max-width: none; /* Allow full width */
+      font-size: 0.85rem;
+  }
+  
+  .footer .footer-block .title strong {
+      font-size: 1.1rem; /* Slightly larger titles for sections */
+  }
+  .footer .footer-block ul.list li a {
+      font-size: 1rem;
+  }
+
+
+  .footer .footer-lower .footer-info {
+      flex-direction: column-reverse; /* Social icons on top, then copyright */
+      align-items: flex-start; /* Align to left for mobile */
+      gap: 20px; /* Space between social and copyright */
+  }
+
+  .footer .social ul {
+      justify-content: flex-start; /* Align social icons to left */
+      gap: 12px;
+  }
+  .footer .social ul li a img,
+  .footer .social ul li a svg {
+      width: 24px;
+      height: 24px;
+  }
+
+  .footer .footer-disclaimer {
+      font-size: 0.8rem;
+      padding-top: 15px; /* Add some space above copyright if it's below social */
+      border-top: 1px solid #dee2e6; /* Separator line on mobile */
+      width: 100%; /* Make it full width to contain the border properly */
+  }
+}
+
+@media (max-width: 575px) { /* Extra small devices (phones in portrait) */
+  .footer .px_footer_upper,
+  .footer .footer-lower {
+      padding: 0 20px; /* More padding for very small screens */
+  }
 }
