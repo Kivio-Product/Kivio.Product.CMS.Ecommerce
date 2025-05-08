@@ -2556,13 +2556,19 @@ button.checkout-button {
   max-width: 200px;
 }
 .footer_px_logo {
-  display: inline-block;
+  display: flex;
   background: #fff;
   padding: 20px;  
-  justify-content: center;
+  justify-content: left;
   align-items: center;
   border-radius: 10px;
   vertical-align: middle;
+}
+.footer-logo-title{
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  justify-content: left;
 }
 .px-payment img {
     width: 100%;

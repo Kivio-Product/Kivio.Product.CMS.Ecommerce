@@ -1024,7 +1024,7 @@ profile-page .ui-widget.ui-widget-content,
 }
 .footer-upper {
   width: 100%;
-  display: inline-block;
+  display: flex;
   vertical-align: top;
   overflow: hidden;
   font-size: 0;
@@ -7431,7 +7431,6 @@ a.ui-button:active, .ui-button:active,
 
   .footer-upper:after {
     content: "";
-    display: block;
     clear: both;
   }
   .footer-block .list {

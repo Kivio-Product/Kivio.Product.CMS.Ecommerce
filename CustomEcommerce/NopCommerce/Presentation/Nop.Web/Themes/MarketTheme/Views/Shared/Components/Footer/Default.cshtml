@@ -12,9 +12,20 @@
     var kivioLink = T("Footer.KivioLink").ToString() ?? "https://www.kivio.com.co/";
 }
 
+<div class="footer-newsletter">
+    @await Component.InvokeAsync(typeof(NewsletterBoxViewComponent))
+</div>
 <div class="footer">
     <div class="px_footer_upper">
         <div class="footer-upper">
+            <div class="footer-block follow-us">
+                <div class="footer_px_logo">
+                    @await Component.InvokeAsync(typeof(Nop.Web.Components.LogoViewComponent))
+                </div>
+                <div class="footer-logo-title">
+                    <strong>@T("Footer.Logo.Lower.Title")</strong>
+                </div>
+            </div>
             <div class="footer-block information">
                 <div class="title">
                     <strong>@T("Footer.Information")</strong>
@@ -77,13 +88,6 @@
                     }
                 </ul>
             </div>
-            <div class="footer-block follow-us">
-                <div class="footer_px_logo">
-                    @await Component.InvokeAsync(typeof(Nop.Web.Components.LogoViewComponent))
-                </div>
-                @await Component.InvokeAsync(typeof(NewsletterBoxViewComponent))
-
-            </div>
             <div class="footer-block my-account">
                 <div class="title">
                     <strong>@T("Footer.MyAccount")</strong>
@@ -119,24 +123,7 @@
                     }
                 </ul>
             </div>
-            <div class="footer-block my-account">
-                <div class="title">
-                    <strong>@T("Theme.Phoenix.Footer.Followus.title")</strong>
-                </div>
-                <div class="list">
-                    <div class="social">
-                        @await Component.InvokeAsync(typeof(SocialButtonsViewComponent))
-                    </div>
-                </div>
-                <div class="px-payment">
-                    <div class="title">
-                        <strong>@T("Theme.Phoenix.Footer.Payment.Option.title")</strong>
-                    </div>
-                    <div class="list">
-                        <img src="@Url.Content("~/Themes/Phoenix/Content/images/payment.png")" alt="" />
-                    </div>
-                </div>
-            </div>
+            
         </div>
         <div class="footer-lower">
             <div class="footer-info">
@@ -153,6 +140,13 @@
                         @T(inclTax ? "Footer.TaxShipping.InclTax" : "Footer.TaxShipping.ExclTax", Url.RouteTopicUrl("shippinginfo"))
                     </span>
                 }
+                <div class="footer-block my-account">
+                    <div class="list">
+                        <div class="social">
+                            @await Component.InvokeAsync(typeof(SocialButtonsViewComponent))
+                        </div>
+                    </div>
+                </div>
             </div>
          
             @if (!Model.HidePoweredByNopCommerce)
