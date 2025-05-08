@@ -1078,17 +1078,21 @@ text-decoration: underline;
   overflow: hidden;
   position: relative;
   margin: 0 0 6px 0;
+  width: 40%;
 }
 .newsletter-email:focus-within {
   overflow: visible;
 }
 .newsletter-email input[type="email"] {
   max-width: 280px;
+  min-width: 250px;
   height: 44px;
+  margin-right: 20px;
   border-radius: 10px;
   border: 0;
   font-size: 16px;
   font-family: 'Inter', sans-serif;
+  border: #808080 1px solid;
 }
 .newsletter-email input[type="email"]::placeholder {
   color: #aaa;
@@ -1103,14 +1107,10 @@ text-decoration: underline;
 }
 .newsletter-email .newsletter-subscribe-button {
   right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
   font-size: 16px;
   font-weight: 500;
   min-width: 124px;
-  height: 40px;
-  padding: 0;
-  z-index: 9;
+  height: 44px;
   min-height: auto;
   border-radius: 10px;
 }
@@ -7773,14 +7773,13 @@ a.ui-button:active, .ui-button:active,
   min-height: 165px;
   display: flex;
   flex-wrap:wrap;
-  justify-content: center;
   vertical-align: middle;
+  align-content: space-around;
+  padding: 60px;
 }
 
 .newsletter-subscribe .newsletter-subscribe-info{
-  min-width: 550px;
-  max-width: 600px;
-  margin: auto;
+  width: 60%;
 }
 
 .newsletter-subscribe .newsletter-subscribe-title {
@@ -7972,7 +7971,7 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 /* General Footer Styles */
 .footer {
   background-color: #ffffff;
-  padding: 40px 0;
+  padding: 0 0;
   font-size: 14px;
 }
 
@@ -8083,8 +8082,7 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap; /* Allow wrapping on smaller screens if needed */
-  gap: 15px;
+  flex-wrap: wrap;
 }
 
 .footer .footer-disclaimer {
@@ -8117,9 +8115,7 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 
 
 /* Hiding NopCommerce specific elements not in the design */
-.footer .footer-kivio,
 .footer .footer-tax-shipping,
-.footer .footer-powered-by,
 .footer .store-selector, /* Assuming StoreThemeSelectorViewComponent renders with this class or similar */
 .footer .px-footer-lines {
   display: none !important;
@@ -8214,4 +8210,13 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
   .footer .footer-lower {
       padding: 0 20px; /* More padding for very small screens */
   }
+}
+
+.footer-powered-by {
+  font-size: 8px;
+}
+
+.footer-kivio-link{
+  font-size: 18px;
+  font-weight: 600;
 }
