@@ -30,7 +30,7 @@
                 <ul class="list">
                     @if (Model.SitemapEnabled && Model.DisplaySitemapFooterItem)
                     {
-                        <li><a href="@Url.RouteUrl("Sitemap")">@T("Sitemap")</a></li>
+                        <li><a href="@Url.RouteUrl("Sitemapss")">@T("Sitemap")</a></li>
                     }
                     @foreach (var topic in Model.Topics.Where(x => x.IncludeInFooterColumn1).ToList())
                     {
@@ -62,14 +62,6 @@
                     @if (Model.ForumEnabled && Model.DisplayForumsFooterItem)
                     {
                         <li><a href="@Url.RouteUrl("Boards")">@T("Forum.Forums")</a></li>
-                    }
-                    @if (Model.RecentlyViewedProductsEnabled && Model.DisplayRecentlyViewedProductsFooterItem)
-                    {
-                        <li><a href="@Url.RouteUrl("RecentlyViewedProducts")">@T("Products.RecentlyViewedProducts")</a></li>
-                    }
-                    @if (Model.CompareProductsEnabled && Model.DisplayCompareProductsFooterItem)
-                    {
-                        <li><a href="@Url.RouteUrl("CompareProducts")">@T("Products.Compare.List")</a></li>
                     }
                     @if (Model.NewProductsEnabled && Model.DisplayNewProductsFooterItem)
                     {
@@ -109,10 +101,6 @@
                     @if (Model.WishlistEnabled && Model.DisplayWishlistFooterItem)
                     {
                         <li><a href="@Url.RouteUrl("Wishlist")">@T("Wishlist")</a></li>
-                    }
-                    @if (Model.AllowCustomersToApplyForVendorAccount && Model.DisplayApplyVendorAccountFooterItem)
-                    {
-                        <li><a href="@Url.RouteUrl("ApplyVendorAccount")">@T("Vendors.ApplyAccount")</a></li>
                     }
                     @foreach (var topic in Model.Topics.Where(x => x.IncludeInFooterColumn3).ToList())
                     {
