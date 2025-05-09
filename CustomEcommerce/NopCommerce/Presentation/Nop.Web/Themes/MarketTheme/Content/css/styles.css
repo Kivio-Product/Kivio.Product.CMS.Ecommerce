@@ -1563,6 +1563,8 @@ text-decoration: underline;
 .item-box .picture {
   z-index: 1;
   background-color: #fff;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 }
 .item-box .picture a {
   display: block;
@@ -1599,6 +1601,9 @@ text-decoration: underline;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  border-top: 1px solid #e0d2d2;
 }
 .home-page .product-grid .item-box {
   width: calc(33.33% - 30px);
@@ -1680,10 +1685,11 @@ text-decoration: underline;
   text-decoration: line-through;
 }
 .item-box .actual-price {
-  margin: 0 0px 5px 0;
-  font-size: 18px;
+  margin: 20px 0px 25px 0;
+  font-size: 24px;
   color: #000;
   display: inline-block;
+  font-weight: 600;
 }
 .item-box .base-price-pangv {
   margin: 0 0 8px 0;
@@ -1723,6 +1729,8 @@ text-decoration: underline;
 .px_featured .item-box .product-box-add-to-cart-button {
   text-align: center;
   font-size: 16px;
+  width: 100%;
+  height: 100%;
 }
 .px_featured .item-box .add-to-compare-list-button,
 .px_featured .item-box .add-to-wishlist-button {
@@ -8219,4 +8227,10 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 .footer-kivio-link{
   font-size: 18px;
   font-weight: 600;
+}
+
+.desktop-cart-button .add-to-cart-text{
+  font-size: 20px;
+  font-weight: 500;
+  color: #fff;
 }
