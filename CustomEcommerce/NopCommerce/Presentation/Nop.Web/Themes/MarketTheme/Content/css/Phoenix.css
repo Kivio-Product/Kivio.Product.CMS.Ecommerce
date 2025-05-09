@@ -1992,15 +1992,12 @@ input[type="radio"] {
   line-height: 28px;
 }
 .px_mini_shopping_cart_title {
-  padding: 5px 0 5px 20px;
-  border-bottom: 1px solid #E0D2D2;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
 }
 .px_mini_shopping_cart_title h2{
-    font-size: 16px;
-    font-weight: 500;
-    color: #7A37F0;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+  font-size: 20px;
+  font-weight: 600;
 }
 .px_mini_shopping_cart_title span {
   height: 50px;
@@ -2102,7 +2099,7 @@ input[type="radio"] {
 }
 .px_subtotal-main .buttons button.button-1.cart-button.primary-btn {
   max-width: 100%;
-  border-radius: 0;
+  border-radius: 7px;
 }
 .px_subtotal-main .buttons button.button-1.checkout-button.secoendry-btn {
   margin-left: 5px;
@@ -2935,10 +2932,9 @@ button.mfp-close, button.mfp-arrow {
     overflow: unset;
 }
 .product-quantity {
-  min-width: 150px;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
+  gap: 0.1rem;
 }
 
 .nop-slider .slider-img {
