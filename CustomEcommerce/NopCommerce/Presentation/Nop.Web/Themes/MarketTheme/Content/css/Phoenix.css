@@ -2765,6 +2765,10 @@ button.mfp-close, button.mfp-arrow {
     justify-content: center;
     line-height: normal;
 }
+.swipper-wrapper .swiper-pagination-bullet-active {
+    background-color: #FDC243 !important;
+}
+
 .item-box .picture .swiper-pagination .swiper-pagination-bullet-active {
     background-color: #7A37F0 !important;
     opacity: 1 !important;

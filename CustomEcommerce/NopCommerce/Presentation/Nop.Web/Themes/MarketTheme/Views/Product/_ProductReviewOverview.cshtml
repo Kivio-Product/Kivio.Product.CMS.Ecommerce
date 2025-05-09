@@ -16,15 +16,6 @@
                 </div>
             </div>
         </div>
-        @if (Model.TotalReviews > 0)
-        {
-            <div class="product-review-links">
-                <a href="#productreviews">
-                    @Model.TotalReviews
-                    @T("Reviews.Overview.Reviews")
-                </a>                
-            </div>            
-        }
         @if (Model.CanAddNewReview && Model.CanCurrentCustomerLeaveReview)
         {
             <div class="product-review-links add-review @(noReviews ? "product-no-reviews" : "")">

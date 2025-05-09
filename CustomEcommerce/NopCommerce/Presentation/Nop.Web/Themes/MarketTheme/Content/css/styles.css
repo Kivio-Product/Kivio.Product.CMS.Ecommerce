@@ -1392,8 +1392,7 @@ text-decoration: underline;
 
 
 .breadcrumb {
-  margin: 0 0 50px;
-  background-color: #f6f6f6;
+  margin: 20px 0 50px;
   padding: 18px 10px;
 }
 .breadcrumb ul {
@@ -1406,9 +1405,13 @@ text-decoration: underline;
   display: inline-block;
   margin: 0 5px;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 300;
   line-height: normal;
-  color: #000;
+  color: #717680;
+}
+.breadcrumb li .current-item {
+  font-weight: 500;
+  color: #000000;
 }
 .breadcrumb a:hover,
 .breadcrumb a:focus {
@@ -7366,7 +7369,7 @@ a.ui-button:active, .ui-button:active,
     float: left;
     width: 40%;
     margin: 0;
-    padding-left: 50px;
+    padding-left: 80px;
   }
   .footer-block .social li {
     margin: 0 10px 0 0;
@@ -7783,7 +7786,7 @@ a.ui-button:active, .ui-button:active,
   flex-wrap:wrap;
   vertical-align: middle;
   align-content: space-around;
-  padding: 60px;
+  padding: 80px;
 }
 
 .newsletter-subscribe .newsletter-subscribe-info{
@@ -7995,9 +7998,8 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 
 .footer .px_footer_upper,
 .footer .footer-lower {
-  max-width: 1140px; /* Standard container width, adjust as needed */
   margin: 0 auto;
-  padding: 0 15px; /* Horizontal padding for container content */
+  padding: 0 80px; /* Horizontal padding for container content */
 }
 
 /* Upper Footer Section */
@@ -8006,6 +8008,7 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
   flex-wrap: wrap;
   gap: 30px; /* Space between blocks */
   padding-bottom: 30px;
+  padding-top: 40px;
   margin-bottom: 30px;
   border-bottom: 1px solid #dee2e6; /* Separator line for desktop */
 }
@@ -8227,6 +8230,8 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 .footer-kivio-link{
   font-size: 18px;
   font-weight: 600;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .desktop-cart-button .add-to-cart-text{
