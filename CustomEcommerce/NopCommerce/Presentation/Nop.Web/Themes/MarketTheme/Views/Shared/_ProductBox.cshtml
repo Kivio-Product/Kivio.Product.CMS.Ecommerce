@@ -84,11 +84,11 @@
         <div class="add-info">
             @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductBoxAddinfoBefore, additionalData = Model })
             <div class="prices">
+                <span class="price actual-price">@Model.ProductPrice.Price</span>
                 @if (!string.IsNullOrEmpty(Model.ProductPrice.OldPrice))
                 {
                     <span class="price old-price">@Model.ProductPrice.OldPrice</span>
                 }
-                <span class="price actual-price">@Model.ProductPrice.Price</span>
                 @if (!string.IsNullOrEmpty(Model.ProductPrice.BasePricePAngV))
                 {
                     <div class="base-price-pangv">
@@ -117,12 +117,6 @@
                 {
                     ratingPercent = ((Model.ReviewOverviewModel.RatingSum * 100) / Model.ReviewOverviewModel.TotalReviews) / 5;
                 }
-                <div class="product-rating-box" title="@string.Format(T("Reviews.TotalReviews").Text, Model.ReviewOverviewModel.TotalReviews)">
-                    <div class="rating">
-                        <div style="width: @(ratingPercent)%">
-                        </div>
-                    </div>
-                </div>
             }
 
             <div class="buttons desktop-cart-button">
@@ -139,6 +133,7 @@
                         addToCartText = T("ShoppingCart.PreOrder").Text;
                     }
                     <button type="button" class="button-2 product-box-add-to-cart-button primary-btn" onclick="AjaxCart.addproducttocart_catalog('@addtocartlink');return false;">
+                        <span class="add-to-cart-text">@addToCartText</span>
                         <span class="pi-px-shopping-cart"></span>
                     </button>
                 }

@@ -12,9 +12,6 @@
     var kivioLink = T("Footer.KivioLink").ToString() ?? "https://www.kivio.com.co/";
 }
 
-<div class="footer-newsletter">
-    @await Component.InvokeAsync(typeof(NewsletterBoxViewComponent))
-</div>
 <div class="footer">
     <div class="px_footer_upper">
         <div class="footer-upper">
@@ -33,11 +30,7 @@
                 <ul class="list">
                     @if (Model.SitemapEnabled && Model.DisplaySitemapFooterItem)
                     {
-                        <li><a href="@Url.RouteUrl("Sitemap")">@T("Sitemap")</a></li>
-                    }
-                    @foreach (var topic in Model.Topics.Where(x => x.IncludeInFooterColumn1).ToList())
-                    {
-                        <li><a href="@(Url.RouteUrl<Topic>(new { SeName = topic.SeName }))">@topic.Name</a></li>
+                        <li><a href="@Url.RouteUrl("Sitemapss")">@T("Sitemap")</a></li>
                     }
                     @if (Model.DisplayContactUsFooterItem)
                     {
@@ -65,14 +58,6 @@
                     @if (Model.ForumEnabled && Model.DisplayForumsFooterItem)
                     {
                         <li><a href="@Url.RouteUrl("Boards")">@T("Forum.Forums")</a></li>
-                    }
-                    @if (Model.RecentlyViewedProductsEnabled && Model.DisplayRecentlyViewedProductsFooterItem)
-                    {
-                        <li><a href="@Url.RouteUrl("RecentlyViewedProducts")">@T("Products.RecentlyViewedProducts")</a></li>
-                    }
-                    @if (Model.CompareProductsEnabled && Model.DisplayCompareProductsFooterItem)
-                    {
-                        <li><a href="@Url.RouteUrl("CompareProducts")">@T("Products.Compare.List")</a></li>
                     }
                     @if (Model.NewProductsEnabled && Model.DisplayNewProductsFooterItem)
                     {
@@ -113,10 +98,6 @@
                     {
                         <li><a href="@Url.RouteUrl("Wishlist")">@T("Wishlist")</a></li>
                     }
-                    @if (Model.AllowCustomersToApplyForVendorAccount && Model.DisplayApplyVendorAccountFooterItem)
-                    {
-                        <li><a href="@Url.RouteUrl("ApplyVendorAccount")">@T("Vendors.ApplyAccount")</a></li>
-                    }
                     @foreach (var topic in Model.Topics.Where(x => x.IncludeInFooterColumn3).ToList())
                     {
                         <li><a href="@(Url.RouteUrl<Topic>(new { SeName = topic.SeName }))">@topic.Name</a></li>
@@ -127,11 +108,6 @@
         </div>
         <div class="footer-lower">
             <div class="footer-info">
-                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 text-right">
-                    <h2 class="footer-kivio">
-                        Powered by <a href="@kivioLink" target="_blank">Kivio</a>
-                    </h2>
-                </div>
                 <span class="footer-disclaimer">@T("Content.CopyrightNotice", DateTime.Now.Year, Model.StoreName)</span>
                 @if (Model.DisplayTaxShippingInfoFooter)
                 {
@@ -147,13 +123,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="footer-block my-account">
+                    <div class="list">
+                        <div class="footer-kivio-link">
+                            Developed by <a href="@kivioLink" target="_blank">Kivio</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-         
             @if (!Model.HidePoweredByNopCommerce)
             {
                 <div class="footer-powered-by">
-                    @*Would you like to remove the "Powered by nopCommerce" link in the bottom of the footer?
-                Please find more info at https://www.nopcommerce.com/nopcommerce-copyright-removal-key*@
                     Powered by <a href="@(OfficialSite.Main)" target="_blank" @(Model.IsHomePage ? string.Empty : "rel=nofollow")>nopCommerce</a>
                 </div>
             }

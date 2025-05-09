@@ -77,7 +77,7 @@
 .skltbs-theme-light .skltbs-tab.skltbs-active:focus,
 .skltbs-theme-light .skltbs-tab.skltbs-active:hover {
 	border: 0;
-	color: #102c5a;
+	color: #7A37F0;
 	box-shadow: none;
 }
 .skltbs-theme-light .skltbs-panel {
@@ -249,6 +249,6 @@
 }
 .skltbs-tab-group .skltbs-tab-item .skltbs-tab.skltbs-active {
   padding: 0 0 14px 0;
-  color: #102c5a;
-  border-bottom: 2px solid #102c5a;
+  color: #7A37F0;
+  border-bottom: 2px solid #7A37F0;
 }
