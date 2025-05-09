@@ -1805,17 +1805,23 @@ public partial class ShoppingCartController : BasePublicController
     public virtual async Task<IActionResult> GetMiniCart()
     {
         if (!await _permissionService.AuthorizeAsync(StandardPermission.PublicStore.ENABLE_SHOPPING_CART))
-            return Content("");
+            return Json(new { success = false, html = "", totalProducts = 0 });
 
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-        
-        var model = await _shoppingCartModelFactory.PrepareMiniShoppingCartModelAsync();
-        
-        return ViewComponent("FlyoutShoppingCart", model);
-    }
 
+        var model = await _shoppingCartModelFactory.PrepareMiniShoppingCartModelAsync();
+
+        var html = await RenderViewComponentToStringAsync(typeof(FlyoutShoppingCartViewComponent), model);
+
+        return Json(new
+        {
+            success = true,
+            html,
+            totalProducts = cart.Sum(x => x.Quantity)
+        });
+    }
 
     #endregion
 }
