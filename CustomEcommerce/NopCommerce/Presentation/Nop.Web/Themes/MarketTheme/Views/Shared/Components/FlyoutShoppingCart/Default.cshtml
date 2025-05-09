@@ -23,39 +23,54 @@
             {
                 <div class="px_items_scroll">
                     <div class="items">
-                        @for (var i = 0; i < Model.Items.Count; i++)
-                        {
-                            var item = Model.Items[i];
-                            <div class="item @(i == 0 ? "first" : null)">
-                                @if (Model.ShowProductImages)
-                                {
-                                    <div class="picture">
-                                        <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))" title="@item.Picture.Title">
-                                            <img alt="@item.Picture.AlternateText" src="@item.Picture.ImageUrl" title="@item.Picture.Title" />
-                                        </a>
-                                    </div>
-                                }
-                                <div class="product">
-                                    <div class="name">
-                                        <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@item.ProductName</a>
-                                    </div>
-                                    @if (!string.IsNullOrEmpty(item.AttributeInfo))
+                        <div id="mini-shopping-cart-items">
+                            @for (var i = 0; i < Model.Items.Count; i++)
+                            {
+                                var item = Model.Items[i];
+                                <div class="item @(i == 0 ? "first" : null)">
+                                    @if (Model.ShowProductImages)
                                     {
-                                        <div class="attributes">
-                                            @Html.Raw(item.AttributeInfo)
+                                        <div class="picture">
+                                            <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))" title="@item.Picture.Title">
+                                                <img alt="@item.Picture.AlternateText" src="@item.Picture.ImageUrl" title="@item.Picture.Title" />
+                                            </a>
                                         </div>
                                     }
-                                    <div class="price">@T("ShoppingCart.Mini.UnitPrice"): <span>@item.UnitPrice</span></div>
-                                    <div class="quantity">@T("ShoppingCart.Mini.Quantity"): <span>@item.Quantity</span></div>
-
-
+                                    <div class="product">
+                                        <div class="name">
+                                            <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@item.ProductName</a>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(item.AttributeInfo))
+                                        {
+                                            <div class="attributes">
+                                                @Html.Raw(item.AttributeInfo)
+                                            </div>
+                                        }
+                                        <div class="price">@T("ShoppingCart.Mini.UnitPrice"): <span>@item.UnitPrice</span></div>
+                                        <div class="px-mini-quantity">
+                                            <div class="quantity">
+                                                <label class="td-title">@T("ShoppingCart.Quantity"):</label>
+                                                <div class="product-quantity">
+                                                    <div class="quantity down mini-quantity-down" data-itemid="@item.Id">
+                                                        <span class="pi-minus"></span>
+                                                    </div>
+                                                    <input name="itemquantity@(item.Id)" id="mini-itemquantity@(item.Id)" type="text" value="@item.Quantity" class="qty-input" aria-label="@T("ShoppingCart.Quantity")" />
+                                                    <div class="quantity up mini-quantity-up" data-itemid="@item.Id">
+                                                        <span class="pi-plus-1"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="remove-item">
+                                            <a class="pi-remove-from-cart px_mini_remove_item" data-itemid="@item.Id"></a>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        }
+                            }
+                        </div>
                     </div>
                 </div>
             }
-
         </div>
 
         <div class="px_mini_shopping_cart_total">
@@ -81,17 +96,261 @@
                             <button type="button" class="button-1 checkout-button secoendry-btn" onclick="setLocation('@checkoutUrl')">@T("Checkout.Button")</button>
                         }
                     </div>
+                    @if (Model.TotalProducts > 0)
+                    {
+                        <div class="px_mini_clear_cart_btn">
+                            <button>@T("Theme.Phoenix.Clear.Cart")</button>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
     </div>
     <script>
-        $('.px_mini_shopping_cart_title .pi-cart-cancel').click(function () {
-            $('.flyout-cart').removeClass("slideright active");
-            $('.px_cart_overlay').removeClass("overlayadded");
-            $('body').removeClass("overflowhidden");
+        $(function() {
+            $('.px_mini_shopping_cart_title .pi-cart-cancel').click(function () {
+                $('.flyout-cart').removeClass("slideright active");
+                $('.px_cart_overlay').removeClass("overlayadded");
+                $('body').removeClass("overflowhidden");
+            });
+
+            $(document).on('click', '.mini-quantity-up', function () {
+                var itemId = $(this).data('itemid');
+                var quantityInput = $('#mini-itemquantity' + itemId);
+                var oldValue = parseInt(quantityInput.val());
+                var newVal = oldValue + 1;
+                quantityInput.val(newVal);
+                updateMiniCartItem(itemId, newVal);
+            });
+
+            $(document).on('click', '.mini-quantity-down', function () {
+                var itemId = $(this).data('itemid');
+                var quantityInput = $('#mini-itemquantity' + itemId);
+                var oldValue = parseInt(quantityInput.val());
+                if (oldValue > 1) {
+                    var newVal = oldValue - 1;
+                    quantityInput.val(newVal);
+                    updateMiniCartItem(itemId, newVal);
+                }
+            });
+
+            $(document).on('click', '.px_mini_remove_item', function () {
+                var itemId = $(this).data('itemid');
+                showRemoveItemConfirmation(
+                    function() {
+                        removeMiniCartItem(itemId);
+                    }
+                );
+            });
+
+            $(document).on('click', '.px_mini_clear_cart_btn button', function () {
+                showClearCartConfirmation(
+                    function() {
+                        clearMiniCart();
+                    }
+                );
+            });
+
+            function updateMiniCartItem(itemId, quantity) {
+                showLoadingAnimation();
+                
+                $.ajax({
+                    cache: false,
+                    url: '@Url.RouteUrl("UpdateMiniCartItem")',
+                    data: { 
+                        itemId: itemId,
+                        quantity: quantity,
+                        __RequestVerificationToken: getAntiForgeryToken()
+                    },
+                    type: 'POST',
+                    success: function (response) {
+                        if (response.success) {
+                            refreshMiniCart();
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: response.message || 'An error occurred while updating the cart',
+                                icon: 'error',
+                                confirmButtonColor: '#102c5a'
+                            });
+                            refreshMiniCart();
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'An error occurred while updating the cart',
+                            icon: 'error',
+                            confirmButtonColor: '#102c5a'
+                        });
+                        refreshMiniCart();
+                    },
+                    complete: function() {
+                        Swal.close();
+                    }
+                });
+            }
+
+            function removeMiniCartItem(itemId) {
+                showLoadingAnimation();
+                
+                $.ajax({
+                    cache: false,
+                    url: '@Url.RouteUrl("RemoveMiniCartItem")',
+                    data: { 
+                        itemId: itemId,
+                        __RequestVerificationToken: getAntiForgeryToken()
+                    },
+                    type: 'POST',
+                    success: function (response) {
+                        if (response.success) {
+                            refreshMiniCart();
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: response.message || 'An error occurred while removing the item',
+                                icon: 'error',
+                                confirmButtonColor: '#102c5a'
+                            });
+                            refreshMiniCart();
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'An error occurred while removing the item',
+                            icon: 'error',
+                            confirmButtonColor: '#102c5a'
+                        });
+                        refreshMiniCart();
+                    },
+                    complete: function() {
+                        Swal.close();
+                    }
+                });
+            }
+
+            function clearMiniCart() {
+                showLoadingAnimation();
+                
+                $.ajax({
+                    cache: false,
+                    url: '@Url.RouteUrl("ClearMiniCart")',
+                    data: { 
+                        __RequestVerificationToken: getAntiForgeryToken()
+                    },
+                    type: 'POST',
+                    success: function (response) {
+                        if (response.success) {
+                            refreshMiniCart();
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: response.message || 'An error occurred while clearing the cart',
+                                icon: 'error',
+                                confirmButtonColor: '#102c5a'
+                            });
+                            refreshMiniCart();
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'An error occurred while clearing the cart',
+                            icon: 'error',
+                            confirmButtonColor: '#102c5a'
+                        });
+                        refreshMiniCart();
+                    },
+                    complete: function() {
+                        Swal.close();
+                    }
+                });
+            }
+
+            function refreshMiniCart() {
+                const wasOpen = $('.flyout-cart').hasClass('active');
+
+                $.ajax({
+                    cache: false,
+                    url: '@Url.RouteUrl("GetMiniCart")',
+                    type: 'GET',
+                    success: function (response) {
+                        $('#flyout-cart').replaceWith(response);
+
+                        if (wasOpen) {
+                            $('.flyout-cart').addClass('slideright active');
+                            $('.px_cart_overlay').addClass('overlayadded');
+                            $('body').addClass('overflowhidden');
+                        }
+
+                        if (typeof response.totalProducts !== 'undefined') {
+                            $('.cart-qty').text(response.totalProducts);
+                        }
+                    },
+                    error: function () {
+                        console.error('Failed to refresh mini cart');
+                    }
+                });
+            }
+
+
+            function getAntiForgeryToken() {
+                return $('input[name="__RequestVerificationToken"]').val();
+            }
+
+            function showLoadingAnimation() {
+                Swal.fire({
+                    title: '',
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            }
+
+            function showRemoveItemConfirmation(confirmCallback) {
+                Swal.fire({
+                    title: "@Html.Raw(JavaScriptEncoder.Default.Encode(T("Theme.Phoenix.Clear.Cartitem.confirmation").Text))",
+                    text: "@Html.Raw(JavaScriptEncoder.Default.Encode(T("Theme.Phoenix.Clear.Cartitem.Confirmation.Description").Text))",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    customClass: {
+                        confirmButton: 'primary-btn',
+                        cancelButton: 'primary-btn',
+                    },
+                    confirmButtonColor: '#102c5a',
+                    cancelButtonColor: '#102c5a',
+                    confirmButtonText: "@Html.Raw(JavaScriptEncoder.Default.Encode(T("Theme.Phoenix.Clear.Cart.confirmation.Confirmbuttontext").Text))",
+                    cancelButtonText: "@Html.Raw(JavaScriptEncoder.Default.Encode(T("theme.phoenix.clear.cart.clearbuttontext").Text))",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        confirmCallback();
+                    }
+                });
+            }
+
+            function showClearCartConfirmation(confirmCallback) {
+                Swal.fire({
+                    title: "@Html.Raw(JavaScriptEncoder.Default.Encode(T("Theme.Phoenix.Clear.Cart.Confirmation").Text))",
+                    text: "@Html.Raw(JavaScriptEncoder.Default.Encode(T("Theme.Phoenix.Clear.Cart.Confirmation.Description").Text))",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    customClass: {
+                        confirmButton: 'primary-btn',
+                        cancelButton: 'primary-btn',
+                    },
+                    confirmButtonColor: '#102c5a',
+                    cancelButtonColor: '#102c5a',
+                    confirmButtonText: "@Html.Raw(JavaScriptEncoder.Default.Encode(T("Theme.Phoenix.Clear.Cart.confirmation.Confirmbuttontext").Text))",
+                    cancelButtonText: "@Html.Raw(JavaScriptEncoder.Default.Encode(T("theme.phoenix.clear.cart.clearbuttontext").Text))",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        confirmCallback();
+                    }
+                });
+            }
         });
     </script>
-
 </div>
-
