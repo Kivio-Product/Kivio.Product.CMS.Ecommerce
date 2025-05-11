@@ -16,11 +16,5 @@
                 </div>
             </div>
         </div>
-        @if (Model.CanAddNewReview && Model.CanCurrentCustomerLeaveReview)
-        {
-            <div class="product-review-links add-review @(noReviews ? "product-no-reviews" : "")">
-                <a href="#addreview" class="">@T(noReviews ? "Reviews.Overview.First" : "Reviews.Overview.AddNew")</a>
-            </div>
-        }
     </div>
 }

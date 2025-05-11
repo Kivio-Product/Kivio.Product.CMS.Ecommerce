@@ -1008,17 +1008,18 @@ ul.login-list li :hover{
 }
 .overview {
   float: right;
-  width: 70%;
+  width: 45%;
   padding: 0 15px 30px;
 }
 .px_overview {
-  border: 1px solid #E0D2D2;
-  border-radius: 10px;
-  padding: 50px;
-  background-color: #f4f4f4;
   position: relative;
-  margin: 0 0 50px;
   text-align: left;
+}
+.px_overview .overview-description-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #181D27;
+  padding-bottom: 15px;
 }
 .shopping-cart-page,
 .wishlist-page {

@@ -9,20 +9,9 @@
 }
 
 
-<div class="">
+<div class="gallery-product-details">
     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsBeforePictures, additionalData = Model })
-    <div class="">
-        <div class="picture" id="xzoom-@Model.Id">
-            @if (Model.DefaultPictureZoomEnabled && Model.PictureModels.Count > 0)
-            {
-                <img class="xzoom" id="xzoom-fancy-@Model.Id" alt="@Model.DefaultPictureModel.AlternateText" src="@Model.DefaultPictureModel.ImageUrl" xoriginal="@Model.DefaultPictureModel.FullSizeImageUrl" title="@Model.DefaultPictureModel.Title" id="main-product-img-@Model.Id" />
-            }
-            else
-            {
-                <img class="xzoom" alt="@Model.DefaultPictureModel.AlternateText" src="@Model.DefaultPictureModel.ImageUrl" xoriginal="@Model.DefaultPictureModel.FullSizeImageUrl" title="@Model.DefaultPictureModel.Title" id="main-product-img-@Model.Id" />
-            }
-        </div>
-    </div>
+    
     @if (Model.PictureModels.Count > 1 && Model.DefaultPictureZoomEnabled)
     {
         <div class="picture-thumbs px-product-thumb-slider" id="thumb-@Model.Id">
@@ -146,6 +135,18 @@
             }
         }
     }
+    <div class="gallery-principal-picture">
+        <div class="picture" id="xzoom-@Model.Id">
+            @if (Model.DefaultPictureZoomEnabled && Model.PictureModels.Count > 0)
+            {
+                <img class="xzoom" id="xzoom-fancy-@Model.Id" alt="@Model.DefaultPictureModel.AlternateText" src="@Model.DefaultPictureModel.ImageUrl" xoriginal="@Model.DefaultPictureModel.FullSizeImageUrl" title="@Model.DefaultPictureModel.Title" id="main-product-img-@Model.Id" />
+            }
+            else
+            {
+                <img class="xzoom" alt="@Model.DefaultPictureModel.AlternateText" src="@Model.DefaultPictureModel.ImageUrl" xoriginal="@Model.DefaultPictureModel.FullSizeImageUrl" title="@Model.DefaultPictureModel.Title" id="main-product-img-@Model.Id" />
+            }
+        </div>
+    </div>
     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsAfterPictures, additionalData = Model })
 </div>
 
