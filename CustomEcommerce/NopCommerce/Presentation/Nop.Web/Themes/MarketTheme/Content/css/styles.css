@@ -6095,9 +6095,6 @@ a.ui-button:active, .ui-button:active,
   .search-box.store-search-box.px_search-desktop.search-open .pi-search:before{
       color: #fff;
   }
-  .overflowhidden {
-    overflow: visible;
-  }
   .px_cart_overlay.overlayadded{
       opacity: 0 !important;
   }

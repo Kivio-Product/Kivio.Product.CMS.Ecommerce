@@ -2040,16 +2040,11 @@ input[type="radio"] {
   height: calc(100vh - 235px);
 }
 .px_mini_shopping_cart_item .items {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  flex: 1;
+  overflow-y: auto;
   padding: 20px;
   text-align: left;
   font-size: 14px;
-  overflow: auto;
-  overflow-x: hidden;
 }
 .px_cart_overlay {
   position: fixed;
