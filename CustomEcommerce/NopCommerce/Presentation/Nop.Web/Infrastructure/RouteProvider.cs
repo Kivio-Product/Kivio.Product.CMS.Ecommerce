@@ -55,6 +55,30 @@ public partial class RouteProvider : BaseRouteProvider, IRouteProvider
             pattern: $"{lang}/cart/",
             defaults: new { controller = "ShoppingCart", action = "Cart" });
 
+        endpointRouteBuilder.MapControllerRoute(
+            name: "UpdateMiniCartItem",
+            pattern: "shopping-cart/update-mini-item",
+            defaults: new { controller = "ShoppingCart", action = "UpdateMiniCartItem" }
+        );
+
+        endpointRouteBuilder.MapControllerRoute(
+            name: "RemoveMiniCartItem",
+            pattern: "shopping-cart/remove-mini-item",
+            defaults: new { controller = "ShoppingCart", action = "RemoveMiniCartItem" }
+        );
+
+        endpointRouteBuilder.MapControllerRoute(
+            name: "ClearMiniCart",
+            pattern: "shopping-cart/clear-mini-cart",
+            defaults: new { controller = "ShoppingCart", action = "ClearMiniCart" }
+        );
+
+        endpointRouteBuilder.MapControllerRoute(
+            name: "GetMiniCart",
+            pattern: "shopping-cart/get-mini-cart",
+            defaults: new { controller = "ShoppingCart", action = "GetMiniCart" }
+        );
+
         //estimate shipping (AJAX)
         endpointRouteBuilder.MapControllerRoute(name: "EstimateShipping",
             pattern: $"cart/estimateshipping",
