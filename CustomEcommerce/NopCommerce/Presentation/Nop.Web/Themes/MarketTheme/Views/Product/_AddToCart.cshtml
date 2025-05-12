@@ -99,7 +99,7 @@
                             addToCartText = T("ShoppingCart.PreOrder").Text;
                         }
                     }
-                    <button type="button" id="shop-now-button-@Model.ProductId" class="button-1 shop-now-button primary-btn" data-productid="@Model.ProductId" onclick="AjaxCart.addproducttocart_details('@Url.RouteUrl("AddProductToCart-Details", new {productId = Model.ProductId, shoppingCartTypeId = (int) ShoppingCartType.ShoppingCart})', '#product-details-form');return false;"> @T("Product.AddToCart.ShopNow")</button>
+                    <button type="button" id="shop-now-button-@Model.ProductId" class="button-1 shop-now-button primary-btn" data-productid="@Model.ProductId" onclick="(async () => { await AjaxCart.addproducttocart_details_with_redirect('@Url.RouteUrl("AddProductToCart-Details", new {productId = Model.ProductId, shoppingCartTypeId = (int) ShoppingCartType.ShoppingCart})', '#product-details-form', '/onepagecheckout');})();return false;"> @T("Product.AddToCart.ShopNow")</button>
                     <button type="button" id="add-to-cart-button-@Model.ProductId" class="button-1 add-to-cart-button primary-btn" data-productid="@Model.ProductId" onclick="AjaxCart.addproducttocart_details('@Url.RouteUrl("AddProductToCart-Details", new {productId = Model.ProductId, shoppingCartTypeId = (int) ShoppingCartType.ShoppingCart})', '#product-details-form');return false;"> @addToCartText</button>
                 }
             </div>
