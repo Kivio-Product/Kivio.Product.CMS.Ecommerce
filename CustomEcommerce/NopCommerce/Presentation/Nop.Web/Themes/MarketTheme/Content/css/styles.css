@@ -2324,7 +2324,6 @@ button.email-a-friend-button:hover{
   background-color: #ffffff;
   padding: 0 24px;
   font-size: 16px;
-  text-transform: uppercase;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -2778,7 +2777,7 @@ button.email-a-friend-button:hover{
 }
 .write-review {
   max-width: 50%;
-  margin: 0 auto 50px;
+  margin: 50px auto 0;
 }
 .write-review .fieldset {
   margin: 0 0 30px;
@@ -2857,27 +2856,47 @@ button.email-a-friend-button:hover{
 }
 .product-review-item {
   margin: 0 0 40px;
-  background: #f4f4f4;
+  border-radius: 12px;
+  border: 1px solid #E9EAEB;
 }
 .product-review-item .review-item-head {
   overflow: hidden;
-  padding: 10px;
-  background: #7A37F0;
-  color: #fff;
+  padding: 20px;
+  padding-bottom: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.product-review-item .review-item-head .review-user-name {
+  font-size: 16px;
+  color: #181D27;
+  font-weight: 600;
+  line-height: 24px;
+}
+.product-review-item .review-item-head .review-user-info {
+  display: flex;
+  flex-direction: row;
+}
+.product-review-item .review-item-head .review-user-info .review-avatar-user{
+  background: url("../images/account_profile_user_avatar_icon.png") center no-repeat;
+  width: 50px;
+  height: 50px;
 }
 .product-review-item .review-title {
-  line-height: 20px;
-  font-size: 15px;
-  color: #fff;
+  line-height: 30px;
+  font-size: 20px;
+  color: #181D27;
   width: calc(100% - 100px);
+  font-weight: 500;
   margin: 0 auto;
 }
 .product-review-item .product-review-box {
-  margin: 3px 0 0;
+  margin: 10px 0 0;
 }
 .product-review-item .review-content {
   padding: 20px;
   background: #fff;
+  border-radius: 12px;
 }
 .product-review-item .review-text {
   margin: 0 0 15px;
@@ -2900,6 +2919,8 @@ button.email-a-friend-button:hover{
 }
 .product-review-item .review-info {
   margin: 0 0 5px;
+  display: flex;
+  flex-direction: column;
 }
 .product-review-item .review-info label {
   font-weight: normal;
@@ -8315,4 +8336,13 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 }
 .add-to-cart-out-overview{
   width: 100%;
+}
+.product-review-title{
+  font-size: 24px;
+  font-weight: 400; 
+  color: #181D27;
+  text-align: left;
+}
+.product-reviews-page{
+  border-top: 1px solid #D5D7DA;
 }

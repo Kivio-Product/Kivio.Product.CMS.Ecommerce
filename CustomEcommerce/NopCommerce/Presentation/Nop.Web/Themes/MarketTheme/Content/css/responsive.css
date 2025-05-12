@@ -1774,22 +1774,24 @@
   }
   .order-list-page .section,
   .product-review-list .product-review-item {
-    width: 32%;
-    margin-left: 2%;
-    margin-right: 0;
+    width: 49%;
+    margin: 1%;
   }    
   .order-list-page .section:nth-child(3n+1),
   .product-review-list .product-review-item:nth-child(3n+1) {
     margin-left: 0;
   }
-    .item-box {
-        width: calc(25% - 30px);
-        margin: 0 15px 30px;
-    }
-    .px-full-width-grid .item-box {
-        width: calc(20% - 30px);
-        margin: 0 15px 30px;
-    }
+  .product-review-list .product-review-item:nth-child(2) {
+    margin-right: 0;
+  }
+  .item-box {
+      width: calc(25% - 30px);
+      margin: 0 15px 30px;
+  }
+  .px-full-width-grid .item-box {
+      width: calc(20% - 30px);
+      margin: 0 15px 30px;
+  }
 }
 
 @media all and (min-width: 1025px){

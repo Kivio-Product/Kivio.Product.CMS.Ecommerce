@@ -1053,9 +1053,7 @@ ul.login-list li :hover{
 }
 .px_cart_total,
 .px_product_reviews {
-  background-color: #f4f4f4;
-  border: 1px solid #E0D2D2;
-  padding: 30px;
+  padding-top: 30px;
   color: #444;
 }
 .px_giftcard,
@@ -1419,7 +1417,7 @@ ul.login-list li :hover{
 .px_existing_review {
   display: flex;
   flex-wrap: wrap;
-  margin-top: 40px;
+  margin-top: 25px;
 }
 .px_register_input {
   width: 49%;
@@ -2951,4 +2949,13 @@ button.mfp-close, button.mfp-arrow {
 }
 .prices {
   direction: ltr !important;
+}
+
+.px-product-add-review {
+  background-color: #f4f4f4;
+  border: 1px solid #E0D2D2;
+  border-radius: 12px;
+}
+.product-review-form {
+  padding: 30px;
 }
