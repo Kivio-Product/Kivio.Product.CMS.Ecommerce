@@ -2912,7 +2912,7 @@ button.email-a-friend-button:hover{
   border-radius: 12px;
 }
 .product-review-item .review-text {
-  margin: 0 0 15px;
+  margin: 0 0 30px;
   line-height: 22px;
   color: #444;
 }
@@ -2942,8 +2942,18 @@ button.email-a-friend-button:hover{
 .product-review-helpfulness .vote {
   display: inline-block;
   padding: 0 5px;
-  color: #7A37F0;
   cursor: pointer;
+  width: 24px;
+  height: 24px;
+}
+.helpfulness-vote-yes{
+  padding-right: 30px;
+}
+.product-review-helpfulness .vote-up {
+  background: url(../images/thumb-up.png) no-repeat center;
+}
+.product-review-helpfulness .vote-down {
+  background: url(../images/thumb-down.png) no-repeat center;
 }
 .product-review-helpfulness .question {
   margin: 0 5px 0 0;
@@ -7542,7 +7552,7 @@ a.ui-button:active, .ui-button:active,
     display: table;
     width: 100%;
     table-layout: fixed;
-    padding-top: 10px;
+    padding: 10px;
   }
   .product-review-item .avatar {
     display: table-cell;
