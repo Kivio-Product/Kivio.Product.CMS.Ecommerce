@@ -1733,7 +1733,8 @@ text-decoration: underline;
   transition: all 0.3s;
   display: inline-block;
 }  
-.px_featured .item-box .product-box-add-to-cart-button {
+.item-box .product-box-add-to-cart-button
+ {
   text-align: center;
   font-size: 16px;
   width: 100%;
@@ -8019,6 +8020,11 @@ height: 14px;
 stroke: #333; /* Asegúrate de que el color se aplique bien */
 }
 
+.custom-product-section {
+    margin: 20px auto;
+    padding: 0 70px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
 .flash-sale-container {
@@ -8041,6 +8047,9 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 }
 .flash-sale-container .view-all-button {
     align-self: flex-start; /* Alinea el botón a la izquierda */
+}
+.custom-product-section {
+  padding: 0 10px;
 }
 }
 @media (max-width: 480px) {
@@ -8372,18 +8381,11 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
   border-top: 1px solid #D5D7DA;
 }
 
-.custom-product-section {
-    max-width: 1200px; /* Or your site's container width */
-    margin: 20px auto;
-    padding: 15px;
-}
-
 .custom-product-section .section-title {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
     color: #333;
-    /* text-align: center; */ /* If you want it centered */
 }
 
 .filters-bar {

@@ -2829,7 +2829,8 @@ button.mfp-close, button.mfp-arrow {
     margin:0;
 }
 
-.home-page .product-grid .px_featured .item-box .product-item {
+.home-page .product-grid .px_featured .item-box .product-item,
+.product-grid .product-item {
     border: 1px solid #e0d2d2;
     border-radius: 12px;
 }

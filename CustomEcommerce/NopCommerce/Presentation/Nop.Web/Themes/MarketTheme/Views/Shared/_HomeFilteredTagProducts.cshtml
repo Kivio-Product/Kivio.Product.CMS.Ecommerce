@@ -64,23 +64,7 @@
             <img src="@Url.Content("~/images/ajax-loader.gif")" alt="Loading..." />
         </div>
         <div class="products-wrapper" id="custom-products-grid">
-            @if (initialProductModels.Any())
-            {
-                <div class="product-grid">
-                    <div class="item-grid">
-                        @foreach (var product in initialProductModels)
-                        {
-                            <div class="item-box">
-                                @await Html.PartialAsync("_ProductBox", product)
-                            </div>
-                        }
-                    </div>
-                </div>
-            }
-            else
-            {
-                <div class="no-products">No products found matching this filter.</div>
-            }
+            @{ await Html.RenderPartialAsync("_CustomProductGridItems",initialProductModels); }
         </div>
     </div>
 </div>
