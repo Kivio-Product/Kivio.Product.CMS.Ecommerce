@@ -1,0 +1,20 @@
+﻿@model ProductReviewOverviewModel
+@{
+    var ratingPercent = 0;
+    var noReviews = Model.TotalReviews == 0;
+    if (!noReviews)
+    {
+        ratingPercent = ((Model.RatingSum * 100) / Model.TotalReviews) / 5;
+    }
+}
+@if (Model.AllowCustomerReviews)
+{
+    <div class="product-reviews-overview">
+        <div class="product-review-box">
+            <div class="rating">
+                <div style="width: @(ratingPercent)%">
+                </div>
+            </div>
+        </div>
+    </div>
+}
