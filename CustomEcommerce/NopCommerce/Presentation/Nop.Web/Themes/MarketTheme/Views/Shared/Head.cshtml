@@ -1,0 +1,36 @@
+﻿@using Nop.Core
+@using Nop.Core.Domain.Catalog
+@using Nop.Services.Helpers
+@using Nop.Web.Framework.UI
+
+@inject CatalogSettings catalogSettings
+@inject IThemeContext themeContext
+@inject IUserAgentHelper userAgentHelper
+@{
+    Layout = "";
+    var themeName = await themeContext.GetWorkingThemeNameAsync();
+    var supportRtl = await Html.ShouldUseRtlThemeAsync(themeName);
+
+    //add main CSS file
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/responsive{(supportRtl ? ".rtl" : "")}.css", excludeFromBundle: true);
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/styles{(supportRtl ? ".rtl" : "")}.css", excludeFromBundle: true);
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/Phoenix{(supportRtl ? ".rtl" : "")}.css", excludeFromBundle: true);
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/market-theme.css", excludeFromBundle: true);
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/Phoenix_icon.css", excludeFromBundle: true);
+
+
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/slick.css");
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/slick-theme.css");
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/slinky.min.css");
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/owl.carousel.min.css");
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/owl.theme.default.min.css");
+
+    //add swiper css file
+    if (catalogSettings.DisplayAllPicturesOnCatalogPages)
+    {
+        NopHtml.AppendCssFileParts("~/lib_npm/swiper/swiper-bundle.min.css");
+    }
+
+    //add jQuery UI css file
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/jquery-ui.min.css");
+}
