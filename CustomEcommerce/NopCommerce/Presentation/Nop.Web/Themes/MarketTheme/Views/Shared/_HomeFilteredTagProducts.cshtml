@@ -51,14 +51,15 @@
 }
 
 <div class="custom-product-section">
-    <h2 class="section-title">Productos pensados para ti</h2>
+    <div class="filter-section">
+        <span class="section-title">Productos pensados para ti</span>
 
-    <div class="filters-bar">
-        <button class="filter-button active" data-filter-tag="best-prices">Mejores precios</button>
-        <button class="filter-button" data-filter-tag="most-ordered">Los más pedidos</button>
-        <button class="filter-button" data-filter-tag="best-rated">Los mejor calificados</button>
+        <div class="filters-bar">
+            <button class="filter-button active" data-filter-tag="best-prices">Mejores precios</button>
+            <button class="filter-button" data-filter-tag="most-ordered">Los más pedidos</button>
+            <button class="filter-button" data-filter-tag="best-rated">Los mejor calificados</button>
+        </div>
     </div>
-
     <div class="products-container">
         <div class="ajax-products-busy" style="display: none; text-align: center; padding: 20px;">
             <img src="@Url.Content("~/images/ajax-loader.gif")" alt="Loading..." />

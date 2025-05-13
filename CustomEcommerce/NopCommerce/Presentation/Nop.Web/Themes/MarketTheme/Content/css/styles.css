@@ -8388,6 +8388,15 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
     color: #333;
 }
 
+.custom-product-section .filter-section {
+  padding: 0 15px;
+  display: flex;
+  padding-top: 40px;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
 .filters-bar {
     display: flex;
     justify-content: flex-start; /* Align to the start, like in the image */
@@ -8401,7 +8410,7 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
     background-color: #fff;
     color: #555;
     cursor: pointer;
-    border-radius: 20px; /* Rounded corners for buttons */
+    border-radius: 5px; 
     font-size: 14px;
     transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
