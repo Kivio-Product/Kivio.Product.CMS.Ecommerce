@@ -1778,10 +1778,10 @@
     margin: 1%;
   }    
   .order-list-page .section:nth-child(3n+1),
-  .product-review-list .product-review-item:nth-child(3n+1) {
+  .product-review-list .product-review-item:nth-child(odd) {
     margin-left: 0;
   }
-  .product-review-list .product-review-item:nth-child(2) {
+  .product-review-list .product-review-item:nth-child(even) {
     margin-right: 0;
   }
   .item-box {
