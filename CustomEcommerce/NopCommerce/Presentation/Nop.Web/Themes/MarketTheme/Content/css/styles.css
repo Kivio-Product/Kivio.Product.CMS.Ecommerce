@@ -4577,7 +4577,6 @@ button.email-a-friend-button:hover{
 .confirm-order .button-1 {
   font-size: 16px;
 }
-.order-review-data > div,
 .order-details-area > div,
 .shipment-details-area > div {
   width: 100%;
@@ -4648,10 +4647,12 @@ button.email-a-friend-button:hover{
   margin: 0 0 1px;
   overflow: hidden;
   background-color: #f4f4f4;
+  border-radius: 15px;
 }
 .opc .allow .step-title {
   background-color: #7A37F0;
   cursor: pointer;
+  border-radius: 15px;
 }
 .opc .step-title .number,
 .opc .step-title .title {
@@ -4669,12 +4670,7 @@ button.email-a-friend-button:hover{
 }
 .opc .step-title .number {
   width: 42px;
-  border-right: 1px solid #fff;
   text-align: center;
-}
-.opc .allow .step-title .number {
-  background-color: #CAD2DF;
-  color: #7A37F0;
 }
 .opc .step {
   margin: 10px 0;

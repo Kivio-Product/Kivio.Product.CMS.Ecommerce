@@ -1,0 +1,14 @@
+@model Nop.Web.Models.ShoppingCart.ShoppingCartModel.ShoppingCartItemModel
+
+<div class="cart-item">
+    <div class="item-quantity">@Model.Quantity</div>
+    <div class="item-image">
+        <img src="@Model.Picture.ImageUrl" alt="@Model.Picture.AlternateText" title="@Model.Picture.Title" />
+    </div>
+    <div class="item-details">
+        <div class="item-name">
+            @Model.ProductName
+        </div>
+        <div class="item-price">@Model.SubTotal</div>
+    </div>
+</div>

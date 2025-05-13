@@ -2852,19 +2852,16 @@ button.mfp-close, button.mfp-arrow {
 .breadcrumb li meta{
     display: none;
 }
-.order-review-data,
 .order-details-area,
 .shipment-details-area{
     margin: 0 -15px;
 }
-.order-review-data > div,
 .order-details-area > div,
 .shipment-details-area > div{
     width: calc(50% - 30px);
     margin: 0 15px;
     text-align: left;
 }
-.order-review-data,
 .order-details-area,
 .shipment-details-area {
     display: flex;
