@@ -1733,7 +1733,8 @@ text-decoration: underline;
   transition: all 0.3s;
   display: inline-block;
 }  
-.px_featured .item-box .product-box-add-to-cart-button {
+.item-box .product-box-add-to-cart-button
+ {
   text-align: center;
   font-size: 16px;
   width: 100%;
@@ -8019,6 +8020,11 @@ height: 14px;
 stroke: #333; /* Asegúrate de que el color se aplique bien */
 }
 
+.custom-product-section {
+    margin: 20px auto;
+    padding: 0 70px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
 .flash-sale-container {
@@ -8041,6 +8047,9 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 }
 .flash-sale-container .view-all-button {
     align-self: flex-start; /* Alinea el botón a la izquierda */
+}
+.custom-product-section {
+  padding: 0 10px;
 }
 }
 @media (max-width: 480px) {
@@ -8370,4 +8379,56 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 }
 .product-reviews-page{
   border-top: 1px solid #D5D7DA;
+}
+
+.custom-product-section .section-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.custom-product-section .filter-section {
+  padding: 0 15px;
+  display: flex;
+  padding-top: 40px;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.filters-bar {
+    display: flex;
+    justify-content: flex-start; /* Align to the start, like in the image */
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.filters-bar .filter-button {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    color: #555;
+    cursor: pointer;
+    border-radius: 5px; 
+    font-size: 14px;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.filters-bar .filter-button:hover {
+    background-color: #f5f5f5;
+    border-color: #ccc;
+}
+
+.filters-bar .filter-button.active {
+    background-color: #222; /* Dark background for active */
+    color: #fff;
+    border-color: #222;
+    font-weight: bold;
+}
+
+.no-products {
+    text-align: center;
+    padding: 20px;
+    color: #777;
 }

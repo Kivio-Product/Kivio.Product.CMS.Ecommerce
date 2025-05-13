@@ -2692,7 +2692,7 @@ button.mfp-close, button.mfp-arrow {
 .home-page .product-grid .px_featured .item-box {
     width: calc(100% - 30px);
 }
-.px_featured .item-box .details h2 a {
+.item-box .details h2 a {
     margin-right: auto;
     color: #535862;
     font-size: 24px;
@@ -2829,7 +2829,8 @@ button.mfp-close, button.mfp-arrow {
     margin:0;
 }
 
-.home-page .product-grid .px_featured .item-box .product-item {
+.home-page .product-grid .px_featured .item-box .product-item,
+.product-grid .product-item {
     border: 1px solid #e0d2d2;
     border-radius: 12px;
 }
