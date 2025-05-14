@@ -4666,7 +4666,6 @@ button.email-a-friend-button:hover{
 .confirm-order .button-1 {
   font-size: 16px;
 }
-.order-review-data > div,
 .order-details-area > div,
 .shipment-details-area > div {
   width: 100%;
@@ -4737,10 +4736,12 @@ button.email-a-friend-button:hover{
   margin: 0 0 1px;
   overflow: hidden;
   background-color: #f4f4f4;
+  border-radius: 15px;
 }
 .opc .allow .step-title {
   background-color: #7A37F0;
   cursor: pointer;
+  border-radius: 15px;
 }
 .opc .step-title .number,
 .opc .step-title .title {
@@ -4758,12 +4759,7 @@ button.email-a-friend-button:hover{
 }
 .opc .step-title .number {
   width: 42px;
-  border-right: 1px solid #fff;
   text-align: center;
-}
-.opc .allow .step-title .number {
-  background-color: #CAD2DF;
-  color: #7A37F0;
 }
 .opc .step {
   margin: 10px 0;
@@ -6183,9 +6179,6 @@ a.ui-button:active, .ui-button:active,
   }
   .search-box.store-search-box.px_search-desktop.search-open .pi-search:before{
       color: #fff;
-  }
-  .overflowhidden {
-    overflow: visible;
   }
   .px_cart_overlay.overlayadded{
       opacity: 0 !important;
@@ -7755,6 +7748,9 @@ a.ui-button:active, .ui-button:active,
     width: auto;
   }
 
+  .home-page .product-grid .item-box {
+    width: calc(25% - 30px);
+  }
 
   /*** HEADER ***/
 
@@ -8138,6 +8134,7 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
   max-width: 280px;
   font-weight: 200;
   translate: 10px;
+  line-height: normal;
 }
 
 /* Link Columns (Information, Customer Service, My Account) */
