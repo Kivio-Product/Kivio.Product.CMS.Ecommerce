@@ -7748,6 +7748,9 @@ a.ui-button:active, .ui-button:active,
     width: auto;
   }
 
+  .home-page .product-grid .item-box {
+    width: calc(25% - 30px);
+  }
 
   /*** HEADER ***/
 
@@ -8131,6 +8134,7 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
   max-width: 280px;
   font-weight: 200;
   translate: 10px;
+  line-height: normal;
 }
 
 /* Link Columns (Information, Customer Service, My Account) */

@@ -365,6 +365,9 @@ ul.login-list li :hover{
 .item-box:hover .product-icon {
   right: 15px;
   opacity: 1;
+  display: flex;
+  flex-direction: row-reverse;
+  direction: ltr;
 }
 .primary-btn,
 .secoendry-btn {
