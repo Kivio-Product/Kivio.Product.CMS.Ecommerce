@@ -268,6 +268,22 @@ public partial class RouteProvider : BaseRouteProvider, IRouteProvider
             pattern: $"{lang}/onepagecheckout/",
             defaults: new { controller = "Checkout", action = "OnePageCheckout" });
 
+        endpointRouteBuilder.MapControllerRoute(name: "CheckoutOnePageApplyDiscount",
+            pattern: $"/onepagecheckoutaction/applydiscount",
+            defaults: new { controller = "Checkout", action = "ApplyDiscountCoupon" });
+
+        endpointRouteBuilder.MapControllerRoute(name: "CheckoutOnePageRemoveDiscount",
+            pattern: $"/onepagecheckoutaction/removediscount",
+            defaults: new { controller = "Checkout", action = "RemoveDiscountCoupon" });
+
+        endpointRouteBuilder.MapControllerRoute(name: "CheckoutOnePageApplyGiftCard",
+            pattern: $"/onepagecheckoutaction/applygiftcard",
+            defaults: new { controller = "Checkout", action = "ApplyGiftCard" });
+
+        endpointRouteBuilder.MapControllerRoute(name: "CheckoutOnePageRemoveGiftCard",
+            pattern: $"/onepagecheckoutaction/removegiftcard",
+            defaults: new { controller = "Checkout", action = "RemoveGiftCard" });
+
         endpointRouteBuilder.MapControllerRoute(name: "CheckoutShippingAddress",
             pattern: $"{lang}/checkout/shippingaddress",
             defaults: new { controller = "Checkout", action = "ShippingAddress" });
