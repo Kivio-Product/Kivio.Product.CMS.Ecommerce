@@ -1,0 +1,48 @@
+@model OnePageCheckoutModel
+
+@if (Model.DiscountBox.Display)
+{
+    <div id="discount-container" class="discount-coupon-wrapper">
+        <div class="discount-form">
+            <input name="discountcouponcode" id="discountcouponcode" type="text" class="discount-input"
+                placeholder="@T("ShoppingCart.DiscountCouponCode")"
+                aria-label="@T("ShoppingCart.DiscountCouponCode.Label")" />
+            <button type="button" name="applydiscountcouponcode" id="applydiscountcouponcode" class="discount-button">
+                @T("ShoppingCart.DiscountCouponCode.Button")
+            </button>
+        </div>
+
+        @if (Model.DiscountBox.Messages.Count > 0)
+        {
+            <div class="discount-messages">
+                @foreach (var message in Model.DiscountBox.Messages)
+                {
+                    <div class="message @(Model.DiscountBox.IsApplied ? "success" : "error")">
+                        <span>@message</span>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (Model.DiscountBox.AppliedDiscountsWithCodes.Count > 0)
+        {
+            <div class="applied-discounts">
+                @foreach (var discount in Model.DiscountBox.AppliedDiscountsWithCodes)
+                {
+                    <div class="applied-discount">
+                        <span class="discount-code">@string.Format(T("ShoppingCart.DiscountCouponCode.CurrentCode").Text,
+                                            discount.CouponCode)</span>
+            <button type="button" name="removediscount-@discount.Id" class="remove-discount"
+                aria-label="Eliminar cupón">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+                }
+            </div>
+        }
+    </div>
+}
