@@ -1,0 +1,38 @@
+@model OnePageCheckoutModel
+
+@if (Model.DiscountBox.Display)
+{
+    <div id="discount-container">
+        <div class="discount-box">
+            <div class="coupon-box">
+                <div class="px_couponbox">
+                    <div class="title-box">
+                        <span>@T("ShoppingCart.DiscountCouponCode")</span>
+                    </div>
+                    <div class="hint">
+                        @T("ShoppingCart.DiscountCouponCode.Tooltip")
+                    </div>
+                    <div class="coupon-code">
+                        <input name="discountcouponcode" id="discountcouponcode" type="text" class="discount-coupon-code" aria-label="@T("ShoppingCart.DiscountCouponCode.Label")" />
+                        <button type="button" name="applydiscountcouponcode" id="applydiscountcouponcode" class="button-2 apply-discount-coupon-code-button primary-btn">@T("ShoppingCart.DiscountCouponCode.Button")</button>
+                    </div>
+                    @foreach (var message in Model.DiscountBox.Messages)
+                    {
+                        <div class="@(Model.DiscountBox.IsApplied ? "message-success" : "message-failure")">
+                            @message
+                        </div>
+                    }
+                    @foreach (var discount in Model.DiscountBox.AppliedDiscountsWithCodes)
+                    {
+                        <div class="current-code">
+                            <span class="applied-discount-code">@string.Format(T("ShoppingCart.DiscountCouponCode.CurrentCode").Text, discount.CouponCode)</span>
+                            <button type="button" name="removediscount-@discount.Id" class="remove-discount-button">
+                                <span class="pi-delete"></span>
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

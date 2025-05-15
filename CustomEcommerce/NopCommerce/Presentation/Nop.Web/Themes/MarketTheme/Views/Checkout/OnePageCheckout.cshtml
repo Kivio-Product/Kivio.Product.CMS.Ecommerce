@@ -262,10 +262,10 @@
                             }
                         </div>
                     }
-                    <div class="discount-section"></div>
-                    <div class="discount-input">
-                        <input type="text" placeholder="Código de descuento" />
-                        <button class="aplicar-btn">Aplicar</button>
+
+                    <div class="discount-gift-card-section">
+                        @* @await Html.PartialAsync("_OpcDiscountBox", Model)
+                        @await Html.PartialAsync("_OpcGiftCardBox", Model) *@
                     </div>
                 </div>
 
@@ -282,4 +282,6 @@
         Accordion.hideSection('#opc-billing');
         Billing.save();
     }
+
+    DiscountGiftCard.init();
 </script>
