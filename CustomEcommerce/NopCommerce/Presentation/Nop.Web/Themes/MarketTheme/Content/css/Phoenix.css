@@ -2938,6 +2938,8 @@ button.mfp-close, button.mfp-arrow {
 
 .nop-slider .slider-img {
   width: 100%;
+  border-radius: 15px;
+  padding: 7px;
 }
 .prices {
   direction: ltr !important;
