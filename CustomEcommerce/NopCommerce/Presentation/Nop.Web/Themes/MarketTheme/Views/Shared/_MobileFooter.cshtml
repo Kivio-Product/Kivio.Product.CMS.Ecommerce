@@ -1,0 +1,47 @@
+@{
+    var currentPath = Context.Request.Path.Value?.ToLower() ?? "";
+
+    var routePatterns = new Dictionary<string, string[]> {
+        { "Homepage", new[] { "/" } },
+        { "ProductSearch", new[] { "/search" } },
+        { "ShoppingCart", new[] { "/cart" } },
+        { "CustomerInfo", new[] { "/customer/info" } }
+    };
+
+    Func<string, bool> IsActive = (routeName) => {
+        if (!routePatterns.ContainsKey(routeName)) return false;
+        
+        if (routeName == "Homepage") {
+            return currentPath == "/" || currentPath == "/home";
+        }
+        
+        foreach (var pattern in routePatterns[routeName]) {
+            if (currentPath.Contains(pattern) && pattern != "/") {
+                return true;
+            }
+        }
+        
+        return false;
+    };
+}
+
+<footer class="mobile-footer">
+    <nav class="nav-container">
+        <a href="@Url.RouteUrl("Homepage")" class="nav-item @(IsActive("Homepage") ? "active" : "")">
+            <div class="icon">🏠</div>
+            <span>@T("Footer.Home")</span>
+        </a>
+        <a href="@Url.RouteUrl("ProductSearch")" class="nav-item @(IsActive("ProductSearch") ? "active" : "")">
+            <div class="icon">🔍</div>
+            <span>@T("Footer.Search")</span>
+        </a>
+        <a href="@Url.RouteUrl("ShoppingCart")" class="nav-item @(IsActive("ShoppingCart") ? "active" : "")">
+            <div class="icon">🛒</div>
+            <span>@T("Footer.Cart")</span>
+        </a>
+        <a href="@Url.RouteUrl("CustomerInfo")" class="nav-item @(IsActive("CustomerInfo") ? "active" : "")">
+            <div class="icon">👤</div>
+            <span>@T("Footer.Customer")</span>
+        </a>
+    </nav>
+</footer>
