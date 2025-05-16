@@ -24,6 +24,16 @@
 }
 <div class="product-item" data-productid="@Model.Id">
     <div class="product-img picture">
+        <div class="product-icon">
+            @if (!Model.ProductPrice.DisableWishlistButton)
+            {
+                <button type="button" class="button-2 add-to-wishlist-button" title="@T("ShoppingCart.AddToWishlist")" onclick="AjaxCart.addproducttocart_catalog('@addtowishlistlink');return false;"><span class="pi-heart"></span> </button>
+            }
+            @if (!Model.ProductPrice.DisableAddToCompareListButton)
+            {
+                <button type="button" class="button-2 add-to-compare-list-button" title="@T("ShoppingCart.AddToCompareList")" onclick="AjaxCart.addproducttocomparelist('@addtocomparelink');return false;"><span class="pi-compare"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span><span class="path14"></span><span class="path15"></span><span class="path16"></span><span class="path17"></span><span class="path18"></span><span class="path19"></span></span> </button>
+            }
+        </div>
         @if (Model.PictureModels.Count > 1)
         {
             <div class="swiper" id="swiper-@Model.Id" dir="@Html.GetUIDirection(!await Html.ShouldUseRtlThemeAsync())">
@@ -55,16 +65,6 @@
                 <img alt="@picture?.AlternateText" src="@picture?.ImageUrl" title="@picture?.Title" />
             </a>
         }
-        <div class="product-icon item-desktop-icon">
-            @if (!Model.ProductPrice.DisableWishlistButton)
-            {
-                <button type="button" class="button-2 add-to-wishlist-button" title="@T("ShoppingCart.AddToWishlist")" onclick="AjaxCart.addproducttocart_catalog('@addtowishlistlink');return false;"><span class="pi-heart"></span> </button>
-            }
-            @if (!Model.ProductPrice.DisableAddToCompareListButton)
-            {
-                <button type="button" class="button-2 add-to-compare-list-button" title="@T("ShoppingCart.AddToCompareList")" onclick="AjaxCart.addproducttocomparelist('@addtocomparelink');return false;"><span class="pi-compare"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span><span class="path14"></span><span class="path15"></span><span class="path16"></span><span class="path17"></span><span class="path18"></span><span class="path19"></span></span> </button>
-            }
-        </div>
     </div>
     <div class="details">
         <h2 class="product-title">
@@ -119,7 +119,7 @@
                 }
             }
 
-            <div class="buttons desktop-cart-button">
+            <div class="buttons">
                 @*<button type="button" class="button-1 product-box-detail-button" onclick="setLocation('@Url.RouteUrl("Product", new { SeName = Model.SeName })')">@T("Products.Details")</button>*@
                 @if (!Model.ProductPrice.DisableBuyButton)
                 {
@@ -139,33 +139,6 @@
                 }
 
             </div>
-        </div>
-
-        <div class="buttons px-mobile-buttons">
-            @*<button type="button" class="button-1 product-box-detail-button" onclick="setLocation('@Url.RouteUrl("Product", new { SeName = Model.SeName })')">@T("Products.Details")</button>*@
-            @if (!Model.ProductPrice.DisableBuyButton)
-            {
-                var addToCartText = T("ShoppingCart.AddToCart").Text;
-                if (Model.ProductPrice.IsRental)
-                {
-                    addToCartText = T("ShoppingCart.Rent").Text;
-                }
-                if (Model.ProductPrice.AvailableForPreOrder)
-                {
-                    addToCartText = T("ShoppingCart.PreOrder").Text;
-                }
-                <button type="button" class="button-2 product-box-add-to-cart-button primary-btn" onclick="AjaxCart.addproducttocart_catalog('@addtocartlink');return false;">
-                    <span class="pi-px-shopping-cart"></span>
-                </button>
-            }
-            @if (!Model.ProductPrice.DisableWishlistButton)
-            {
-                <button type="button" class="button-2 add-to-wishlist-button" title="@T("ShoppingCart.AddToWishlist")" onclick="AjaxCart.addproducttocart_catalog('@addtowishlistlink');return false;"><span class="pi-heart"></span> </button>
-            }
-            @if (!Model.ProductPrice.DisableAddToCompareListButton)
-            {
-                <button type="button" class="button-2 add-to-compare-list-button" title="@T("ShoppingCart.AddToCompareList")" onclick="AjaxCart.addproducttocomparelist('@addtocomparelink');return false;"><span class="pi-compare"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span><span class="path14"></span><span class="path15"></span><span class="path16"></span><span class="path17"></span><span class="path18"></span><span class="path19"></span></span> </button>
-            }
         </div>
 
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductBoxAddinfoMiddle, additionalData = Model })

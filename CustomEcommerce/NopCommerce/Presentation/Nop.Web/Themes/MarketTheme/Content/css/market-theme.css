@@ -261,6 +261,173 @@
   border-radius: 10px;
 }
 
+.discount-coupon-wrapper,
+.giftcard-wrapper {
+  margin-bottom: 1rem;
+}
+
+.discount-form,
+.giftcard-form {
+  display: flex;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #f9f9f9;
+}
+
+.discount-input,
+.giftcard-input {
+  flex: 1;
+  border: 1px solid #e5e7eb;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+  background-color: white;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.discount-input:focus,
+.giftcard-input:focus {
+  border-color: #d1d5db;
+}
+
+.discount-button,
+.giftcard-button {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  padding: 0 1.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.discount-button:hover,
+.giftcard-button:hover {
+  background-color: #e5e7eb;
+}
+
+.discount-messages,
+.giftcard-messages {
+  margin-top: 0.75rem;
+}
+
+.message {
+  padding: 0.5rem 0;
+  font-size: 0.75rem;
+}
+
+.success {
+  color: #047857;
+}
+
+.error {
+  color: #dc2626;
+}
+
+.applied-discounts,
+.applied-giftcards {
+  margin-top: 0.75rem;
+}
+
+.applied-discount,
+.applied-giftcard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.discount-code,
+.giftcard-code {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.remove-discount,
+.remove-giftcard {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.remove-discount:hover,
+.remove-giftcard:hover {
+  color: #ef4444;
+}
+
+.giftcard-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.giftcard-balance {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.mobile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.mobile-grid .item-box {
+  width: 100%;
+  margin: 0;
+}
+
+.mobile-grid .owl-item {
+  float: none;
+  position: static;
+}
+
+.product-img {
+  position: relative;
+}
+
+.product-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.product-icon button {
+  background-color: white;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.product-icon button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
 @media all and (max-width: 1000px) {
   .flyout-cart {
     position: fixed;
@@ -413,125 +580,6 @@
   }
 }
 
-.discount-coupon-wrapper,
-.giftcard-wrapper {
-  margin-bottom: 1rem;
-}
-
-.discount-form,
-.giftcard-form {
-  display: flex;
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: #f9f9f9;
-}
-
-.discount-input,
-.giftcard-input {
-  flex: 1;
-  border: 1px solid #e5e7eb;
-  border-right: none;
-  border-radius: 8px 0 0 8px;
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  color: #4b5563;
-  background-color: white;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.discount-input:focus,
-.giftcard-input:focus {
-  border-color: #d1d5db;
-}
-
-.discount-button,
-.giftcard-button {
-  background-color: #f3f4f6;
-  color: #4b5563;
-  font-weight: 500;
-  border: 1px solid #e5e7eb;
-  border-left: none;
-  border-radius: 0 8px 8px 0;
-  padding: 0 1.5rem;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.discount-button:hover,
-.giftcard-button:hover {
-  background-color: #e5e7eb;
-}
-
-.discount-messages,
-.giftcard-messages {
-  margin-top: 0.75rem;
-}
-
-.message {
-  padding: 0.5rem 0;
-  font-size: 0.75rem;
-}
-
-.success {
-  color: #047857;
-}
-
-.error {
-  color: #dc2626;
-}
-
-.applied-discounts,
-.applied-giftcards {
-  margin-top: 0.75rem;
-}
-
-.applied-discount,
-.applied-giftcard {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-.discount-code,
-.giftcard-code {
-  font-size: 0.875rem;
-  color: #4b5563;
-}
-
-.remove-discount,
-.remove-giftcard {
-  background: none;
-  border: none;
-  color: #9ca3af;
-  cursor: pointer;
-  padding: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s;
-}
-
-.remove-discount:hover,
-.remove-giftcard:hover {
-  color: #ef4444;
-}
-
-.giftcard-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.giftcard-balance {
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin-top: 0.25rem;
-}
-
 @media (max-width: 640px) {
   .discount-form,
   .giftcard-form {
@@ -552,5 +600,32 @@
     border-radius: 8px;
     width: 100%;
     padding: 0.625rem;
+  }
+
+  .px-button-review {
+    display: block !important;
+  }
+
+  .item-box .buttons {
+    display: block !important;
+  }
+
+  .item-box .actual-price {
+    margin: 0 !important;
+  }
+
+  .product-icon button {
+    width: 32px;
+    height: 32px;
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .product-icon {
+    opacity: 1 !important;
+    transition: none !important;
+    animation: none !important;
+    gap: 5px;
+    background: none !important;
   }
 }
