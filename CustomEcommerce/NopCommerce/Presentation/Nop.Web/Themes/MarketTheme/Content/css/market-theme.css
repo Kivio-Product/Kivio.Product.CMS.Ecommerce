@@ -719,6 +719,32 @@
   background-color: #5f3ab0;
 }
 
+.px_input_field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  width: 100%;
+}
+
+.px_input_field .px_icon {
+  position: static;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+}
+
+.px_input_field input,
+.px_input_field select {
+  flex: 1;
+  padding-left: 10px;
+}
+
+.px_register_input {
+  margin-bottom: 15px;
+}
+
 @media all and (max-width: 1000px) {
   .flyout-cart {
     position: fixed;
@@ -954,5 +980,9 @@
 
   .product-review-item .review-title {
     margin: 0 !important;
+  }
+
+  .px_input_field {
+    gap: 8px;
   }
 }
