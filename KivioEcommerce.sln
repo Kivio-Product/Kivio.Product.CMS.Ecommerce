@@ -132,6 +132,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{4931
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Api", "CustomEcommerce\NopCommerce\Plugins\Nop.Plugin.Api\Nop.Plugin.Api.csproj", "{30134887-7709-4F42-B69E-5853AFCA8EC0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Tax.FixedOrByCountryStateZip", "NopCommerce\src\Plugins\Nop.Plugin.Tax.FixedOrByCountryStateZip\Nop.Plugin.Tax.FixedOrByCountryStateZip.csproj", "{2F88B0F8-A600-40A7-97AF-989D12335394}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -242,6 +244,10 @@ Global
 		{30134887-7709-4F42-B69E-5853AFCA8EC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{30134887-7709-4F42-B69E-5853AFCA8EC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{30134887-7709-4F42-B69E-5853AFCA8EC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F88B0F8-A600-40A7-97AF-989D12335394}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F88B0F8-A600-40A7-97AF-989D12335394}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F88B0F8-A600-40A7-97AF-989D12335394}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F88B0F8-A600-40A7-97AF-989D12335394}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -280,5 +286,6 @@ Global
 		{6D839496-48A0-432A-B4FC-C5DD2F67B9EB} = {A9C544B2-81A1-4F5D-A467-9FB67CF809A6}
 		{4931570F-B885-4E7A-9253-C9604C6AAE3F} = {6D839496-48A0-432A-B4FC-C5DD2F67B9EB}
 		{30134887-7709-4F42-B69E-5853AFCA8EC0} = {4931570F-B885-4E7A-9253-C9604C6AAE3F}
+		{2F88B0F8-A600-40A7-97AF-989D12335394} = {05448DF8-4EEE-43E4-B96F-E6CED46FCBE8}
 	EndGlobalSection
 EndGlobal
