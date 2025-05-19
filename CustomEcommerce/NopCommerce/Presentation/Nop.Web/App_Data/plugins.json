@@ -30,6 +30,10 @@
     {
       "SystemName": "Nop.Plugin.Api",
       "Version": "4.8.0"
+    },
+    {
+      "SystemName": "Tax.FixedOrByCountryStateZip",
+      "Version": "4.80.3"
     }
   ],
   "PluginNamesToUninstall": [],
