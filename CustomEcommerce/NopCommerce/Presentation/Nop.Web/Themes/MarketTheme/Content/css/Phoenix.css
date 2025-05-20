@@ -434,7 +434,9 @@ ul.login-list li :hover{
   margin-left: 0;
 }
 .px_featured .item-box .details h2 a,
-.center-2 .item-box .details h2 a {
+.center-2 .item-box .details h2 a,
+.item-box .details h2 a
+ {
   text-overflow: ellipsis;
   -webkit-box-orient: vertical;
   display: -webkit-box;
@@ -2693,8 +2695,8 @@ button.mfp-close, button.mfp-arrow {
 .item-box .details h2 a {
     margin-right: auto;
     color: #535862;
-    font-size: 24px;
-    font-weight: 500;
+    font-size: 19px;
+    font-weight: 400;
 }
 .px_featured .owl-nav button.owl-prev,
 .px_featured .owl-nav button.owl-next {
@@ -2707,12 +2709,12 @@ button.mfp-close, button.mfp-arrow {
     position: absolute;
 }
 .px_featured .owl-nav button.owl-prev {
-    top: -60px;
+    top: -35px;
     left: auto;
     right: 65px;
 }
 .px_featured .owl-nav button.owl-next {
-    top: -60px;
+    top: -35px;
     left: auto;
     right: 15px;
 }
