@@ -1613,12 +1613,11 @@ text-decoration: underline;
   margin: 0 15px 30px;
 }
 .item-box .product-title {
-  margin: 0 0 16px;
   font-size: 18px;
   line-height: 1.2;
   font-weight: 500;
   color: #000;
-  min-height: 42px;
+  min-height: 50px;
 }
 .slick-track {
   display: flex !important;
