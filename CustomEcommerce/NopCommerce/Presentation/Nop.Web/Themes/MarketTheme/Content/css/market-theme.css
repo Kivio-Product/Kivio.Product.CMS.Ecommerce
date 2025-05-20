@@ -745,6 +745,11 @@
   margin-bottom: 15px;
 }
 
+.product-sorting,
+.product-page-size {
+  border-radius: 8px;
+}
+
 @media all and (max-width: 1000px) {
   .flyout-cart {
     position: fixed;
