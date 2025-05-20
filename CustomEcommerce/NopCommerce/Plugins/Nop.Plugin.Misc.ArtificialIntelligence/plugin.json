@@ -1,0 +1,11 @@
+{
+  "Group": "Misc",
+  "FriendlyName": "Artificial Intelligence Suggester",
+  "SystemName": "Misc.ArtificialIntelligence",
+  "Version": "1.00",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Your Company Name",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.ArtificialIntelligence.dll",
+  "Description": "Provides customers with AI-generated recipe suggestions based on the product they are viewing."
+}
