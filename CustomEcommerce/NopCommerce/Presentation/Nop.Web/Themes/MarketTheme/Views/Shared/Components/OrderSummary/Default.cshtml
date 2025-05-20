@@ -275,13 +275,13 @@
                         }
                     </div>
                 </div>
-                <div class="cart-options">
+                @* <div class="cart-options">
                     @if (Model.IsEditable)
                     {
                         @await Html.PartialAsync("_CheckoutAttributes", Model)
                     }
                     @await Component.InvokeAsync(typeof(SelectedCheckoutAttributesViewComponent))
-                </div>
+                </div> *@
 
             </div>
             <div class="px_total">
