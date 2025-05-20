@@ -2710,12 +2710,12 @@ button.mfp-close, button.mfp-arrow {
     position: absolute;
 }
 .px_featured .owl-nav button.owl-prev {
-    top: -60px;
+    top: -35px;
     left: auto;
     right: 65px;
 }
 .px_featured .owl-nav button.owl-next {
-    top: -60px;
+    top: -35px;
     left: auto;
     right: 15px;
 }
