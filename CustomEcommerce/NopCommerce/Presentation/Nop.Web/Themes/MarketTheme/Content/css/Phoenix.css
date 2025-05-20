@@ -434,7 +434,10 @@ ul.login-list li :hover{
   margin-left: 0;
 }
 .px_featured .item-box .details h2 a,
-.center-2 .item-box .details h2 a {
+.center-2 .item-box .details h2 a,
+.item-box .details h2 a
+ {
+  min-height: 60px;
   text-overflow: ellipsis;
   -webkit-box-orient: vertical;
   display: -webkit-box;
