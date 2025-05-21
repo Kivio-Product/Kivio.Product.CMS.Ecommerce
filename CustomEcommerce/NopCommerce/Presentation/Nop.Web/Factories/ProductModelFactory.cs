@@ -1260,7 +1260,7 @@ public partial class ProductModelFactory : IProductModelFactory
     /// A task that represents the asynchronous operation
     /// The task result contains the collection of product overview model
     /// </returns>
-    public virtual async Task<IEnumerable<ProductOverviewModel>> PrepareProductOverviewModelsAsync(IEnumerable<Product> products,
+   public virtual async Task<IEnumerable<ProductOverviewModel>> PrepareProductOverviewModelsAsync(IEnumerable<Product> products,
         bool preparePriceModel = true, bool preparePictureModel = true,
         int? productThumbPictureSize = null, bool prepareSpecificationAttributes = false,
         bool forceRedirectionAfterAddingToCart = false)
@@ -1288,6 +1288,19 @@ public partial class ProductModelFactory : IProductModelFactory
             if (preparePriceModel)
             {
                 model.ProductPrice = await PrepareProductPriceModelAsync(product, true, forceRedirectionAfterAddingToCart);
+                
+                if (model.ProductPrice != null && 
+                    model.ProductPrice.OldPriceValue.HasValue && 
+                    model.ProductPrice.PriceValue.HasValue &&
+                    model.ProductPrice.OldPriceValue > 0)
+                {
+                    decimal discountPercentage = ((model.ProductPrice.OldPriceValue.Value - model.ProductPrice.PriceValue.Value) / 
+                                                model.ProductPrice.OldPriceValue.Value) * 100;
+                    
+                    discountPercentage = Math.Round(discountPercentage, 2);
+                    model.ProductPrice.DiscountPercentage = discountPercentage;
+                    model.HasHighDiscount = discountPercentage >= 40;
+                }
             }
 
             //picture

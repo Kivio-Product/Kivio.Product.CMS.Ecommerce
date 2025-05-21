@@ -28,14 +28,35 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </a>
             </div>
-            <div id="product-container" class="item-grid">
-                @foreach (var item in Model)
-                {
-                    <div class="item-box">
-                        @await Html.PartialAsync("_ProductBox", item)
-                    </div>
-                }
-            </div>
+            
+            @{
+                var highDiscountProducts = Model.Where(p => p.HasHighDiscount).ToList();
+                var regularDiscountProducts = Model.Where(p => !p.HasHighDiscount).ToList();
+            }
+            
+            @if (highDiscountProducts.Any())
+            {
+                <div id="high-discount-products" class="item-grid high-discount-row">
+                    @foreach (var item in highDiscountProducts)
+                    {
+                        <div class="item-box high-discount-box">
+                            @await Html.PartialAsync("_ProductBox", item)
+                        </div>
+                    }
+                </div>
+            }
+            
+            @if (regularDiscountProducts.Any())
+            {
+                <div id="regular-discount-products" class="item-grid regular-discount-row">
+                    @foreach (var item in regularDiscountProducts)
+                    {
+                        <div class="item-box">
+                            @await Html.PartialAsync("_ProductBox", item)
+                        </div>
+                    }
+                </div>
+            }
         </div>
     </div>
 }
@@ -43,25 +64,70 @@
 <script asp-location="Footer">
     $(document).ready(function() {
         function setupProductDisplay() {
-            var container = $('#product-container');
+            var highDiscountContainer = $('#high-discount-products');
+            var regularDiscountContainer = $('#regular-discount-products');
             
             if (window.innerWidth <= 767) {
-                if (container.hasClass('owl-carousel')) {
-                    container.trigger('destroy.owl.carousel');
-                    container.removeClass('owl-carousel px_featured');
-                    container.find('.owl-stage-outer, .owl-stage, .owl-item').css({
+                if (highDiscountContainer.length && highDiscountContainer.hasClass('owl-carousel')) {
+                    highDiscountContainer.trigger('destroy.owl.carousel');
+                    highDiscountContainer.removeClass('owl-carousel px_featured');
+                    highDiscountContainer.find('.owl-stage-outer, .owl-stage, .owl-item').css({
                         'width': '100%',
                         'transform': 'none'
                     });
                 }
-                container.addClass('mobile-grid');
+                highDiscountContainer.addClass('mobile-grid');
+                
+                highDiscountContainer.find('.item-box').slice(2).hide();
+                
+                if (regularDiscountContainer.length && regularDiscountContainer.hasClass('owl-carousel')) {
+                    regularDiscountContainer.trigger('destroy.owl.carousel');
+                    regularDiscountContainer.removeClass('owl-carousel px_featured');
+                    regularDiscountContainer.find('.owl-stage-outer, .owl-stage, .owl-item').css({
+                        'width': '100%',
+                        'transform': 'none'
+                    });
+                }
+                regularDiscountContainer.addClass('mobile-grid');
+                
+                regularDiscountContainer.find('.item-box').slice(3).hide();
             } else {
-                container.removeClass('mobile-grid');
-                if (!container.hasClass('owl-carousel')) {
-                    container.addClass('owl-carousel px_featured');
-                    container.owlCarousel({
+                highDiscountContainer.removeClass('mobile-grid');
+                highDiscountContainer.find('.item-box').show();
+                
+                if (highDiscountContainer.length && highDiscountContainer.find('.item-box').length > 3 && !highDiscountContainer.hasClass('owl-carousel')) {
+                    highDiscountContainer.addClass('owl-carousel px_featured');
+                    highDiscountContainer.owlCarousel({
                         autoplay: false,
-                        loop: true,
+                        loop: highDiscountContainer.find('.item-box').length > 3,
+                        rtl: true,
+                        responsiveClass: true,
+                        autoHeight: true,
+                        navigation: true,
+                        dots: false,
+                        nav: true,
+                        responsive: {
+                            0: {
+                                items: 1
+                            },
+                            600: {
+                                items: 2
+                            },
+                            1024: {
+                                items: 3
+                            }
+                        }
+                    });
+                }
+                
+                regularDiscountContainer.removeClass('mobile-grid');
+                regularDiscountContainer.find('.item-box').show();
+                
+                if (regularDiscountContainer.length && regularDiscountContainer.find('.item-box').length > 5 && !regularDiscountContainer.hasClass('owl-carousel')) {
+                    regularDiscountContainer.addClass('owl-carousel px_featured');
+                    regularDiscountContainer.owlCarousel({
+                        autoplay: false,
+                        loop: regularDiscountContainer.find('.item-box').length > 5,
                         rtl: true,
                         responsiveClass: true,
                         autoHeight: true,
@@ -79,7 +145,7 @@
                                 items: 3
                             },
                             1366: {
-                                items: 4
+                                items: 5
                             }
                         }
                     });
