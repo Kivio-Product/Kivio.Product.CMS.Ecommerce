@@ -1,89 +1,211 @@
 ﻿@model CheckoutPaymentMethodModel
+@using Nop.Core;
+@inject IWorkContext workContext
+@{
+    var currentCurrency = await workContext.GetWorkingCurrencyAsync();
+    string currencyCode = currentCurrency.CurrencyCode;
+}
+
 <div class="checkout-data">
     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OpCheckoutPaymentMethodTop, additionalData = Model })
-    <div class="section payment-method">
+    <div class="section payment-method-section">
         @if (Model.DisplayRewardPoints && Model.PaymentMethods.Count > 0)
         {
-        <div class="use-reward-points">
-            @if (Model.RewardPointsEnoughToPayForOrder)
-            {
-                <label class="checkbox path" asp-for="UseRewardPoints">
-                    <input type="checkbox" asp-for="UseRewardPoints" onclick="PaymentMethod.toggleUseRewardPoints(this)" />
-                    <svg viewBox="0 0 21 21">
-                        <path d="M5,10.75 L8.5,14.25 L19.4,2.3 C18.8333333,1.43333333 18.0333333,1 17,1 L4,1 C2.35,1 1,2.35 1,4 L1,17 C1,18.65 2.35,20 4,20 L17,20 C18.65,20 20,18.65 20,17 L20,7.99769186"></path>
-                    </svg>
-                    @string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsBalance, Model.RewardPointsToUseAmount)
-                </label>
-            }
-            else
-            {
-
-                <label class="checkbox path">
-                    <input type="checkbox" asp-for="UseRewardPoints" onclick="PaymentMethod.toggleUseRewardPoints(this)" />
-                    <svg viewBox="0 0 21 21">
-                        <path d="M5,10.75 L8.5,14.25 L19.4,2.3 C18.8333333,1.43333333 18.0333333,1 17,1 L4,1 C2.35,1 1,2.35 1,4 L1,17 C1,18.65 2.35,20 4,20 L17,20 C18.65,20 20,18.65 20,17 L20,7.99769186"></path>
-                    </svg>
-                </label>
-            }
-        <label asp-for="UseRewardPoints">@string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsToUse, Model.RewardPointsBalance, Model.RewardPointsToUseAmount)</label>
-            @if (Model.RewardPointsEnoughToPayForOrder)
-            {
-                <script>
+            <div class="reward-points-block">
+                @if (Model.RewardPointsEnoughToPayForOrder)
+                {
+                    <label class="checkbox-container" asp-for="UseRewardPoints">
+                        <input type="checkbox" asp-for="UseRewardPoints" onclick="PaymentMethod.toggleUseRewardPoints(this)" />
+                        <span class="checkmark">
+                            <svg viewBox="0 0 21 21">
+                                <path d="M5,10.75 L8.5,14.25 L19.4,2.3 C18.8333333,1.43333333 18.0333333,1 17,1 L4,1 C2.35,1 1,2.35 1,4 L1,17 C1,18.65 2.35,20 4,20 L17,20 C18.65,20 20,18.65 20,17 L20,7.99769186"></path>
+                            </svg>
+                        </span>
+                        <span class="reward-points-text">@string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsBalance, Model.RewardPointsToUseAmount)</span>
+                    </label>
+                    <script>
                         $(function () {
                             PaymentMethod.toggleUseRewardPoints($('#@Html.IdFor(model => model.UseRewardPoints)'));
                         });
-                </script>
-            }
-        </div>
+                    </script>
+                }
+                else
+                {
+                    <label class="checkbox-container" asp-for="UseRewardPoints">
+                        <input type="checkbox" asp-for="UseRewardPoints" onclick="PaymentMethod.toggleUseRewardPoints(this)" />
+                        <span class="checkmark">
+                            <svg viewBox="0 0 21 21">
+                                <path d="M5,10.75 L8.5,14.25 L19.4,2.3 C18.8333333,1.43333333 18.0333333,1 17,1 L4,1 C2.35,1 1,2.35 1,4 L1,17 C1,18.65 2.35,20 4,20 L17,20 C18.65,20 20,18.65 20,17 L20,7.99769186"></path>
+                            </svg>
+                        </span>
+                        <span class="reward-points-text">@string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsToUse, Model.RewardPointsBalance, Model.RewardPointsToUseAmount)</span>
+                    </label>
+                }
+            </div>
         }
+        
         @if (Model.PaymentMethods.Count > 0)
         {
-            <ul class="method-list" id="payment-method-block">
-                @for (var i = 0; i < Model.PaymentMethods.Count; i++)
-                {
-                    var paymentMethod = Model.PaymentMethods[i];
-                    var paymentMethodName = paymentMethod.Name;
-                    if (!string.IsNullOrEmpty(paymentMethod.Fee))
+            <div class="payment-methods-container">
+                <h4 class="payment-methods-title">@T("Checkout.SelectPaymentMethod")</h4>
+                <ul class="payment-methods-list" id="payment-method-block">
+                    @for (var i = 0; i < Model.PaymentMethods.Count; i++)
                     {
-                        paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
+                        var paymentMethod = Model.PaymentMethods[i];
+                        var paymentMethodName = paymentMethod.Name;
+                        
+                        bool isPayU = paymentMethod.PaymentMethodSystemName.Equals("Payments.PayU", StringComparison.InvariantCultureIgnoreCase);
+                        string payUMinimumAmountResourceKey = $"Checkout.PayU.MinimumAmountValue.{currencyCode}";
+                        string payUMinimumAmountText = T(payUMinimumAmountResourceKey).Text;
+                        if (string.IsNullOrEmpty(payUMinimumAmountText) || payUMinimumAmountText == payUMinimumAmountResourceKey)
+                        {
+                            payUMinimumAmountText = T("Checkout.PayU.MinimumAmountValue").Text;
+                        }
+                        decimal payUMinimumAmount = decimal.TryParse(payUMinimumAmountText, out decimal result) ? result : 0;
+                        bool isPayUBelowMinimum = isPayU && Model.OrderTotals.SubTotalValue < payUMinimumAmount;
+                        
+                        bool isCashOnDelivery = paymentMethod.PaymentMethodSystemName.Equals("Payments.CashOnDelivery", StringComparison.InvariantCultureIgnoreCase);
+                        string codMinimumAmountResourceKey = $"Checkout.CashOnDelivery.MinimumAmountValue.{currencyCode}";
+                        string codMinimumAmountText = T(codMinimumAmountResourceKey).Text;
+                        if (string.IsNullOrEmpty(codMinimumAmountText) || codMinimumAmountText == codMinimumAmountResourceKey)
+                        {
+                            codMinimumAmountText = T("Checkout.CashOnDelivery.MinimumAmountValue").Text;
+                        }
+                        decimal codMinimumAmount = decimal.TryParse(codMinimumAmountText, out decimal codResult) ? codResult : 0;
+                        bool isCodBelowMinimum = isCashOnDelivery && Model.OrderTotals.SubTotalValue < codMinimumAmount;
+                        
+                        if (!string.IsNullOrEmpty(paymentMethod.Fee))
+                        {
+                            paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
+                        }
+                        
+                        <li class="payment-method-item @(isPayUBelowMinimum || isCodBelowMinimum ? "payment-method-disabled" : "")">
+                            <div class="payment-method-box">
+                                @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
+                                {
+                                    <div class="payment-method-logo">
+                                        <label for="paymentmethod_@(i)" @(isPayUBelowMinimum || isCodBelowMinimum ? "class=disabled-label" : "")>
+                                            <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
+                                        </label>
+                                    </div>
+                                }
+                                <div class="payment-method-content">
+                                    <div class="payment-method-option">
+                                        <label for="paymentmethod_@(i)" @(isPayUBelowMinimum || isCodBelowMinimum ? "class=disabled-label" : "")>
+                                            <input id="paymentmethod_@(i)" 
+                                                   type="radio" 
+                                                   name="paymentmethod" 
+                                                   value="@(paymentMethod.PaymentMethodSystemName)" 
+                                                   checked="@paymentMethod.Selected"
+                                                   @(isPayUBelowMinimum || isCodBelowMinimum ? "disabled" : "") />
+                                            <span class="radio-custom">
+                                                <span class="radio-indicator"></span>
+                                            </span>
+                                            <span class="payment-method-name">@paymentMethodName</span>
+                                        </label>
+                                    </div>
+                                    
+                                    @* @if (!string.IsNullOrEmpty(paymentMethod.Description))
+                                    {
+                                        <div class="payment-method-description">@paymentMethod.Description</div>
+                                    } *@
+                                    
+                                    @if (isPayU)
+                                    {
+                                        <div class="payment-message @(isPayUBelowMinimum ? "payment-message-error" : "payment-message-warning")">
+                                            @if (isPayUBelowMinimum)
+                                            {
+                                                <div class="message-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <circle cx="12" cy="12" r="10"></circle>
+                                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                                    </svg>
+                                                </div>
+                                                <div class="message-text">
+                                                    @T("Checkout.PayU.MinimumAmount", string.Format("{0:N0}", payUMinimumAmount), currencyCode)
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="message-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                                                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                                    </svg>
+                                                </div>
+                                                <div class="message-text">
+                                                    @T("Checkout.PayU.AdditionalFee", "Al pagar con PayU, asumirás un cargo adicional.")
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                    
+                                    @if (isCashOnDelivery)
+                                    {
+                                        <div class="payment-message @(isCodBelowMinimum ? "payment-message-error" : "payment-message-info")">
+                                            @if (isCodBelowMinimum)
+                                            {
+                                                <div class="message-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <circle cx="12" cy="12" r="10"></circle>
+                                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                                    </svg>
+                                                </div>
+                                                <div class="message-text">
+                                                    @T("Checkout.CashOnDelivery.MinimumAmount", string.Format("{0:N0}", codMinimumAmount), currencyCode)
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="message-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <circle cx="12" cy="12" r="10"></circle>
+                                                        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                                        <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                                                        <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                                                    </svg>
+                                                </div>
+                                                <div class="message-text">
+                                                    <p>@T("Checkout.CashOnDelivery.AcceptedMethods", "Aceptamos pagos en efectivo y por Nequi")</p>
+                                                    <p>@T("Checkout.CashOnDelivery.WhatsappRedirection", "Al confirmar tu pedido, serás redirigido a WhatsApp para finalizar.")</p>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </li>
                     }
-                    <li>
-                        <div class="method-name">
-                            @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
-                            {
-                                <div class="payment-logo">
-                                    <label for="paymentmethod_@(i)">
-                                        <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
-                                    </label>
-                                </div>
-                            }
-                        <div class="payment-details">
-                            <label for="paymentmethod_@(i)">
-                                <input id="paymentmethod_@(i)" type="radio" name="paymentmethod" value="@(paymentMethod.PaymentMethodSystemName)" checked="@paymentMethod.Selected" />
-                                <div class="circle">
-                                    <div class="circle--inner circle--inner__1"></div>
-                                    <div class="circle--inner circle--inner__2"></div>
-                                    <div class="circle--inner circle--inner__3"></div>
-                                    <div class="circle--inner circle--inner__4"></div>
-                                    <div class="circle--inner circle--inner__5"></div>
-                                    <div class="circle--outer"></div>
-                                </div>
-                                @paymentMethodName
-                            </label>
-                            @if (!string.IsNullOrEmpty(paymentMethod.Description))
-                            {
-                                <div class="payment-description">@paymentMethod.Description</div>
-                            }
-                        </div>
-                        </div>
-                    </li>
-                }
-            </ul>
+                </ul>
+            </div>
+            
+            <script>
+                $(document).ready(function() {
+                    $('.payment-method-disabled').on('click', function(e) {
+                        e.preventDefault();
+                        return false;
+                    });
+                    
+                    $('.payment-methods-list input[type="radio"]:not([disabled]):first').prop('checked', true);
+                });
+            </script>
         }
         else
         {
-            <div class="message-error">
-                @T("Checkout.NoPaymentMethods")
+            <div class="payment-method-error">
+                <div class="error-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                </div>
+                <div class="error-message">
+                    @T("Checkout.NoPaymentMethods")
+                </div>
             </div>
         }
     </div>

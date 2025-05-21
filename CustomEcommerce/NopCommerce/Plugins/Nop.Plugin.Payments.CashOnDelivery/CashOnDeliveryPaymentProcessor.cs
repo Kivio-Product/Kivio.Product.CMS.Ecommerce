@@ -98,14 +98,14 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
             return;
 
         var billingAddress = await _addressService.GetAddressByIdAsync(order.BillingAddressId);
-        var shippingAddress = order.ShippingAddressId.HasValue 
-            ? await _addressService.GetAddressByIdAsync(order.ShippingAddressId.Value) 
+        var shippingAddress = order.ShippingAddressId.HasValue
+            ? await _addressService.GetAddressByIdAsync(order.ShippingAddressId.Value)
             : billingAddress;
 
         var message = $"¡Hola! Soy {customer.FirstName} {customer.LastName} y quiero confirmar mi pedido.\n\n" +
-                     $"*Detalles del Pedido contraentrega*\n" +
-                     $"Referencia: {order.CustomOrderNumber}\n" +
-                     $"*Productos:*\n";
+                    $"*Detalles del Pedido contraentrega*\n" +
+                    $"Referencia: {order.CustomOrderNumber}\n" +
+                    $"*Productos:*\n";
 
         var orderItems = await _orderService.GetOrderItemsAsync(order.Id);
         foreach (var item in orderItems)
@@ -114,24 +114,40 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
             message += $"• {product.Name} x {item.Quantity} - {item.PriceInclTax:C}\n";
         }
 
-        var stateProvince = shippingAddress.StateProvinceId.HasValue 
-            ? await _stateProvinceService.GetStateProvinceByIdAsync(shippingAddress.StateProvinceId.Value) 
+        var stateProvince = shippingAddress.StateProvinceId.HasValue
+            ? await _stateProvinceService.GetStateProvinceByIdAsync(shippingAddress.StateProvinceId.Value)
             : null;
-        var country = shippingAddress.CountryId.HasValue 
-            ? await _countryService.GetCountryByIdAsync(shippingAddress.CountryId.Value) 
+        var country = shippingAddress.CountryId.HasValue
+            ? await _countryService.GetCountryByIdAsync(shippingAddress.CountryId.Value)
             : null;
 
         message += $"\n*Dirección de Envío:*\n" +
-                  $"{shippingAddress.FirstName} {shippingAddress.LastName}\n" +
-                  $"{shippingAddress.Address1}\n" +
-                  $"{shippingAddress.City}, {stateProvince?.Name} {shippingAddress.ZipPostalCode}\n" +
-                  $"{country?.Name}\n" +
-                  $"Teléfono: {shippingAddress.PhoneNumber}\n\n" +
-                  $"*Resumen de Pago:*\n" +
-                  $"Subtotal: {order.OrderSubtotalInclTax:C}\n" +
-                  $"Envío: {order.OrderShippingInclTax:C}\n" +
-                  $"Total: {order.OrderTotal:C}\n\n" +
-                  $"Por favor, confirma mi pedido contraentrega y avísame cuando esté listo para envío. ¡Gracias!";
+                $"{shippingAddress.FirstName} {shippingAddress.LastName}\n" +
+                $"{shippingAddress.Address1}";
+
+        if (!string.IsNullOrEmpty(shippingAddress.Address2))
+        {
+            message += $"\n{shippingAddress.Address2}";
+        }
+
+        message += $"\n{shippingAddress.City}, {stateProvince?.Name} {shippingAddress.ZipPostalCode}\n" +
+                $"{country?.Name}\n" +
+                $"Teléfono: {shippingAddress.PhoneNumber}\n\n";
+
+        message += $"*Resumen de Pago:*\n" +
+                $"Subtotal: {order.OrderSubtotalInclTax:C}\n";
+
+        if (order.OrderDiscount > 0)
+        {
+            message += $"Descuento: -{order.OrderDiscount:C}\n";
+        }
+
+        message += $"Envío: {order.OrderShippingInclTax:C}\n" +
+                $"Total: {order.OrderTotal:C}\n\n";
+
+        message += $"*Método de pago: Contra entrega*\n" +
+                $"Acepto pagar en efectivo o por Nequi al momento de la entrega.\n\n" +
+                $"Por favor, confirma mi pedido y avísame cuando esté listo para envío. ¡Gracias!";
 
         var whatsappNumber = _cashOnDeliveryPaymentSettings.WhatsAppNumber?.TrimStart('+');
         if (string.IsNullOrEmpty(whatsappNumber))

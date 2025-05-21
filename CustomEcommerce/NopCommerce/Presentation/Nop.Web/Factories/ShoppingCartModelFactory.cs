@@ -1154,6 +1154,7 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
             var subtotalBase = subTotalWithoutDiscountBase;
             var currentCurrency = await _workContext.GetWorkingCurrencyAsync();
             var subtotal = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(subtotalBase, currentCurrency);
+            model.SubTotalValue = subtotal;
             var currentLanguage = await _workContext.GetWorkingLanguageAsync();
             model.SubTotal = await _priceFormatter.FormatPriceAsync(subtotal, true, currentCurrency, currentLanguage.Id, subTotalIncludingTax);
 

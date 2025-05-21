@@ -2103,7 +2103,7 @@ input[type="radio"] {
 .px_subtotal-main .buttons button.button-1.checkout-button.secoendry-btn {
   margin-left: 5px;
   margin-top: 0;
-  border-radius: 0;
+ border-radius: 7px;
 }
 .px_subtotal {
   padding: 20px;
