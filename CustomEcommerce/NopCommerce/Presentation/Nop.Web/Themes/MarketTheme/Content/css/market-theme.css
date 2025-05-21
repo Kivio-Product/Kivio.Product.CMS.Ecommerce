@@ -1048,6 +1048,12 @@ input[type="radio"]:checked + .radio-custom {
   margin: 0 15px 30px;
 }
 
+.home-page .product-custom-grid .item-box {
+  width: calc(20% - 30px);
+  border: 1px solid #e0d2d2;
+  border-radius: 12px;
+}
+
 @media all and (max-width: 1000px) {
   .flyout-cart {
     position: fixed;
