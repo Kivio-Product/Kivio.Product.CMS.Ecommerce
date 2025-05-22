@@ -56,6 +56,9 @@ namespace Nop.Plugin.Payments.PayU
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.UseSandbox", "Use Sandbox");
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.UseSandbox.Hint", "Enable this option to use the sandbox environment for testing purposes.");
 
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.AdditionalFeeEnabled", "Additional fee");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.AdditionalFeeEnabled.Hint", "Enable this option to add an additional fee for using this payment method.");
+
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.AccountId", "Account ID");
             await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Payments.PayU.Fields.AccountId.Hint", "Enter the Account ID provided by PayU.");
 
@@ -91,6 +94,8 @@ namespace Nop.Plugin.Payments.PayU
 
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.UseSandbox");
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.UseSandbox.Hint");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.AdditionalFeeEnabled");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.AdditionalFeeEnabled.Hint");
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.AccountId");
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.AccountId.Hint");
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.PayU.Fields.MerchantId");
@@ -127,7 +132,7 @@ namespace Nop.Plugin.Payments.PayU
 
         public Task<decimal> GetAdditionalHandlingFeeAsync(IList<ShoppingCartItem> cart)
         {
-            return Task.FromResult(0m);
+            return _payUService.GetAdditionalFeeAsync(cart);
         }
 
         public ProcessPaymentRequest GetPaymentInfo(IFormCollection form)
