@@ -284,4 +284,48 @@
     }
 
     DiscountGiftCard.init();
+
+    function validatePoliciesBeforeConfirm() {
+        var termsAccepted = true;
+        var privacyAccepted = true;
+        var validationPassed = true;
+
+        var privacyCheckbox = $('#checkout-step-confirm-order #privacypolicy');
+        if (privacyCheckbox.length > 0) {
+            privacyAccepted = privacyCheckbox.is(':checked');
+            if (!privacyAccepted) {
+                alert('Debes aceptar la Política de Tratamiento de Datos Personales para continuar.');
+                validationPassed = false;
+            }
+        }
+
+        return validationPassed;
+    }
+
+    $(document).ready(function () {
+        if (typeof ConfirmOrder !== 'undefined' && ConfirmOrder.save) {
+            ConfirmOrder.originalSave = ConfirmOrder.save;
+
+            ConfirmOrder.save = function () {
+                if (validatePoliciesBeforeConfirm()) {
+                    ConfirmOrder.originalSave();
+                }
+            };
+        }
+
+        $(document).on('click', '.confirm-order-next-step-button', function (e) {
+            if (!validatePoliciesBeforeConfirm()) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        });
+
+        $(document).on('submit', '#co-confirm-order-form', function (e) {
+            if (!validatePoliciesBeforeConfirm()) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    });
 </script>

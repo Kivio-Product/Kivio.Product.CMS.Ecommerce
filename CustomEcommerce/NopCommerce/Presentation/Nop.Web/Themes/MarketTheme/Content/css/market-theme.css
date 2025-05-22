@@ -1016,14 +1016,14 @@ input[type="radio"]:checked + .radio-custom {
 
 .high-discount-row {
   margin-bottom: 20px;
-  width: 100%;
+  width: 80%;
   display: flex;
   flex-wrap: wrap;
 }
 
 .regular-discount-row {
   margin-bottom: 20px;
-  width: 80%;
+  width: 70%;
   display: flex;
   flex-wrap: wrap;
 }
@@ -1052,6 +1052,133 @@ input[type="radio"]:checked + .radio-custom {
   width: calc(20% - 30px);
   border: 1px solid #e0d2d2;
   border-radius: 12px;
+}
+
+.checkout-agreements {
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.checkout-terms-box {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
+  border: 2px solid #e1e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.checkout-terms-box:hover {
+  border-color: #4f46e5;
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.12);
+  transform: translateY(-1px);
+}
+
+.checkout-terms-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  border-radius: 12px 12px 0 0;
+}
+
+.modern-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  position: relative;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.modern-checkbox input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkbox-custom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  position: relative;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.modern-checkbox:hover .checkbox-custom {
+  border-color: #4f46e5;
+  background: #f3f4f6;
+}
+
+.modern-checkbox input:checked + .checkbox-custom {
+  background: #4f46e5;
+  border-color: #4f46e5;
+}
+
+.modern-checkbox input:checked + .checkbox-custom::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkout-link {
+  color: #4f46e5;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.checkout-link:hover {
+  color: #3730a3;
+  border-bottom-color: #3730a3;
+}
+
+.external-link::after {
+  content: "↗";
+  font-size: 12px;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+
+.checkbox-text {
+  flex: 1;
+}
+
+.modern-checkbox input:focus + .checkbox-custom {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+.checkbox-custom::after {
+  opacity: 0;
+  transform: rotate(45deg) scale(0.8);
+  transition: all 0.15s ease;
+}
+
+.modern-checkbox input:checked + .checkbox-custom::after {
+  opacity: 1;
+  transform: rotate(45deg) scale(1);
 }
 
 @media all and (max-width: 1000px) {
@@ -1343,6 +1470,21 @@ input[type="radio"]:checked + .radio-custom {
   .mobile-grid .button-2.product-box-add-to-cart-button {
     padding: 8px;
     font-size: 12px;
+  }
+
+  .checkout-agreements {
+    margin: 16px 0;
+    gap: 12px;
+  }
+
+  .checkout-terms-box {
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  .modern-checkbox {
+    font-size: 13px;
+    gap: 10px;
   }
 }
 
