@@ -13,6 +13,10 @@ namespace Nop.Plugin.Payments.PayU.Models
         public bool UseSandbox { get; set; }
         public bool UseSandboxOverrideForStore { get; set; }
 
+        [NopResourceDisplayName("Plugins.Payments.PayU.Fields.AdditionalFeeEnabled")]
+        public bool AdditionalFeeEnabled { get; set; }
+        public bool AdditionalFeeEnabledOverrideForStore { get; set; }
+
         [NopResourceDisplayName("Plugins.Payments.PayU.Fields.AccountId")]
         public string AccountId { get; set; }
         public bool AccountIdOverrideForStore { get; set; }

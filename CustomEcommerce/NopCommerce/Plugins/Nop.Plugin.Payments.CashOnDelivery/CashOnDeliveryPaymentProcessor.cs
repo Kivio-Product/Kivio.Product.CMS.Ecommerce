@@ -160,7 +160,6 @@ public class CashOnDeliveryPaymentProcessor : BasePlugin, IPaymentMethod
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext != null)
         {
-            httpContext.Response.Clear();
             httpContext.Response.ContentType = "text/html";
             var scriptRedirect = $"<script>window.location.href='{whatsappUrl}';</script>";
             await httpContext.Response.WriteAsync(scriptRedirect);

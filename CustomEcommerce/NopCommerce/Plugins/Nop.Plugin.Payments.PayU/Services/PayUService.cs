@@ -1,5 +1,4 @@
-﻿
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -30,6 +29,7 @@ namespace Nop.Plugin.Payments.PayU.Services
         private readonly IWorkContext _workContext;
         private readonly ISettingService _settingService;
         private readonly IStoreContext _storeContext;
+        private readonly IOrderTotalCalculationService _orderTotalCalculationService;
 
 
         private string GetPayUUrl => _payUPaymentSettings.UseSandbox
@@ -46,7 +46,8 @@ namespace Nop.Plugin.Payments.PayU.Services
             IOrderService orderService,
             IWorkContext workContext,
             ISettingService settingService,
-            IStoreContext storeContext)
+            IStoreContext storeContext,
+            IOrderTotalCalculationService orderTotalCalculationService)
         {
             _logger = logger;
             _payUPaymentSettings = payUPaymentSettings;
@@ -58,6 +59,52 @@ namespace Nop.Plugin.Payments.PayU.Services
             _workContext = workContext;
             _settingService = settingService;
             _storeContext = storeContext;
+            _orderTotalCalculationService = orderTotalCalculationService;
+        }
+
+        public async Task<decimal> GetAdditionalFeeAsync(IList<ShoppingCartItem> cart)
+        {
+            if (!_payUPaymentSettings.AdditionalFeeEnabled)
+            {
+                return 0m;
+            }
+
+            const decimal payUPercRate = 0.0329m; // 3.29%
+            const decimal payUFixedFee = 300m;    // 300 COP
+            const decimal payUIVARate = 0.19m;     // 19% IVA on PayU's fee
+            var orderTotal = (await _orderTotalCalculationService.GetShoppingCartTotalAsync(cart, usePaymentMethodAdditionalFee: false)).shoppingCartTotal ?? 0;
+
+            // Formula for X: X = (P + F_fija * (1 + IVA_rate)) / (1 - F_pct * (1 + IVA_rate))
+            // Where:
+            // P = orderTotal (subtotal of the order Merkko wants to receive)
+            // F_fija = payUFixedFee (fixed fee charged by PayU)
+            // F_pct = payUPercRate (percentage fee charged by PayU)
+            // IVA_rate = payUIVARate (IVA rate applied to PayU's fee)
+
+            decimal fixedFeeWithIVA = payUFixedFee * (1m + payUIVARate);
+            decimal percFeeWithIVA = payUPercRate * (1m + payUIVARate);
+            decimal numerator = orderTotal + fixedFeeWithIVA;
+            decimal denominator = 1m - percFeeWithIVA;
+
+            // Check for potential division by zero or negative denominator (edge case for extremely high fees)
+            if (denominator <= 0)
+            {
+                return decimal.MaxValue;
+            }
+
+            decimal totalToChargeCustomer = numerator / denominator;
+
+            // The additional fee to return is the difference between what the customer pays (X)
+            decimal additionalFee = totalToChargeCustomer - orderTotal;
+
+            if (additionalFee < 0 && orderTotal == 0)
+            {
+                return 0m;
+            }
+            // Round without decimals
+            additionalFee = Math.Round(additionalFee, 0, MidpointRounding.ToEven);
+
+            return additionalFee;
         }
 
         public async Task<bool> HidePaymentMethodAsync()
@@ -68,7 +115,7 @@ namespace Nop.Plugin.Payments.PayU.Services
             return !payUPaymentSettings.SelectedCurrencyIdList.Contains(currentCurrency);
         }
 
-        public async void RedirectToPayUPayment(PostProcessPaymentRequest postProcessPaymentRequest)
+        public async Task RedirectToPayUPayment(PostProcessPaymentRequest postProcessPaymentRequest)
         {
             string merchantId = _payUPaymentSettings.MerchantId; // ID del comercio (PayU)
             string accountId = _payUPaymentSettings.AccountId; // ID de cuenta (PayU)
@@ -78,10 +125,16 @@ namespace Nop.Plugin.Payments.PayU.Services
             string testMode = _payUPaymentSettings.UseSandbox ? "1" : "0"; // 1 = Sandbox, 0 = Producción
 
             var order = postProcessPaymentRequest.Order;
-            var referenceCode = $"Orden_{order.Id}"; // Código de referencia único
-            var amount = order.OrderTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture); // Monto con formato decimal
-            var tax = "0"; // Impuestos aplicados
-            var taxReturnBase = "0"; // Base de devolución de impuestos
+            var referenceCode = $"Orden_{order.Id}"; 
+            var amount = order.OrderTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture); // Monto total con impuestos
+            decimal orderTaxAmount = order.OrderTax; // IVA
+            decimal orderSubtotalWithoutTax = order.OrderSubtotalExclTax; // Base gravable antes de impuestos
+
+            // Formatear valores para PayU
+            var tax = orderTaxAmount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+            var taxReturnBase = orderTaxAmount == 0 ? 
+                "0.00" : 
+                orderSubtotalWithoutTax.ToString("F2", System.Globalization.CultureInfo.InvariantCulture); // Base gravable
 
             var currentCustomer = await _workContext.GetCurrentCustomerAsync();
 
@@ -110,9 +163,8 @@ namespace Nop.Plugin.Payments.PayU.Services
             formBuilder.AppendLine("</form>");
             formBuilder.AppendLine("<script>document.getElementById('payuForm').submit();</script>");
 
-            _httpContextAccessor.HttpContext.Response.Clear();
             _httpContextAccessor.HttpContext.Response.ContentType = "text/html";
-            _httpContextAccessor.HttpContext.Response.WriteAsync(formBuilder.ToString()).Wait();
+            await _httpContextAccessor.HttpContext.Response.WriteAsync(formBuilder.ToString());
         }
 
         public async Task<(bool succeeded, int orderId)> ReturnAsync(PaymentResponse paymentResponse)
