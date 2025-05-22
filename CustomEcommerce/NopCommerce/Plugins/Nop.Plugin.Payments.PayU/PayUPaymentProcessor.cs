@@ -156,11 +156,10 @@ namespace Nop.Plugin.Payments.PayU
             return Task.FromResult(result);
         }
 
-        public Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
+        public async Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
         {
-            _payUService.RedirectToPayUPayment(postProcessPaymentRequest);
-            return Task.CompletedTask;
-
+            await _payUService.RedirectToPayUPayment(postProcessPaymentRequest);
+            return;
         }
 
         public Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)

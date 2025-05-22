@@ -7,7 +7,7 @@ namespace Nop.Plugin.Payments.PayU.Services
 {
     public interface IPayUService
     {
-        public void RedirectToPayUPayment(PostProcessPaymentRequest postProcessPaymentRequest);
+        public Task RedirectToPayUPayment(PostProcessPaymentRequest postProcessPaymentRequest);
         public Task<(bool succeeded, int orderId)> ReturnAsync(PaymentResponse paymentResponse);
         public Task<(bool succeeded, int orderId)> ConfirmAsync(ConfirmationResponse confirmationResponse);
         public Task<bool> HidePaymentMethodAsync();
