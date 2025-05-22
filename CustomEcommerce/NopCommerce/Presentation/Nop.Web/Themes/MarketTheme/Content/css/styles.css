@@ -7749,7 +7749,7 @@ a.ui-button:active, .ui-button:active,
   }
 
   .home-page .product-grid .item-box {
-    width: calc(25% - 30px);
+    width: 20%;
   }
 
   /*** HEADER ***/
