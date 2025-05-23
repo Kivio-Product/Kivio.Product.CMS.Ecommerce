@@ -6,6 +6,7 @@ namespace Nop.Plugin.Payments.PayU
     public class PayUPaymentSettings : ISettings
     {
         public bool UseSandbox { get; set; }
+        public bool AdditionalFeeEnabled { get; set; }
         public string AccountId { get; set; }
         public string MerchantId { get; set; }
         public string ClientLoginId { get; set; }
@@ -15,7 +16,7 @@ namespace Nop.Plugin.Payments.PayU
         // <summary>
         /// Almacena internamente los IDs como string separados por comas
         /// </summary>
-        public string SelectedCurrencyIds { get; set; }
+        public string SelectedCurrencyIds { get; set; } 
 
         /// <summary>
         /// Propiedad de ayuda para convertir el string a una lista de ints
