@@ -1248,7 +1248,7 @@
   }
   .item-box .product-title,
   .item-box .prices {
-    min-height: auto;
+    min-height: 40px;
   }
   .px_right_grid .item-box .details span.tax-shipping-info {
     display: block;
@@ -1797,7 +1797,7 @@
     margin-right: 0;
   }
   .item-box {
-      width: calc(25% - 30px);
+      /* width: calc(25% - 30px); */
       margin: 0 15px 30px;
   }
   .px-full-width-grid .item-box {

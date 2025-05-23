@@ -1599,7 +1599,7 @@ text-decoration: underline;
 }
 .item-box .details {
   background: #fff;
-  padding: 20px;
+  padding: 10px;
   text-align: left;
   display: flex;
   flex-direction: column;

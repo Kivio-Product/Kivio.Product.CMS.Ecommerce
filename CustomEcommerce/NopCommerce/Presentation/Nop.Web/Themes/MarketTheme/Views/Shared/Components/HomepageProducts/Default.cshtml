@@ -111,22 +111,20 @@
                 if (regularDiscountContainer.length) {
                     var regularDiscountCount = regularDiscountContainer.find('.item-box').length;
 
-                    if (regularDiscountCount > 3) {
+                    if (regularDiscountCount > 2) {
                         if (!regularDiscountContainer.hasClass('owl-carousel')) {
                             regularDiscountContainer.removeClass('mobile-grid regular-discount-row');
                             regularDiscountContainer.addClass('owl-carousel px_featured');
                             regularDiscountContainer.owlCarousel({
                                 autoplay: false,
                                 loop: false,
-                                rtl: true,
+                                rtl: false,
                                 responsiveClass: true,
                                 autoHeight: false,
                                 navigation: true,
                                 dots: false,
                                 nav: true,
-                                items: 3,
-                                margin: 5,
-                                stagePadding: 0,
+                                items: 2,
                                 center: false
                             });
                         }

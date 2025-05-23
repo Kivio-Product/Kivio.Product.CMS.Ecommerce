@@ -1039,6 +1039,8 @@ input[type="radio"]:checked + .radio-custom {
   border: 3px solid #8a2be2 !important;
   background-color: rgba(138, 43, 226, 0.05) !important;
   box-shadow: 0 0 12px rgba(138, 43, 226, 0.15);
+  border-radius: 12px;
+  height: 100%;
 }
 
 .item-box {
@@ -1053,12 +1055,6 @@ input[type="radio"]:checked + .radio-custom {
 
 .home-page .product-grid .item-box {
   margin: 0 15px 30px;
-}
-
-.home-page .product-custom-grid .item-box {
-  width: calc(20% - 30px);
-  border: 1px solid #e0d2d2;
-  border-radius: 12px;
 }
 
 .checkout-agreements {
@@ -1542,52 +1538,40 @@ input[type="radio"]:checked + .radio-custom {
     min-width: 0;
     flex: 1;
     margin: 0 5px;
-    height: 280px !important;
     display: flex !important;
     flex-direction: column;
   }
 
-  .owl-carousel.px_featured .item-box .product-item {
-    width: 100% !important;
-    height: 100% !important;
+  .home-page .product-custom-grid .item-grid {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
   }
 
-  .owl-carousel.px_featured .item-box .details {
-    padding: 8px 4px;
-    font-size: 12px;
-    flex: 1;
+  .home-page .product-custom-grid .item-grid .item-box {
+    width: 48%;
+    border: 1px solid #e0d2d2;
+    border-radius: 12px;
+    margin: 10px 1% !important;
+  }
+
+  .px_featured .owl-nav button.owl-prev,
+  .px_featured .owl-nav button.owl-next {
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
+  }
+  .px_featured .owl-nav button.owl-prev::before,
+  .px_featured .owl-nav button.owl-next:before {
+    font-size: 10px !important;
   }
 
-  .owl-carousel.px_featured .item-box .product-title {
-    font-size: 11px;
-    line-height: 1.2;
-    margin: 5px 0;
-    height: 50%;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
+  .px_featured .owl-nav button.owl-prev,
+  .px_featured .owl-nav button.owl-next {
+    width: 25px !important;
+    height: 25px !important;
   }
 
-  .owl-carousel.px_featured .item-box .prices {
-    font-size: 10px;
-    margin: 5px 0;
-  }
-
-  .owl-carousel.px_featured .item-box .buttons {
-    margin-top: auto;
-    padding-top: 5px;
-  }
-
-  .owl-carousel.px_featured .item-box .button-2 {
-    font-size: 10px;
-    padding: 6px 8px;
-    width: 100%;
+  .home-page .product-grid .px_featured .item-box {
+    padding: 5px;
   }
 }
