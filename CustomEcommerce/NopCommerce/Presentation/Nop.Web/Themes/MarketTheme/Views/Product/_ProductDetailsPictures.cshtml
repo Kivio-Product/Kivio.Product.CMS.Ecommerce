@@ -1,0 +1,173 @@
+﻿@model ProductDetailsModel
+@using Nop.Core.Domain.Common
+@using Nop.Core
+@inject IWorkContext workContext
+@inject CommonSettings commonSettings
+@{
+    <link rel="stylesheet" href="~/lib_npm/magnific-popup/magnific-popup.css" />
+    <script asp-exclude-from-bundle="true" src="~/lib_npm/magnific-popup/jquery.magnific-popup.min.js"
+        asp-location="Footer"></script>
+    <link rel="stylesheet" href="~/lib_npm/swiper/swiper-bundle.min.css" />
+    <script asp-exclude-from-bundle="true" src="~/lib_npm/swiper/swiper-bundle.min.js" asp-location="Footer"></script>
+}
+
+<div class="custom-gallery-product">
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone =
+    PublicWidgetZones.ProductDetailsBeforePictures, additionalData = Model })
+
+    <!-- Versión Desktop: Miniaturas verticales + Imagen principal -->
+    <div class="product-gallery-container desktop-gallery">
+        <div class="custom-thumbs-outer-container desktop-thumbs vertical-thumbs">
+            <div class="custom-thumbs-container vertical" id="custom-thumbs-container-@Model.Id">
+                @foreach (var picture in Model.PictureModels)
+                {
+                    <div class="custom-thumb-item @(picture.Id == Model.DefaultPictureModel.Id ? "active" : "")"
+                        data-pictureid="@picture.Id">
+                        <img src="@picture.ThumbImageUrl" alt="@picture.AlternateText" title="@picture.Title"
+                            data-defaultsize="@picture.ImageUrl" data-fullsize="@picture.FullSizeImageUrl" />
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="custom-main-image-container">
+            <div class="custom-main-image-wrapper" id="custom-main-image-wrapper-@Model.Id">
+                <img class="custom-main-image" alt="@Model.DefaultPictureModel.AlternateText"
+                    src="@Model.DefaultPictureModel.ImageUrl"
+                    data-fullsize="@Model.DefaultPictureModel.FullSizeImageUrl" title="@Model.DefaultPictureModel.Title"
+                    id="custom-main-image-@Model.Id" />
+            </div>
+            <div class="zoom-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <line x1="11" y1="8" x2="11" y2="14"></line>
+                    <line x1="8" y1="11" x2="14" y2="11"></line>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Versión Móvil con Swiper -->
+    <div class="mobile-gallery-container">
+        <div class="swiper-container" id="mobile-gallery-swiper-@Model.Id">
+            <div class="swiper-wrapper">
+                @foreach (var picture in Model.PictureModels)
+                {
+                    <div class="swiper-slide" data-pictureid="@picture.Id">
+                        <img src="@picture.ImageUrl" alt="@picture.AlternateText" title="@picture.Title"
+                            data-fullsize="@picture.FullSizeImageUrl" />
+                    </div>
+                }
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone =
+    PublicWidgetZones.ProductDetailsAfterPictures, additionalData = Model })
+</div>
+
+<script asp-location="Footer">
+    (function ($) {
+        $(document).ready(function () {
+            const modelId = "@Model.Id";
+
+            $(`#custom-thumbs-container-${modelId} .custom-thumb-item`).on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const $this = $(this);
+                const pictureId = $this.data('pictureid');
+                const imgSrc = $this.find('img').data('defaultsize');
+                const fullSizeSrc = $this.find('img').data('fullsize');
+                const altText = $this.find('img').attr('alt');
+                const title = $this.find('img').attr('title');
+
+                $(`#custom-main-image-${modelId}`)
+                    .attr('src', imgSrc)
+                    .attr('data-fullsize', fullSizeSrc)
+                    .attr('alt', altText)
+                    .attr('title', title);
+
+                $(`#custom-thumbs-container-${modelId} .custom-thumb-item`).removeClass('active');
+                $this.addClass('active');
+
+                return false;
+            });
+
+            const mobileGallerySwiper = new Swiper(`#mobile-gallery-swiper-${modelId}`, {
+                slidesPerView: 1,
+                spaceBetween: 10,
+                centeredSlides: true,
+                loop: @(Model.PictureModels.Count > 1 ? "true" : "false"),
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                    renderBullet: function (index, className) {
+                        return `<span class="${className}"></span>`;
+                    }
+                }
+            });
+
+            const openMagnificPopup = function () {
+                const fullSizeSrc = $(`#custom-main-image-${modelId}`).data('fullsize');
+                if (fullSizeSrc) {
+                    $.magnificPopup.open({
+                        items: {
+                            src: fullSizeSrc
+                        },
+                        type: 'image',
+                        closeOnContentClick: true,
+                        mainClass: 'mfp-img-mobile mfp-with-zoom',
+                        image: {
+                            verticalFit: true
+                        },
+                        zoom: {
+                            enabled: true,
+                            duration: 300
+                        }
+                    });
+                }
+            };
+
+            $(`#custom-main-image-${modelId}, .zoom-icon`).on('click', function (e) {
+                e.preventDefault();
+                openMagnificPopup();
+            });
+
+            $(`#mobile-gallery-swiper-${modelId} .swiper-slide img`).on('click', function () {
+                const fullSizeSrc = $(this).data('fullsize');
+                if (fullSizeSrc) {
+                    $.magnificPopup.open({
+                        items: {
+                            src: fullSizeSrc
+                        },
+                        type: 'image',
+                        closeOnContentClick: true,
+                        mainClass: 'mfp-img-mobile mfp-with-zoom',
+                        image: {
+                            verticalFit: true
+                        },
+                        zoom: {
+                            enabled: true,
+                            duration: 300
+                        }
+                    });
+                }
+            });
+
+            let galleryItems = [];
+            $(`#custom-thumbs-container-${modelId} .custom-thumb-item`).each(function () {
+                const fullSizeSrc = $(this).find('img').data('fullsize');
+                const title = $(this).find('img').attr('title');
+
+                galleryItems.push({
+                    src: fullSizeSrc,
+                    title: title
+                });
+            });
+        });
+    })(jQuery);
+</script>

@@ -1,0 +1,19 @@
+@model IList<ProductOverviewModel>
+
+@if (Model.Any())
+{
+    <div class="product-custom-grid">
+        <div class="item-grid">
+            @foreach (var product in Model)
+            {
+                <div class="item-box">
+                    @await Html.PartialAsync("_ProductBox", product)
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="no-products"> No hay productos disponibles para mostrar.</div>
+}

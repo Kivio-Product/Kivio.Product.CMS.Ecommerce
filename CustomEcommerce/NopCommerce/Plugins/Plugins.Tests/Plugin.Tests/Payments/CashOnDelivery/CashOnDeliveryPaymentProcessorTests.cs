@@ -12,18 +12,28 @@
     using Nop.Core.Domain.Orders;
     using static SkiaSharp.HarfBuzz.SKShaper;
     using Microsoft.AspNetCore.Http;
+    using Nop.Services.Customers;
+    using Nop.Services.Common;
+    using Nop.Services.Catalog;
+    using Nop.Services.Directory;
 
     [TestFixture]
     public class CashOnDeliveryPaymentProcessorTests
     {
-
         private Mock<CashOnDeliveryPaymentSettings> _mockSettings;
         private Mock<ILocalizationService> _mockLocalizationService;
         private Mock<IOrderTotalCalculationService> _mockOrderTotalService;
         private Mock<ISettingService> _mockSettingService;
         private Mock<IShoppingCartService> _mockShoppingCartService;
         private Mock<IWebHelper> _mockWebHelper;
+        private Mock<IOrderService> _mockOrderService;
+        private Mock<ICustomerService> _mockCustomerService;
+        private Mock<IAddressService> _mockAddressService;
+        private Mock<IProductService> _mockProductService;
+        private Mock<IStateProvinceService> _mockStateProvinceService;
+        private Mock<ICountryService> _mockCountryService;
         private CashOnDeliveryPaymentProcessor _paymentProcessor;
+        private Mock<IHttpContextAccessor>  _mockHttpContextAccessor;
 
         [SetUp]
         public void Setup()
@@ -35,6 +45,13 @@
             _mockSettingService = new Mock<ISettingService>();
             _mockShoppingCartService = new Mock<IShoppingCartService>();
             _mockWebHelper = new Mock<IWebHelper>();
+            _mockOrderService = new Mock<IOrderService>();
+            _mockCustomerService = new Mock<ICustomerService>();
+            _mockAddressService = new Mock<IAddressService>();
+            _mockProductService = new Mock<IProductService>();
+            _mockStateProvinceService = new Mock<IStateProvinceService>();
+            _mockCountryService = new Mock<ICountryService>();
+            _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
 
             // Create an instance of the class under test
             _paymentProcessor = new CashOnDeliveryPaymentProcessor(
@@ -43,7 +60,14 @@
                 _mockOrderTotalService.Object,
                 _mockSettingService.Object,
                 _mockShoppingCartService.Object,
-                _mockWebHelper.Object
+                _mockWebHelper.Object,
+                _mockOrderService.Object,
+                _mockCustomerService.Object,
+                _mockAddressService.Object,
+                _mockProductService.Object,
+                _mockStateProvinceService.Object,
+                _mockCountryService.Object,
+                _mockHttpContextAccessor.Object
             );
         }
 

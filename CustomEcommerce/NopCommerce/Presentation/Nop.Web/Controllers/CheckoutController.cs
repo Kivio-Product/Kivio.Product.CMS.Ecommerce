@@ -24,6 +24,7 @@ using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Models.Checkout;
 using Nop.Web.Models.Common;
+using Nop.Services.Discounts;
 using ILogger = Nop.Services.Logging.ILogger;
 
 namespace Nop.Web.Controllers;
@@ -61,6 +62,8 @@ public partial class CheckoutController : BasePublicController
     protected readonly RewardPointsSettings _rewardPointsSettings;
     protected readonly ShippingSettings _shippingSettings;
     protected readonly TaxSettings _taxSettings;
+    protected readonly IGiftCardService _giftCardService;
+    protected readonly IDiscountService _discountService;
     private static readonly string[] _separator = ["___"];
 
     #endregion
@@ -94,8 +97,12 @@ public partial class CheckoutController : BasePublicController
         PaymentSettings paymentSettings,
         RewardPointsSettings rewardPointsSettings,
         ShippingSettings shippingSettings,
-        TaxSettings taxSettings)
+        TaxSettings taxSettings,
+        IGiftCardService giftCardService,
+        IDiscountService discountService)
     {
+        _discountService = discountService;
+        _giftCardService = giftCardService;
         _addressSettings = addressSettings;
         _captchaSettings = captchaSettings;
         _customerSettings = customerSettings;
@@ -2216,6 +2223,164 @@ public partial class CheckoutController : BasePublicController
 
             return Content(exc.Message);
         }
+    }
+
+    [HttpPost, ActionName("ApplyGiftCard")]
+    [FormValueRequired("applygiftcardcouponcode")]
+    public virtual async Task<IActionResult> ApplyGiftCard(string giftcardcouponcode, IFormCollection form)
+    {
+        //trim
+        if (giftcardcouponcode != null)
+            giftcardcouponcode = giftcardcouponcode.Trim();
+
+        //cart
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+        var model = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
+
+        var validationError = await GetGiftCardValidationErrorAsync(cart, giftcardcouponcode);
+
+        if (string.IsNullOrEmpty(validationError))
+        {
+            await _customerService.ApplyGiftCardCouponCodeAsync(customer, giftcardcouponcode);
+            model.GiftCardBox.Message = await _localizationService.GetResourceAsync("ShoppingCart.GiftCardCouponCode.Applied");
+            model.GiftCardBox.IsApplied = true;
+        }
+        else
+        {
+            model.GiftCardBox.Message = validationError;
+            model.GiftCardBox.IsApplied = false;
+        }
+
+        return View("OnePageCheckout", model);
+    }
+
+    [HttpPost, ActionName("RemoveGiftCard")]
+    [FormValueRequired(FormValueRequirement.StartsWith, "removegiftcard-")]
+    public virtual async Task<IActionResult> RemoveGiftCardCode(IFormCollection form)
+    {
+        var model = new OnePageCheckoutModel();
+
+        //get gift card identifier
+        var giftCardId = 0;
+        foreach (var formValue in form.Keys)
+            if (formValue.StartsWith("removegiftcard-", StringComparison.InvariantCultureIgnoreCase))
+                giftCardId = Convert.ToInt32(formValue["removegiftcard-".Length..]);
+        var gc = await _giftCardService.GetGiftCardByIdAsync(giftCardId);
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        if (gc != null)
+            await _customerService.RemoveGiftCardCouponCodeAsync(customer, gc.GiftCardCouponCode);
+
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+        model = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
+        return View("OnePageCheckout", model);
+    }
+
+
+
+    [HttpPost, ActionName("ApplyDiscountCoupon")]
+    [FormValueRequired("applydiscountcouponcode")]
+    public virtual async Task<IActionResult> ApplyDiscountCoupon(string discountcouponcode, IFormCollection form)
+    {
+        //trim
+        if (discountcouponcode != null)
+            discountcouponcode = discountcouponcode.Trim();
+
+        //cart
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+        var model = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
+        if (!string.IsNullOrWhiteSpace(discountcouponcode))
+        {
+            //we find even hidden records here. this way we can display a user-friendly message if it's expired
+            var discounts = (await _discountService.GetAllDiscountsAsync(couponCode: discountcouponcode, showHidden: true))
+                .Where(d => d.RequiresCouponCode)
+                .ToList();
+            if (discounts.Any())
+            {
+                var userErrors = new List<string>();
+                var anyValidDiscount = await discounts.AnyAwaitAsync(async discount =>
+                {
+                    var validationResult = await _discountService.ValidateDiscountAsync(discount, customer, [discountcouponcode]);
+                    userErrors.AddRange(validationResult.Errors);
+
+                    return validationResult.IsValid;
+                });
+
+                if (anyValidDiscount)
+                {
+                    //valid
+                    await _customerService.ApplyDiscountCouponCodeAsync(customer, discountcouponcode);
+                    model.DiscountBox.Messages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.Applied"));
+                    model.DiscountBox.IsApplied = true;
+                }
+                else
+                {
+                    if (userErrors.Any())
+                        //some user errors
+                        model.DiscountBox.Messages = userErrors;
+                    else
+                        //general error text
+                        model.DiscountBox.Messages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.WrongDiscount"));
+                }
+            }
+            else
+                //discount cannot be found
+                model.DiscountBox.Messages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.CannotBeFound"));
+        }
+        else
+            //empty coupon code
+            model.DiscountBox.Messages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.Empty"));
+
+        return View("OnePageCheckout", model);
+    }
+
+    [HttpPost, ActionName("RemoveDiscountCoupon")]
+    [FormValueRequired(FormValueRequirement.StartsWith, "removediscount-")]
+    public virtual async Task<IActionResult> RemoveDiscountCoupon(IFormCollection form)
+    {
+        var model = new OnePageCheckoutModel();
+
+        //get discount identifier
+        var discountId = 0;
+        foreach (var formValue in form.Keys)
+            if (formValue.StartsWith("removediscount-", StringComparison.InvariantCultureIgnoreCase))
+                discountId = Convert.ToInt32(formValue["removediscount-".Length..]);
+        var discount = await _discountService.GetDiscountByIdAsync(discountId);
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        if (discount != null)
+            await _customerService.RemoveDiscountCouponCodeAsync(customer, discount.CouponCode);
+
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+        model = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
+        return View("OnePageCheckout", model);
+    }
+
+    protected virtual async Task<string> GetGiftCardValidationErrorAsync(IList<ShoppingCartItem> cart, string giftcardcouponcode)
+    {
+        if (string.IsNullOrWhiteSpace(giftcardcouponcode))
+            return await _localizationService.GetResourceAsync("ShoppingCart.GiftCardCouponCode.WrongGiftCard");
+
+        if (await _shoppingCartService.ShoppingCartIsRecurringAsync(cart))
+            return await _localizationService.GetResourceAsync("ShoppingCart.GiftCardCouponCode.DontWorkWithAutoshipProducts");
+
+        var giftCard = (await _giftCardService.GetAllGiftCardsAsync(giftCardCouponCode: giftcardcouponcode)).FirstOrDefault();
+
+        if (giftCard == null || !await _giftCardService.IsGiftCardValidAsync(giftCard))
+            return await _localizationService.GetResourceAsync("ShoppingCart.GiftCardCouponCode.WrongGiftCard");
+
+        if (await _productService.HasAnyGiftCardProductAsync(cart.Select(c => c.ProductId).ToArray()))
+            return await _localizationService.GetResourceAsync("ShoppingCart.GiftCardCouponCode.DontWorkWithGiftCards");
+
+        return string.Empty;
     }
 
     #endregion

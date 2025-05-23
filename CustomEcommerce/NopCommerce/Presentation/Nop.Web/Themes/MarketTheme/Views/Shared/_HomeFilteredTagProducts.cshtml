@@ -1,0 +1,116 @@
+@using Nop.Core
+@using Nop.Core.Domain.Catalog
+@using Nop.Services.Catalog
+@using Nop.Services.Security
+@using Nop.Services.Stores
+@using Nop.Web.Factories
+@using Nop.Web.Models.Catalog
+
+@inject IProductModelFactory _productModelFactory
+@inject IProductService _productService
+@inject IProductTagService _productTagService
+@inject IStoreContext _storeContext
+@inject IWorkContext _workContext
+@inject IAclService _aclService
+@inject IStoreMappingService _storeMappingService
+
+@{
+    var productThumbPictureSize = 280;
+
+    var initialFilterTagName = "best-prices";
+
+    int? initialProductTagId = null; 
+
+    if (!string.IsNullOrWhiteSpace(initialFilterTagName))
+    {
+        var tags = await _productTagService.GetAllProductTagsAsync(tagName: initialFilterTagName);
+        var initialProductTag = tags.FirstOrDefault(); 
+        if (initialProductTag != null)
+        {
+            initialProductTagId = initialProductTag.Id;
+        }
+    }
+
+    var initialProducts = await _productService.SearchProductsAsync(
+        storeId: (await _storeContext.GetCurrentStoreAsync()).Id,
+        productTagId: (int) initialProductTagId,
+        visibleIndividuallyOnly: true,
+        overridePublished: false,
+        orderBy: ProductSortingEnum.Position,
+        pageSize: 6
+    );
+
+    var initialProductModels = (await _productModelFactory.PrepareProductOverviewModelsAsync(
+        initialProducts,
+        preparePriceModel: true,
+        preparePictureModel: true,
+        productThumbPictureSize: productThumbPictureSize,
+        prepareSpecificationAttributes: false,
+        forceRedirectionAfterAddingToCart: false
+    )).ToList();
+}
+
+<div class="custom-product-section">
+    <div class="filter-section">
+        <span class="section-title">Productos pensados para ti</span>
+
+        <div class="filters-bar">
+            <button class="filter-button active" data-filter-tag="best-prices">Mejores precios</button>
+            <button class="filter-button" data-filter-tag="most-ordered">Los más pedidos</button>
+            <button class="filter-button" data-filter-tag="best-rated">Los mejor calificados</button>
+        </div>
+    </div>
+    <div class="products-container">
+        <div class="ajax-products-busy" style="display: none; text-align: center; padding: 20px;">
+            <img src="@Url.Content("~/images/ajax-loader.gif")" alt="Loading..." />
+        </div>
+        <div class="products-wrapper" id="custom-products-grid">
+            @{ await Html.RenderPartialAsync("_CustomProductGridItems",initialProductModels); }
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.filters-bar .filter-button').on('click', function () {
+            var $button = $(this);
+            if ($button.hasClass('active')) {
+                return; 
+            }
+
+            $('.filters-bar .filter-button').removeClass('active');
+            $button.addClass('active');
+
+            var filterTagName = $button.data('filter-tag'); // This will be the tag name
+            var $grid = $('#custom-products-grid');
+            var $loader = $('.ajax-products-busy');
+
+            $loader.show();
+            $grid.html(''); 
+
+            $.ajax({
+                cache: false,
+                url: '@Url.Action("GetFilteredProducts", "CustomProductSection")',
+                data: {
+                    productTagName: filterTagName, 
+                    productThumbPictureSize: @productThumbPictureSize
+                },
+                type: 'GET',
+                success: function (response) {
+                    $grid.html(response);
+                    if (typeof AjaxCart !== 'undefined' && typeof AjaxCart.init !== 'undefined') {
+                        AjaxCart.init(false, '.header-links .cart-qty', '.header-links .wishlist-qty', '#flyout-cart');
+                    }
+                    $(document).trigger('nopAjaxCartResponse');
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.error('Error loading products:', thrownError);
+                    $grid.html('<div class="no-products">Error loading products. Please try again.</div>');
+                },
+                complete: function () {
+                    $loader.hide();
+                }
+            });
+        });
+    });
+</script>

@@ -55,6 +55,30 @@ public partial class RouteProvider : BaseRouteProvider, IRouteProvider
             pattern: $"{lang}/cart/",
             defaults: new { controller = "ShoppingCart", action = "Cart" });
 
+        endpointRouteBuilder.MapControllerRoute(
+            name: "UpdateMiniCartItem",
+            pattern: "shopping-cart/update-mini-item",
+            defaults: new { controller = "ShoppingCart", action = "UpdateMiniCartItem" }
+        );
+
+        endpointRouteBuilder.MapControllerRoute(
+            name: "RemoveMiniCartItem",
+            pattern: "shopping-cart/remove-mini-item",
+            defaults: new { controller = "ShoppingCart", action = "RemoveMiniCartItem" }
+        );
+
+        endpointRouteBuilder.MapControllerRoute(
+            name: "ClearMiniCart",
+            pattern: "shopping-cart/clear-mini-cart",
+            defaults: new { controller = "ShoppingCart", action = "ClearMiniCart" }
+        );
+
+        endpointRouteBuilder.MapControllerRoute(
+            name: "GetMiniCart",
+            pattern: "shopping-cart/get-mini-cart",
+            defaults: new { controller = "ShoppingCart", action = "GetMiniCart" }
+        );
+
         //estimate shipping (AJAX)
         endpointRouteBuilder.MapControllerRoute(name: "EstimateShipping",
             pattern: $"cart/estimateshipping",
@@ -243,6 +267,22 @@ public partial class RouteProvider : BaseRouteProvider, IRouteProvider
         endpointRouteBuilder.MapControllerRoute(name: "CheckoutOnePage",
             pattern: $"{lang}/onepagecheckout/",
             defaults: new { controller = "Checkout", action = "OnePageCheckout" });
+
+        endpointRouteBuilder.MapControllerRoute(name: "CheckoutOnePageApplyDiscount",
+            pattern: $"/onepagecheckoutaction/applydiscount",
+            defaults: new { controller = "Checkout", action = "ApplyDiscountCoupon" });
+
+        endpointRouteBuilder.MapControllerRoute(name: "CheckoutOnePageRemoveDiscount",
+            pattern: $"/onepagecheckoutaction/removediscount",
+            defaults: new { controller = "Checkout", action = "RemoveDiscountCoupon" });
+
+        endpointRouteBuilder.MapControllerRoute(name: "CheckoutOnePageApplyGiftCard",
+            pattern: $"/onepagecheckoutaction/applygiftcard",
+            defaults: new { controller = "Checkout", action = "ApplyGiftCard" });
+
+        endpointRouteBuilder.MapControllerRoute(name: "CheckoutOnePageRemoveGiftCard",
+            pattern: $"/onepagecheckoutaction/removegiftcard",
+            defaults: new { controller = "Checkout", action = "RemoveGiftCard" });
 
         endpointRouteBuilder.MapControllerRoute(name: "CheckoutShippingAddress",
             pattern: $"{lang}/checkout/shippingaddress",

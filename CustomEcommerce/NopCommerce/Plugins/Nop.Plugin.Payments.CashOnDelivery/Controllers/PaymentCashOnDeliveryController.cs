@@ -67,6 +67,7 @@ public class PaymentCashOnDeliveryController : BasePaymentController
         model.AdditionalFeePercentage = cashOnDeliveryPaymentSettings.AdditionalFeePercentage;
         model.ShippableProductRequired = cashOnDeliveryPaymentSettings.ShippableProductRequired;
         model.SkipPaymentInfo = cashOnDeliveryPaymentSettings.SkipPaymentInfo;
+        model.WhatsAppNumber = cashOnDeliveryPaymentSettings.WhatsAppNumber;
         model.ActiveStoreScopeConfiguration = storeScope;
 
         if (storeScope > 0)
@@ -76,6 +77,7 @@ public class PaymentCashOnDeliveryController : BasePaymentController
             model.AdditionalFeePercentage_OverrideForStore = await _settingService.SettingExistsAsync(cashOnDeliveryPaymentSettings, x => x.AdditionalFeePercentage, storeScope);
             model.ShippableProductRequired_OverrideForStore = await _settingService.SettingExistsAsync(cashOnDeliveryPaymentSettings, x => x.ShippableProductRequired, storeScope);
             model.SkipPaymentInfo_OverrideForStore = await _settingService.SettingExistsAsync(cashOnDeliveryPaymentSettings, x => x.SkipPaymentInfo, storeScope);
+            model.WhatsAppNumber_OverrideForStore = await _settingService.SettingExistsAsync(cashOnDeliveryPaymentSettings, x => x.WhatsAppNumber, storeScope);
         }
 
         return View("~/Plugins/Payments.CashOnDelivery/Views/Configure.cshtml", model);
@@ -98,6 +100,7 @@ public class PaymentCashOnDeliveryController : BasePaymentController
         cashOnDeliveryPaymentSettings.AdditionalFeePercentage = model.AdditionalFeePercentage;
         cashOnDeliveryPaymentSettings.ShippableProductRequired = model.ShippableProductRequired;
         cashOnDeliveryPaymentSettings.SkipPaymentInfo = model.SkipPaymentInfo;
+        cashOnDeliveryPaymentSettings.WhatsAppNumber = model.WhatsAppNumber;
 
         /* We do not clear cache after each setting update.
          * This behavior can increase performance because cached settings will not be cleared 
@@ -107,6 +110,7 @@ public class PaymentCashOnDeliveryController : BasePaymentController
         await _settingService.SaveSettingOverridablePerStoreAsync(cashOnDeliveryPaymentSettings, x => x.AdditionalFeePercentage, model.AdditionalFeePercentage_OverrideForStore, storeScope, false);
         await _settingService.SaveSettingOverridablePerStoreAsync(cashOnDeliveryPaymentSettings, x => x.ShippableProductRequired, model.ShippableProductRequired_OverrideForStore, storeScope, false);
         await _settingService.SaveSettingOverridablePerStoreAsync(cashOnDeliveryPaymentSettings, x => x.SkipPaymentInfo, model.SkipPaymentInfo_OverrideForStore, storeScope, false);
+        await _settingService.SaveSettingOverridablePerStoreAsync(cashOnDeliveryPaymentSettings, x => x.WhatsAppNumber, model.WhatsAppNumber_OverrideForStore, storeScope, false);
 
         //now clear settings cache
         await _settingService.ClearCacheAsync();

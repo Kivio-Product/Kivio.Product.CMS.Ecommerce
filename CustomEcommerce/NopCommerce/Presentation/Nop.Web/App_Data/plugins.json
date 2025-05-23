@@ -26,6 +26,14 @@
     {
       "SystemName": "Widgets.Swiper",
       "Version": "4.80.1"
+    },
+    {
+      "SystemName": "Nop.Plugin.Api",
+      "Version": "4.8.0"
+    },
+    {
+      "SystemName": "Tax.FixedOrByCountryStateZip",
+      "Version": "4.80.3"
     }
   ],
   "PluginNamesToUninstall": [],

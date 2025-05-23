@@ -1,0 +1,24 @@
+@model OnePageCheckoutModel
+
+@if (Model.GiftCardBox.Display)
+{
+    <div id="giftcard-container" class="giftcard-wrapper">
+        <div class="giftcard-form">
+            <input name="giftcardcouponcode" id="giftcardcouponcode" type="text" class="giftcard-input"
+                placeholder="@T("ShoppingCart.GiftCardCouponCode")"
+                aria-label="@T("ShoppingCart.GiftCardCouponCode.Label")" />
+            <button type="button" name="applygiftcardcouponcode" id="applygiftcardcouponcode" class="giftcard-button">
+                @T("ShoppingCart.GiftCardCouponCode.Button")
+            </button>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.GiftCardBox.Message))
+        {
+            <div class="giftcard-messages">
+                <div class="message @(Model.GiftCardBox.IsApplied ? "success" : "error")">
+                    <span>@Model.GiftCardBox.Message</span>
+                </div>
+            </div>
+        }
+    </div>
+}
