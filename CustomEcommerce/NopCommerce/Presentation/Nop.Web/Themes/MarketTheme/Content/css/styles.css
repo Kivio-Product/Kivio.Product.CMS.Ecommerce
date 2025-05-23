@@ -1608,10 +1608,10 @@ text-decoration: underline;
   border-bottom-right-radius: 12px;
   border-top: 1px solid #e0d2d2;
 }
-.home-page .product-grid .item-box {
+/* .home-page .product-grid .item-box {
   width: calc(33.33% - 30px);
   margin: 0 15px 30px;
-}
+} */
 .item-box .product-title {
   font-size: 18px;
   line-height: 1.2;
@@ -7748,9 +7748,9 @@ a.ui-button:active, .ui-button:active,
     width: auto;
   }
 
-  .home-page .product-grid .item-box {
+  /* .home-page .product-grid .item-box {
     width: 20%;
-  }
+  } */
 
   /*** HEADER ***/
 
