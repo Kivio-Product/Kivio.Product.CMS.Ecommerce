@@ -7,7 +7,9 @@
         <div class="section-width">
             <div class="flash-sale-container">
                 <div class="flash-sale-info">
-                    <div class="flash-icon"><div class="flash-icon-image"></div></div>
+                    <div class="flash-icon">
+                        <div class="flash-icon-image"></div>
+                    </div>
                     <h2 class="flash-title">@T("HomePageProducts.Title")</h2>
                     <div class="timer-section">
                         <span class="timer-label">Termina en</span>
@@ -25,15 +27,19 @@
                 </div>
                 <a href="@T("HomePageProducts.Button.ViewAll.Url")" class="view-all-button">
                     @T("HomePageProducts.Button.ViewAll")
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
                 </a>
             </div>
-            
+
             @{
                 var highDiscountProducts = Model.Where(p => p.HasHighDiscount).ToList();
                 var regularDiscountProducts = Model.Where(p => !p.HasHighDiscount).ToList();
             }
-            
+
             @if (highDiscountProducts.Any())
             {
                 <div id="high-discount-products" class="item-grid high-discount-row">
@@ -45,7 +51,7 @@
                     }
                 </div>
             }
-            
+
             @if (regularDiscountProducts.Any())
             {
                 <div id="regular-discount-products" class="item-grid regular-discount-row">
@@ -62,39 +68,88 @@
 }
 
 <script asp-location="Footer">
-    $(document).ready(function() {
+    $(document).ready(function () {
         function setupProductDisplay() {
             var highDiscountContainer = $('#high-discount-products');
             var regularDiscountContainer = $('#regular-discount-products');
-            
+
             if (window.innerWidth <= 767) {
-                if (highDiscountContainer.length && highDiscountContainer.hasClass('owl-carousel')) {
-                    highDiscountContainer.trigger('destroy.owl.carousel');
-                    highDiscountContainer.removeClass('owl-carousel px_featured');
-                    highDiscountContainer.find('.owl-stage-outer, .owl-stage, .owl-item').css({
-                        'width': '100%',
-                        'transform': 'none'
-                    });
+                if (highDiscountContainer.length) {
+                    var highDiscountCount = highDiscountContainer.find('.item-box').length;
+
+                    if (highDiscountCount > 2) {
+                        if (!highDiscountContainer.hasClass('owl-carousel')) {
+                            highDiscountContainer.removeClass('mobile-grid high-discount-row');
+                            highDiscountContainer.addClass('owl-carousel px_featured');
+                            highDiscountContainer.owlCarousel({
+                                autoplay: false,
+                                loop: false,
+                                rtl: true,
+                                responsiveClass: true,
+                                navigation: true,
+                                dots: false,
+                                nav: true,
+                                items: 2,
+                                margin: 8,
+                                stagePadding: 0,
+                                center: false
+                            });
+                        }
+                    } else {
+                        if (highDiscountContainer.hasClass('owl-carousel')) {
+                            highDiscountContainer.trigger('destroy.owl.carousel');
+                            highDiscountContainer.removeClass('owl-carousel px_featured');
+                            highDiscountContainer.find('.owl-stage-outer, .owl-stage, .owl-item').each(function () {
+                                $(this).removeAttr('style');
+                            });
+                        }
+                        highDiscountContainer.addClass('mobile-grid high-discount-row');
+                        highDiscountContainer.find('.item-box').show();
+                    }
                 }
-                highDiscountContainer.addClass('mobile-grid');
-                
-                highDiscountContainer.find('.item-box').slice(2).hide();
-                
-                if (regularDiscountContainer.length && regularDiscountContainer.hasClass('owl-carousel')) {
-                    regularDiscountContainer.trigger('destroy.owl.carousel');
-                    regularDiscountContainer.removeClass('owl-carousel px_featured');
-                    regularDiscountContainer.find('.owl-stage-outer, .owl-stage, .owl-item').css({
-                        'width': '100%',
-                        'transform': 'none'
-                    });
+
+                if (regularDiscountContainer.length) {
+                    var regularDiscountCount = regularDiscountContainer.find('.item-box').length;
+
+                    if (regularDiscountCount > 3) {
+                        if (!regularDiscountContainer.hasClass('owl-carousel')) {
+                            regularDiscountContainer.removeClass('mobile-grid regular-discount-row');
+                            regularDiscountContainer.addClass('owl-carousel px_featured');
+                            regularDiscountContainer.owlCarousel({
+                                autoplay: false,
+                                loop: false,
+                                rtl: true,
+                                responsiveClass: true,
+                                autoHeight: false,
+                                navigation: true,
+                                dots: false,
+                                nav: true,
+                                items: 3,
+                                margin: 5,
+                                stagePadding: 0,
+                                center: false
+                            });
+                        }
+                    } else {
+                        if (regularDiscountContainer.hasClass('owl-carousel')) {
+                            regularDiscountContainer.trigger('destroy.owl.carousel');
+                            regularDiscountContainer.removeClass('owl-carousel px_featured');
+                            regularDiscountContainer.find('.owl-stage-outer, .owl-stage, .owl-item').each(function () {
+                                $(this).removeAttr('style');
+                            });
+                        }
+                        regularDiscountContainer.addClass('mobile-grid regular-discount-row');
+                        regularDiscountContainer.find('.item-box').show();
+                    }
                 }
-                regularDiscountContainer.addClass('mobile-grid');
-                
-                regularDiscountContainer.find('.item-box').slice(3).hide();
+
             } else {
                 highDiscountContainer.removeClass('mobile-grid');
+                regularDiscountContainer.removeClass('mobile-grid');
+
                 highDiscountContainer.find('.item-box').show();
-                
+                regularDiscountContainer.find('.item-box').show();
+
                 if (highDiscountContainer.length && highDiscountContainer.find('.item-box').length > 3 && !highDiscountContainer.hasClass('owl-carousel')) {
                     highDiscountContainer.addClass('owl-carousel px_featured');
                     highDiscountContainer.owlCarousel({
@@ -119,10 +174,7 @@
                         }
                     });
                 }
-                
-                regularDiscountContainer.removeClass('mobile-grid');
-                regularDiscountContainer.find('.item-box').show();
-                
+
                 if (regularDiscountContainer.length && regularDiscountContainer.find('.item-box').length > 5 && !regularDiscountContainer.hasClass('owl-carousel')) {
                     regularDiscountContainer.addClass('owl-carousel px_featured');
                     regularDiscountContainer.owlCarousel({
@@ -142,7 +194,7 @@
                                 items: 2
                             },
                             1024: {
-                                items: 3
+                                items: 5
                             },
                             1366: {
                                 items: 5
@@ -152,11 +204,15 @@
                 }
             }
         }
-        
+
         setupProductDisplay();
-        
-        $(window).resize(function() {
-            setupProductDisplay();
+
+        var resizeTimer;
+        $(window).resize(function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function () {
+                setupProductDisplay();
+            }, 250);
         });
     });
 
@@ -165,26 +221,22 @@
         const minutesElement = document.getElementById('minutes');
         const secondsElement = document.getElementById('seconds');
 
-        // Colombia es UTC-5. 6 PM son las 18:00 horas.
         const targetHourCOL = 18;
         const targetMinuteCOL = 0;
         const targetSecondCOL = 0;
 
         function updateTimer() {
             const now = new Date();
-            
-            // Crear la fecha objetivo en UTC para hoy
+
             let targetDate = new Date(Date.UTC(
                 now.getUTCFullYear(),
                 now.getUTCMonth(),
                 now.getUTCDate(),
-                targetHourCOL + 5, // Sumamos 5 para convertir 18:00 COL a UTC (18+5=23 UTC)
+                targetHourCOL + 5,
                 targetMinuteCOL,
                 targetSecondCOL
             ));
 
-            // Si la hora actual (en UTC) ya pasó la hora objetivo de hoy (en UTC)
-            // entonces el objetivo es mañana a las 6 PM COL
             if (now.getTime() > targetDate.getTime()) {
                 targetDate.setUTCDate(targetDate.getUTCDate() + 1);
             }
@@ -207,8 +259,8 @@
             secondsElement.textContent = String(seconds).padStart(2, '0');
         }
 
-        updateTimer(); 
-        setInterval(updateTimer, 1000); 
+        updateTimer();
+        setInterval(updateTimer, 1000);
     }
 
     if (document.getElementById('hours') && document.getElementById('minutes') && document.getElementById('seconds')) {

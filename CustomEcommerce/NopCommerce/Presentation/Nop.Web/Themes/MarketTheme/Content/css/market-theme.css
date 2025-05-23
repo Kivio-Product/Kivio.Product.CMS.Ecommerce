@@ -1448,8 +1448,8 @@ input[type="radio"]:checked + .radio-custom {
     margin-bottom: 20px;
   }
 
-  .regular-discount-row.mobile-grid .item-box {
-    width: calc(33.33% - 10px);
+  .regular-discount-row .mobile-grid .item-box {
+    width: calc(33.33% - 10px) !important;
     margin-bottom: 20px;
   }
 
@@ -1496,10 +1496,6 @@ input[type="radio"]:checked + .radio-custom {
 }
 
 @media (min-width: 1367px) {
-  /* .home-page .product-grid .item-box {
-    width: calc(25% - 30px);
-  } */
-
   .high-discount-row .item-box {
     width: calc(33.33% - 200px) !important;
   }
@@ -1516,5 +1512,82 @@ input[type="radio"]:checked + .radio-custom {
 
   .high-discount-row .item-box {
     width: calc(33.33% - 30px);
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile-grid {
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .mobile-grid.high-discount-row .item-box {
+    width: calc(50% - 5px);
+    flex: 0 0 calc(50% - 5px);
+  }
+
+  .mobile-grid.regular-discount-row .item-box {
+    width: calc(33.33% - 7px);
+    flex: 0 0 calc(33.33% - 7px);
+  }
+
+  .mobile-grid .item-box {
+    box-sizing: border-box;
+  }
+
+  .owl-carousel.px_featured .item-box {
+    width: auto !important;
+    min-width: 0;
+    flex: 1;
+    margin: 0 5px;
+    height: 280px !important;
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  .owl-carousel.px_featured .item-box .product-item {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .owl-carousel.px_featured .item-box .details {
+    padding: 8px 4px;
+    font-size: 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .owl-carousel.px_featured .item-box .product-title {
+    font-size: 11px;
+    line-height: 1.2;
+    margin: 5px 0;
+    height: 50%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .owl-carousel.px_featured .item-box .prices {
+    font-size: 10px;
+    margin: 5px 0;
+  }
+
+  .owl-carousel.px_featured .item-box .buttons {
+    margin-top: auto;
+    padding-top: 5px;
+  }
+
+  .owl-carousel.px_featured .item-box .button-2 {
+    font-size: 10px;
+    padding: 6px 8px;
+    width: 100%;
   }
 }
