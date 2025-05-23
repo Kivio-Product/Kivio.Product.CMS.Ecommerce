@@ -2833,6 +2833,7 @@ button.mfp-close, button.mfp-arrow {
 .product-grid .product-item {
     border: 1px solid #e0d2d2;
     border-radius: 12px;
+    height: 100%;
 }
 
 .registration-result-page .buttons {
