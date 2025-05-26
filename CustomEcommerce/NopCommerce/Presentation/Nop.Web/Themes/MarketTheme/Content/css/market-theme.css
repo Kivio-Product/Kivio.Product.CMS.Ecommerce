@@ -1228,6 +1228,15 @@ input[type="radio"]:checked + .radio-custom {
   background-color: #545b62 !important;
 }
 
+.bar-notification p {
+  color: white !important;
+}
+
+.homepage-categories .section-title {
+  margin-left: 10px;
+  text-align: left;
+}
+
 @media all and (max-width: 1000px) {
   .flyout-cart {
     position: fixed;
