@@ -74,107 +74,45 @@
                         decimal codMinimumAmount = decimal.TryParse(codMinimumAmountText, out decimal codResult) ? codResult : 0;
                         bool isCodBelowMinimum = isCashOnDelivery && Model.OrderTotals.SubTotalValue < codMinimumAmount;
                         
+                        bool isDisabled = isPayUBelowMinimum || isCodBelowMinimum;
+                        
                         if (!string.IsNullOrEmpty(paymentMethod.Fee))
                         {
                             paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
                         }
                         
-                        <li class="payment-method-item @(isPayUBelowMinimum || isCodBelowMinimum ? "payment-method-disabled" : "")">
+                        <li class="payment-method-item @(isDisabled ? "payment-method-disabled" : "")">
                             <div class="payment-method-box">
                                 @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
                                 {
                                     <div class="payment-method-logo">
-                                        <label for="paymentmethod_@(i)" @(isPayUBelowMinimum || isCodBelowMinimum ? "class=disabled-label" : "")>
+                                        <label for="paymentmethod_@(i)" @(isDisabled ? "class=disabled-label" : "")>
                                             <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
                                         </label>
                                     </div>
                                 }
                                 <div class="payment-method-content">
                                     <div class="payment-method-option">
-                                        <label for="paymentmethod_@(i)" @(isPayUBelowMinimum || isCodBelowMinimum ? "class=disabled-label" : "")>
+                                        <label for="paymentmethod_@(i)" @(isDisabled ? "class=disabled-label" : "")>
                                             <input id="paymentmethod_@(i)" 
                                                    type="radio" 
                                                    name="paymentmethod" 
                                                    value="@(paymentMethod.PaymentMethodSystemName)" 
-                                                   checked="@paymentMethod.Selected"
-                                                   @(isPayUBelowMinimum || isCodBelowMinimum ? "disabled" : "") />
+                                                   checked="false"
+                                                   @(isDisabled ? "disabled" : "")
+                                                   data-payu-below-minimum="@isPayUBelowMinimum.ToString().ToLower()"
+                                                   data-payu-minimum="@payUMinimumAmount"
+                                                   data-cod-below-minimum="@isCodBelowMinimum.ToString().ToLower()"
+                                                   data-cod-minimum="@codMinimumAmount"
+                                                   data-currency="@currencyCode"
+                                                   data-is-payu="@isPayU.ToString().ToLower()"
+                                                   data-is-cod="@isCashOnDelivery.ToString().ToLower()" />
                                             <span class="radio-custom">
                                                 <span class="radio-indicator"></span>
                                             </span>
                                             <span class="payment-method-name">@paymentMethodName</span>
                                         </label>
                                     </div>
-                                    
-                                    @* @if (!string.IsNullOrEmpty(paymentMethod.Description))
-                                    {
-                                        <div class="payment-method-description">@paymentMethod.Description</div>
-                                    } *@
-                                    
-                                    @if (isPayU)
-                                    {
-                                        <div class="payment-message @(isPayUBelowMinimum ? "payment-message-error" : "payment-message-warning")">
-                                            @if (isPayUBelowMinimum)
-                                            {
-                                                <div class="message-icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <circle cx="12" cy="12" r="10"></circle>
-                                                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                                                    </svg>
-                                                </div>
-                                                <div class="message-text">
-                                                    @T("Checkout.PayU.MinimumAmount", string.Format("{0:N0}", payUMinimumAmount), currencyCode)
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <div class="message-icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                                                        <line x1="12" y1="9" x2="12" y2="13"></line>
-                                                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                                                    </svg>
-                                                </div>
-                                                <div class="message-text">
-                                                    @T("Checkout.PayU.AdditionalFee", "Al pagar con PayU, asumirás un cargo adicional.")
-                                                </div>
-                                            }
-                                        </div>
-                                    }
-                                    
-                                    @if (isCashOnDelivery)
-                                    {
-                                        <div class="payment-message @(isCodBelowMinimum ? "payment-message-error" : "payment-message-info")">
-                                            @if (isCodBelowMinimum)
-                                            {
-                                                <div class="message-icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <circle cx="12" cy="12" r="10"></circle>
-                                                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                                                    </svg>
-                                                </div>
-                                                <div class="message-text">
-                                                    @T("Checkout.CashOnDelivery.MinimumAmount", string.Format("{0:N0}", codMinimumAmount), currencyCode)
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <div class="message-icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <circle cx="12" cy="12" r="10"></circle>
-                                                        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                                        <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                                                        <line x1="15" y1="9" x2="15.01" y2="9"></line>
-                                                    </svg>
-                                                </div>
-                                                <div class="message-text">
-                                                    <p>@T("Checkout.CashOnDelivery.AcceptedMethods", "Aceptamos pagos en efectivo y por Nequi")</p>
-                                                    <p>@T("Checkout.CashOnDelivery.WhatsappRedirection", "Al confirmar tu pedido, serás redirigido a WhatsApp para finalizar.")</p>
-                                                </div>
-                                            }
-                                        </div>
-                                    }
                                 </div>
                             </div>
                         </li>
@@ -184,12 +122,112 @@
             
             <script>
                 $(document).ready(function() {
+                    $('.payment-methods-list input[type="radio"]').prop('checked', false);
+                    
                     $('.payment-method-disabled').on('click', function(e) {
                         e.preventDefault();
+                        e.stopPropagation();
                         return false;
                     });
                     
-                    $('.payment-methods-list input[type="radio"]:not([disabled]):first').prop('checked', true);
+                    $('.payment-methods-list input[type="radio"]:not([disabled])').on('click', function(e) {
+                        var $this = $(this);
+                        var isPayU = $this.data('is-payu') === true;
+                        var isCod = $this.data('is-cod') === true;
+                        var isPayUBelowMinimum = $this.data('payu-below-minimum') === true;
+                        var isCodBelowMinimum = $this.data('cod-below-minimum') === true;
+                        var currency = $this.data('currency');
+                        
+                        if (isPayUBelowMinimum || isCodBelowMinimum) {
+                            e.preventDefault();
+                            $this.prop('checked', false);
+                            
+                            if (isPayUBelowMinimum) {
+                                var payUMinimum = $this.data('payu-minimum');
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Monto mínimo requerido',
+                                    html: '@T("Checkout.PayU.MinimumAmount", "' + payUMinimum.toLocaleString() + '", "' + currency + '")',
+                                    confirmButtonText: 'Entendido'
+                                });
+                            }
+                            
+                            if (isCodBelowMinimum) {
+                                var codMinimum = $this.data('cod-minimum');
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Monto mínimo requerido',
+                                    html: '@T("Checkout.CashOnDelivery.MinimumAmount", "' + codMinimum.toLocaleString() + '", "' + currency + '")',
+                                    confirmButtonText: 'Entendido'
+                                });
+                            }
+                            
+                            return false;
+                        }
+                        
+                        if (isPayU && !isPayUBelowMinimum) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Información importante',
+                                html: '@T("Checkout.PayU.AdditionalFee", "Al pagar con PayU, asumirás un cargo adicional.")',
+                                confirmButtonText: 'Continuar',
+                                showCancelButton: true,
+                                cancelButtonText: 'Cancelar'
+                            }).then((result) => {
+                                if (!result.isConfirmed) {
+                                    $this.prop('checked', false);
+                                }
+                            });
+                        }
+                        
+                        if (isCod && !isCodBelowMinimum) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Pago contra entrega',
+                                html: '<p>@T("Checkout.CashOnDelivery.AcceptedMethods", "Aceptamos pagos en efectivo y por Nequi")</p>' +
+                                      '<p>@T("Checkout.CashOnDelivery.WhatsappRedirection", "Al confirmar tu pedido, serás redirigido a WhatsApp para finalizar.")</p>',
+                                confirmButtonText: 'Continuar',
+                                showCancelButton: true,
+                                cancelButtonText: 'Cancelar'
+                            }).then((result) => {
+                                if (!result.isConfirmed) {
+                                    $this.prop('checked', false);
+                                }
+                            });
+                        }
+                    });
+                    
+                    $('.payment-method-disabled input[type="radio"][disabled]').closest('.payment-method-item').on('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        var $input = $(this).find('input[type="radio"]');
+                        var isPayUBelowMinimum = $input.data('payu-below-minimum') === true;
+                        var isCodBelowMinimum = $input.data('cod-below-minimum') === true;
+                        var currency = $input.data('currency');
+                        
+                        if (isPayUBelowMinimum) {
+                            var payUMinimum = $input.data('payu-minimum');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Método de pago no disponible',
+                                html: '@T("Checkout.PayU.MinimumAmount", "' + payUMinimum.toLocaleString() + '", "' + currency + '")',
+                                confirmButtonText: 'Entendido'
+                            });
+                        }
+                        
+                        if (isCodBelowMinimum) {
+                            var codMinimum = $input.data('cod-minimum');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Método de pago no disponible',
+                                html: '@T("Checkout.CashOnDelivery.MinimumAmount", "' + codMinimum.toLocaleString() + '", "' + currency + '")',
+                                confirmButtonText: 'Entendido'
+                            });
+                        }
+                        
+                        return false;
+                    });
                 });
             </script>
         }
