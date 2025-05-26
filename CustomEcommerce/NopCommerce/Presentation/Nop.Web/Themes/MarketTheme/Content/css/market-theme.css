@@ -841,7 +841,15 @@
 .payment-method-disabled {
   opacity: 0.65;
   cursor: not-allowed;
-  position: relative;
+  /* position: relative; */
+}
+
+.payment-method-disabled .payment-method-box {
+  pointer-events: none;
+}
+
+.payment-method-disabled input[type="radio"] {
+  cursor: not-allowed;
 }
 
 .payment-method-disabled::after {
@@ -857,6 +865,7 @@
 
 .disabled-label {
   cursor: not-allowed !important;
+  opacity: 0.6;
 }
 
 .payment-method-box {
@@ -1186,6 +1195,48 @@ input[type="radio"]:checked + .radio-custom {
   transform: rotate(45deg) scale(1);
 }
 
+.swal2-confirm {
+  background-color: #007bff !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 500 !important;
+}
+
+.swal2-confirm:hover {
+  background-color: #0056b3 !important;
+}
+
+.swal2-cancel {
+  background-color: #dc3545 !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 500 !important;
+}
+
+.swal2-cancel:hover {
+  background-color: #c82333 !important;
+}
+
+.swal2-deny {
+  background-color: #6c757d !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 500 !important;
+}
+
+.swal2-deny:hover {
+  background-color: #545b62 !important;
+}
+
+.bar-notification p {
+  color: white !important;
+}
+
+.homepage-categories .section-title {
+  margin-left: 10px;
+  text-align: left;
+}
+
 @media all and (max-width: 1000px) {
   .flyout-cart {
     position: fixed;
@@ -1433,6 +1484,7 @@ input[type="radio"]:checked + .radio-custom {
 
   .payment-method-item {
     width: 100%;
+    cursor: pointer;
   }
 
   .mobile-grid {
@@ -1601,5 +1653,41 @@ input[type="radio"]:checked + .radio-custom {
     border: 1px solid #e0d2d2;
     border-radius: 12px;
     margin: 10px 1% !important;
+  }
+
+  .product-icon .button-2,
+  .product-icon .add-to-wishlist-button,
+  .product-icon .add-to-compare-list-button {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    -webkit-animation: none !important;
+    -moz-animation: none !important;
+    -o-animation: none !important;
+    -ms-animation: none !important;
+    box-shadow: none !important;
+  }
+
+  .product-icon .button-2:hover,
+  .product-icon .add-to-wishlist-button:hover,
+  .product-icon .add-to-compare-list-button:hover {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .product-icon .pi-heart,
+  .product-icon .pi-compare {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product-icon * {
+      animation: none !important;
+      transition: none !important;
+    }
   }
 }
