@@ -1645,4 +1645,40 @@ input[type="radio"]:checked + .radio-custom {
     border-radius: 12px;
     margin: 10px 1% !important;
   }
+
+  .product-icon .button-2,
+  .product-icon .add-to-wishlist-button,
+  .product-icon .add-to-compare-list-button {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    -webkit-animation: none !important;
+    -moz-animation: none !important;
+    -o-animation: none !important;
+    -ms-animation: none !important;
+    box-shadow: none !important;
+  }
+
+  .product-icon .button-2:hover,
+  .product-icon .add-to-wishlist-button:hover,
+  .product-icon .add-to-compare-list-button:hover {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .product-icon .pi-heart,
+  .product-icon .pi-compare {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product-icon * {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
 }
