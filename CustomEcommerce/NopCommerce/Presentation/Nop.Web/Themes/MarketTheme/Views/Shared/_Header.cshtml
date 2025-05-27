@@ -62,8 +62,8 @@
         <div class="px_cart_overlay"></div>
         @await Component.InvokeAsync(typeof(FlyoutShoppingCartViewComponent))
     </div>
-    <div class="header-lower header-lower-mobile">
-        <div class="search-box store-search-box px_search-desktop">
+    <div class="header-lower mobile-only">
+        <div class="search-bar-mobile">
             @await Component.InvokeAsync(typeof(SearchBoxViewComponent))
         </div>
     </div>
