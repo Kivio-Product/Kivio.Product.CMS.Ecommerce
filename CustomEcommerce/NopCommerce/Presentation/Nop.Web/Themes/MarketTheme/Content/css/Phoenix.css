@@ -322,7 +322,7 @@ ul.login-list li :hover{
   margin: 0;
 }
 .px_category {
-  width: 100% !important;
+  width: 100%;
   position: relative;
   transition: all 0.3s;
   border-radius: 0;
