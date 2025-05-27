@@ -10,7 +10,6 @@ using Nop.Services.Catalog;
 using Nop.Services.Common;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
-using Nop.Services.Discounts;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
 using Nop.Services.Payments;
@@ -196,9 +195,9 @@ public partial class CheckoutModelFactory : ICheckoutModelFactory
                         OpeningHours = point.OpeningHours,
                         IsPreSelected = selectedPickupPoint is not null && selectedPickupPoint.Id == point.Id,
                     };
-                    
+
                     var currentCurrency = await _workContext.GetWorkingCurrencyAsync();
-                    
+
                     //adjust rate
                     var (shippingTotal, _) = await _orderTotalCalculationService.AdjustShippingRateAsync(point.PickupFee, cart, true);
                     var (rateBase, _) = await _taxService.GetShippingPriceAsync(shippingTotal, customer);
@@ -265,10 +264,10 @@ public partial class CheckoutModelFactory : ICheckoutModelFactory
         //existing addresses
         var addresses = await (await _customerService.GetAddressesByCustomerIdAsync(customer.Id))
             .WhereAwait(async a => !a.CountryId.HasValue || await _countryService.GetCountryByAddressAsync(a) is
-                {
-                    Published: true, 
-                    AllowsBilling: true
-                } country
+            {
+                Published: true,
+                AllowsBilling: true
+            } country
                 &&
                 //enabled for the current store
                 await _storeMappingService.AuthorizeAsync(country))
@@ -320,10 +319,10 @@ public partial class CheckoutModelFactory : ICheckoutModelFactory
         var customer = await _workContext.GetCurrentCustomerAsync();
         var addresses = await (await _customerService.GetAddressesByCustomerIdAsync(customer.Id))
             .WhereAwait(async a => !a.CountryId.HasValue || await _countryService.GetCountryByAddressAsync(a) is
-                {
-                    Published: true, 
-                    AllowsShipping: true
-                } country
+            {
+                Published: true,
+                AllowsShipping: true
+            } country
                 &&
                 //enabled for the current store
                 await _storeMappingService.AuthorizeAsync(country))
@@ -427,19 +426,19 @@ public partial class CheckoutModelFactory : ICheckoutModelFactory
                         so.Name.Equals(selectedShippingOption.Name, StringComparison.InvariantCultureIgnoreCase) &&
                         !string.IsNullOrEmpty(so.ShippingRateComputationMethodSystemName) &&
                         so.ShippingRateComputationMethodSystemName.Equals(selectedShippingOption.ShippingRateComputationMethodSystemName, StringComparison.InvariantCultureIgnoreCase));
-                if (shippingOptionToSelect != null) 
+                if (shippingOptionToSelect != null)
                     shippingOptionToSelect.Selected = true;
             }
             //if no option has been selected, let's do it for the first one
             if (model.ShippingMethods.FirstOrDefault(so => so.Selected) == null)
             {
                 var shippingOptionToSelect = model.ShippingMethods.FirstOrDefault();
-                if (shippingOptionToSelect != null) 
+                if (shippingOptionToSelect != null)
                     shippingOptionToSelect.Selected = true;
             }
 
             //notify about shipping from multiple locations
-            if (_shippingSettings.NotifyCustomerAboutShippingFromMultipleLocations) 
+            if (_shippingSettings.NotifyCustomerAboutShippingFromMultipleLocations)
                 model.NotifyCustomerAboutShippingFromMultipleLocations = getShippingOptionResponse.ShippingFromMultipleLocations;
         }
         else
@@ -464,6 +463,9 @@ public partial class CheckoutModelFactory : ICheckoutModelFactory
 
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
+
+
+        model.OrderTotals = await _shoppingCartModelFactory.PrepareOrderTotalsModelAsync(cart, false);
 
         //reward points
         if (_rewardPointsSettings.Enabled && !await _shoppingCartService.ShoppingCartIsRecurringAsync(cart))
@@ -640,7 +642,7 @@ public partial class CheckoutModelFactory : ICheckoutModelFactory
 
         var modelShoppingCart = new ShoppingCartModel();
         modelShoppingCart = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(modelShoppingCart, cart);
-       
+
         model.Items = modelShoppingCart.Items;
         model.DiscountBox = modelShoppingCart.DiscountBox;
         model.GiftCardBox = modelShoppingCart.GiftCardBox;

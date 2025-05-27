@@ -21,8 +21,10 @@
 
     var addtowishlistlink = Url.RouteUrl("AddProductToCart-Catalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist, quantity = quantity });
     var addtocomparelink = Url.RouteUrl("AddProductToCompare", new { productId = Model.Id });
+    
+    var highDiscountClass = Model.HasHighDiscount ? "high-discount-product" : "";
 }
-<div class="product-item" data-productid="@Model.Id">
+<div class="product-item @highDiscountClass" data-productid="@Model.Id">
     <div class="product-img picture">
         <div class="product-icon">
             @if (!Model.ProductPrice.DisableWishlistButton)

@@ -1,89 +1,249 @@
 ﻿@model CheckoutPaymentMethodModel
+@using Nop.Core;
+@inject IWorkContext workContext
+@{
+    var currentCurrency = await workContext.GetWorkingCurrencyAsync();
+    string currencyCode = currentCurrency.CurrencyCode;
+}
+
 <div class="checkout-data">
     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OpCheckoutPaymentMethodTop, additionalData = Model })
-    <div class="section payment-method">
+    <div class="section payment-method-section">
         @if (Model.DisplayRewardPoints && Model.PaymentMethods.Count > 0)
         {
-        <div class="use-reward-points">
-            @if (Model.RewardPointsEnoughToPayForOrder)
-            {
-                <label class="checkbox path" asp-for="UseRewardPoints">
-                    <input type="checkbox" asp-for="UseRewardPoints" onclick="PaymentMethod.toggleUseRewardPoints(this)" />
-                    <svg viewBox="0 0 21 21">
-                        <path d="M5,10.75 L8.5,14.25 L19.4,2.3 C18.8333333,1.43333333 18.0333333,1 17,1 L4,1 C2.35,1 1,2.35 1,4 L1,17 C1,18.65 2.35,20 4,20 L17,20 C18.65,20 20,18.65 20,17 L20,7.99769186"></path>
-                    </svg>
-                    @string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsBalance, Model.RewardPointsToUseAmount)
-                </label>
-            }
-            else
-            {
-
-                <label class="checkbox path">
-                    <input type="checkbox" asp-for="UseRewardPoints" onclick="PaymentMethod.toggleUseRewardPoints(this)" />
-                    <svg viewBox="0 0 21 21">
-                        <path d="M5,10.75 L8.5,14.25 L19.4,2.3 C18.8333333,1.43333333 18.0333333,1 17,1 L4,1 C2.35,1 1,2.35 1,4 L1,17 C1,18.65 2.35,20 4,20 L17,20 C18.65,20 20,18.65 20,17 L20,7.99769186"></path>
-                    </svg>
-                </label>
-            }
-        <label asp-for="UseRewardPoints">@string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsToUse, Model.RewardPointsBalance, Model.RewardPointsToUseAmount)</label>
-            @if (Model.RewardPointsEnoughToPayForOrder)
-            {
-                <script>
+            <div class="reward-points-block">
+                @if (Model.RewardPointsEnoughToPayForOrder)
+                {
+                    <label class="checkbox-container" asp-for="UseRewardPoints">
+                        <input type="checkbox" asp-for="UseRewardPoints" onclick="PaymentMethod.toggleUseRewardPoints(this)" />
+                        <span class="checkmark">
+                            <svg viewBox="0 0 21 21">
+                                <path d="M5,10.75 L8.5,14.25 L19.4,2.3 C18.8333333,1.43333333 18.0333333,1 17,1 L4,1 C2.35,1 1,2.35 1,4 L1,17 C1,18.65 2.35,20 4,20 L17,20 C18.65,20 20,18.65 20,17 L20,7.99769186"></path>
+                            </svg>
+                        </span>
+                        <span class="reward-points-text">@string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsBalance, Model.RewardPointsToUseAmount)</span>
+                    </label>
+                    <script>
                         $(function () {
                             PaymentMethod.toggleUseRewardPoints($('#@Html.IdFor(model => model.UseRewardPoints)'));
                         });
-                </script>
-            }
-        </div>
+                    </script>
+                }
+                else
+                {
+                    <label class="checkbox-container" asp-for="UseRewardPoints">
+                        <input type="checkbox" asp-for="UseRewardPoints" onclick="PaymentMethod.toggleUseRewardPoints(this)" />
+                        <span class="checkmark">
+                            <svg viewBox="0 0 21 21">
+                                <path d="M5,10.75 L8.5,14.25 L19.4,2.3 C18.8333333,1.43333333 18.0333333,1 17,1 L4,1 C2.35,1 1,2.35 1,4 L1,17 C1,18.65 2.35,20 4,20 L17,20 C18.65,20 20,18.65 20,17 L20,7.99769186"></path>
+                            </svg>
+                        </span>
+                        <span class="reward-points-text">@string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsToUse, Model.RewardPointsBalance, Model.RewardPointsToUseAmount)</span>
+                    </label>
+                }
+            </div>
         }
+        
         @if (Model.PaymentMethods.Count > 0)
         {
-            <ul class="method-list" id="payment-method-block">
-                @for (var i = 0; i < Model.PaymentMethods.Count; i++)
-                {
-                    var paymentMethod = Model.PaymentMethods[i];
-                    var paymentMethodName = paymentMethod.Name;
-                    if (!string.IsNullOrEmpty(paymentMethod.Fee))
+            <div class="payment-methods-container">
+                <h4 class="payment-methods-title">@T("Checkout.SelectPaymentMethod")</h4>
+                <ul class="payment-methods-list" id="payment-method-block">
+                    @for (var i = 0; i < Model.PaymentMethods.Count; i++)
                     {
-                        paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
+                        var paymentMethod = Model.PaymentMethods[i];
+                        var paymentMethodName = paymentMethod.Name;
+                        
+                        bool isPayU = paymentMethod.PaymentMethodSystemName.Equals("Payments.PayU", StringComparison.InvariantCultureIgnoreCase);
+                        string payUMinimumAmountResourceKey = $"Checkout.PayU.MinimumAmountValue.{currencyCode}";
+                        string payUMinimumAmountText = T(payUMinimumAmountResourceKey).Text;
+                        if (string.IsNullOrEmpty(payUMinimumAmountText) || payUMinimumAmountText == payUMinimumAmountResourceKey)
+                        {
+                            payUMinimumAmountText = T("Checkout.PayU.MinimumAmountValue").Text;
+                        }
+                        decimal payUMinimumAmount = decimal.TryParse(payUMinimumAmountText, out decimal result) ? result : 0;
+                        bool isPayUBelowMinimum = isPayU && Model.OrderTotals.SubTotalValue < payUMinimumAmount;
+                        
+                        bool isCashOnDelivery = paymentMethod.PaymentMethodSystemName.Equals("Payments.CashOnDelivery", StringComparison.InvariantCultureIgnoreCase);
+                        string codMinimumAmountResourceKey = $"Checkout.CashOnDelivery.MinimumAmountValue.{currencyCode}";
+                        string codMinimumAmountText = T(codMinimumAmountResourceKey).Text;
+                        if (string.IsNullOrEmpty(codMinimumAmountText) || codMinimumAmountText == codMinimumAmountResourceKey)
+                        {
+                            codMinimumAmountText = T("Checkout.CashOnDelivery.MinimumAmountValue").Text;
+                        }
+                        decimal codMinimumAmount = decimal.TryParse(codMinimumAmountText, out decimal codResult) ? codResult : 0;
+                        bool isCodBelowMinimum = isCashOnDelivery && Model.OrderTotals.SubTotalValue < codMinimumAmount;
+                        
+                        bool isDisabled = isPayUBelowMinimum || isCodBelowMinimum;
+                        
+                        if (!string.IsNullOrEmpty(paymentMethod.Fee))
+                        {
+                            paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
+                        }
+                        
+                        <li class="payment-method-item @(isDisabled ? "payment-method-disabled" : "")">
+                            <div class="payment-method-box">
+                                @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
+                                {
+                                    <div class="payment-method-logo">
+                                        <label for="paymentmethod_@(i)" @(isDisabled ? "class=disabled-label" : "")>
+                                            <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
+                                        </label>
+                                    </div>
+                                }
+                                <div class="payment-method-content">
+                                    <div class="payment-method-option">
+                                        <label for="paymentmethod_@(i)" @(isDisabled ? "class=disabled-label" : "")>
+                                            <input id="paymentmethod_@(i)" 
+                                                   type="radio" 
+                                                   name="paymentmethod" 
+                                                   value="@(paymentMethod.PaymentMethodSystemName)" 
+                                                   checked="false"
+                                                   @(isDisabled ? "disabled" : "")
+                                                   data-payu-below-minimum="@isPayUBelowMinimum.ToString().ToLower()"
+                                                   data-payu-minimum="@payUMinimumAmount"
+                                                   data-cod-below-minimum="@isCodBelowMinimum.ToString().ToLower()"
+                                                   data-cod-minimum="@codMinimumAmount"
+                                                   data-currency="@currencyCode"
+                                                   data-is-payu="@isPayU.ToString().ToLower()"
+                                                   data-is-cod="@isCashOnDelivery.ToString().ToLower()" />
+                                            <span class="radio-custom">
+                                                <span class="radio-indicator"></span>
+                                            </span>
+                                            <span class="payment-method-name">@paymentMethodName</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
                     }
-                    <li>
-                        <div class="method-name">
-                            @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
-                            {
-                                <div class="payment-logo">
-                                    <label for="paymentmethod_@(i)">
-                                        <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
-                                    </label>
-                                </div>
+                </ul>
+            </div>
+            
+            <script>
+                $(document).ready(function() {
+                    $('.payment-methods-list input[type="radio"]').prop('checked', false);
+                    
+                    $('.payment-method-disabled').on('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    });
+                    
+                    $('.payment-methods-list input[type="radio"]:not([disabled])').on('click', function(e) {
+                        var $this = $(this);
+                        var isPayU = $this.data('is-payu') === true;
+                        var isCod = $this.data('is-cod') === true;
+                        var isPayUBelowMinimum = $this.data('payu-below-minimum') === true;
+                        var isCodBelowMinimum = $this.data('cod-below-minimum') === true;
+                        var currency = $this.data('currency');
+                        
+                        if (isPayUBelowMinimum || isCodBelowMinimum) {
+                            e.preventDefault();
+                            $this.prop('checked', false);
+                            
+                            if (isPayUBelowMinimum) {
+                                var payUMinimum = $this.data('payu-minimum');
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Monto mínimo requerido',
+                                    html: '@T("Checkout.PayU.MinimumAmount", "' + payUMinimum.toLocaleString() + '", "' + currency + '")',
+                                    confirmButtonText: 'Entendido'
+                                });
                             }
-                        <div class="payment-details">
-                            <label for="paymentmethod_@(i)">
-                                <input id="paymentmethod_@(i)" type="radio" name="paymentmethod" value="@(paymentMethod.PaymentMethodSystemName)" checked="@paymentMethod.Selected" />
-                                <div class="circle">
-                                    <div class="circle--inner circle--inner__1"></div>
-                                    <div class="circle--inner circle--inner__2"></div>
-                                    <div class="circle--inner circle--inner__3"></div>
-                                    <div class="circle--inner circle--inner__4"></div>
-                                    <div class="circle--inner circle--inner__5"></div>
-                                    <div class="circle--outer"></div>
-                                </div>
-                                @paymentMethodName
-                            </label>
-                            @if (!string.IsNullOrEmpty(paymentMethod.Description))
-                            {
-                                <div class="payment-description">@paymentMethod.Description</div>
+                            
+                            if (isCodBelowMinimum) {
+                                var codMinimum = $this.data('cod-minimum');
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Monto mínimo requerido',
+                                    html: '@T("Checkout.CashOnDelivery.MinimumAmount", "' + codMinimum.toLocaleString() + '", "' + currency + '")',
+                                    confirmButtonText: 'Entendido'
+                                });
                             }
-                        </div>
-                        </div>
-                    </li>
-                }
-            </ul>
+                            
+                            return false;
+                        }
+                        
+                        if (isPayU && !isPayUBelowMinimum) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Información importante',
+                                html: '@T("Checkout.PayU.AdditionalFee", "Al pagar con PayU, asumirás un cargo adicional.")',
+                                confirmButtonText: 'Continuar',
+                                showCancelButton: true,
+                                cancelButtonText: 'Cancelar'
+                            }).then((result) => {
+                                if (!result.isConfirmed) {
+                                    $this.prop('checked', false);
+                                }
+                            });
+                        }
+                        
+                        if (isCod && !isCodBelowMinimum) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Pago contra entrega',
+                                html: '<p>@T("Checkout.CashOnDelivery.AcceptedMethods", "Aceptamos pagos en efectivo y por Nequi")</p>' +
+                                      '<p>@T("Checkout.CashOnDelivery.WhatsappRedirection", "Al confirmar tu pedido, serás redirigido a WhatsApp para finalizar.")</p>',
+                                confirmButtonText: 'Continuar',
+                                showCancelButton: true,
+                                cancelButtonText: 'Cancelar'
+                            }).then((result) => {
+                                if (!result.isConfirmed) {
+                                    $this.prop('checked', false);
+                                }
+                            });
+                        }
+                    });
+                    
+                    $('.payment-method-disabled input[type="radio"][disabled]').closest('.payment-method-item').on('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        var $input = $(this).find('input[type="radio"]');
+                        var isPayUBelowMinimum = $input.data('payu-below-minimum') === true;
+                        var isCodBelowMinimum = $input.data('cod-below-minimum') === true;
+                        var currency = $input.data('currency');
+                        
+                        if (isPayUBelowMinimum) {
+                            var payUMinimum = $input.data('payu-minimum');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Método de pago no disponible',
+                                html: '@T("Checkout.PayU.MinimumAmount", "' + payUMinimum.toLocaleString() + '", "' + currency + '")',
+                                confirmButtonText: 'Entendido'
+                            });
+                        }
+                        
+                        if (isCodBelowMinimum) {
+                            var codMinimum = $input.data('cod-minimum');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Método de pago no disponible',
+                                html: '@T("Checkout.CashOnDelivery.MinimumAmount", "' + codMinimum.toLocaleString() + '", "' + currency + '")',
+                                confirmButtonText: 'Entendido'
+                            });
+                        }
+                        
+                        return false;
+                    });
+                });
+            </script>
         }
         else
         {
-            <div class="message-error">
-                @T("Checkout.NoPaymentMethods")
+            <div class="payment-method-error">
+                <div class="error-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                </div>
+                <div class="error-message">
+                    @T("Checkout.NoPaymentMethods")
+                </div>
             </div>
         }
     </div>

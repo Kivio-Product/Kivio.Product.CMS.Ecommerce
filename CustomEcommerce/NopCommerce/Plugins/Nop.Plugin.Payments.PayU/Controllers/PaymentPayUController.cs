@@ -58,6 +58,7 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             {
                 ActiveStoreScopeConfiguration = storeScope,
                 UseSandbox = payUPaymentSettings.UseSandbox,
+                AdditionalFeeEnabled = payUPaymentSettings.AdditionalFeeEnabled,
                 AccountId = payUPaymentSettings.AccountId,
                 MerchantId = payUPaymentSettings.MerchantId,
                 ClientLoginId = payUPaymentSettings.ClientLoginId,
@@ -99,6 +100,7 @@ namespace Nop.Plugin.Payments.PayU.Controllers
             var payUPaymentSettings = await _settingService.LoadSettingAsync<PayUPaymentSettings>(storeScope);
 
             payUPaymentSettings.UseSandbox = model.UseSandbox;
+            payUPaymentSettings.AdditionalFeeEnabled = model.AdditionalFeeEnabled;
             payUPaymentSettings.AccountId = model.AccountId;
             payUPaymentSettings.MerchantId = model.MerchantId;
             payUPaymentSettings.ClientLoginId = model.ClientLoginId;
@@ -111,6 +113,13 @@ namespace Nop.Plugin.Payments.PayU.Controllers
                 payUPaymentSettings,
                 x => x.UseSandbox,
                 model.UseSandboxOverrideForStore,
+                storeScope,
+                false);
+
+            await _settingService.SaveSettingOverridablePerStoreAsync(
+                payUPaymentSettings,
+                x => x.AdditionalFeeEnabled,
+                model.AdditionalFeeEnabledOverrideForStore,
                 storeScope,
                 false);
 

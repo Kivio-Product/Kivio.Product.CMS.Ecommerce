@@ -1,9 +1,15 @@
 ﻿@model CheckoutConfirmModel
-
+@inject IThemeContext themeContext
 @using Nop.Core.Domain.Topics
 
+@{
+    var themeName = await themeContext.GetWorkingThemeNameAsync();
+    var privacyPolicyPDFPath = Url.Content($"~/Themes/{themeName}/Content/files/politica-tratamiento-datos-merkko.pdf");
+}
+
 <div class="checkout-data">
-    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OpCheckoutConfirmTop, additionalData = Model })
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OpCheckoutConfirmTop,
+    additionalData = Model })
     @if (!string.IsNullOrEmpty(Model.MinOrderTotalWarning) || Model.Warnings.Count > 0)
     {
         <div class="section confirm-order">
@@ -26,51 +32,61 @@
             }
         </div>
     }
-    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OpCheckoutConfirmBottom, additionalData = Model })
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone =
+    PublicWidgetZones.OpCheckoutConfirmBottom, additionalData = Model })
     <div class="section order-summary">
         @await Html.PartialAsync("_OrderReviewData", Model.OrderReviewData)
     </div>
-    @if (string.IsNullOrEmpty(Model.MinOrderTotalWarning) && Model.TermsOfServiceOnOrderConfirmPage)
+    @if (string.IsNullOrEmpty(Model.MinOrderTotalWarning))
     {
-        <div id="terms-of-service-warning-box" title="@T("Checkout.TermsOfService")" style="display:none;">
-            <p>@T("Checkout.TermsOfService.PleaseAccept")</p>
-        </div>
-        <div class="terms-of-service">
-            <label class="checkbox path" for="termsofservice">
-                <input type="checkbox" id="termsofservice" name="termsofservice" />
-                <svg viewBox="0 0 21 21">
-                    <path d="M5,10.75 L8.5,14.25 L19.4,2.3 C18.8333333,1.43333333 18.0333333,1 17,1 L4,1 C2.35,1 1,2.35 1,4 L1,17 C1,18.65 2.35,20 4,20 L17,20 C18.65,20 20,18.65 20,17 L20,7.99769186"></path>
-                </svg>
-                @T("Checkout.TermsOfService.IAccept")
-            </label>
-            @if (Model.TermsOfServicePopup)
+        <div class="checkout-agreements">
+            @* Términos y Condiciones *@
+            @if (Model.TermsOfServiceOnOrderConfirmPage)
             {
-                <a class="read" id="read-terms">@T("Checkout.TermsOfService.Read")</a>
-                <script>
-                    $(function () {
-                        $('#read-terms').on('click', function(e) {
-                            e.preventDefault();
-                            displayPopupContentFromUrl('@Url.RouteUrl("TopicPopup", new {SystemName = "conditionsofuse"})', '@T("Checkout.TermsOfService")');
-                        });
-                    });
-                </script>
+                <div id="terms-of-service-warning-box" title="@T("Checkout.TermsOfService")" style="display:none;">
+                    <p>@T("Checkout.TermsOfService.PleaseAccept")</p>
+                </div>
+                <div class="checkout-terms-box">
+                    <label class="modern-checkbox" for="termsofservice">
+                        <input type="checkbox" id="termsofservice" name="termsofservice" />
+                        <div class="checkbox-custom"></div>
+                        <div class="checkbox-text">
+                            @T("Checkout.TermsOfService.IAccept")
+                            <a class="checkout-link external-link" href="@Url.RouteTopicUrl("conditionsofuse")" target="_blank">
+                                @T("Checkout.TermsOfService.Read")
+                            </a>
+                        </div>
+                    </label>
+                </div>
             }
-            else
-            {
-                <a class="read" id="read-terms" href="@Url.RouteTopicUrl("conditionsofuse")">@T("Checkout.TermsOfService.Read")</a>
-            }
+
+            @* Política de Tratamiento de Datos Personales *@
+            <div id="privacy-policy-warning-box" title="@T("Checkout.PrivacyPolicy")" style="display:none;">
+                <p>@T("Checkout.PrivacyPolicy.PleaseAccept")</p>
+            </div>
+            <div class="checkout-terms-box">
+                <label class="modern-checkbox" for="privacypolicy">
+                    <input type="checkbox" id="privacypolicy" name="privacypolicy" />
+                    <div class="checkbox-custom"></div>
+                    <div class="checkbox-text">
+                        @T("Checkout.PrivacyPolicy.IAccept") 
+                        <a href="@privacyPolicyPDFPath" target="_blank" class="checkout-link external-link">
+                            @T("Checkout.PrivacyPolicy.LinkText")
+                        </a> 
+                        @T("Checkout.PrivacyPolicy.AcceptText")
+                    </div>
+                </label>
+            </div>
         </div>
     }
-     @if (Model.DisplayCaptcha)
+    @if (Model.DisplayCaptcha)
     {
         <nop-captcha />
     }
 </div>
 
 <script asp-location="Footer">
-    // cart item pluse minus 
-
-
+    // cart item plus minus 
     $(document).ready(function () {
         $('.pi-minus').click(function () {
             var $input = $(this).parent().find('input');
