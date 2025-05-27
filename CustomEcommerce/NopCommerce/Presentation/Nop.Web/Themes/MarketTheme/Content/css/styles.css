@@ -8035,7 +8035,6 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 }
 .flash-sale-container .timer-section {
     margin-left: 0;
-    width: 100%; /* Para que ocupe el ancho y el contador no se desborde tanto */
     justify-content: flex-start; /* Alinea el contador a la izquierda */
 }
   .flash-sale-container .decorative-arrow {

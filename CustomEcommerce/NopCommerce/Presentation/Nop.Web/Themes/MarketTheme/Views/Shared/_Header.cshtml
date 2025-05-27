@@ -26,7 +26,7 @@
                 @await Component.InvokeAsync(typeof(TaxTypeSelectorViewComponent))
                 @await Component.InvokeAsync(typeof(CurrencySelectorViewComponent))
                 @await Component.InvokeAsync(typeof(LanguageSelectorViewComponent))
-                <span class="header-plica-separator">|</span>
+                <span class="header-plica-separator desktop-only-nb">|</span>
                 @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderSelectors })
                 @await Component.InvokeAsync(typeof(HeaderLinksViewComponent))
             </div>
@@ -62,8 +62,8 @@
         <div class="px_cart_overlay"></div>
         @await Component.InvokeAsync(typeof(FlyoutShoppingCartViewComponent))
     </div>
-    <div class="header-lower header-lower-mobile">
-        <div class="search-box store-search-box px_search-desktop">
+    <div class="header-lower mobile-only">
+        <div class="search-bar-mobile">
             @await Component.InvokeAsync(typeof(SearchBoxViewComponent))
         </div>
     </div>

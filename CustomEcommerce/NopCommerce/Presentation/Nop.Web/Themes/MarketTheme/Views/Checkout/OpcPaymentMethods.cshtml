@@ -4,6 +4,7 @@
 @{
     var currentCurrency = await workContext.GetWorkingCurrencyAsync();
     string currencyCode = currentCurrency.CurrencyCode;
+    string payUPaymentFee = string.Empty;
 }
 
 <div class="checkout-data">
@@ -21,7 +22,7 @@
                                 <path d="M5,10.75 L8.5,14.25 L19.4,2.3 C18.8333333,1.43333333 18.0333333,1 17,1 L4,1 C2.35,1 1,2.35 1,4 L1,17 C1,18.65 2.35,20 4,20 L17,20 C18.65,20 20,18.65 20,17 L20,7.99769186"></path>
                             </svg>
                         </span>
-                        <span class="reward-points-text">@string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsBalance, Model.RewardPointsToUseAmount)</span>
+                        <span class="reward-points-text">@Html.Raw(string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsBalance, Model.RewardPointsToUseAmount))</span>
                     </label>
                     <script>
                         $(function () {
@@ -38,7 +39,7 @@
                                 <path d="M5,10.75 L8.5,14.25 L19.4,2.3 C18.8333333,1.43333333 18.0333333,1 17,1 L4,1 C2.35,1 1,2.35 1,4 L1,17 C1,18.65 2.35,20 4,20 L17,20 C18.65,20 20,18.65 20,17 L20,7.99769186"></path>
                             </svg>
                         </span>
-                        <span class="reward-points-text">@string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsToUse, Model.RewardPointsBalance, Model.RewardPointsToUseAmount)</span>
+                        <span class="reward-points-text">@Html.Raw(string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsToUse, Model.RewardPointsBalance, Model.RewardPointsToUseAmount))</span>
                     </label>
                 }
             </div>
@@ -63,6 +64,8 @@
                         }
                         decimal payUMinimumAmount = decimal.TryParse(payUMinimumAmountText, out decimal result) ? result : 0;
                         bool isPayUBelowMinimum = isPayU && Model.OrderTotals.SubTotalValue < payUMinimumAmount;
+                        
+                        if (isPayU) payUPaymentFee = paymentMethod.Fee;
                         
                         bool isCashOnDelivery = paymentMethod.PaymentMethodSystemName.Equals("Payments.CashOnDelivery", StringComparison.InvariantCultureIgnoreCase);
                         string codMinimumAmountResourceKey = $"Checkout.CashOnDelivery.MinimumAmountValue.{currencyCode}";
@@ -106,6 +109,7 @@
                                                    data-cod-minimum="@codMinimumAmount"
                                                    data-currency="@currencyCode"
                                                    data-is-payu="@isPayU.ToString().ToLower()"
+                                                   data-payu-fee="@payUPaymentFee"
                                                    data-is-cod="@isCashOnDelivery.ToString().ToLower()" />
                                             <span class="radio-custom">
                                                 <span class="radio-indicator"></span>
@@ -144,20 +148,26 @@
                             
                             if (isPayUBelowMinimum) {
                                 var payUMinimum = $this.data('payu-minimum');
+                                var payUMessage = '@Html.Raw(T("Checkout.PayU.MinimumAmount").Text)';
+                                payUMessage = payUMessage.replace('{0}', payUMinimum.toLocaleString()).replace('{1}', currency);
+                                
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Monto mínimo requerido',
-                                    html: '@T("Checkout.PayU.MinimumAmount", "' + payUMinimum.toLocaleString() + '", "' + currency + '")',
+                                    html: payUMessage,
                                     confirmButtonText: 'Entendido'
                                 });
                             }
                             
                             if (isCodBelowMinimum) {
                                 var codMinimum = $this.data('cod-minimum');
+                                var codMessage = '@Html.Raw(T("Checkout.CashOnDelivery.MinimumAmount").Text)';
+                                codMessage = codMessage.replace('{0}', codMinimum.toLocaleString()).replace('{1}', currency);
+                                
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Monto mínimo requerido',
-                                    html: '@T("Checkout.CashOnDelivery.MinimumAmount", "' + codMinimum.toLocaleString() + '", "' + currency + '")',
+                                    html: codMessage,
                                     confirmButtonText: 'Entendido'
                                 });
                             }
@@ -166,10 +176,14 @@
                         }
                         
                         if (isPayU && !isPayUBelowMinimum) {
+                            var payUFee = $this.data('payu-fee');
+                            var payUFeeMessage = '@Html.Raw(T("Checkout.PayU.AdditionalFee").Text)';
+                            payUFeeMessage = payUFeeMessage.replace('{0}', payUFee).replace('{1}', currency);
+
                             Swal.fire({
                                 icon: 'warning',
                                 title: 'Información importante',
-                                html: '@T("Checkout.PayU.AdditionalFee", "Al pagar con PayU, asumirás un cargo adicional.")',
+                                html: payUFeeMessage,
                                 confirmButtonText: 'Continuar',
                                 showCancelButton: true,
                                 cancelButtonText: 'Cancelar'
@@ -181,11 +195,13 @@
                         }
                         
                         if (isCod && !isCodBelowMinimum) {
+                            var codInfo1 = '@Html.Raw(T("Checkout.CashOnDelivery.AcceptedMethods").Text)';
+                            var codInfo2 = '@Html.Raw(T("Checkout.CashOnDelivery.WhatsappRedirection").Text)';
+                            
                             Swal.fire({
                                 icon: 'info',
                                 title: 'Pago contra entrega',
-                                html: '<p>@T("Checkout.CashOnDelivery.AcceptedMethods", "Aceptamos pagos en efectivo y por Nequi")</p>' +
-                                      '<p>@T("Checkout.CashOnDelivery.WhatsappRedirection", "Al confirmar tu pedido, serás redirigido a WhatsApp para finalizar.")</p>',
+                                html: '<p>' + codInfo1 + '</p><p>' + codInfo2 + '</p>',
                                 confirmButtonText: 'Continuar',
                                 showCancelButton: true,
                                 cancelButtonText: 'Cancelar'
@@ -208,20 +224,26 @@
                         
                         if (isPayUBelowMinimum) {
                             var payUMinimum = $input.data('payu-minimum');
+                            var payUMessage = '@Html.Raw(T("Checkout.PayU.MinimumAmount").Text)';
+                            payUMessage = payUMessage.replace('{0}', payUMinimum.toLocaleString()).replace('{1}', currency);
+                            
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Método de pago no disponible',
-                                html: '@T("Checkout.PayU.MinimumAmount", "' + payUMinimum.toLocaleString() + '", "' + currency + '")',
+                                html: payUMessage,
                                 confirmButtonText: 'Entendido'
                             });
                         }
                         
                         if (isCodBelowMinimum) {
                             var codMinimum = $input.data('cod-minimum');
+                            var codMessage = '@Html.Raw(T("Checkout.CashOnDelivery.MinimumAmount").Text)';
+                            codMessage = codMessage.replace('{0}', codMinimum.toLocaleString()).replace('{1}', currency);
+                            
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Método de pago no disponible',
-                                html: '@T("Checkout.CashOnDelivery.MinimumAmount", "' + codMinimum.toLocaleString() + '", "' + currency + '")',
+                                html: codMessage,
                                 confirmButtonText: 'Entendido'
                             });
                         }
