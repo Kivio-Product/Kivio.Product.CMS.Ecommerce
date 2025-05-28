@@ -46,10 +46,10 @@
                     <div class="table-wrapper">
                         <table class="cart">
                             <colgroup>
-                                @if (Model.DisplayAddToCart)
+                                @* @if (Model.DisplayAddToCart)
                                 {
                                     <col width="1" />
-                                }
+                                } *@
                                 @if (Model.ShowSku)
                                 {
                                     <col width="1" />
@@ -69,12 +69,12 @@
                             </colgroup>
                             <thead>
                                 <tr>
-                                    @if (Model.DisplayAddToCart)
+                                    @* @if (Model.DisplayAddToCart)
                                     {
                                         <th class="add-to-cart">
                                             @T("ShoppingCart.AddToCart")
                                         </th>
-                                    }
+                                    } *@
                                     @if (Model.ShowSku)
                                     {
                                         <th class="sku">
@@ -111,14 +111,14 @@
                                 @foreach (var item in Model.Items)
                                 {
                                     <tr>
-                                        @if (Model.DisplayAddToCart)
+                                        @* @if (Model.DisplayAddToCart)
                                         {
                                             <td class="add-to-cart">
                                                 <input type="checkbox" name="addtocart" id="addfromcart-@(item.Id)" value="@(item.Id)" />
                                                 <label class="px_move_cartitem_to_wishlist" for="addfromcart-@(item.Id)">@T("ShoppingCart.AddToCart")</label>
                                                 <a class="pi-px-shopping-cart px_move_cartitem_to_wishlist"></a>
                                             </td>
-                                        }
+                                        } *@
                                         @if (Model.ShowSku)
                                         {
                                             <td class="sku">
@@ -243,7 +243,7 @@
                                 </button>
 
                             }
-                            @if (Model.DisplayAddToCart)
+                            @* @if (Model.DisplayAddToCart)
                             {
                                 <button type="button" name="addtocartbuttonbutton" value="@T("ShoppingCart.AddToCart")" class="primary-btn px_wishlist_add_to_cart_button bs_font_size_14 bs_font_weight_400 px_move_allcartitem_to_wishlist-btn">
                                     <span class="linearicons-bag2"></span>
@@ -253,7 +253,7 @@
 
                                     @T("ShoppingCart.AddToCart")
                                 </button>
-                            }
+                            } *@
                             @if (Model.IsEditable && Model.EmailWishlistEnabled)
                             {
                                 <button type="button" value="@T("Wishlist.EmailAFriend")" class="secoendry-btn" onclick="setLocation('@Url.RouteUrl("EmailWishlist")')">

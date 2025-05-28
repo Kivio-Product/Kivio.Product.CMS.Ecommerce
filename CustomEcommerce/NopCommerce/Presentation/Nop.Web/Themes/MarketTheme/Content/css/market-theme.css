@@ -1307,6 +1307,11 @@ input[type="radio"]:checked + .radio-custom {
   display: none;
 }
 
+.category-page .product-grid .item-box {
+  width: 31% !important;
+  margin: 1% !important;
+}
+
 @media all and (max-width: 1000px) {
   .flyout-cart {
     position: fixed;
@@ -1615,7 +1620,27 @@ input[type="radio"]:checked + .radio-custom {
   }
 }
 
-@media (min-width: 1367px) {
+@media (min-width: 768px) {
+  .high-discount-row .item-box {
+    width: 25%;
+  }
+
+  .regular-discount-row .item-box {
+    width: calc(20% - 30px);
+  }
+
+  .product-custom-grid .item-grid .item-box {
+    width: 18%;
+    border: 1px solid #e0d2d2;
+    border-radius: 12px;
+    margin: 10px 1% !important;
+  }
+
+  .category-page .product-grid .item-box {
+    width: 31% !important;
+    margin: 1% !important;
+  }
+
   .high-discount-row .item-box {
     width: calc(33.33% - 200px) !important;
   }
@@ -1635,22 +1660,10 @@ input[type="radio"]:checked + .radio-custom {
     border-radius: 12px;
     margin: 10px 1% !important;
   }
-}
-
-@media (min-width: 768px) and (max-width: 1366px) {
-  .high-discount-row .item-box {
-    width: 25%;
-  }
-
-  .regular-discount-row .item-box {
-    width: calc(20% - 30px);
-  }
-
-  .product-custom-grid .item-grid .item-box {
-    width: 18%;
-    border: 1px solid #e0d2d2;
-    border-radius: 12px;
-    margin: 10px 1% !important;
+  
+  .category-page .product-grid .item-box {
+    width: 31% !important;
+    margin: 1% !important;
   }
 }
 
@@ -1658,7 +1671,7 @@ input[type="radio"]:checked + .radio-custom {
   .desktop-only-nb {
     display: none !important;
   }
-  
+
   .mobile-grid {
     display: flex !important;
     flex-wrap: wrap;
@@ -1859,7 +1872,6 @@ input[type="radio"]:checked + .radio-custom {
     box-shadow: none;
   }
 
-  /* Estilos para el autocomplete si está habilitado */
   .search-bar-mobile .ui-autocomplete {
     border-radius: 12px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
@@ -1918,6 +1930,11 @@ input[type="radio"]:checked + .radio-custom {
 
   .header-selectors-wrapper .header-plica-separator {
     margin: 0 3px;
+  }
+
+  .category-page .product-grid .item-box {
+    width: 48% !important;
+    margin: 1% !important;
   }
 
   @media (max-width: 480px) {
