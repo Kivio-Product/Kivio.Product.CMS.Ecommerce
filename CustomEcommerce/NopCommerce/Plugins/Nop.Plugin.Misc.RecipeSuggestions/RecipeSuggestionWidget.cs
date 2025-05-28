@@ -1,9 +1,9 @@
-using Nop.Core; // For IWebHelper, IStoreContext
-using Nop.Plugin.Misc.RecipeSuggestions.Models; // For RecipeSuggestionSettings
-using Nop.Services.Cms; // For IWidgetPlugin, PublicWidgetZones
-using Nop.Services.Configuration; // For ISettingService
-using Nop.Services.Localization; // For ILocalizationService, LocaleStringResource
-using Nop.Services.Plugins; // For BasePlugin
+using Nop.Core; 
+using Nop.Plugin.Misc.RecipeSuggestions.Models; 
+using Nop.Services.Cms; 
+using Nop.Services.Configuration; 
+using Nop.Services.Localization;
+using Nop.Services.Plugins;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -27,12 +27,10 @@ namespace Nop.Plugin.Misc.RecipeSuggestions
             _storeContext = storeContext;
         }
 
-        public bool HideInWidgetList => false; // Set to true if you don't want it to appear in the admin widget list
+        public bool HideInWidgetList => false; 
 
         public async Task<IList<string>> GetWidgetZonesAsync()
         {
-            // Make this configurable later via settings if needed.
-            // For now, hardcode to productdetails_bottom or use the setting.
             var settings = await _settingService.LoadSettingAsync<RecipeSuggestionSettings>(_storeContext.GetCurrentStore().Id);
             string zone = !string.IsNullOrWhiteSpace(settings?.WidgetZone) ? settings.WidgetZone : PublicWidgetZones.ProductDetailsBottom;
             
@@ -41,47 +39,34 @@ namespace Nop.Plugin.Misc.RecipeSuggestions
 
         public string GetPublicViewComponentName()
         {
-            return "RecipeSuggestion"; // This should match the ViewComponent name
+            return "RecipeSuggestion"; 
         }
 
         public override string GetConfigurationPageUrl()
         {
-            return $"{_webHelper.GetStoreLocation()}Admin/RecipeSuggestionAdmin/Configure"; // Matches the controller route
+            return $"{_webHelper.GetStoreLocation()}Admin/RecipeSuggestionAdmin/Configure";
         }
 
         public override async Task InstallAsync()
         {
-            // Default settings
             var settings = new RecipeSuggestionSettings
             {
-                GeminiApiKey = "YOUR_API_KEY_HERE",
-                RecipeApiEndpoint = "https://api.example.com/recipes",
-                ImageApiEndpoint = "https://api.example.com/images",
-                CacheExpiryMinutes = 720, // 12 hours
-                ScheduledTaskTime = "02:00:00", // 2 AM
                 NewProductsBatchSize = 100,
                 RefreshProductsBatchSize = 50,
-                RefreshRecipeAgeDays = 30,
+                RefreshRecipeAgeDays = 7,
                 WidgetZone = PublicWidgetZones.ProductDetailsBottom 
             };
             await _settingService.SaveSettingAsync(settings);
 
-            // Localization resources
             await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
             {
                 // Plugin Info
                 ["Plugins.Misc.RecipeSuggestions.FriendlyName"] = "Recipe Suggestions",
                 // Configuration Page
+                ["Plugins.Misc.RecipeSuggestions.Settings.Enabled"] = "Enabled",
+                ["Plugins.Misc.RecipeSuggestions.Settings.Enabled.Hint"] = "Enable or disable the recipe suggestions feature.",
                 ["Plugins.Misc.RecipeSuggestions.Settings.GeminiApiKey"] = "Gemini API Key",
                 ["Plugins.Misc.RecipeSuggestions.Settings.GeminiApiKey.Hint"] = "Enter your API key for the Gemini service.",
-                ["Plugins.Misc.RecipeSuggestions.Settings.RecipeApiEndpoint"] = "Recipe API Endpoint",
-                ["Plugins.Misc.RecipeSuggestions.Settings.RecipeApiEndpoint.Hint"] = "The URL for the recipe generation API.",
-                ["Plugins.Misc.RecipeSuggestions.Settings.ImageApiEndpoint"] = "Image API Endpoint",
-                ["Plugins.Misc.RecipeSuggestions.Settings.ImageApiEndpoint.Hint"] = "The URL for the image generation API.",
-                ["Plugins.Misc.RecipeSuggestions.Settings.CacheExpiryMinutes"] = "Cache Expiry (minutes)",
-                ["Plugins.Misc.RecipeSuggestions.Settings.CacheExpiryMinutes.Hint"] = "How long to cache recipe suggestions.",
-                ["Plugins.Misc.RecipeSuggestions.Settings.ScheduledTaskTime"] = "Scheduled Task Time (HH:mm:ss)",
-                ["Plugins.Misc.RecipeSuggestions.Settings.ScheduledTaskTime.Hint"] = "Time when the daily recipe update task runs (e.g., 02:00:00 for 2 AM).",
                 ["Plugins.Misc.RecipeSuggestions.Settings.NewProductsBatchSize"] = "New Products Batch Size",
                 ["Plugins.Misc.RecipeSuggestions.Settings.NewProductsBatchSize.Hint"] = "Max number of new products to process in each task run.",
                 ["Plugins.Misc.RecipeSuggestions.Settings.RefreshProductsBatchSize"] = "Refresh Products Batch Size",

@@ -46,6 +46,13 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 
         public async Task<RecipeSuggestionViewModel?> GetRecipeSuggestionForProductAsync(int productId)
         {
+            // If settings not enabled
+            var settings = await _settingService.LoadSettingAsync<RecipeSuggestionSettings>(_storeContext.GetCurrentStore().Id);
+            if (settings == null || !settings.Enabled)
+            {
+                return null;
+            }
+
             string cacheKey = $"{CACHE_KEY_PREFIX}{productId}";
             var cachedSuggestion = await _cacheService.GetAsync<RecipeSuggestionViewModel>(cacheKey);
 

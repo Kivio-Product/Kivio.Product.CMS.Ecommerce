@@ -1,40 +1,52 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework> <!-- Assuming NopCommerce 4.80 runs on .NET 8.0, adjust if necessary -->
-    <Copyright>Copyright (c) Your Company</Copyright>
-    <Company>Your Company</Company>
-    <Authors>Your Name/Company</Authors>
+    <TargetFramework>net9.0</TargetFramework>
+    <Copyright>Copyright © Kivio SAS</Copyright> 
+    <Company>Kivio SAS</Company> 
+    <Authors>Kivio SAS</Authors> 
     <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageProjectUrl>https://www.nopcommerce.com/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/nopSolutions/nopCommerce</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
-    <OutputPath>../../../../Presentation/Nop.Web/Plugins/Misc.RecipeSuggestions</OutputPath>
+    <OutputPath>$(SolutionDir)NopCommerce\src\Presentation\Nop.Web\Plugins\Misc.RecipeSuggestions</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
-    <!--Set this parameter to true to get the dlls copied from the NuGet packages directory to the output directory.
-    Set this parameter to false if you want to reference the dlls from the NuGet packages directory and not to copy them to the output directory.-->
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
+  
   <ItemGroup>
-    <None Remove="logo.png" />
+    <None Remove="logo.jpg" />
     <None Remove="plugin.json" />
-    <Content Include="logo.png">
+    <None Remove="Views\Configure.cshtml" />    
+    <None Remove="Views\_ViewImports.cshtml" />
+    <None Remove="Views\PublicView.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="logo.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="plugin.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Views\Configure.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\PublicView.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\_ViewImports.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
   </ItemGroup>
+
   <ItemGroup>
-    <!--TODO: Add references to NopCommerce core libraries, e.g.: -->
-    <ProjectReference Include="..\..\..\..\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
-    <ProjectReference Include="..\..\..\..\Libraries\Nop.Core\Nop.Core.csproj" />
-    <ProjectReference Include="..\..\..\..\Libraries\Nop.Services\Nop.Services.csproj" />
-    <ProjectReference Include="..\..\..\..\Libraries\Nop.Data\Nop.Data.csproj" />
-
-
-    <!-- Clear default libraries references -->
-    <ClearPluginAssemblies Include="Microsoft.Extensions.Caching.Memory" />
+    <ProjectReference Include="$(SolutionDir)NopCommerce\src\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
+    <ClearPluginAssemblies Include="$(SolutionDir)NopCommerce\src\Build\ClearPluginAssemblies.proj" />
   </ItemGroup>
+  
+  <!-- This target execute after "Build" target -->
+  <Target Name="NopTarget" AfterTargets="Build">
+    <!-- Delete unnecessary libraries from plugins path -->
+    <MSBuild Projects="@(ClearPluginAssemblies)" Properties="PluginPath=$(OutDir)" Targets="NopClear" />
+  </Target>
+
 </Project>

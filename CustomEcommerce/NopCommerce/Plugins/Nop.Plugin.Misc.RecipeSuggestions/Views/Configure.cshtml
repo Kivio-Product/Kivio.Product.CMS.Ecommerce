@@ -1,0 +1,96 @@
+@model ConfigurationModel
+
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+@await Component.InvokeAsync(typeof(StoreScopeConfigurationViewComponent))
+<form asp-controller="RecipeSuggestions" asp-action="Configure" method="post">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="cards-group">
+                <div class="card card-default"></div>
+                    <div class="card-header">
+                        @T("Plugins.Misc.RecipeSuggestions.Settings")
+                    </div>
+                    <div class="card-body">
+                        <!-- Enabled -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="Enabled_OverrideForStore" asp-input="Enabled" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="Enabled" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="Enabled" />
+                                <span asp-validation-for="Enabled"></span>
+                            </div> 
+                        </div>
+                        <!-- GeminiApiKey -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="GeminiApiKey_OverrideForStore" asp-input="GeminiApiKey" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="GeminiApiKey" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="GeminiApiKey" />
+                                <span asp-validation-for="GeminiApiKey"></span>
+                            </div>
+                        </div>
+                        <!-- NewProductsBatchSize -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="NewProductsBatchSize_OverrideForStore" asp-input="NewProductsBatchSize" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="NewProductsBatchSize" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="NewProductsBatchSize" />
+                                <span asp-validation-for="NewProductsBatchSize"></span>
+                            </div>
+                        </div>
+                        <!-- RefreshProductsBatchSize -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="RefreshProductsBatchSize_OverrideForStore" asp-input="RefreshProductsBatchSize" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="RefreshProductsBatchSize" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="RefreshProductsBatchSize" />
+                                <span asp-validation-for="RefreshProductsBatchSize"></span>
+                            </div>
+                        </div>
+                        <!-- RefreshRecipeAgeDays -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="RefreshRecipeAgeDays_OverrideForStore" asp-input="RefreshRecipeAgeDays" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="RefreshRecipeAgeDays" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="RefreshRecipeAgeDays" />
+                                <span asp-validation-for="RefreshRecipeAgeDays"></span>
+                            </div>
+                        </div>
+                        <!-- WidgetZone -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="WidgetZone_OverrideForStore" asp-input="WidgetZone" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="WidgetZone" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="WidgetZone" />
+                                <span asp-validation-for="WidgetZone"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    @T("Admin.Common.Save")
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    @T("Admin.Common.Cancel")
+                </a>
+            </div>
+        </div>
+    </section>
+</form>
