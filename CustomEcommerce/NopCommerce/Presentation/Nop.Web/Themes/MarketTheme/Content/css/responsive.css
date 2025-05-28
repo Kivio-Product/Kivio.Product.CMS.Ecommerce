@@ -654,9 +654,9 @@
   .px_product_variant_list .overview-buttons {
     margin: 0;
   }
-  .product-selectors > div {
+  /* .product-selectors > div {
     padding: 8px 10px;
-  }
+  } */
   .px_cart_three_btn {
     display: flex;
     flex-wrap: wrap;
@@ -1900,7 +1900,7 @@
 }
 @media (max-width: 1380px) and (min-width: 769px) {
     .item-box {
-        width: calc(33.33% - 30px);
+        /* width: calc(33.33% - 30px); */
         margin: 0 15px 30px;
     }
 }

@@ -4,25 +4,146 @@
 
 @if (Model.Count > 0)
 {
-    <div class="section-padding category-grid home-page-category-grid">
-        <div class="item-grid px_category_slider owl-carousel">
-            @foreach (var item in Model)
-            {
-                <div class="item-box px_category">
-                    <div class="category-item">
-                        <div class="picture">
-                            <a href="@(Url.RouteUrl<Category>(new { SeName = item.SeName }))" title="@item.PictureModel.Title">
-                                <img alt="@item.PictureModel.AlternateText" src="@item.PictureModel.ImageUrl" title="@item.PictureModel.Title" />
-                                <div class="px_category_hover">
-                                </div>
-                            </a>
-                        </div>
-                        <div class="category-name-wrapper">
-                            <span class="category-name">
-                                @item.Name
-                            </span>
+    <div class="homepage-categories">
+        <div class="section-title mobile-only">
+            <h2>@T("HomePage.Categories")</h2>
+        </div>
+
+        <div class="section-padding category-grid home-page-category-grid desktop-only">
+            <div class="item-grid px_category_slider owl-carousel">
+                @foreach (var item in Model)
+                {
+                    <div class="item-box px_category">
+                        <div class="category-item">
+                            <div class="picture">
+                                <a href="@(Url.RouteUrl<Category>(new { SeName = item.SeName }))"
+                                    title="@item.PictureModel.Title">
+                                    <img alt="@item.PictureModel.AlternateText" src="@item.PictureModel.ImageUrl"
+                                        title="@item.PictureModel.Title" />
+                                    <div class="px_category_hover">
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="category-name-wrapper">
+                                <span class="category-name">
+                                    @item.Name
+                                </span>
+                            </div>
                         </div>
                     </div>
+                }
+            </div>
+        </div>
+
+        <div class="section-padding category-grid home-page-category-grid mobile-only">
+            @if (Model.Count <= 8)
+            {
+                <div class="category-static-grid">
+                    <div class="category-row">
+                        @for (int i = 0; i < Math.Min(4, Model.Count); i++)
+                        {
+                            <div class="item-box px_category">
+                                <div class="category-item">
+                                    <div class="picture">
+                                        <a href="@(Url.RouteUrl<Category>(new { SeName = Model[i].SeName }))"
+                                            title="@Model[i].PictureModel.Title">
+                                            <img alt="@Model[i].PictureModel.AlternateText" src="@Model[i].PictureModel.ImageUrl"
+                                                title="@Model[i].PictureModel.Title" />
+                                            <div class="px_category_hover"></div>
+                                        </a>
+                                    </div>
+                                    <div class="category-name-wrapper">
+                                        <span class="category-name">@Model[i].Name</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    @if (Model.Count > 4)
+                    {
+                        <div class="category-row">
+                            @for (int i = 4; i < Model.Count; i++)
+                            {
+                                <div class="item-box px_category">
+                                    <div class="category-item">
+                                        <div class="picture">
+                                            <a href="@(Url.RouteUrl<Category>(new { SeName = Model[i].SeName }))"
+                                                title="@Model[i].PictureModel.Title">
+                                                <img alt="@Model[i].PictureModel.AlternateText" src="@Model[i].PictureModel.ImageUrl"
+                                                    title="@Model[i].PictureModel.Title" />
+                                                <div class="px_category_hover"></div>
+                                            </a>
+                                        </div>
+                                        <div class="category-name-wrapper">
+                                            <span class="category-name">@Model[i].Name</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <!-- Carousel para más de 8 elementos (slides de 4x2) -->
+                <div class="px_category_carousel owl-carousel owl-theme">
+                    @{
+                        var itemsPerSlide = 8;
+                        var totalSlides = (int)Math.Ceiling((double)Model.Count / itemsPerSlide);
+                    }
+                    
+                    @for (int slideIndex = 0; slideIndex < totalSlides; slideIndex++)
+                    {
+                        <div class="carousel-slide">
+                            <!-- Primera fila del slide (4 elementos) -->
+                            <div class="category-row">
+                                @for (int i = slideIndex * itemsPerSlide; i < Math.Min((slideIndex * itemsPerSlide) + 4, Model.Count); i++)
+                                {
+                                    <div class="item-box px_category">
+                                        <div class="category-item">
+                                            <div class="picture">
+                                                <a href="@(Url.RouteUrl<Category>(new { SeName = Model[i].SeName }))"
+                                                    title="@Model[i].PictureModel.Title">
+                                                    <img alt="@Model[i].PictureModel.AlternateText" src="@Model[i].PictureModel.ImageUrl"
+                                                        title="@Model[i].PictureModel.Title" />
+                                                    <div class="px_category_hover"></div>
+                                                </a>
+                                            </div>
+                                            <div class="category-name-wrapper">
+                                                <span class="category-name">@Model[i].Name</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            
+                            <!-- Segunda fila del slide (4 elementos adicionales) -->
+                            @if ((slideIndex * itemsPerSlide) + 4 < Model.Count)
+                            {
+                                <div class="category-row">
+                                    @for (int i = (slideIndex * itemsPerSlide) + 4; i < Math.Min((slideIndex * itemsPerSlide) + 8, Model.Count); i++)
+                                    {
+                                        <div class="item-box px_category">
+                                            <div class="category-item">
+                                                <div class="picture">
+                                                    <a href="@(Url.RouteUrl<Category>(new { SeName = Model[i].SeName }))"
+                                                        title="@Model[i].PictureModel.Title">
+                                                        <img alt="@Model[i].PictureModel.AlternateText" src="@Model[i].PictureModel.ImageUrl"
+                                                            title="@Model[i].PictureModel.Title" />
+                                                        <div class="px_category_hover"></div>
+                                                    </a>
+                                                </div>
+                                                <div class="category-name-wrapper">
+                                                    <span class="category-name">@Model[i].Name</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
             }
         </div>
@@ -30,34 +151,69 @@
 }
 
 <script asp-location="Footer">
-    $(".px_category_slider").owlCarousel({
-        autoplay: false,
-        loop: false,
-        rtl: true,
-        margin: 0,
-        responsiveClass: true,
-        autoHeight: false,
-        autoplayTimeout: 7000,
-        smartSpeed: 800,
-        dots: false,
-        nav: false,
-        responsive: {
-            0: {
-                items: 4
-            },
+    $(document).ready(function() {
+        if (@Model.Count > 8) {
+            var mobileBreakpoint = 768;
+            
+            function initCarousel() {
+                if ($('.px_category_carousel').hasClass('owl-loaded')) {
+                    $('.px_category_carousel').owlCarousel('destroy');
+                }
+                
+                if ($(window).width() <= mobileBreakpoint) {
+                    $('.px_category_carousel').owlCarousel({
+                        loop: false,
+                        margin: 0,
+                        items: 1,
+                        nav: false,
+                        dots: false,
+                        autoplay: false,
+                        smartSpeed: 800,
+                        responsive: {
+                            0: { items: 1 },
+                            600: { items: 1 },
+                            1024: { items: 1 }
+                        }
+                    });
+                } 
+                else {
+                     $(".px_category_slider").owlCarousel({
+                        autoplay: false,
+                        loop: false,
+                        rtl: true,
+                        margin: 0,
+                        responsiveClass: true,
+                        autoHeight: false,
+                        autoplayTimeout: 7000,
+                        smartSpeed: 800,
+                        dots: false,
+                        nav: false,
+                        responsive: {
+                            0: {
+                                items: 4
+                            },
 
-            600: {
-                items: 6
-            },
+                            600: {
+                                items: 6
+                            },
 
-            1024: {
-                items: 9
-            },
+                            1024: {
+                                items: 9
+                            },
 
-            1366: {
-                items: 9
+                            1366: {
+                                items: 9
+                            }
+                        }
+                    });
+                }
             }
+            
+            initCarousel();
+            
+            $(window).resize(function() {
+                initCarousel();
+            });
         }
     });
-
 </script>
