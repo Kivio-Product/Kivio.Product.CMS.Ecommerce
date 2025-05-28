@@ -1,0 +1,11 @@
+{
+  "Group": "Widgets",
+  "FriendlyName": "Recipe Suggestions",
+  "SystemName": "Misc.RecipeSuggestions",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Jules for Recipe Co.",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.RecipeSuggestions.dll",
+  "Description": "Suggests recipes on product detail pages based on the current product and available ingredients."
+}
