@@ -1,6 +1,5 @@
-using Nop.Core.Caching; // For IStaticCacheManager and CacheKey
-using Nop.Plugin.Misc.RecipeSuggestions.Interfaces; // For ICacheService
-using System.Threading.Tasks;
+using Nop.Core.Caching;
+using Nop.Plugin.Misc.RecipeSuggestions.Interfaces; 
 
 namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 {
@@ -21,7 +20,8 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
         public async Task SetAsync(string cacheKey, object data, int cacheTimeInMinutes)
         {
             var key = new CacheKey(cacheKey);
-            await _staticCacheManager.SetAsync(key, data, cacheTimeInMinutes);
+            key.CacheTime = cacheTimeInMinutes;
+            await _staticCacheManager.SetAsync(key, data);
         }
 
         public async Task RemoveAsync(string cacheKey)

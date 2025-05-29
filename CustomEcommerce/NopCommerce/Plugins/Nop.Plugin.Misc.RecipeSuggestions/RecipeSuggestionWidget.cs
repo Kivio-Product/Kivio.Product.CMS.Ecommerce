@@ -1,11 +1,10 @@
-using Nop.Core; 
-using Nop.Plugin.Misc.RecipeSuggestions.Models; 
+using Nop.Core;
+using Nop.Plugin.Misc.RecipeSuggestions.Components;
 using Nop.Services.Cms; 
 using Nop.Services.Configuration; 
 using Nop.Services.Localization;
 using Nop.Services.Plugins;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Nop.Web.Framework.Infrastructure;
 
 namespace Nop.Plugin.Misc.RecipeSuggestions
 {
@@ -44,7 +43,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions
 
         public override string GetConfigurationPageUrl()
         {
-            return $"{_webHelper.GetStoreLocation()}Admin/RecipeSuggestionAdmin/Configure";
+            return $"{_webHelper.GetStoreLocation()}Admin/RecipeSuggestions/Configure";
         }
 
         public override async Task InstallAsync()
@@ -94,6 +93,11 @@ namespace Nop.Plugin.Misc.RecipeSuggestions
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Misc.RecipeSuggestions");
             
             await base.UninstallAsync();
+        }
+
+        public Type GetWidgetViewComponent(string widgetZone)
+        {
+            return typeof(RecipeSuggestionViewComponent);
         }
     }
 }

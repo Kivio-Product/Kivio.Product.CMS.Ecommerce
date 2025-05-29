@@ -1,22 +1,30 @@
-using System.Threading.Tasks;
+using Nop.Core;
+using Nop.Plugin.Misc.RecipeSuggestions;
+using Nop.Plugin.Misc.RecipeSuggestions.Interfaces;
+using Nop.Services.Configuration;
+using Nop.Services.ScheduleTasks;
+
 public partial class RecipeSuggestionsTask : IScheduleTask
 {
     private readonly IRecipeSuggestionService _recipeSuggestionService;
-    private readonly ArtificialIntelligenceSettings _settings;
+    private readonly ISettingService _settingService;
+    private readonly IStoreContext _storeContext;
+    private RecipeSuggestionSettings _settings;
 
-    public RecipeSuggestionsTask(IRecipeSuggestionService recipeSuggestionService, ArtificialIntelligenceSettings settings)
+    public RecipeSuggestionsTask(IRecipeSuggestionService recipeSuggestionService, 
+                                RecipeSuggestionSettings settings,
+                                ISettingService settingService,
+                                IStoreContext storeContext)
     {
         _recipeSuggestionService = recipeSuggestionService;
         _settings = settings;
+        _settingService = settingService;
+        _storeContext = storeContext;
     }
 
     public async Task ExecuteAsync()
     {
-        // Ensure the settings are loaded
-        if (_settings == null)
-        {
-            _settings = await _recipeSuggestionService.LoadSettingsAsync();
-        }
+        var settings = await _settingService.LoadSettingAsync<RecipeSuggestionSettings>(_storeContext.GetCurrentStore().Id);
 
         // If not enabled, skip execution
         if (!_settings.Enabled)

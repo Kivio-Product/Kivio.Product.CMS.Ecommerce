@@ -6,6 +6,7 @@ using Nop.Services.Catalog; // For IProductService
 using Nop.Services.Configuration; // For ISettingService
 using Nop.Services.Localization; // For ILocalizationService (optional, for logging or messages)
 using Nop.Services.Media; // For IPictureService (to get product image URLs)
+using Nop.Services.Seo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,10 +22,10 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
         private readonly IPictureService _pictureService;
         private readonly IStoreContext _storeContext;
         private readonly ISettingService _settingService;
-        // private readonly ILocalizationService _localizationService; // Optional
+        private readonly IUrlRecordService _urlRecordService; 
 
         private const string CACHE_KEY_PREFIX = "recipesuggestion.product.";
-        private const int DEFAULT_CACHE_TIME_MINUTES = 720; // 12 hours, should be configurable
+        private const int DEFAULT_CACHE_TIME_MINUTES = 72000;  
 
         public RecipeSuggestionService(
             ICacheService cacheService,
@@ -32,8 +33,8 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             IProductService productService,
             IPictureService pictureService,
             IStoreContext storeContext,
-            ISettingService settingService)
-            // ILocalizationService localizationService)
+            ISettingService settingService,
+            IUrlRecordService urlRecordService)
         {
             _cacheService = cacheService;
             _geminiRecipeService = geminiRecipeService;
@@ -41,7 +42,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             _pictureService = pictureService;
             _storeContext = storeContext;
             _settingService = settingService;
-            // _localizationService = localizationService;
+            _urlRecordService = urlRecordService;
         }
 
         public async Task<RecipeSuggestionViewModel?> GetRecipeSuggestionForProductAsync(int productId)
@@ -80,7 +81,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 
             // Load settings to get cache time, etc.
             var settings = await _settingService.LoadSettingAsync<RecipeSuggestionSettings>(_storeContext.GetCurrentStore().Id);
-            int cacheTime = settings?.CacheExpiryMinutes ?? DEFAULT_CACHE_TIME_MINUTES;
+            int cacheTime = DEFAULT_CACHE_TIME_MINUTES;
 
             // Get available store products (potential ingredients)
             // This might need refinement based on performance and actual requirements (e.g., specific categories, stock status)
@@ -115,10 +116,10 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 {
                     ingredientVm.IsNewIngredient = false;
                     ingredientVm.NopCommerceProductId = existingProduct.Id;
-                    ingredientVm.LinkToProductPage = $"/{existingProduct.SeName}"; // Assuming default URL structure
+                    ingredientVm.LinkToProductPage = $"/{await _urlRecordService.GetSeNameAsync(existingProduct)}"; // Assuming default URL structure
                     
                     var productPictures = await _pictureService.GetPicturesByProductIdAsync(existingProduct.Id, 1);
-                    ingredientVm.ImageUrl = productPictures.Any() ? (await _pictureService.GetPictureUrlAsync(productPictures.First()))?.ImageUrl ?? string.Empty : string.Empty;
+                    ingredientVm.ImageUrl = productPictures.Any() ? (await _pictureService.GetPictureUrlAsync(productPictures.First())).Url ?? string.Empty : string.Empty;
 
                 }
                 else
@@ -130,8 +131,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                     }
                     else
                     {
-                        // Fallback image if no description is provided for a new ingredient
-                        ingredientVm.ImageUrl = $"https://via.placeholder.com/100/CCCCCC/000000?Text={Uri.EscapeDataString(aiIngredient.Name)}";
+                        ingredientVm.ImageUrl = await _pictureService.GetDefaultPictureUrlAsync();
                     }
                 }
                 recipeSuggestion.Ingredients.Add(ingredientVm);
@@ -139,6 +139,16 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             
             string cacheKey = $"{CACHE_KEY_PREFIX}{productId}";
             await _cacheService.SetAsync(cacheKey, recipeSuggestion, cacheTime);
+        }
+
+        public Task GenerateRecipeSuggestionsForNewProductsAsync(int newProductsBatchSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RefreshRecipeSuggestionsAsync(int refreshProductsBatchSize, int refreshRecipeAgeDays)
+        {
+            throw new NotImplementedException();
         }
     }
 }

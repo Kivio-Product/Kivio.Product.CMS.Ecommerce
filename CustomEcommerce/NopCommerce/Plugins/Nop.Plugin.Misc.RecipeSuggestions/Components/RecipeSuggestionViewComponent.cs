@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Misc.RecipeSuggestions.Interfaces;
 using Nop.Plugin.Misc.RecipeSuggestions.Models; 
-using Nop.Web.Framework.Components; 
-using Nop.Web.Models.Catalog; 
-using System.Threading.Tasks;
+using Nop.Web.Framework.Components;
+using Nop.Web.Models.Catalog;
 
 namespace Nop.Plugin.Misc.RecipeSuggestions.Components
 {
@@ -37,7 +35,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Components
                 return Content("");
             }
 
-            return View("~/Plugins/Nop.Plugin.Misc.RecipeSuggestions/PublicView.cshtml", model);
+            return View("~/Plugins/Misc.RecipeSuggestions/PublicView.cshtml", model);
         }
     }
 }
