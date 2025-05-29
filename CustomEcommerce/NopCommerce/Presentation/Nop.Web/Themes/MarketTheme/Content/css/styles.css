@@ -8276,11 +8276,13 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
   }
    .footer .footer_px_logo img {
       max-width: 120px;
+      opacity: initial;
   }
 
   .footer .footer-block.follow-us .footer-logo-title {
       max-width: none; /* Allow full width */
       font-size: 0.85rem;
+      translate: none;
   }
   
   .footer .footer-block .title strong {
