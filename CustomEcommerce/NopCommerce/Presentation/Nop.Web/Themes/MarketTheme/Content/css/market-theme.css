@@ -1425,11 +1425,12 @@ input[type="radio"]:checked + .radio-custom {
 .social-networks {
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: flex-start;
   gap: 0.5rem;
   flex-wrap: nowrap;
   overflow-x: auto;
   padding: 0.25rem 0;
+  margin-left: 20px;
 }
 
 .social-link {
@@ -1525,6 +1526,10 @@ input[type="radio"]:checked + .radio-custom {
 .tiktok:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.wishlist-page .no-data, .checkout-page .order-completed{
+  text-align: center;
 }
 
 @media all and (max-width: 1000px) {
