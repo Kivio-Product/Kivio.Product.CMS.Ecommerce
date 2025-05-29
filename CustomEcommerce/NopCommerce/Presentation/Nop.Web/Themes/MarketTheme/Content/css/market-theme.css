@@ -1414,6 +1414,124 @@ input[type="radio"]:checked + .radio-custom {
   background-color: #f8f9fa;
 }
 
+.social-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.social-networks {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 0.25rem 0;
+  margin-left: 20px;
+}
+
+.social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.social-link::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.social-link:hover::before {
+  left: 100%;
+}
+
+.social-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.facebook {
+  background: linear-gradient(135deg, #1877f2, #42a5f5);
+  color: white;
+  box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
+}
+
+.facebook:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(24, 119, 242, 0.4);
+}
+
+.instagram {
+  background: linear-gradient(135deg, #e4405f, #f77737, #fcaf45);
+  color: white;
+  box-shadow: 0 4px 15px rgba(228, 64, 95, 0.3);
+}
+
+.instagram:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(228, 64, 95, 0.4);
+}
+
+.twitter {
+  background: linear-gradient(135deg, #1da1f2, #0d8bd9);
+  color: white;
+  box-shadow: 0 4px 15px rgba(29, 161, 242, 0.3);
+}
+
+.twitter:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(29, 161, 242, 0.4);
+}
+
+.youtube {
+  background: linear-gradient(135deg, #ff0000, #cc0000);
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+}
+
+.youtube:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
+}
+
+.tiktok {
+  background: linear-gradient(135deg, #000000, #333333);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.tiktok:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.wishlist-page .no-data, .checkout-page .order-completed{
+  text-align: center;
+}
+
 @media all and (max-width: 1000px) {
   .flyout-cart {
     position: fixed;
@@ -1937,13 +2055,50 @@ input[type="radio"]:checked + .radio-custom {
     margin: 1% !important;
   }
 
-  @media (max-width: 480px) {
-    .search-bar-mobile {
-      padding: 8px 0px;
-    }
+  .social-networks {
+    gap: 0.4rem;
+    padding: 0.5rem;
+  }
 
-    .search-bar-mobile .search-box-text {
-      font-size: 16px;
-    }
+  .social-link {
+    width: 40px;
+    height: 40px;
+  }
+
+  .social-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .social-media-block {
+    padding: 1rem;
+  }
+
+  .social-title {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .social-networks {
+    gap: 0.3rem;
+  }
+
+  .social-link {
+    width: 36px;
+    height: 36px;
+  }
+
+  .social-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .search-bar-mobile {
+    padding: 8px 0px;
+  }
+
+  .search-bar-mobile .search-box-text {
+    font-size: 16px;
   }
 }

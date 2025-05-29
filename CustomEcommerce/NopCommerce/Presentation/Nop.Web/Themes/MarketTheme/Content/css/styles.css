@@ -2939,9 +2939,14 @@ button.email-a-friend-button:hover{
 .product-review-item .review-info label {
   font-weight: normal;
 }
-.product-review-item .review-info a,
 .product-review-helpfulness .vote {
   display: inline-block;
+  padding: 0 5px;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+}
+.product-review-item .review-info a{
   padding: 0 5px;
   cursor: pointer;
   width: 24px;
@@ -7546,7 +7551,7 @@ a.ui-button:active, .ui-button:active,
     display: table;
     width: 100%;
     table-layout: fixed;
-    padding: 10px;
+    /* padding: 10px; */
   }
   .product-review-item .avatar {
     display: table-cell;
