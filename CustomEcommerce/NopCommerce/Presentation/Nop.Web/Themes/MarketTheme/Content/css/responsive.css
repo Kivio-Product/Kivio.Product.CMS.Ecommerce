@@ -772,6 +772,7 @@
   }
   .write-review .review-rating{
       display: flex;
+      flex-wrap: wrap;
   }
   .catalog-common-title {
     padding: 30px 0 0;
