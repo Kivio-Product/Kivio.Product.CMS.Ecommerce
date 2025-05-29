@@ -53,7 +53,8 @@ namespace Nop.Plugin.Misc.RecipeSuggestions
                 NewProductsBatchSize = 100,
                 RefreshProductsBatchSize = 50,
                 RefreshRecipeAgeDays = 7,
-                WidgetZone = PublicWidgetZones.ProductDetailsBottom 
+                WidgetZone = PublicWidgetZones.ProductDetailsBottom,
+                GeminiApiKey = "Your-Gemini-API-Key-Here"
             };
             await _settingService.SaveSettingAsync(settings);
 

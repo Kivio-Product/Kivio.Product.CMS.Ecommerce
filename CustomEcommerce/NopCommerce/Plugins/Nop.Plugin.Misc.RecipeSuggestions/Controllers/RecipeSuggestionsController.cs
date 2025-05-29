@@ -52,24 +52,20 @@ public class RecipeSuggestionsController : BasePluginController
             NewProductsBatchSize = settings.NewProductsBatchSize,
             RefreshProductsBatchSize = settings.RefreshProductsBatchSize,
             RefreshRecipeAgeDays = settings.RefreshRecipeAgeDays,
-            GeminiApiKey = settings.GeminiApiKey,
-            EnabledOverrideForStore = await _settingService.GetSettingOverridablePerStoreAsync(settings, x => x.Enabled, storeScope),
-            WidgetZoneOverrideForStore = await _settingService.GetSettingOverridablePerStoreAsync(settings, x => x.WidgetZone, storeScope),
-            NewProductsBatchSizeOverrideForStore = await _settingService.GetSettingOverridablePerStoreAsync(settings, x => x.NewProductsBatchSize, storeScope),
-            RefreshProductsBatchSizeOverrideForStore = await _settingService.GetSettingOverridablePerStoreAsync(settings, x => x.RefreshProductsBatchSize, storeScope),
-            RefreshRecipeAgeDaysOverrideForStore = await _settingService.GetSettingOverridablePerStoreAsync(settings, x => x.RefreshRecipeAgeDays, storeScope),
+            GeminiApiKey = settings.GeminiApiKey
         };
 
         model.ActiveStoreScopeConfiguration = storeScope;
         if (storeScope > 0)
         {
-            model.Enabled = await _settingService.GetSettingOverridablePerStoreAsync(settings, x => x.Enabled, storeScope);
-            model.WidgetZone = await _settingService.GetSettingOverridablePerStoreAsync(settings, x => x.WidgetZone, storeScope);
-            model.NewProductsBatchSize = await _settingService.GetSettingOverridablePerStoreAsync(settings, x => x.NewProductsBatchSize, storeScope);
-            model.RefreshProductsBatchSize = await _settingService.GetSettingOverridablePerStoreAsync(settings, x => x.RefreshProductsBatchSize, storeScope);
-            model.RefreshRecipeAgeDays = await _settingService.GetSettingOverridablePerStoreAsync(settings, x => x.RefreshRecipeAgeDays, storeScope);
+            model.Enabled_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.Enabled, storeScope);
+            model.WidgetZone_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.WidgetZone, storeScope);
+            model.NewProductsBatchSize_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.NewProductsBatchSize, storeScope);
+            model.RefreshProductsBatchSize_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.RefreshProductsBatchSize, storeScope);
+            model.RefreshRecipeAgeDays_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.RefreshRecipeAgeDays, storeScope);
+            model.GeminiApiKey_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.GeminiApiKey, storeScope);
         }
-        return View("~/Plugins/Misc.RecipeSuggestions/Views/Configure.cshtml", settings);
+        return View("~/Plugins/Misc.RecipeSuggestions/Views/Configure.cshtml", model);
     }
 
     [HttpPost]
@@ -83,35 +79,42 @@ public class RecipeSuggestionsController : BasePluginController
         settings.NewProductsBatchSize = model.NewProductsBatchSize;
         settings.RefreshProductsBatchSize = model.RefreshProductsBatchSize;
         settings.RefreshRecipeAgeDays = model.RefreshRecipeAgeDays;
+        settings.GeminiApiKey = model.GeminiApiKey;
 
         await _settingService.SaveSettingOverridablePerStoreAsync(
             settings,
             x => x.Enabled,
-            model.EnabledOverrideForStore,
+            model.Enabled_OverrideForStore,
             storeScope,
             false);
         await _settingService.SaveSettingOverridablePerStoreAsync(
             settings,
             x => x.WidgetZone,
-            model.WidgetZoneOverrideForStore,
+            model.WidgetZone_OverrideForStore,
             storeScope,
             false);
         await _settingService.SaveSettingOverridablePerStoreAsync(
             settings,
             x => x.NewProductsBatchSize,
-            model.NewProductsBatchSizeOverrideForStore,
+            model.NewProductsBatchSize_OverrideForStore,
             storeScope,
             false);
         await _settingService.SaveSettingOverridablePerStoreAsync(
             settings,
             x => x.RefreshProductsBatchSize,
-            model.RefreshProductsBatchSizeOverrideForStore,
+            model.RefreshProductsBatchSize_OverrideForStore,
             storeScope,
             false);
         await _settingService.SaveSettingOverridablePerStoreAsync(
             settings,
             x => x.RefreshRecipeAgeDays,
-            model.RefreshRecipeAgeDaysOverrideForStore,
+            model.RefreshRecipeAgeDays_OverrideForStore,
+            storeScope,
+            false);
+        await _settingService.SaveSettingOverridablePerStoreAsync(
+            settings,
+            x => x.GeminiApiKey,
+            model.GeminiApiKey_OverrideForStore,
             storeScope,
             false);
         await _settingService.ClearCacheAsync();

@@ -1,12 +1,13 @@
 @using Nop.Web.Framework.Extensions
 @using Nop.Plugin.Misc.RecipeSuggestions.Models
+
 @model ConfigurationModel
 
 @{
     Layout = "_ConfigurePlugin";
 }
 
-@await Component.InvokeAsync(typeof(StoreScopeConfigurationViewComponent))
+@await Component.InvokeAsync("StoreScopeConfiguration")
 <form asp-controller="RecipeSuggestions" asp-action="Configure" method="post">
     <section class="content">
         <div class="container-fluid">
@@ -89,9 +90,6 @@
                 <button type="submit" class="btn btn-primary">
                     @T("Admin.Common.Save")
                 </button>
-                <a asp-action="Index" class="btn btn-secondary">
-                    @T("Admin.Common.Cancel")
-                </a>
             </div>
         </div>
     </section>
