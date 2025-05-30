@@ -2141,3 +2141,22 @@ input[type="radio"]:checked + .radio-custom {
     font-size: 16px;
   }
 }
+
+@media (max-width: 991px) {
+  .product-item .product-icon,
+  .product-box .product-icon,
+  .item-box .product-icon,
+  .product-item .buttons,
+  .product-box .buttons,
+  .item-box .buttons {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important; 
+    visibility: visible !important;
+    bottom: auto !important;
+    right: auto !important;
+    left: auto !important;
+    top: auto !important;
+  }
+}
