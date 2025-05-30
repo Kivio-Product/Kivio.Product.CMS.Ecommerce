@@ -62,7 +62,7 @@
     </div>
     <div class="products-container">
         <div class="ajax-products-busy" style="display: none; text-align: center; padding: 20px;">
-            <img src="@Url.Content("~/images/ajax-loader.gif")" alt="Loading..." />
+            <img src="@Url.Content("/Themes/MarketTheme/Content/css/ajax-loader.gif")" alt="Loading..." />
         </div>
         <div class="products-wrapper" id="custom-products-grid">
             @{ await Html.RenderPartialAsync("_CustomProductGridItems",initialProductModels); }
