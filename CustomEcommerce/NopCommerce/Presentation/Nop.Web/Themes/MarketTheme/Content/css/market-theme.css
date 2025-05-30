@@ -1533,10 +1533,40 @@ input[type="radio"]:checked + .radio-custom {
   text-align: center;
 }
 
-.pi-plus-1, .pi-minus {
+.pi-plus-1,
+.pi-minus {
   display: flex !important;
   align-items: center;
   justify-content: center;
+}
+
+.pi-px-shopping-cart {
+  position: relative;
+  width: 25px;
+  height: 25px;
+  display: inline-block;
+}
+
+.pi-px-shopping-cart::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("../images/cart-icon.png") center no-repeat;
+  background-size: contain;
+  pointer-events: none; 
+}
+
+.header-links.header-links-icons a.pi-px-shopping-cart:hover::before {
+  filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%)
+    hue-rotate(246deg) brightness(104%) contrast(97%);
+}
+
+.pi-px-shopping-cart .cart-qty {
+  position: relative;
+  z-index: 1;
 }
 
 @media all and (max-width: 1000px) {
