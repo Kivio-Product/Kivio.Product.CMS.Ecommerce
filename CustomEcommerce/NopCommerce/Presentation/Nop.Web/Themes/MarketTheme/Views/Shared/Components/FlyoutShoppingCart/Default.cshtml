@@ -242,7 +242,7 @@
             }
 
             function updateMiniCartItem(itemId, quantity) {
-                showLoadingAnimation();
+                displayAjaxLoading(true);
 
                 $.ajax({
                     cache: false,
@@ -276,14 +276,16 @@
                         refreshMiniCart();
                     },
                     complete: function () {
-                        Swal.close();
-                        isUpdating = false;
+                        setTimeout(function() {
+                            displayAjaxLoading(false);
+                            isUpdating = false;
+                        }, 1000);
                     }
                 });
             }
 
             function removeMiniCartItem(itemId) {
-                showLoadingAnimation();
+                displayAjaxLoading(true);
                 isUpdating = true;
 
                 $.ajax({
@@ -317,14 +319,16 @@
                         refreshMiniCart();
                     },
                     complete: function () {
-                        Swal.close();
-                        isUpdating = false;
+                        setTimeout(function() {
+                            displayAjaxLoading(false);
+                            isUpdating = false;
+                        }, 1000);
                     }
                 });
             }
 
             function clearMiniCart() {
-                showLoadingAnimation();
+                displayAjaxLoading(true);
                 isUpdating = true;
 
                 $.ajax({
@@ -357,7 +361,9 @@
                         refreshMiniCart();
                     },
                     complete: function () {
-                        Swal.close();
+                        setTimeout(function() {
+                            displayAjaxLoading(false);
+                        }, 1000);
                     }
                 });
             }
@@ -402,35 +408,6 @@
                 return $('input[name="__RequestVerificationToken"]').val();
             }
 
-            function showLoadingAnimation() {
-                Swal.fire({
-                    title: '',
-                    allowEscapeKey: false,
-                    allowOutsideClick: false,
-                    onOpen: function() {
-                        Swal.showLoading();
-                        
-                        setTimeout(function() {
-                            const spinner = document.querySelector('.swal2-confirm.swal2-styled');
-                            if (spinner) {
-                                spinner.style.borderLeftColor = 'transparent';
-                                spinner.style.borderRightColor = '#102c5a';
-                                spinner.style.borderTopColor = '#102c5a';
-                                spinner.style.borderBottomColor = '#102c5a';
-                                spinner.style.borderWidth = '4px';
-                                spinner.style.width = '60px';
-                                spinner.style.height = '60px';
-                            }
-                            
-                            const container = document.querySelector('.swal2-popup');
-                            if (container) {
-                                container.style.minHeight = '150px';
-                                container.style.minWidth = '200px';
-                            }
-                        }, 10);
-                    }
-                });
-            }
 
             function showRemoveItemConfirmation(confirmCallback) {
                 Swal.fire({
