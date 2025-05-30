@@ -65,7 +65,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions
                 // Configuration Page
                 ["Plugins.Misc.RecipeSuggestions.Settings.Enabled"] = "Enabled",
                 ["Plugins.Misc.RecipeSuggestions.Settings.Enabled.Hint"] = "Enable or disable the recipe suggestions feature.",
-                ["Plugins.Misc.RecipeSuggestions.Settings.GeminiApiKey"] = "Gemini API Key",
+                ["Plugins.Misc.RecipeSuggestions.Settings.GeminiApiKey"] = "Gemini API Key (Required restart application)",
                 ["Plugins.Misc.RecipeSuggestions.Settings.GeminiApiKey.Hint"] = "Enter your API key for the Gemini service.",
                 ["Plugins.Misc.RecipeSuggestions.Settings.NewProductsBatchSize"] = "New Products Batch Size",
                 ["Plugins.Misc.RecipeSuggestions.Settings.NewProductsBatchSize.Hint"] = "Max number of new products to process in each task run.",

@@ -94,29 +94,28 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 orderBy: ProductSortingEnum.NameAsc);
 
             // Call AIRecipeService to get recipe
-            var (recipeTitle, aiIngredients) = await _aiRecipeService.GetRecipeFromAIAsync(product, availableStoreProducts.ToList());
+            var (recipeTitle, aiIngredients, instructions) = await _aiRecipeService.GetRecipeFromAIAsync(product, availableStoreProducts.ToList());
 
             if (string.IsNullOrWhiteSpace(recipeTitle) || !aiIngredients.Any())
             {
-                // Log or handle cases where AI returns no valid recipe.
+                _logger.Warning($"AI did not return a valid recipe for product ID {productId}.");
                 return;
             }
             
             var recipeSuggestion = new RecipeSuggestionViewModel
             {
                 RecipeTitle = recipeTitle,
-                RecipeImageUrl = "placeholder_recipe_image.jpg", // Optionally, AI could suggest a general recipe image
-                RecipeDescription = "Generated recipe suggestion based on available ingredients.",
+                RecipeImageUrl = "placeholder_recipe_image.jpg", // TODO: AI could suggest a general recipe image
+                RecipeDescription = instructions,
                 RecipeDate = DateTime.UtcNow
             };
 
             foreach (var aiIngredient in aiIngredients)
             {
-                var ingredientVm = new IngredientViewModel { Name = aiIngredient.Name };
+                var ingredientVm = new IngredientViewModel { Name = aiIngredient.IngredientName };
 
-                // Try to find this ingredient as an existing product in NopCommerce
-                // This is a simple name match; more sophisticated logic might be needed.
-                var existingProduct = availableStoreProducts.FirstOrDefault(p => p.Name.Equals(aiIngredient.Name, StringComparison.OrdinalIgnoreCase));
+                var existingProduct = availableStoreProducts.FirstOrDefault(p => p.Id == int.Parse(aiIngredient.ProductID) ||
+                                                                                p.Name.Equals(aiIngredient.IngredientName, StringComparison.OrdinalIgnoreCase));
 
                 if (existingProduct != null)
                 {
@@ -131,9 +130,9 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 else
                 {
                     ingredientVm.IsNewIngredient = true;
-                    if (!string.IsNullOrWhiteSpace(aiIngredient.DescriptionForImage))
+                    if (!string.IsNullOrWhiteSpace(aiIngredient.IngredientName))
                     {
-                        ingredientVm.ImageUrl = await _aiRecipeService.GenerateImageForIngredientAsync(aiIngredient.DescriptionForImage);
+                        ingredientVm.ImageUrl = await _aiRecipeService.GenerateImageForIngredientAsync(aiIngredient.IngredientName);
                     }
                     else
                     {
