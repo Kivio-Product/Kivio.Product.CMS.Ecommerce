@@ -1,12 +1,13 @@
-using Nop.Core; // For IStoreContext, possibly IWorkContext
-using Nop.Core.Domain.Catalog; // For Product
-using Nop.Plugin.Misc.RecipeSuggestions.Interfaces; // For IRecipeSuggestionService, ICacheService, IGeminiRecipeService
-using Nop.Plugin.Misc.RecipeSuggestions.Models;    // For RecipeSuggestionViewModel, IngredientViewModel, RecipeSuggestionSettings
-using Nop.Services.Catalog; // For IProductService
-using Nop.Services.Configuration; // For ISettingService
-using Nop.Services.Localization; // For ILocalizationService (optional, for logging or messages)
-using Nop.Services.Media; // For IPictureService (to get product image URLs)
+using Nop.Core; 
+using Nop.Core.Domain.Catalog; 
+using Nop.Plugin.Misc.RecipeSuggestions.Interfaces; 
+using Nop.Plugin.Misc.RecipeSuggestions.Models;
+using Nop.Services.Catalog;
+using Nop.Services.Configuration;
+using Nop.Services.Localization; 
+using Nop.Services.Media;
 using Nop.Services.Seo;
+using Nop.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,32 +18,35 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
     public class RecipeSuggestionService : IRecipeSuggestionService
     {
         private readonly ICacheService _cacheService;
-        private readonly IGeminiRecipeService _geminiRecipeService;
+        private readonly IAIRecipeService _aiRecipeService;
         private readonly IProductService _productService;
         private readonly IPictureService _pictureService;
         private readonly IStoreContext _storeContext;
         private readonly ISettingService _settingService;
         private readonly IUrlRecordService _urlRecordService; 
+        private readonly ILogger _logger;
 
         private const string CACHE_KEY_PREFIX = "recipesuggestion.product.";
-        private const int DEFAULT_CACHE_TIME_MINUTES = 72000;  
+        private const int DEFAULT_CACHE_TIME_MINUTES = 72000;
 
         public RecipeSuggestionService(
             ICacheService cacheService,
-            IGeminiRecipeService geminiRecipeService,
+            IAIRecipeService aiRecipeService,
             IProductService productService,
             IPictureService pictureService,
             IStoreContext storeContext,
             ISettingService settingService,
-            IUrlRecordService urlRecordService)
+            IUrlRecordService urlRecordService,
+            ILogger logger)
         {
             _cacheService = cacheService;
-            _geminiRecipeService = geminiRecipeService;
+            _aiRecipeService = aiRecipeService;
             _productService = productService;
             _pictureService = pictureService;
             _storeContext = storeContext;
             _settingService = settingService;
             _urlRecordService = urlRecordService;
+            _logger = logger;
         }
 
         public async Task<RecipeSuggestionViewModel?> GetRecipeSuggestionForProductAsync(int productId)
@@ -72,10 +76,12 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 
         public async Task GenerateAndCacheRecipeSuggestionAsync(int productId, string context)
         {
+            _logger.Information($"Generating recipe suggestion for product ID {productId} in context '{context}'.");
             var product = await _productService.GetProductByIdAsync(productId);
             if (product == null || !product.Published || product.Deleted)
             {
-                // Log or handle cases where product is not found or suitable.
+                //Logger
+                _logger.Warning($"Product with ID {productId} is not valid for recipe suggestion generation.");
                 return;
             }
 
@@ -83,14 +89,12 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             var settings = await _settingService.LoadSettingAsync<RecipeSuggestionSettings>(_storeContext.GetCurrentStore().Id);
             int cacheTime = DEFAULT_CACHE_TIME_MINUTES;
 
-            // Get available store products (potential ingredients)
-            // This might need refinement based on performance and actual requirements (e.g., specific categories, stock status)
             var availableStoreProducts = await _productService.SearchProductsAsync(
                 visibleIndividuallyOnly: true,
                 orderBy: ProductSortingEnum.NameAsc);
 
-            // Call GeminiRecipeService to get recipe
-            var (recipeTitle, aiIngredients) = await _geminiRecipeService.GetRecipeFromAIAsync(product, availableStoreProducts.ToList());
+            // Call AIRecipeService to get recipe
+            var (recipeTitle, aiIngredients) = await _aiRecipeService.GetRecipeFromAIAsync(product, availableStoreProducts.ToList());
 
             if (string.IsNullOrWhiteSpace(recipeTitle) || !aiIngredients.Any())
             {
@@ -101,7 +105,9 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             var recipeSuggestion = new RecipeSuggestionViewModel
             {
                 RecipeTitle = recipeTitle,
-                // RecipeImageUrl = "placeholder_recipe_image.jpg" // Optionally, AI could suggest a general recipe image
+                RecipeImageUrl = "placeholder_recipe_image.jpg", // Optionally, AI could suggest a general recipe image
+                RecipeDescription = "Generated recipe suggestion based on available ingredients.",
+                RecipeDate = DateTime.UtcNow
             };
 
             foreach (var aiIngredient in aiIngredients)
@@ -127,7 +133,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                     ingredientVm.IsNewIngredient = true;
                     if (!string.IsNullOrWhiteSpace(aiIngredient.DescriptionForImage))
                     {
-                        ingredientVm.ImageUrl = await _geminiRecipeService.GenerateImageForIngredientAsync(aiIngredient.DescriptionForImage);
+                        ingredientVm.ImageUrl = await _aiRecipeService.GenerateImageForIngredientAsync(aiIngredient.DescriptionForImage);
                     }
                     else
                     {

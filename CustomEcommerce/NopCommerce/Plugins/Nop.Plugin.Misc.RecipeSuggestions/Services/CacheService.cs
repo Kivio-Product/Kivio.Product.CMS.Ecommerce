@@ -17,7 +17,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             return await _staticCacheManager.GetAsync<T?>(new CacheKey(cacheKey), () => Task.FromResult<T?>(null));
         }
 
-        public async Task SetAsync(string cacheKey, object data, int cacheTimeInMinutes)
+        public async Task SetAsync<T>(string cacheKey, T data, int cacheTimeInMinutes) where T : class
         {
             var key = new CacheKey(cacheKey);
             key.CacheTime = cacheTimeInMinutes;

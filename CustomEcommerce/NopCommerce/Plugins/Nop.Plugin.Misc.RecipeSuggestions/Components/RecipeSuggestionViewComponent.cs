@@ -35,7 +35,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Components
                 return Content("");
             }
 
-            return View("~/Plugins/Misc.RecipeSuggestions/PublicView.cshtml", model);
+            return View("~/Plugins/Misc.RecipeSuggestions/Views/PublicView.cshtml", model);
         }
     }
 }

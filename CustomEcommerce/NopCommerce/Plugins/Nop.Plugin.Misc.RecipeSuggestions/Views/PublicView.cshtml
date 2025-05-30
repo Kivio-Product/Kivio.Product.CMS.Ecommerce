@@ -1,2 +1,91 @@
-<!-- Testing the plugin -->
-<h2>Recipe Suggestions</h2>
+@model Nop.Plugin.Misc.RecipeSuggestions.Models.RecipeSuggestionViewModel
+
+<link href="~/Plugins/Misc.RecipeSuggestions/Content/css/styles.css" rel="stylesheet">
+
+<div class="recipe-suggestion-container">
+    <div class="recipe-header">
+        <h2>Recetas generadas por nuestra <span class="ai-text">Inteligencia Artificial</span></h2>
+    </div>
+
+    <div class="recipe-main-content">
+        @* Columna de Ingredientes - Aparecerá primero en móviles por defecto si no se usa order *@
+        <div class="ingredients-section">
+            @if (Model.Ingredients != null && Model.Ingredients.Any())
+            {
+                <div class="ingredients-grid">
+                    @foreach (var ingredient in Model.Ingredients)
+                    {
+                        <div class="ingredient-card">
+                            <div class="ingredient-image-container">
+                                <img src="@(string.IsNullOrEmpty(ingredient.ImageUrl) ? "https://via.placeholder.com/150?text=Ingrediente" : ingredient.ImageUrl)" alt="@ingredient.Name" />
+                                <span class="heart-icon">♡</span> 
+                            </div>
+                            <p class="ingredient-name">@ingredient.Name</p>
+                            
+                            @if (ingredient.IsNewIngredient)
+                            {
+                                <p class="unavailable-text">Producto no disponible</p>
+                            }
+                            else
+                            {
+                                <button class="add-to-cart-btn" 
+                                        type="button" 
+                                        onclick="handleAddToCart('@ingredient.NopCommerceProductId', '@ingredient.LinkToProductPage', this)">
+                                    Agregar al carrito
+                                </button>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p>No hay ingredientes sugeridos para esta receta.</p>
+            }
+        </div>
+
+        @* Columna de Receta Ideal *@
+        <div class="recipe-ideal-section">
+            <p class="ideal-recipe-label">Receta ideal:</p>
+            <h3>@Model.RecipeTitle</h3>
+            @if (!string.IsNullOrEmpty(Model.RecipeImageUrl))
+            {
+                <img src="@Model.RecipeImageUrl" alt="@Model.RecipeTitle" class="recipe-ideal-image"/>
+            }
+            else
+            {
+                 <img src="https://via.placeholder.com/300x200?text=Receta" alt="@Model.RecipeTitle" class="recipe-ideal-image"/>
+            }
+            
+            @if(!string.IsNullOrEmpty(Model.RecipeDescription))
+            {
+                <p class="recipe-ideal-description">@Model.RecipeDescription</p>
+            }
+            <a href="#" class="view-recipe-btn">Ver receta completa <span class="dropdown-arrow">▾</span></a>
+        </div>
+    </div>
+</div>
+
+@* Script opcional para manejar el click del botón (deberías moverlo a un archivo .js) *@
+<script>
+    function handleAddToCart(productId, productPageLink, buttonElement) {
+        console.log("Intentando agregar al carrito:");
+        if (productId) {
+            console.log("Product ID (NopCommerce):", productId);
+            // Aquí iría tu lógica para agregar al carrito usando el productId
+            // Por ejemplo, una llamada AJAX a tu backend de NopCommerce
+            alert(`Simulación: Agregando producto con ID ${productId} al carrito.`);
+        } else if (productPageLink) {
+            console.log("Redirigiendo a la página del producto:", productPageLink);
+            // Si no hay ID de producto pero sí un link, puedes redirigir o usarlo de otra forma
+            // window.location.href = productPageLink; // Descomentar para redirigir
+            alert(`Simulación: Ir a la página del producto: ${productPageLink}`);
+        } else {
+            console.log("No hay ID de producto ni link disponible.");
+            alert('Simulación: Producto agregado (genérico).');
+        }
+        // Opcional: cambiar el texto del botón o deshabilitarlo
+        // buttonElement.textContent = 'Agregado';
+        // buttonElement.disabled = true;
+    }
+</script>
