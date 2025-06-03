@@ -8,5 +8,6 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Interfaces
     {
         Task<(string RecipeTitle, List<(string ProductID, string IngredientName)> Ingredients, string Instructions)> GetRecipeFromAIAsync(Product currentProduct, List<Product> availableStoreProducts);
         Task<string> GenerateImageForIngredientAsync(string ingredientName);
+        Task<string> GenerateImageForRecipeAsync(string recipeName);
     }
 }

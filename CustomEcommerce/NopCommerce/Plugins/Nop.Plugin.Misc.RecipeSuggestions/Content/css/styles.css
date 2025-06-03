@@ -1,7 +1,6 @@
     /* Contenedor Principal y Cabecera */
 .recipe-suggestion-container {
     font-family: Arial, sans-serif;
-    max-width: 1200px;
     margin: 20px auto;
     padding: 20px;
     background-color: #f9f9f9; /* Un fondo suave para diferenciar */
@@ -30,18 +29,19 @@
     display: flex;
     flex-wrap: wrap; /* Para que se apilen en pantallas pequeñas */
     gap: 30px; /* Espacio entre las dos secciones principales */
+    align-items: center;
 }
 
 /* Sección de Ingredientes */
 .ingredients-section {
-    flex: 3; /* Ocupará más espacio que la receta ideal */
+    flex: 5; /* Ocupará más espacio que la receta ideal */
     min-width: 300px; /* Mínimo antes de envolver o reducir */
 }
 
 .ingredients-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Grid responsivo */
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr) 50px); /* Grid responsivo */
+    gap: 10px;
 }
 
 .ingredient-card {
@@ -74,6 +74,34 @@
     border-radius: 4px;
 }
 
+.circle-sign-container{
+    background-color: rgb(0, 0, 0);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    color: white;
+    height: 50px;
+    align-items: center;
+}
+
+.plus-sign-container,
+.equals-sign-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.plus-sign-container .plus-sign{
+    font-size: 30px;
+    color: white;
+}
+
+.equals-sign-container .equals-sign{
+    font-size: 30px;
+    color: white;
+}
+
 .heart-icon {
     position: absolute;
     top: 8px;
@@ -96,7 +124,7 @@
 }
 
 .add-to-cart-btn {
-    background-color: #007bff; /* Un azul estándar para botones de acción */
+    background-color: rgb(122, 55, 240);
     color: white;
     border: none;
     padding: 10px 15px;
@@ -112,7 +140,8 @@
 }
 
 .add-to-cart-btn:hover {
-    background-color: #0056b3;
+    background-color: rgb(202, 210, 223);
+    color: rgb(122, 55, 240);
 }
 
 .unavailable-text {

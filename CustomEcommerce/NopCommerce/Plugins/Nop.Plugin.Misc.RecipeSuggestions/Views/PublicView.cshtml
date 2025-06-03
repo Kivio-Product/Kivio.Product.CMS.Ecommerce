@@ -48,6 +48,23 @@
                                 </button>
                             }
                         </div>
+                        <!-- Plus sign for spacing -->
+                        @if (Model.Ingredients.Last() != ingredient)
+                        {
+                            <div class="plus-sign-container">
+                                <div class="circle-sign-container">
+                                    <span class="plus-sign">+</span>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="equals-sign-container">
+                                <div class="circle-sign-container">
+                                    <span class="equals-sign">=</span>
+                                </div>
+                            </div>
+                        }
                     }
                 </div>
             }
@@ -61,9 +78,9 @@
         <div class="recipe-ideal-section">
             <p class="ideal-recipe-label">Receta ideal:</p>
             <h3>@Model.RecipeTitle</h3>
-            @if (!string.IsNullOrEmpty(Model.RecipeImageUrl))
+            @if (!string.IsNullOrEmpty(Model.RecipeImageBase64))
             {
-                <img src="@Model.RecipeImageUrl" alt="@Model.RecipeTitle" class="recipe-ideal-image"/>
+                <img src="@($"data:image/png;base64,{Model.RecipeImageBase64}")" alt="@Model.RecipeTitle" class="recipe-ideal-image" />
             }
             else
             {

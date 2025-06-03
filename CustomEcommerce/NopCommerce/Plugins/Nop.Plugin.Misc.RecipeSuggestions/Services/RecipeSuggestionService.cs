@@ -105,7 +105,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             var recipeSuggestion = new RecipeSuggestionViewModel
             {
                 RecipeTitle = recipeTitle,
-                RecipeImageUrl = "placeholder_recipe_image.jpg", // TODO: AI could suggest a general recipe image
+                RecipeImageBase64 = await _aiRecipeService.GenerateImageForRecipeAsync(recipeTitle),
                 RecipeDescription = instructions,
                 RecipeDate = DateTime.UtcNow
             };

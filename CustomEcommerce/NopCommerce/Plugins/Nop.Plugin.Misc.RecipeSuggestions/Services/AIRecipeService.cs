@@ -159,6 +159,17 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
         public async Task<string> GenerateImageForIngredientAsync(string ingredientName)
         {
             var prompt = $"Genera una imagen de alta calidad de un ingrediente llamado '{ingredientName}'. La imagen debe ser clara, bien iluminada y mostrar el ingrediente de manera atractiva con un fondo de mesa de cocina. Dame solo la imagen";
+            return await ProcessImagePrompt(prompt);
+        }
+
+        public async Task<string> GenerateImageForRecipeAsync(string recipeName)
+        {
+            var prompt = $"Genera una imagen de alta calidad de una receta llamada {recipeName}. La imagen debe ser clara, bien iluminada y atractiva. Dame solo la imagen";
+            return await ProcessImagePrompt(prompt);
+        }
+
+        private async Task<string> ProcessImagePrompt(string prompt)
+        {
             _logger.Information($"AI Image Generation Prompt: {prompt}");
             var response = await _geminiClient.GenerateImagePrompt(prompt);
 
@@ -187,7 +198,6 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 _logger.Error("Base64 image data is null or empty.");
                 throw new Exception("Base64 image data is null or empty.");
             }
-            
             return base64Image;
         }
     }
