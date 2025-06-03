@@ -3519,6 +3519,7 @@ button.email-a-friend-button:hover{
   margin: 0 0 5px;
   font-weight: bold;
   color: #444;
+  text-align: center;
 }
 .password-recovery-page .tooltip {
   margin: 0 0 40px;
@@ -4155,6 +4156,7 @@ button.email-a-friend-button:hover{
   text-align: center;
 }
 .shopping-cart-page .no-data span.pi-empty-cart,
+.flyout-cart .no-data span.pi-empty-cart,
 .wishlist-page span.pi-heart:before{
   display: block;
   font-size: 100px;
@@ -4162,6 +4164,7 @@ button.email-a-friend-button:hover{
   color: #000;
 }
 .shopping-cart-page h4,
+.flyout-cart .no-data h4,
 .wishlist-page .no-data h4{
   font-size: 20px;
   text-transform: uppercase;

@@ -91,21 +91,119 @@ function displayJoinedPopupNotifications(notes) {
         modal: true
     });
 }
-function displayPopupContentFromUrl(url, title, modal, width) {
-    var isModal = (modal ? true : false);
-    var targetWidth = (width ? width : 550);
-    var maxHeight = $(window).height() - 20;
 
-    $('<div></div>').load(url)
-        .dialog({
-            modal: isModal,
-            width: targetWidth,
-            maxHeight: maxHeight,
-            title: title,
-            close: function(event, ui) {
-                $(this).dialog('destroy').remove();
+function displayPopupContentFromUrl(url, title, modal, width) {
+    const isModal = modal !== false; 
+    const targetWidth = width || 550;
+    
+    const stickyHeader = document.querySelector('.header.sticky');
+    let originalZIndex = null;
+    
+    if (stickyHeader) {
+        const computedStyle = window.getComputedStyle(stickyHeader);
+        originalZIndex = computedStyle.zIndex;
+        stickyHeader.style.zIndex = 'auto';
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modern-modal-overlay';
+    overlay.innerHTML = `
+        <div class="modern-modal-container" style="max-width: ${targetWidth}px;">
+            <div class="modern-modal-header">
+                <h2 class="modern-modal-title">${title || 'Información'}</h2>
+                <button class="modern-modal-close" type="button">×</button>
+            </div>
+            <div class="modern-modal-content">
+                <div class="modern-modal-loading">
+                    <div class="modern-modal-spinner"></div>
+                    <p>Cargando contenido...</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const closeModal = function() {
+        if (stickyHeader && originalZIndex !== null) {
+            if (originalZIndex === 'auto' || originalZIndex === '') {
+                stickyHeader.style.zIndex = '';
+            } else {
+                stickyHeader.style.zIndex = originalZIndex;
+            }
+        }
+        
+        overlay.style.opacity = '0';
+        overlay.querySelector('.modern-modal-container').style.transform = 'translateY(-20px) scale(0.95)';
+        
+        setTimeout(() => {
+            if (overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
+            }
+            document.body.style.overflow = '';
+        }, 300);
+    };
+    
+    overlay.querySelector('.modern-modal-close').addEventListener('click', closeModal);
+    
+    if (isModal) {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                closeModal();
             }
         });
+    }
+    
+    const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+            document.removeEventListener('keydown', escapeHandler);
+            closeModal();
+        }
+    };
+    document.addEventListener('keydown', escapeHandler);
+    
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    
+    if (typeof $ !== 'undefined' && $.fn.load) {
+        $('<div></div>').load(url, function(response, status, xhr) {
+            const contentDiv = overlay.querySelector('.modern-modal-content');
+            
+            if (status === 'error') {
+                contentDiv.innerHTML = `
+                    <div class="modern-modal-error">
+                        <p>Error al cargar el contenido</p>
+                        <p class="error-details">${xhr.status} ${xhr.statusText}</p>
+                    </div>
+                `;
+            } else {
+                contentDiv.innerHTML = response;
+            }
+        });
+    } else {
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`${response.status} ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                overlay.querySelector('.modern-modal-content').innerHTML = data;
+            })
+            .catch(error => {
+                overlay.querySelector('.modern-modal-content').innerHTML = `
+                    <div class="modern-modal-error">
+                        <p>Error al cargar el contenido</p>
+                        <p class="error-details">${error.message}</p>
+                    </div>
+                `;
+            });
+    }
+    
+    return overlay;
+}
+
+function displayPopupContentFromUrlLegacy(url, title, modal, width) {
+    return displayPopupContentFromUrl(url, title, modal, width);
 }
 
 function displayBarNotification(message, messagetype, timeout) {
