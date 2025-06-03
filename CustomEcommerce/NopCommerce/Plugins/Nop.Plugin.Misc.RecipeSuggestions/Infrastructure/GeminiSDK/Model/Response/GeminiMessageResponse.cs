@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DotnetGeminiSDK.Model.Request;
 using Newtonsoft.Json;
 
 namespace DotnetGeminiSDK.Model.Response
@@ -47,7 +48,8 @@ namespace DotnetGeminiSDK.Model.Response
 
     public class Part
     {
-        [JsonProperty("text")] public string Text { get; set; }
+        [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore)] public string Text { get; set; }
+        [JsonProperty("inlineData", NullValueHandling = NullValueHandling.Ignore)] public InlineData? InlineData { get; set; }
     }
 
     public class PromptFeedback

@@ -19,8 +19,8 @@ namespace DotnetGeminiSDK.Client.Interfaces
             SafetySetting? safetySetting = null
         );
 
-        Task<GeminiMessageResponse?> TextPrompt(
-            List<Content> messages,
+        Task<GeminiMessageResponse?> GenerateImagePrompt(
+            string message,
             GenerationConfig? generationConfig = null,
             SafetySetting? safetySetting = null
         );

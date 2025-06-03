@@ -17,8 +17,21 @@
                     {
                         <div class="ingredient-card">
                             <div class="ingredient-image-container">
-                                <img src="@(string.IsNullOrEmpty(ingredient.ImageUrl) ? "https://via.placeholder.com/150?text=Ingrediente" : ingredient.ImageUrl)" alt="@ingredient.Name" />
-                                <span class="heart-icon">♡</span> 
+                                @if (ingredient.IsNewIngredient)
+                                {
+                                    if (!string.IsNullOrEmpty(ingredient.Base64Image))
+                                    {
+                                        <img src="@($"data:image/png;base64,{ingredient.Base64Image}")" alt="@ingredient.Name" />
+                                    }
+                                    else
+                                    {
+                                        <img src="@ingredient.ImageUrl" alt="@ingredient.Name" />
+                                    }
+                                }
+                                else
+                                {
+                                    <img src="@ingredient.ImageUrl" alt="@ingredient.Name" />
+                                }
                             </div>
                             <p class="ingredient-name">@ingredient.Name</p>
                             

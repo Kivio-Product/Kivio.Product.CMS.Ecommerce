@@ -132,7 +132,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                     ingredientVm.IsNewIngredient = true;
                     if (!string.IsNullOrWhiteSpace(aiIngredient.IngredientName))
                     {
-                        ingredientVm.ImageUrl = await _aiRecipeService.GenerateImageForIngredientAsync(aiIngredient.IngredientName);
+                        ingredientVm.Base64Image = await _aiRecipeService.GenerateImageForIngredientAsync(aiIngredient.IngredientName);
                     }
                     else
                     {

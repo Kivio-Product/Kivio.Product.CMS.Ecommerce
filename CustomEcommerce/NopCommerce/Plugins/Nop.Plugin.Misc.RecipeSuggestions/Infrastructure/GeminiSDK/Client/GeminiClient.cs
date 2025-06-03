@@ -624,6 +624,36 @@ namespace DotnetGeminiSDK.Client
             };
         }
 
+        public async Task<GeminiMessageResponse?> GenerateImagePrompt(
+            string message,
+            GenerationConfig? generationConfig = null,
+            SafetySetting? safetySetting = null)
+        {
+            generationConfig ??= new GenerationConfig
+            {
+                ResponseModalities = new List<string> { "TEXT", "IMAGE" },
+                StopSequences = new List<string>(),
+                Temperature = 1,
+                MaxOutputTokens = 2048,
+                TopP = 0.95,
+                TopK = 40
+            };
+            try
+            {
+                if (string.IsNullOrEmpty(message)) throw new ArgumentException("Message cannot be empty.");
+
+                var promptUrl = $"{_config.GenerateImageBaseURL}:generateContent?key={_config.ApiKey}";
+                var request = BuildGeminiRequest(message, generationConfig, safetySetting);
+
+                return await _apiRequester.PostAsync<GeminiMessageResponse>(promptUrl, request);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Unexpected error occurred.", e);
+            }
+        }
+
+
         /// <summary>
         /// Get the mime type string from the enum
         /// </summary>

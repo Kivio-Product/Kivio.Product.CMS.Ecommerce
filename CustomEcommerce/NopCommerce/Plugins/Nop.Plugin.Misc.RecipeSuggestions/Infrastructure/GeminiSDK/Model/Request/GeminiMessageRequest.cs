@@ -41,6 +41,8 @@ namespace DotnetGeminiSDK.Model.Request
         [JsonProperty("topP")] public double TopP { get; set; }
 
         [JsonProperty("topK")] public int TopK { get; set; }
+
+        [JsonProperty("responseModalities")] public List<string> ResponseModalities { get; set; }
     }
 
     public class SafetySetting
