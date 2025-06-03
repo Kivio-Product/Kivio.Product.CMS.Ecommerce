@@ -2,7 +2,7 @@
 
 <link href="~/Plugins/Misc.RecipeSuggestions/Content/css/styles.css" rel="stylesheet">
 
-<div class="recipe-suggestion-container">
+<div class="recipe-suggestion-container section-width">
     <div class="recipe-header">
         <h2>Recetas generadas por nuestra <span class="ai-text">Inteligencia Artificial</span></h2>
     </div>
@@ -89,9 +89,13 @@
             
             @if(!string.IsNullOrEmpty(Model.RecipeDescription))
             {
-                <p class="recipe-ideal-description">@Model.RecipeDescription</p>
+                <details>
+                    <summary>Ver receta completa<span class="arrow">▼</span></summary>
+                    <div>
+                        <p class="recipe-ideal-description">@Model.RecipeDescription</p>
+                    </div>
+                </details>
             }
-            <a href="#" class="view-recipe-btn">Ver receta completa <span class="dropdown-arrow">▾</span></a>
         </div>
     </div>
 </div>
