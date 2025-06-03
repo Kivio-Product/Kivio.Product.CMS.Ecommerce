@@ -1556,7 +1556,7 @@ input[type="radio"]:checked + .radio-custom {
   height: 100%;
   background: url("../images/cart-icon.png") center no-repeat;
   background-size: contain;
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 .header-links.header-links-icons a.pi-px-shopping-cart:hover::before {
@@ -1567,6 +1567,10 @@ input[type="radio"]:checked + .radio-custom {
 .pi-px-shopping-cart .cart-qty {
   position: relative;
   z-index: 1;
+}
+
+.pi-heart.selected {
+  color: red;
 }
 
 @media all and (max-width: 1000px) {
@@ -2095,6 +2099,7 @@ input[type="radio"]:checked + .radio-custom {
   .social-networks {
     gap: 0.4rem;
     padding: 0.5rem;
+    justify-content: space-evenly !important;
   }
 
   .social-link {
@@ -2152,7 +2157,7 @@ input[type="radio"]:checked + .radio-custom {
     animation: none !important;
     transition: none !important;
     transform: none !important;
-    opacity: 1 !important; 
+    opacity: 1 !important;
     visibility: visible !important;
     bottom: auto !important;
     right: auto !important;

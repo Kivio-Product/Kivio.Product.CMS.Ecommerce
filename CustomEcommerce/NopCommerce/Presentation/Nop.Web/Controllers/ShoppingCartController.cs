@@ -665,11 +665,16 @@ public partial class ShoppingCartController : BasePublicController
 
                 var updatetopwishlistsectionhtml = string.Format(await _localizationService.GetResourceAsync("Wishlist.HeaderQuantity"),
                     shoppingCarts.Sum(item => item.Quantity));
+
+                var isInWishlist = true; 
+
                 return Json(new
                 {
                     success = true,
                     message = string.Format(await _localizationService.GetResourceAsync("Products.ProductHasBeenAddedToTheWishlist.Link"), Url.RouteUrl("Wishlist")),
-                    updatetopwishlistsectionhtml
+                    updatetopwishlistsectionhtml,
+                    productId = product.Id, 
+                    isInWishlist = isInWishlist 
                 });
             }
 
