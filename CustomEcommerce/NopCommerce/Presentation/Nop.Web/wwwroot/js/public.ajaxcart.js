@@ -126,6 +126,18 @@ var AjaxCart = {
         if (response.updateflyoutcartsectionhtml) {
             $(AjaxCart.flyoutcartselector).replaceWith(response.updateflyoutcartsectionhtml);
         }
+
+    if (typeof response.productId !== 'undefined' && typeof response.isInWishlist !== 'undefined') {
+        var productBoxIconSelector = '.product-item[data-productid="' + response.productId + '"] .add-to-wishlist-button .pi-heart';
+        var $icon = $(productBoxIconSelector);
+        if ($icon.length > 0) {
+            if (response.isInWishlist) {
+                $icon.addClass('selected');
+            } else {
+                $icon.removeClass('selected'); 
+            }
+        }
+    }
         if (response.message) {
             //display notification
             if (response.success === true) {

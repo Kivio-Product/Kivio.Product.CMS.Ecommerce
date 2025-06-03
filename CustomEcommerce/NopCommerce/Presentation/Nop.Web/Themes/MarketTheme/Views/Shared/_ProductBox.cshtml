@@ -5,6 +5,7 @@
 @using Nop.Core.Domain.Tax
 @inject CatalogSettings catalogSettings
 @inject IWorkContext workContext
+@inject Nop.Services.Orders.IShoppingCartService shoppingCartService
 @{
     //prepare "Add to cart" AJAX link
     var addtocartlink = "";
@@ -23,13 +24,16 @@
     var addtocomparelink = Url.RouteUrl("AddProductToCompare", new { productId = Model.Id });
     
     var highDiscountClass = Model.HasHighDiscount ? "high-discount-product" : "";
+    var customer = await workContext.GetCurrentCustomerAsync();
+    var wishlist = await shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.Wishlist);
+    var isInWishlist = wishlist.Any(sci => sci.ProductId == Model.Id);
 }
 <div class="product-item @highDiscountClass" data-productid="@Model.Id">
     <div class="product-img picture">
         <div class="product-icon">
             @if (!Model.ProductPrice.DisableWishlistButton)
             {
-                <button type="button" class="button-2 add-to-wishlist-button" title="@T("ShoppingCart.AddToWishlist")" onclick="AjaxCart.addproducttocart_catalog('@addtowishlistlink');return false;"><span class="pi-heart"></span> </button>
+                <button type="button" class="button-2 add-to-wishlist-button" title="@T("ShoppingCart.AddToWishlist")" onclick="AjaxCart.addproducttocart_catalog('@addtowishlistlink');return false;"><span class="pi-heart @(isInWishlist ? "selected" : "")"></span> </button>
             }
             @if (!Model.ProductPrice.DisableAddToCompareListButton)
             {
