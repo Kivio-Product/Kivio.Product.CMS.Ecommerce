@@ -1,4 +1,5 @@
 @model Nop.Plugin.Misc.RecipeSuggestions.Models.RecipeSuggestionViewModel
+@using Nop.Core.Domain.Orders
 
 <link href="~/Plugins/Misc.RecipeSuggestions/Content/css/styles.css" rel="stylesheet">
 
@@ -43,7 +44,7 @@
                             {
                                 <button class="add-to-cart-btn" 
                                         type="button" 
-                                        onclick="handleAddToCart('@ingredient.NopCommerceProductId', '@ingredient.LinkToProductPage', this)">
+                                        onclick="AjaxCart.addproducttocart_details('@Url.RouteUrl("AddProductToCart-Details", new { productId = ingredient.NopCommerceProductId, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })', '#product-details-form');return false;">
                                     Agregar al carrito
                                 </button>
                             }
@@ -99,27 +100,3 @@
         </div>
     </div>
 </div>
-
-@* Script opcional para manejar el click del botón (deberías moverlo a un archivo .js) *@
-<script>
-    function handleAddToCart(productId, productPageLink, buttonElement) {
-        console.log("Intentando agregar al carrito:");
-        if (productId) {
-            console.log("Product ID (NopCommerce):", productId);
-            // Aquí iría tu lógica para agregar al carrito usando el productId
-            // Por ejemplo, una llamada AJAX a tu backend de NopCommerce
-            alert(`Simulación: Agregando producto con ID ${productId} al carrito.`);
-        } else if (productPageLink) {
-            console.log("Redirigiendo a la página del producto:", productPageLink);
-            // Si no hay ID de producto pero sí un link, puedes redirigir o usarlo de otra forma
-            // window.location.href = productPageLink; // Descomentar para redirigir
-            alert(`Simulación: Ir a la página del producto: ${productPageLink}`);
-        } else {
-            console.log("No hay ID de producto ni link disponible.");
-            alert('Simulación: Producto agregado (genérico).');
-        }
-        // Opcional: cambiar el texto del botón o deshabilitarlo
-        // buttonElement.textContent = 'Agregado';
-        // buttonElement.disabled = true;
-    }
-</script>
