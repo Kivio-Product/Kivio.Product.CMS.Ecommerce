@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Nop.Core.Caching;
 
 namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 {
@@ -26,7 +27,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
         private readonly IUrlRecordService _urlRecordService; 
         private readonly ILogger _logger;
 
-        private const string CACHE_KEY_PREFIX = "recipesuggestion.product.";
+        private string CACHE_KEY_PREFIX = "";
         private const int DEFAULT_CACHE_TIME_MINUTES = 72000;
 
         public RecipeSuggestionService(
@@ -47,6 +48,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             _settingService = settingService;
             _urlRecordService = urlRecordService;
             _logger = logger;
+            CACHE_KEY_PREFIX = _cacheService is PersistentCacheService ? "" : "recipesuggestion.product.";
         }
 
         public async Task<RecipeSuggestionViewModel?> GetRecipeSuggestionForProductAsync(int productId)

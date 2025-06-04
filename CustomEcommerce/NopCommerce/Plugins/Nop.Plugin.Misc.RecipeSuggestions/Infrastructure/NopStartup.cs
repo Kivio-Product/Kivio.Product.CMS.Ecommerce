@@ -11,6 +11,7 @@ using DotnetGeminiSDK.Requester;
 using DotnetGeminiSDK.Requester.Interfaces;
 using Nop.Services.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Nop.Plugin.Misc.RecipeSuggestions.Repositories;
 
 namespace Nop.Plugin.Misc.RecipeSuggestions.Infrastructure;
 
@@ -20,7 +21,9 @@ public class NopStartup : INopStartup
     {
         services.AddScoped<IAIRecipeService, AIRecipeService>();
         services.AddScoped<IRecipeSuggestionService, RecipeSuggestionService>();
-        services.AddScoped<ICacheService, CacheService>();
+        services.AddScoped<IAiRecipeSuggestionRepository, AiRecipeSuggestionRepository>();
+        // services.AddScoped<ICacheService, CacheService>(); // Uncomment if you want to use the memory cache service
+        services.AddScoped<ICacheService, PersistentCacheService>(); // Use the persistent cache service
 
 
         // Gemini SDK configuration
