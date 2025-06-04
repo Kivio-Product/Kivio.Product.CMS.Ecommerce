@@ -48,7 +48,7 @@
                             <colgroup>
                                 @if (Model.DisplayAddToCart)
                                 {
-                                    <col width="1" />
+                                    <col width="0" style="display: none;" />
                                 }
                                 @if (Model.ShowSku)
                                 {
@@ -71,7 +71,7 @@
                                 <tr>
                                     @if (Model.DisplayAddToCart)
                                     {
-                                        <th class="add-to-cart">
+                                        <th class="add-to-cart" style="display: none;">
                                             @T("ShoppingCart.AddToCart")
                                         </th>
                                     }
@@ -113,10 +113,9 @@
                                     <tr>
                                         @if (Model.DisplayAddToCart)
                                         {
-                                            <td class="add-to-cart">
+                                            <td class="add-to-cart" style="display: none;">
                                                 <input type="checkbox" name="addtocart" id="addfromcart-@(item.Id)" value="@(item.Id)" />
                                                 <label class="px_move_cartitem_to_wishlist" for="addfromcart-@(item.Id)">@T("ShoppingCart.AddToCart")</label>
-                                                <a class="pi-px-shopping-cart px_move_cartitem_to_wishlist"></a>
                                             </td>
                                         }
                                         @if (Model.ShowSku)
@@ -335,7 +334,6 @@
     });
 
     function ClearItem(element, button, title, text, confirmationtext) {
-
         Swal.fire({
             title: title,
             text: text,
@@ -345,13 +343,13 @@
                 confirmButton: 'primary-btn',
                 cancelButton: 'primary-btn',
             },
-
             confirmButtonColor: '#7A37F0',
             cancelButtonColor: '#7A37F0',
             confirmButtonText: confirmationtext,
             cancelButtonText: "@Html.Raw(JavaScriptEncoder.Default.Encode(T("theme.phoenix.clear.cart.clearbuttontext").Text))",
         }).then((result) => {
             if (result.isConfirmed) {
+                displayAjaxLoading(true);
                 if (button == "removeall") {
                     // remove all items from cart
                     $("input[name='removefromcart']:checkbox").prop('checked', true);
@@ -366,29 +364,29 @@
                 }
                 else if (button == "moveallitemstocart") {
                     $("input[name='addtocart']:checkbox").prop('checked', true);
-                    $(".px_wishlist_add_to_cart_button").trigger("click");
+                    $(".bs_move_allcartitem_to_wishlist").trigger("click");
                 }
-
-                swal.fire({
-                    title: '',
-                    allowEscapeKey: false,
-                    allowOutsideClick: false,
-                    //timer: 2000,
-                    onOpen: () => {
-                        swal.showLoading();
-                    }
-                })
             }
         })
 
         return false;
     }
 
+    $('form[asp-route="Wishlist"]').on('submit', function() {
+        displayAjaxLoading(true);
+    });
+
+    $(document).ready(function() {
+        displayAjaxLoading(false);
+    });
+
+    $(window).on('load', function() {
+        displayAjaxLoading(false);
+    });
 </script>
 
 <script asp-location="Footer">
     // cart item pluse minus
-
 
     $(document).ready(function() {
         $('.pi-minus').click(function() {
@@ -406,8 +404,4 @@
             return false;
         });
     });
-
-
-
-
 </script>

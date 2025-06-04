@@ -772,6 +772,7 @@
   }
   .write-review .review-rating{
       display: flex;
+      flex-wrap: wrap;
   }
   .catalog-common-title {
     padding: 30px 0 0;
@@ -1900,7 +1901,7 @@
 }
 @media (max-width: 1380px) and (min-width: 769px) {
     .item-box {
-        width: calc(33.33% - 30px);
+        /* width: calc(33.33% - 30px); */
         margin: 0 15px 30px;
     }
 }

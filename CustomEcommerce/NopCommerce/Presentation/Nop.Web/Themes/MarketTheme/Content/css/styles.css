@@ -2939,9 +2939,14 @@ button.email-a-friend-button:hover{
 .product-review-item .review-info label {
   font-weight: normal;
 }
-.product-review-item .review-info a,
 .product-review-helpfulness .vote {
   display: inline-block;
+  padding: 0 5px;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+}
+.product-review-item .review-info a{
   padding: 0 5px;
   cursor: pointer;
   width: 24px;
@@ -3514,6 +3519,7 @@ button.email-a-friend-button:hover{
   margin: 0 0 5px;
   font-weight: bold;
   color: #444;
+  text-align: center;
 }
 .password-recovery-page .tooltip {
   margin: 0 0 40px;
@@ -4150,6 +4156,7 @@ button.email-a-friend-button:hover{
   text-align: center;
 }
 .shopping-cart-page .no-data span.pi-empty-cart,
+.flyout-cart .no-data span.pi-empty-cart,
 .wishlist-page span.pi-heart:before{
   display: block;
   font-size: 100px;
@@ -4157,6 +4164,7 @@ button.email-a-friend-button:hover{
   color: #000;
 }
 .shopping-cart-page h4,
+.flyout-cart .no-data h4,
 .wishlist-page .no-data h4{
   font-size: 20px;
   text-transform: uppercase;
@@ -7546,7 +7554,7 @@ a.ui-button:active, .ui-button:active,
     display: table;
     width: 100%;
     table-layout: fixed;
-    padding: 10px;
+    /* padding: 10px; */
   }
   .product-review-item .avatar {
     display: table-cell;
@@ -8271,11 +8279,13 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
   }
    .footer .footer_px_logo img {
       max-width: 120px;
+      opacity: initial;
   }
 
   .footer .footer-block.follow-us .footer-logo-title {
       max-width: none; /* Allow full width */
       font-size: 0.85rem;
+      translate: none;
   }
   
   .footer .footer-block .title strong {

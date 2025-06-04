@@ -333,7 +333,9 @@
                                                             e.preventDefault();
                                                             displayPopupContentFromUrl(
                                                                 '@Url.RouteUrl("TopicPopup", new {SystemName = "conditionsofuse"})',
-                                                                '@T("Checkout.TermsOfService")');
+                                                                '@T("Checkout.TermsOfService")',
+                                                                false,
+                                                                600);
                                                         });
                                                 });
                                             </script>
