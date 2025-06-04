@@ -1,5 +1,8 @@
 @model Nop.Plugin.Misc.RecipeSuggestions.Models.RecipeSuggestionViewModel
+@using Nop.Core
+@using Nop.Core.Domain.Catalog
 @using Nop.Core.Domain.Orders
+@using Nop.Core.Domain.Tax
 
 <link href="~/Plugins/Misc.RecipeSuggestions/Content/css/styles.css" rel="stylesheet">
 
@@ -18,23 +21,25 @@
                     {
                         <div class="ingredient-card">
                             <div class="ingredient-image-container">
-                                @if (ingredient.IsNewIngredient)
-                                {
-                                    if (!string.IsNullOrEmpty(ingredient.Base64Image))
+                                <a href="@ingredient.NopCommerceProductSeName" title="@ingredient.Name">
+                                    @if (ingredient.IsNewIngredient)
                                     {
-                                        <img src="@($"data:image/png;base64,{ingredient.Base64Image}")" alt="@ingredient.Name" />
+                                        if (!string.IsNullOrEmpty(ingredient.Base64Image))
+                                        {
+                                            <img src="@($"data:image/png;base64,{ingredient.Base64Image}")" alt="@ingredient.Name" />
+                                        }
+                                        else
+                                        {
+                                            <img src="@ingredient.ImageUrl" alt="@ingredient.Name" />
+                                        }
                                     }
                                     else
                                     {
                                         <img src="@ingredient.ImageUrl" alt="@ingredient.Name" />
-                                    }
                                 }
-                                else
-                                {
-                                    <img src="@ingredient.ImageUrl" alt="@ingredient.Name" />
-                                }
+                                </a>
                             </div>
-                            <p class="ingredient-name">@ingredient.Name</p>
+                            <a class="ingredient-name" href="@ingredient.NopCommerceProductSeName" title="@ingredient.Name">@ingredient.Name</a>
                             
                             @if (ingredient.IsNewIngredient)
                             {

@@ -121,7 +121,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 {
                     ingredientVm.IsNewIngredient = false;
                     ingredientVm.NopCommerceProductId = existingProduct.Id;
-                    ingredientVm.LinkToProductPage = $"/{await _urlRecordService.GetSeNameAsync(existingProduct)}"; // Assuming default URL structure
+                    ingredientVm.NopCommerceProductSeName = $"{await _urlRecordService.GetSeNameAsync(existingProduct)}"; // Assuming default URL structure
                     
                     var productPictures = await _pictureService.GetPicturesByProductIdAsync(existingProduct.Id, 1);
                     ingredientVm.ImageUrl = productPictures.Any() ? (await _pictureService.GetPictureUrlAsync(productPictures.First())).Url ?? string.Empty : string.Empty;

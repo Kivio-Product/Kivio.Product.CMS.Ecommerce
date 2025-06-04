@@ -168,7 +168,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             return await ProcessImagePrompt(prompt);
         }
 
-        private async Task<string> ProcessImagePrompt(string prompt)
+        private async Task<string> ProcessImagePrompt(string prompt, int retries = 0)
         {
             _logger.Information($"AI Image Generation Prompt: {prompt}");
             var response = await _geminiClient.GenerateImagePrompt(prompt);
@@ -188,8 +188,18 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             var imagePart = responseContent.Parts.FirstOrDefault(p => p.InlineData != null && p.InlineData.Data != null);
             if (imagePart == null || string.IsNullOrWhiteSpace(imagePart.InlineData.Data))
             {
-                _logger.Error("AI response does not contain a valid image part with inline data.");
-                throw new Exception("AI response does not contain a valid image part with inline data.");
+                var responseText = Newtonsoft.Json.JsonConvert.SerializeObject(responseContent);
+                _logger.Error("AI response does not contain a valid image part with inline data. Response Text: " + responseText);
+                // Retry ProcessImagePrompt
+                if (retries < 3)
+                {
+                    _logger.Information($"Retrying image generation due to missing inline data. Attempt {retries + 1}/3");
+                    return await ProcessImagePrompt(prompt, retries + 1);
+                }
+                else
+                {
+                    throw new Exception("AI response does not contain a valid image part with inline data after multiple attempts.");
+                }
             }
             // Decode the base64 image data
             var base64Image = imagePart.InlineData.Data;
