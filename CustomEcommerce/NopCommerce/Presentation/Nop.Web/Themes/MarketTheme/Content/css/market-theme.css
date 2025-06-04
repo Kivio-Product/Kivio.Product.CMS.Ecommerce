@@ -1569,7 +1569,13 @@ input[type="radio"]:checked + .radio-custom {
   z-index: 1;
 }
 
-.pi-heart.selected {
+.wishlist-heart-svg {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+}
+
+button.add-to-wishlist-button.selected {
   color: red;
 }
 
@@ -1742,22 +1748,6 @@ input[type="radio"]:checked + .radio-custom {
   font-size: 14px;
   margin-top: 8px;
   opacity: 0.7;
-}
-
-@media (max-width: 640px) {
-  .modern-modal-container {
-    margin: 10px;
-    border-radius: 16px;
-  }
-
-  .modern-modal-header,
-  .modern-modal-content {
-    padding: 20px;
-  }
-
-  .modern-modal-title {
-    font-size: 20px;
-  }
 }
 
 .flyout-cart .no-data {
@@ -2072,6 +2062,20 @@ input[type="radio"]:checked + .radio-custom {
     font-size: 13px;
     gap: 10px;
   }
+
+  .modern-modal-container {
+    margin: 10px;
+    border-radius: 16px;
+  }
+
+  .modern-modal-header,
+  .modern-modal-content {
+    padding: 20px;
+  }
+
+  .modern-modal-title {
+    font-size: 20px;
+  }
 }
 
 @media (min-width: 768px) {
@@ -2357,4 +2361,85 @@ input[type="radio"]:checked + .radio-custom {
     left: auto !important;
     top: auto !important;
   }
+}
+
+.newsletter-result {
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 5px;
+  font-weight: 500;
+  animation: fadeIn 0.5s ease-in;
+  position: relative;
+  padding-right: 45px; /* Espacio para el botón X */
+}
+
+.newsletter-result.success {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.newsletter-result.error {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.newsletter-result-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.newsletter-result-close:hover {
+  opacity: 1;
+}
+
+.newsletter-result.success .newsletter-result-close {
+  color: #155724;
+}
+
+.newsletter-result.error .newsletter-result-close {
+  color: #721c24;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.newsletter-validation {
+  color: #dc3545;
+  font-size: 0.875em;
+  margin-top: 5px;
 }

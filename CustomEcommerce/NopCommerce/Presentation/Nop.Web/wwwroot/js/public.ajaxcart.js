@@ -128,13 +128,13 @@ var AjaxCart = {
         }
 
     if (typeof response.productId !== 'undefined' && typeof response.isInWishlist !== 'undefined') {
-        var productBoxIconSelector = '.product-item[data-productid="' + response.productId + '"] .add-to-wishlist-button .pi-heart';
-        var $icon = $(productBoxIconSelector);
-        if ($icon.length > 0) {
+        var productButtonSelector = '.product-item[data-productid="' + response.productId + '"] .add-to-wishlist-button';
+        var $button = $(productButtonSelector);
+        if ($button.length > 0) {
             if (response.isInWishlist) {
-                $icon.addClass('selected');
+                $button.addClass('selected');
             } else {
-                $icon.removeClass('selected'); 
+                $button.removeClass('selected');
             }
         }
     }
