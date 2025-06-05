@@ -50,8 +50,8 @@ namespace Nop.Plugin.Misc.RecipeSuggestions
         {
             var settings = new RecipeSuggestionSettings
             {
-                NewProductsBatchSize = 100,
-                RefreshProductsBatchSize = 50,
+                NewProductsBatchSize = 5,
+                RefreshProductsBatchSize = 5,
                 RefreshRecipeAgeDays = 7,
                 WidgetZone = PublicWidgetZones.ProductDetailsBottom,
                 GeminiApiKey = "Your-Gemini-API-Key-Here"

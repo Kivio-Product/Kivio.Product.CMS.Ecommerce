@@ -1,11 +1,11 @@
-using System.Threading.Tasks;
+using Nop.Plugin.Misc.RecipeSuggestions.Models;
 
 namespace Nop.Plugin.Misc.RecipeSuggestions.Interfaces
 {
     public interface ICacheService
     {
-        Task<T?> GetAsync<T>(string cacheKey) where T : class;
-        Task SetAsync<T>(string cacheKey, T data, int cacheTimeInMinutes) where T : class;
+        Task<RecipeSuggestionViewModel> GetAsync(string productId);
+        Task SetAsync(string cacheKey, RecipeSuggestionViewModel data, int cacheTimeInMinutes);
         Task RemoveAsync(string cacheKey);
     }
 }

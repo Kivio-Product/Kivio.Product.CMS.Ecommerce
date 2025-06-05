@@ -1,5 +1,6 @@
 using Nop.Core.Caching;
-using Nop.Plugin.Misc.RecipeSuggestions.Interfaces; 
+using Nop.Plugin.Misc.RecipeSuggestions.Interfaces;
+using Nop.Plugin.Misc.RecipeSuggestions.Models;
 
 namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 {
@@ -12,12 +13,12 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             _staticCacheManager = staticCacheManager;
         }
 
-        public async Task<T?> GetAsync<T>(string cacheKey) where T : class
+        public async Task<RecipeSuggestionViewModel> GetAsync(string productId)
         {
-            return await _staticCacheManager.GetAsync<T?>(new CacheKey(cacheKey), () => Task.FromResult<T?>(null));
+            return await _staticCacheManager.GetAsync<RecipeSuggestionViewModel>(new CacheKey(productId), () => Task.FromResult<RecipeSuggestionViewModel>(null));
         }
 
-        public async Task SetAsync<T>(string cacheKey, T data, int cacheTimeInMinutes) where T : class
+        public async Task SetAsync(string cacheKey, RecipeSuggestionViewModel data, int cacheTimeInMinutes)
         {
             var key = new CacheKey(cacheKey);
             key.CacheTime = cacheTimeInMinutes;

@@ -4,15 +4,9 @@ using Nop.Plugin.Misc.RecipeSuggestions.Interfaces;
 using Nop.Plugin.Misc.RecipeSuggestions.Models;
 using Nop.Services.Catalog;
 using Nop.Services.Configuration;
-using Nop.Services.Localization; 
 using Nop.Services.Media;
 using Nop.Services.Seo;
 using Nop.Services.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Nop.Core.Caching;
 
 namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 {
@@ -61,7 +55,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             }
 
             string cacheKey = $"{CACHE_KEY_PREFIX}{productId}";
-            var cachedSuggestion = await _cacheService.GetAsync<RecipeSuggestionViewModel>(cacheKey);
+            var cachedSuggestion = await _cacheService.GetAsync(cacheKey);
 
             if (cachedSuggestion != null)
             {
@@ -73,7 +67,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             await GenerateAndCacheRecipeSuggestionAsync(productId, "ondemand");
             
             // Attempt to get it again from cache after generation.
-            return await _cacheService.GetAsync<RecipeSuggestionViewModel>(cacheKey);
+            return await _cacheService.GetAsync(cacheKey);
         }
 
         public async Task GenerateAndCacheRecipeSuggestionAsync(int productId, string context)
