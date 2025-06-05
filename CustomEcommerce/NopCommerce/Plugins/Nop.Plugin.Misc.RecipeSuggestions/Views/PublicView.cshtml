@@ -14,6 +14,9 @@
     <div class="recipe-main-content">
         @* Columna de Ingredientes - Aparecerá primero en móviles por defecto si no se usa order *@
         <div class="ingredients-section">
+            <div class="ingredients-section_title">
+                <h3 class="ingredients-title">Ingredientes</h3>
+            </div>
             @if (Model.Ingredients != null && Model.Ingredients.Any())
             {
                 <div class="ingredients-grid">

@@ -1,6 +1,5 @@
     /* Contenedor Principal y Cabecera */
 .recipe-suggestion-container {
-    font-family: Arial, sans-serif;
     margin: 20px auto;
     padding: 20px;
     background-color: #f9f9f9; /* Un fondo suave para diferenciar */
@@ -38,6 +37,10 @@
 .ingredients-section {
     flex: 5; /* Ocupará más espacio que la receta ideal */
     min-width: 300px; /* Mínimo antes de envolver o reducir */
+}
+
+.ingredients-section_title {
+    display: none
 }
 
 .ingredients-grid {
@@ -240,10 +243,34 @@
 
     .recipe-header h2 {
         font-size: 20px;
-        text-align: center; /* Centrar título en móvil */
     }
     .ingredients-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Tarjetas más pequeñas en móvil */
+        display: flex;
+        /* tipo carrusel */
+        overflow-x: auto; /* Permite desplazamiento horizontal */
+        scroll-snap-type: x mandatory; /* Habilita el snap */
+        -webkit-overflow-scrolling: touch; /* Mejora el desplazamiento en iOS */
+        padding-bottom: 10px; /* Espacio para el scroll */
+        gap: 10px; /* Espacio entre tarjetas */
+    }
+    .ingredient-card {
+        flex: 0 0 auto; /* No se encoge ni expande */
+        width: 190px; /* Ancho fijo para tarjetas */
+        scroll-snap-align: start; /* Alinea al inicio del contenedor */
+    }
+    .equals-sign-container {
+        display: none; /* Oculta el signo de igual en móviles */
+    }
+    .circle-sign-container {
+        width: 40px;
+        height: 40px;
+    }
+    .ingredients-section_title {
+        display: flex;
+        justify-content: left;
+        padding: 30px 0;
+        color: black;
+        font-size: 18px;
     }
 }
 
@@ -256,6 +283,7 @@ details > summary {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-size: 15px;
 }
 details > summary::-webkit-details-marker { /* Para Chrome/Safari */
     display: none;
