@@ -1248,7 +1248,6 @@ input[type="radio"]:checked + .radio-custom {
 
 .category-row {
   display: flex;
-  justify-content: space-between;
   margin-bottom: 20px;
 }
 
@@ -1839,6 +1838,23 @@ button.add-to-wishlist-button.selected {
 
 .product-details-page .wishlist-heart-svg {
   vertical-align: unset !important;
+}
+
+.owl-center-few-items .owl-stage-outer {
+  display: flex;
+  justify-content: center;
+}
+
+.owl-center-few-items .owl-stage {
+  display: flex;
+  justify-content: center;
+  width: auto !important;
+  transform: none !important;
+}
+
+.owl-center-few-items .owl-item {
+  float: none;
+  display: inline-block;
 }
 
 @media all and (max-width: 1000px) {
