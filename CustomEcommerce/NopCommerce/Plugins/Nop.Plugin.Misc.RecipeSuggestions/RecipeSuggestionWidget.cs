@@ -1,4 +1,6 @@
 using Nop.Core;
+using Nop.Core.Domain.ScheduleTasks;
+using Nop.Data;
 using Nop.Plugin.Misc.RecipeSuggestions.Components;
 using Nop.Services.Cms; 
 using Nop.Services.Configuration; 
@@ -14,16 +16,19 @@ namespace Nop.Plugin.Misc.RecipeSuggestions
         private readonly ILocalizationService _localizationService;
         private readonly IWebHelper _webHelper;
         private readonly IStoreContext _storeContext;
+        private readonly INopDataProvider _dataProvider;
 
         public RecipeSuggestionWidget(ISettingService settingService,
                                       ILocalizationService localizationService,
                                       IWebHelper webHelper,
-                                      IStoreContext storeContext)
+                                      IStoreContext storeContext,
+                                      INopDataProvider nopDataProvider)
         {
             _settingService = settingService;
             _localizationService = localizationService;
             _webHelper = webHelper;
             _storeContext = storeContext;
+            _dataProvider = nopDataProvider;
         }
 
         public bool HideInWidgetList => false; 
@@ -81,6 +86,22 @@ namespace Nop.Plugin.Misc.RecipeSuggestions
                 ["Plugins.Misc.RecipeSuggestions.PublicView.ViewProduct"] = "View Product",
 
             });
+
+            // Include task for generating and refreshing recipe suggestions
+            var lastEnabledUtc = DateTime.UtcNow;
+            var tasks = new List<ScheduleTask>
+            {
+                new() {
+                    Name = "Recipe Suggestions Task",
+                    Seconds = 7200, // 2 hours
+                    Type = "Nop.Plugin.Misc.RecipeSuggestions.Tasks.RecipeSuggestionsTask, Nop.Plugin.Misc.RecipeSuggestions",
+                    Enabled = false,
+                    LastEnabledUtc = lastEnabledUtc,
+                    StopOnError = false
+                }
+            };
+
+            await _dataProvider.BulkInsertEntitiesAsync(tasks);
 
             await base.InstallAsync();
         }

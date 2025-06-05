@@ -7,6 +7,7 @@ using Nop.Services.Configuration;
 using Nop.Services.Media;
 using Nop.Services.Seo;
 using Nop.Services.Logging;
+using Nop.Data;
 
 namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 {
@@ -19,6 +20,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
         private readonly IStoreContext _storeContext;
         private readonly ISettingService _settingService;
         private readonly IUrlRecordService _urlRecordService; 
+        private readonly IRepository<RecipeSuggestion> _recipeSuggestionRepository;
         private readonly ILogger _logger;
 
         private string CACHE_KEY_PREFIX = "";
@@ -32,7 +34,8 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             IStoreContext storeContext,
             ISettingService settingService,
             IUrlRecordService urlRecordService,
-            ILogger logger)
+            ILogger logger,
+            IRepository<RecipeSuggestion> recipeSuggestionRepository)
         {
             _cacheService = cacheService;
             _aiRecipeService = aiRecipeService;
@@ -41,6 +44,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             _storeContext = storeContext;
             _settingService = settingService;
             _urlRecordService = urlRecordService;
+            _recipeSuggestionRepository = recipeSuggestionRepository;
             _logger = logger;
             CACHE_KEY_PREFIX = _cacheService is PersistentCacheService ? "" : "recipesuggestion.product.";
         }
@@ -142,14 +146,69 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             await _cacheService.SetAsync(cacheKey, recipeSuggestion, cacheTime);
         }
 
-        public Task GenerateRecipeSuggestionsForNewProductsAsync(int newProductsBatchSize)
+        public async Task GenerateRecipeSuggestionsForNewProductsAsync(int newProductsBatchSize)
         {
-            throw new NotImplementedException();
+            _logger.Information($"Generating recipe suggestions for new products, batch size: {newProductsBatchSize}.");
+            var productIdsOnRecipeSuggestion = await _recipeSuggestionRepository.Table
+                .Select(rs => rs.ProductId)
+                .ToListAsync();
+
+            var newProducts = await _productService.SearchProductsAsync(
+                visibleIndividuallyOnly: true,
+                orderBy: ProductSortingEnum.CreatedOn,
+                pageIndex: 0,
+                pageSize: 100);
+
+            var newProductsWithoutRecipe = newProducts.Where(p => !productIdsOnRecipeSuggestion.Contains(p.Id))
+                                     .Take(newProductsBatchSize)
+                                     .ToList();
+
+            if (newProductsWithoutRecipe.Count == 0)
+            {
+                _logger.Information("No new products found for recipe suggestion generation.");
+                return;
+            }
+
+            _logger.Information($"Found {newProductsWithoutRecipe.Count} new products without recipe suggestions. Generating suggestions...");
+            foreach (var product in newProductsWithoutRecipe)
+            {
+                if (!ExistsRecipeOnCache(product.Id))
+                {
+                    _logger.Information($"Generating recipe suggestion for new product ID {product.Id} - {product.Name}.");
+                    await GenerateAndCacheRecipeSuggestionAsync(product.Id, "batch");
+                    _logger.Information($"Recipe suggestion for product ID {product.Id} - {product.Name} generated and cached successfully.");
+                }
+            }
+
         }
 
-        public Task RefreshRecipeSuggestionsAsync(int refreshProductsBatchSize, int refreshRecipeAgeDays)
+        public async Task RefreshRecipeSuggestionsAsync(int refreshProductsBatchSize, int refreshRecipeAgeDays)
         {
-            throw new NotImplementedException();
+            _logger.Information($"Refreshing recipe suggestions for products older than {refreshRecipeAgeDays} days, batch size: {refreshProductsBatchSize}.");
+            
+            var cutoffDate = DateTime.UtcNow.AddDays(-refreshRecipeAgeDays);
+            var productIdsToRefresh = _recipeSuggestionRepository.Table
+                .Where(rs => rs.CreatedOnUtc < cutoffDate)
+                .Select(rs => rs.ProductId)
+                .Take(refreshProductsBatchSize)
+                .ToList();
+            
+            foreach (var productId in productIdsToRefresh)
+            {
+                if (ExistsRecipeOnCache(productId))
+                {
+                    _logger.Information($"Refreshing recipe suggestion for product ID {productId}.");
+                    await _cacheService.RemoveAsync($"{CACHE_KEY_PREFIX}{productId}");
+                    await GenerateAndCacheRecipeSuggestionAsync(productId, "refresh");
+                    _logger.Information($"Recipe suggestion for product ID {productId} refreshed successfully.");
+                }
+            }
+        }
+
+        public bool ExistsRecipeOnCache(int productId)
+        {
+            string cacheKey = $"{CACHE_KEY_PREFIX}{productId}";
+            return _cacheService.GetAsync(cacheKey).Result != null;
         }
     }
 }
