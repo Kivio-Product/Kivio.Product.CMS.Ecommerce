@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Nop.Core;
 using Nop.Core.Caching;
@@ -665,7 +665,10 @@ public partial class ShoppingCartController : BasePublicController
 
                 var updatetopwishlistsectionhtml = string.Format(await _localizationService.GetResourceAsync("Wishlist.HeaderQuantity"),
                     shoppingCarts.Sum(item => item.Quantity));
-
+                // Determine if the item is now in the wishlist (it should be, as it was just added)
+                // For robustness, a direct check could be added, but for an "add" operation, it's implicitly true.
+                // However, if this method were ever to handle "remove from wishlist" from catalog, a real check would be needed.
+                // For now, we assume it's been successfully added.
                 var isInWishlist = true; 
 
                 return Json(new
@@ -673,7 +676,7 @@ public partial class ShoppingCartController : BasePublicController
                     success = true,
                     message = string.Format(await _localizationService.GetResourceAsync("Products.ProductHasBeenAddedToTheWishlist.Link"), Url.RouteUrl("Wishlist")),
                     updatetopwishlistsectionhtml,
-                    productId = product.Id, 
+                    productId = product.Id, // or productId variable if product object isn't in scope here
                     isInWishlist = isInWishlist 
                 });
             }
@@ -713,6 +716,66 @@ public partial class ShoppingCartController : BasePublicController
                 });
             }
         }
+    }
+
+    [HttpPost]
+    public virtual async Task<IActionResult> RemoveProductFromWishlist_Catalog(int productId)
+    {
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var cartType = ShoppingCartType.Wishlist;
+
+        var product = await _productService.GetProductByIdAsync(productId);
+        if (product == null)
+        {
+            return Json(new
+            {
+                success = false,
+                message = "Product not found.",
+                productId = productId,
+                isInWishlist = false
+            });
+        }
+
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, cartType, store.Id);
+        var shoppingCartItem = cart.FirstOrDefault(sci => sci.ProductId == productId && sci.ShoppingCartType == cartType);
+
+        if (shoppingCartItem != null)
+        {
+            await _shoppingCartService.DeleteShoppingCartItemAsync(shoppingCartItem);
+
+            // Activity log
+            await _customerActivityService.InsertActivityAsync("PublicStore.RemoveFromWishlist",
+                string.Format(await _localizationService.GetResourceAsync("ActivityLog.PublicStore.RemoveFromWishlist"), product.Name), product);
+
+            var updatedWishlist = await _shoppingCartService.GetShoppingCartAsync(customer, cartType, store.Id);
+            var updatetopwishlistsectionhtml = string.Format(
+                await _localizationService.GetResourceAsync("Wishlist.HeaderQuantity"),
+                updatedWishlist.Sum(item => item.Quantity));
+
+            return Json(new
+            {
+                success = true,
+                message = await _localizationService.GetResourceAsync("Wishlist.ProductHasBeenRemoved"), // Consider adding a new resource string for this
+                updatetopwishlistsectionhtml = updatetopwishlistsectionhtml,
+                productId = productId,
+                isInWishlist = false 
+            });
+        }
+
+        var currentWishlist = await _shoppingCartService.GetShoppingCartAsync(customer, cartType, store.Id);
+        var currentTopWishlistSectionHtml = string.Format(
+            await _localizationService.GetResourceAsync("Wishlist.HeaderQuantity"),
+            currentWishlist.Sum(item => item.Quantity));
+
+        return Json(new
+        {
+            success = false,
+            message = await _localizationService.GetResourceAsync("Wishlist.ProductNotInWishlist"),
+            updatetopwishlistsectionhtml = currentTopWishlistSectionHtml,
+            productId = productId,
+            isInWishlist = false
+        });
     }
 
     //add product to cart using AJAX
