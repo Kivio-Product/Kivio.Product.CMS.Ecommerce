@@ -184,7 +184,7 @@
                 if ($(".px_category_slider").length > 0) {
                     $(".px_category_slider").owlCarousel({
                         autoplay: false,
-                        loop: false,
+                        loop: @(Model.Count > 8 ? "true" : "false"),
                         rtl: true,
                         margin: 0,
                         responsiveClass: true,
