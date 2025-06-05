@@ -5,7 +5,7 @@
 @using Nop.Core.Domain.Tax
 @inject CatalogSettings catalogSettings
 @inject IWorkContext workContext
-@inject Nop.Services.Orders.IShoppingCartService shoppingCartService // Inject IShoppingCartService
+@inject Nop.Services.Orders.IShoppingCartService shoppingCartService
 @{
     //prepare "Add to cart" AJAX link
     var addtocartlink = "";
@@ -21,6 +21,7 @@
     }
 
     var addtowishlistlink = Url.RouteUrl("AddProductToCart-Catalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist, quantity = quantity });
+    var removefromwishlistlink = Url.RouteUrl("RemoveProductFromWishlist-Catalog", new { productId = Model.Id });
     var addtocomparelink = Url.RouteUrl("AddProductToCompare", new { productId = Model.Id });
     
     var highDiscountClass = Model.HasHighDiscount ? "high-discount-product" : "";
@@ -33,7 +34,7 @@
         <div class="product-icon">
             @if (!Model.ProductPrice.DisableWishlistButton)
             {
-                <button type="button" class="button-2 add-to-wishlist-button @(isInWishlist ? "selected" : "")" title="@T("ShoppingCart.AddToWishlist")" data-productid="@Model.Id" onclick="AjaxCart.addproducttocart_catalog('@addtowishlistlink');return false;"><svg class="wishlist-heart-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></button>
+                <button type="button" class="button-2 add-to-wishlist-button @(isInWishlist ? "selected" : "")" title="@T("ShoppingCart.AddToWishlist")" data-productid="@Model.Id" onclick="toggleWishlistProductBox(this, '@addtowishlistlink', '@removefromwishlistlink');return false;"><svg class="wishlist-heart-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></button>
             }
             @if (!Model.ProductPrice.DisableAddToCompareListButton)
             {
@@ -152,3 +153,20 @@
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductBoxAddinfoAfter, additionalData = Model })
     </div>
 </div>
+<script>
+if (typeof toggleWishlistProductBox === 'undefined') {
+    function toggleWishlistProductBox(buttonElement, addUrl, removeUrl) {
+        var $button = $(buttonElement);
+        if ($button.hasClass('selected')) {
+            if (typeof AjaxCart.removeProductFromWishlist_Catalog === 'function') {
+                AjaxCart.removeProductFromWishlist_Catalog(removeUrl);
+            } else {
+                console.error('AjaxCart.removeProductFromWishlist_Catalog function is not defined.');
+            }
+        } else {
+            AjaxCart.addproducttocart_catalog(addUrl);
+        }
+        return false;
+    }
+}
+</script>

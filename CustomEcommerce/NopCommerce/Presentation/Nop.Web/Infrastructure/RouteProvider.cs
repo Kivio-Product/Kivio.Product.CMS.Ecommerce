@@ -216,6 +216,11 @@ public partial class RouteProvider : BaseRouteProvider, IRouteProvider
             pattern: $"addproducttocart/details/{{productId:min(0)}}/{{shoppingCartTypeId:min(0)}}",
             defaults: new { controller = "ShoppingCart", action = "AddProductToCart_Details" });
 
+        endpointRouteBuilder.MapControllerRoute(name: "RemoveProductFromWishlist-Catalog",
+        pattern: $"cart/removefromwishlistcatalog/{{productId:int}}",
+        defaults: new { controller = "ShoppingCart", action = "RemoveProductFromWishlist_Catalog" },
+        constraints: new { productId = @"\d+" });
+
         //comparing products (AJAX)
         endpointRouteBuilder.MapControllerRoute(name: "AddProductToCompare",
             pattern: $"compareproducts/add/{{productId:min(0)}}",
