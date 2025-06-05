@@ -152,15 +152,19 @@
 
 <script asp-location="Footer">
     $(document).ready(function() {
-        if (@Model.Count > 8) {
-            var mobileBreakpoint = 768;
+        var mobileBreakpoint = 768;
+        
+        function initCarousel() {
+            // Destruir carousels existentes
+            if ($('.px_category_carousel').hasClass('owl-loaded')) {
+                $('.px_category_carousel').owlCarousel('destroy');
+            }
+            if ($('.px_category_slider').hasClass('owl-loaded')) {
+                $('.px_category_slider').owlCarousel('destroy');
+            }
             
-            function initCarousel() {
-                if ($('.px_category_carousel').hasClass('owl-loaded')) {
-                    $('.px_category_carousel').owlCarousel('destroy');
-                }
-                
-                if ($(window).width() <= mobileBreakpoint) {
+            if ($(window).width() <= mobileBreakpoint) {
+                if (@Model.Count > 8 && $('.px_category_carousel').length > 0) {
                     $('.px_category_carousel').owlCarousel({
                         loop: false,
                         margin: 0,
@@ -175,11 +179,12 @@
                             1024: { items: 1 }
                         }
                     });
-                } 
-                else {
-                     $(".px_category_slider").owlCarousel({
+                }
+            } else {
+                if ($(".px_category_slider").length > 0) {
+                    $(".px_category_slider").owlCarousel({
                         autoplay: false,
-                        loop: false,
+                        loop: @(Model.Count > 8 ? "true" : "false"),
                         rtl: true,
                         margin: 0,
                         responsiveClass: true,
@@ -188,32 +193,37 @@
                         smartSpeed: 800,
                         dots: false,
                         nav: false,
+                        center: @Model.Count < 9 ? "true" : "false",
                         responsive: {
-                            0: {
-                                items: 4
+                            0: { 
+                                items: 4,
+                                center: @Model.Count < 4 ? "true" : "false"
                             },
-
-                            600: {
-                                items: 6
+                            600: { 
+                                items: 6,
+                                center: @Model.Count < 6 ? "true" : "false"
                             },
-
-                            1024: {
-                                items: 9
+                            1024: { 
+                                items: 9,
+                                center: @Model.Count < 9 ? "true" : "false"
                             },
-
-                            1366: {
-                                items: 9
+                            1366: { 
+                                items: 9,
+                                center: @Model.Count < 9 ? "true" : "false"
                             }
                         }
                     });
+                    if (@Model.Count < 9) {
+                        $('.px_category_slider').addClass('owl-center-few-items');
+                    }
                 }
             }
-            
-            initCarousel();
-            
-            $(window).resize(function() {
-                initCarousel();
-            });
         }
+        
+        initCarousel();
+        
+        $(window).resize(function() {
+            initCarousel();
+        });
     });
 </script>
