@@ -17,18 +17,27 @@
 @{
     var productThumbPictureSize = 280;
 
-    var initialFilterTagName = "best-prices";
+    var defaultFilterTagName = "best-prices";
+    var localeTagName = T("Home.FilteredProducts.DefaultTag").Text;
 
-    int? initialProductTagId = null; 
+    var initialFilterTagName = !string.IsNullOrWhiteSpace(localeTagName) && localeTagName !=
+    "Home.FilteredProducts.DefaultTag" ? localeTagName : defaultFilterTagName;
 
-    if (!string.IsNullOrWhiteSpace(initialFilterTagName))
+    int? initialProductTagId = null;
+
+    var tags = await _productTagService.GetAllProductTagsAsync(tagName: initialFilterTagName);
+    var initialProductTag = tags.FirstOrDefault();
+
+    if (initialProductTag == null && initialFilterTagName != defaultFilterTagName)
     {
-        var tags = await _productTagService.GetAllProductTagsAsync(tagName: initialFilterTagName);
-        var initialProductTag = tags.FirstOrDefault(); 
-        if (initialProductTag != null)
-        {
-            initialProductTagId = initialProductTag.Id;
-        }
+        tags = await _productTagService.GetAllProductTagsAsync(tagName: defaultFilterTagName);
+        initialProductTag = tags.FirstOrDefault();
+        initialFilterTagName = defaultFilterTagName;
+    }
+
+    if (initialProductTag != null)
+    {
+        initialProductTagId = initialProductTag.Id;
     }
 
     var initialProducts = await _productService.SearchProductsAsync(
