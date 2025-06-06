@@ -7848,6 +7848,7 @@ a.ui-button:active, .ui-button:active,
   font-size: 12px;
   font-weight: inherit;
   margin: 0 0 0px;
+  text-align: center;
 }
 
 .category-name-wrapper{

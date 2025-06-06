@@ -1319,11 +1319,11 @@ public partial class ShoppingCartController : BasePublicController
     [FormValueRequired("continueshopping")]
     public virtual async Task<IActionResult> ContinueShopping()
     {
-        var store = await _storeContext.GetCurrentStoreAsync();
-        var returnUrl = await _genericAttributeService.GetAttributeAsync<string>(await _workContext.GetCurrentCustomerAsync(), NopCustomerDefaults.LastContinueShoppingPageAttribute, store.Id);
+        // var store = await _storeContext.GetCurrentStoreAsync();
+        // var returnUrl = await _genericAttributeService.GetAttributeAsync<string>(await _workContext.GetCurrentCustomerAsync(), NopCustomerDefaults.LastContinueShoppingPageAttribute, store.Id);
 
-        if (!string.IsNullOrEmpty(returnUrl))
-            return Redirect(returnUrl);
+        // if (!string.IsNullOrEmpty(returnUrl))
+        //     return Redirect(returnUrl);
 
         return RedirectToRoute("Homepage");
     }

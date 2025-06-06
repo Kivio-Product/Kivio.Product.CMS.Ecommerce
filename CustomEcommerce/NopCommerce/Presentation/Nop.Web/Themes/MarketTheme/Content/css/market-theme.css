@@ -2195,6 +2195,7 @@ button.add-to-wishlist-button.selected {
     margin: 10px 1% !important;
   }
 
+  .recently-added-products-page .product-grid .item-box,
   .category-page .product-grid .item-box {
     width: 31% !important;
     margin: 1% !important;
@@ -2220,6 +2221,7 @@ button.add-to-wishlist-button.selected {
     margin: 10px 1% !important;
   }
 
+  .recently-added-products-page .product-grid .item-box,
   .category-page .product-grid .item-box {
     width: 31% !important;
     margin: 1% !important;
@@ -2389,6 +2391,7 @@ button.add-to-wishlist-button.selected {
     margin: 0 3px;
   }
 
+  .recently-added-products-page .product-grid .item-box,
   .category-page .product-grid .item-box {
     width: 48% !important;
     margin: 1% !important;
