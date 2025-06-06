@@ -8,14 +8,14 @@
 
 <div class="recipe-suggestion-container section-width">
     <div class="recipe-header">
-        <h2>Recetas generadas por nuestra <span class="ai-text">Inteligencia Artificial</span></h2>
+        <h2>@T("Plugins.Misc.RecipeSuggestions.PublicView.TitleRecipe") <span class="ai-text">@T("Plugins.Misc.RecipeSuggestions.PublicView.TitleRecipe.AI")</span></h2>
     </div>
 
     <div class="recipe-main-content">
         @* Columna de Ingredientes - Aparecerá primero en móviles por defecto si no se usa order *@
         <div class="ingredients-section">
             <div class="ingredients-section_title">
-                <h3 class="ingredients-title">Ingredientes</h3>
+                <h3 class="ingredients-title">@T("Plugins.Misc.RecipeSuggestions.PublicView.Ingredients")</h3>
             </div>
             @if (Model.Ingredients != null && Model.Ingredients.Any())
             {
@@ -46,14 +46,14 @@
                             
                             @if (ingredient.IsNewIngredient)
                             {
-                                <p class="unavailable-text">Producto no disponible</p>
+                                <p class="unavailable-text">@T("Plugins.Misc.RecipeSuggestions.PublicView.ProductNotAvailable")</p>
                             }
                             else
                             {
                                 <button class="add-to-cart-btn" 
                                         type="button" 
                                         onclick="AjaxCart.addproducttocart_details('@Url.RouteUrl("AddProductToCart-Details", new { productId = ingredient.NopCommerceProductId, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })', '#product-details-form');return false;">
-                                    Agregar al carrito
+                                    @T("Plugins.Misc.RecipeSuggestions.PublicView.AddToCart")
                                 </button>
                             }
                         </div>
@@ -79,13 +79,13 @@
             }
             else
             {
-                <p>No hay ingredientes sugeridos para esta receta.</p>
+                <p>@T("Plugins.Misc.RecipeSuggestions.PublicView.NoFoundRecipe")</p>
             }
         </div>
 
         @* Columna de Receta Ideal *@
         <div class="recipe-ideal-section">
-            <p class="ideal-recipe-label">Receta ideal:</p>
+            <p class="ideal-recipe-label">@T("Plugins.Misc.RecipeSuggestions.PublicView.IdealRecipre")</p>
             <h3>@Model.RecipeTitle</h3>
             @if (!string.IsNullOrEmpty(Model.RecipeImageBase64))
             {
@@ -99,7 +99,7 @@
             @if(!string.IsNullOrEmpty(Model.RecipeDescription))
             {
                 <details>
-                    <summary>Ver receta completa<span class="arrow">▼</span></summary>
+                    <summary>@T("Plugins.Misc.RecipeSuggestions.PublicView.ViewCompleteRecipe")<span class="arrow">▼</span></summary>
                     <div>
                         <p class="recipe-ideal-description">@Model.RecipeDescription</p>
                     </div>
