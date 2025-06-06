@@ -134,6 +134,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Api", "CustomEco
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Tax.FixedOrByCountryStateZip", "NopCommerce\src\Plugins\Nop.Plugin.Tax.FixedOrByCountryStateZip\Nop.Plugin.Tax.FixedOrByCountryStateZip.csproj", "{2F88B0F8-A600-40A7-97AF-989D12335394}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Misc.RecipeSuggestions", "CustomEcommerce\NopCommerce\Plugins\Nop.Plugin.Misc.RecipeSuggestions\Nop.Plugin.Misc.RecipeSuggestions.csproj", "{D144CE71-71DB-466B-A875-FE101C87AE77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -248,6 +250,10 @@ Global
 		{2F88B0F8-A600-40A7-97AF-989D12335394}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F88B0F8-A600-40A7-97AF-989D12335394}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F88B0F8-A600-40A7-97AF-989D12335394}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D144CE71-71DB-466B-A875-FE101C87AE77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D144CE71-71DB-466B-A875-FE101C87AE77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D144CE71-71DB-466B-A875-FE101C87AE77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D144CE71-71DB-466B-A875-FE101C87AE77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -287,5 +293,6 @@ Global
 		{4931570F-B885-4E7A-9253-C9604C6AAE3F} = {6D839496-48A0-432A-B4FC-C5DD2F67B9EB}
 		{30134887-7709-4F42-B69E-5853AFCA8EC0} = {4931570F-B885-4E7A-9253-C9604C6AAE3F}
 		{2F88B0F8-A600-40A7-97AF-989D12335394} = {05448DF8-4EEE-43E4-B96F-E6CED46FCBE8}
+		{D144CE71-71DB-466B-A875-FE101C87AE77} = {4931570F-B885-4E7A-9253-C9604C6AAE3F}
 	EndGlobalSection
 EndGlobal

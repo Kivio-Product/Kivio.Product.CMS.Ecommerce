@@ -1,0 +1,110 @@
+@model Nop.Plugin.Misc.RecipeSuggestions.Models.RecipeSuggestionViewModel
+@using Nop.Core
+@using Nop.Core.Domain.Catalog
+@using Nop.Core.Domain.Orders
+@using Nop.Core.Domain.Tax
+
+<link href="~/Plugins/Misc.RecipeSuggestions/Content/css/styles.css" rel="stylesheet">
+
+<div class="recipe-suggestion-container section-width">
+    <div class="recipe-header">
+        <h2>@T("Plugins.Misc.RecipeSuggestions.PublicView.TitleRecipe") <span class="ai-text">@T("Plugins.Misc.RecipeSuggestions.PublicView.TitleRecipe.AI")</span></h2>
+    </div>
+
+    <div class="recipe-main-content">
+        @* Columna de Ingredientes - Aparecerá primero en móviles por defecto si no se usa order *@
+        <div class="ingredients-section">
+            <div class="ingredients-section_title">
+                <h3 class="ingredients-title">@T("Plugins.Misc.RecipeSuggestions.PublicView.Ingredients")</h3>
+            </div>
+            @if (Model.Ingredients != null && Model.Ingredients.Any())
+            {
+                <div class="ingredients-grid">
+                    @foreach (var ingredient in Model.Ingredients)
+                    {
+                        <div class="ingredient-card">
+                            <div class="ingredient-image-container">
+                                <a href="@ingredient.NopCommerceProductSeName" title="@ingredient.Name">
+                                    @if (ingredient.IsNewIngredient)
+                                    {
+                                        if (!string.IsNullOrEmpty(ingredient.Base64Image))
+                                        {
+                                            <img src="@($"data:image/png;base64,{ingredient.Base64Image}")" alt="@ingredient.Name" />
+                                        }
+                                        else
+                                        {
+                                            <img src="@ingredient.ImageUrl" alt="@ingredient.Name" />
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <img src="@ingredient.ImageUrl" alt="@ingredient.Name" />
+                                }
+                                </a>
+                            </div>
+                            <a class="ingredient-name" href="@ingredient.NopCommerceProductSeName" title="@ingredient.Name">@ingredient.Name</a>
+                            
+                            @if (ingredient.IsNewIngredient)
+                            {
+                                <p class="unavailable-text">@T("Plugins.Misc.RecipeSuggestions.PublicView.ProductNotAvailable")</p>
+                            }
+                            else
+                            {
+                                <button class="add-to-cart-btn" 
+                                        type="button" 
+                                        onclick="AjaxCart.addproducttocart_details('@Url.RouteUrl("AddProductToCart-Details", new { productId = ingredient.NopCommerceProductId, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })', '#product-details-form');return false;">
+                                    @T("Plugins.Misc.RecipeSuggestions.PublicView.AddToCart")
+                                </button>
+                            }
+                        </div>
+                        <!-- Plus sign for spacing -->
+                        @if (Model.Ingredients.Last() != ingredient)
+                        {
+                            <div class="plus-sign-container">
+                                <div class="circle-sign-container">
+                                    <span class="plus-sign">+</span>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="equals-sign-container">
+                                <div class="circle-sign-container">
+                                    <span class="equals-sign">=</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+            else
+            {
+                <p>@T("Plugins.Misc.RecipeSuggestions.PublicView.NoFoundRecipe")</p>
+            }
+        </div>
+
+        @* Columna de Receta Ideal *@
+        <div class="recipe-ideal-section">
+            <p class="ideal-recipe-label">@T("Plugins.Misc.RecipeSuggestions.PublicView.IdealRecipre")</p>
+            <h3>@Model.RecipeTitle</h3>
+            @if (!string.IsNullOrEmpty(Model.RecipeImageBase64))
+            {
+                <img src="@($"data:image/png;base64,{Model.RecipeImageBase64}")" alt="@Model.RecipeTitle" class="recipe-ideal-image" />
+            }
+            else
+            {
+                 <img src="https://via.placeholder.com/300x200?text=Receta" alt="@Model.RecipeTitle" class="recipe-ideal-image"/>
+            }
+            
+            @if(!string.IsNullOrEmpty(Model.RecipeDescription))
+            {
+                <details>
+                    <summary>@T("Plugins.Misc.RecipeSuggestions.PublicView.ViewCompleteRecipe")<span class="arrow">▼</span></summary>
+                    <div>
+                        <p class="recipe-ideal-description">@Model.RecipeDescription</p>
+                    </div>
+                </details>
+            }
+        </div>
+    </div>
+</div>

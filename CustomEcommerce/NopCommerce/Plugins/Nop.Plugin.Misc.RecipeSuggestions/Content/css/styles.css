@@ -1,0 +1,300 @@
+    /* Contenedor Principal y Cabecera */
+.recipe-suggestion-container {
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #f9f9f9; /* Un fondo suave para diferenciar */
+    border-radius: 8px;
+    padding-top: 20px !important; /* Espacio superior para el título */
+    padding-bottom: 20px !important; /* Espacio inferior para el título */
+}
+
+.recipe-header h2 {
+    text-align: left; /* Alineado a la izquierda como en la imagen */
+    font-size: 24px;
+    margin-bottom: 25px;
+    color: #333;
+    font-weight: 600;
+}
+
+.recipe-header .ai-text {
+    /* Inspirado en los colores de la imagen: morado y naranja/amarillo */
+    background: linear-gradient(90deg, #7B2CBF, #F7B801); /* Ajusta estos colores */
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: bold;
+}
+
+/* Layout Principal (Ingredientes y Receta Ideal) */
+.recipe-main-content {
+    display: flex;
+    flex-wrap: wrap; /* Para que se apilen en pantallas pequeñas */
+    gap: 10px; /* Espacio entre las dos secciones principales */
+    align-items: center;
+}
+
+/* Sección de Ingredientes */
+.ingredients-section {
+    flex: 5; /* Ocupará más espacio que la receta ideal */
+    min-width: 300px; /* Mínimo antes de envolver o reducir */
+}
+
+.ingredients-section_title {
+    display: none
+}
+
+.ingredients-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr) 50px); /* Grid responsivo */
+    gap: 10px;
+}
+
+.ingredient-card {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Para alinear el botón abajo */
+    transition: transform 0.2s ease-in-out;
+}
+
+.ingredient-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+
+.ingredient-image-container {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.ingredient-image-container img {
+    max-width: 100%;
+    height: 120px; /* Altura fija para consistencia */
+    object-fit: contain; /* Para que la imagen no se distorsione */
+    border-radius: 4px;
+}
+
+.circle-sign-container{
+    background-color: rgb(0, 0, 0);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    color: white;
+    height: 50px;
+    align-items: center;
+}
+
+.plus-sign-container,
+.equals-sign-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.plus-sign-container .plus-sign{
+    font-size: 30px;
+    color: white;
+}
+
+.equals-sign-container .equals-sign{
+    font-size: 30px;
+    color: white;
+}
+
+.heart-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 20px;
+    color: #e0e0e0; /* Color del corazón por defecto */
+    cursor: pointer;
+}
+
+.heart-icon:hover {
+    color: #ff7b7b; /* Color al pasar el mouse */
+}
+
+.ingredient-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 12px;
+    min-height: 40px; /* Para alinear nombres de diferente longitud */
+}
+
+.add-to-cart-btn {
+    background-color: rgb(122, 55, 240);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 20px; /* Más redondeado como en la imagen */
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.2s ease;
+    width: 100%; /* Ocupa todo el ancho disponible en la tarjeta */
+    margin-top: auto; /* Empuja el botón hacia abajo */
+}
+
+.add-to-cart-btn:hover {
+    background-color: rgb(202, 210, 223);
+    color: rgb(122, 55, 240);
+}
+
+.unavailable-text {
+    font-size: 14px;
+    color: #777;
+    font-style: italic;
+    margin-top: 10px; /* Igual que el botón para consistencia */
+    padding: 10px 15px;
+     width: 100%;
+}
+
+/* Sección Receta Ideal */
+.recipe-ideal-section {
+    flex: 1; /* Ocupará menos espacio */
+    min-width: 280px;
+    background-color: #fff; /* Fondo blanco para destacarla */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ideal-recipe-label {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.recipe-ideal-section h3 {
+    font-size: 22px;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.recipe-ideal-image {
+    width: 100%;
+    max-width: 300px; /* Límite para que no sea demasiado grande */
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.recipe-ideal-description {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.view-recipe-btn {
+    background-color: #ffffff;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex; /* Para alinear el texto y la flecha */
+    align-items: center;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.view-recipe-btn:hover {
+    background-color: #f0f0f0;
+    border-color: #bbb;
+}
+
+.dropdown-arrow {
+    margin-left: 8px;
+    font-size: 12px;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .recipe-main-content {
+        flex-direction: column; /* Apila las secciones */
+    }
+
+    .ingredients-section, .recipe-ideal-section {
+        flex-basis: auto; /* Resetea la base flex */
+        width: 100%; /* Ocupan todo el ancho */
+    }
+    
+    .recipe-ideal-section {
+        order: -1; /* Mueve la sección de receta ideal arriba en móviles si se prefiere */
+    }
+
+    .recipe-header h2 {
+        font-size: 20px;
+    }
+    .ingredients-grid {
+        display: flex;
+        /* tipo carrusel */
+        overflow-x: auto; /* Permite desplazamiento horizontal */
+        scroll-snap-type: x mandatory; /* Habilita el snap */
+        -webkit-overflow-scrolling: touch; /* Mejora el desplazamiento en iOS */
+        padding-bottom: 10px; /* Espacio para el scroll */
+        gap: 10px; /* Espacio entre tarjetas */
+    }
+    .ingredient-card {
+        flex: 0 0 auto; /* No se encoge ni expande */
+        width: 190px; /* Ancho fijo para tarjetas */
+        scroll-snap-align: start; /* Alinea al inicio del contenedor */
+    }
+    .equals-sign-container {
+        display: none; /* Oculta el signo de igual en móviles */
+    }
+    .circle-sign-container {
+        width: 40px;
+        height: 40px;
+    }
+    .ingredients-section_title {
+        display: flex;
+        justify-content: left;
+        padding: 30px 0;
+        color: black;
+        font-size: 18px;
+    }
+}
+
+details > summary {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 50vw;
+    cursor: pointer;
+    list-style: none; /* Quita el marcador por defecto */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+}
+details > summary::-webkit-details-marker { /* Para Chrome/Safari */
+    display: none;
+}
+details > div {
+    padding: 10px;
+    border-top: none;
+}
+details[open] > summary .arrow {
+    transform: rotate(180deg);
+}
+.arrow {
+    transition: transform 0.2s ease-out;
+}
