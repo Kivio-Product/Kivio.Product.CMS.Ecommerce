@@ -17,18 +17,47 @@
 @{
     var productThumbPictureSize = 280;
 
-    var initialFilterTagName = "best-prices";
+    var defaultFilterTagName = "best-prices";
 
-    int? initialProductTagId = null; 
+    var defaultBestPricesTag = "best-prices";
+    var defaultMostOrderedTag = "most-ordered";
+    var defaultBestRatedTag = "best-rated";
 
-    if (!string.IsNullOrWhiteSpace(initialFilterTagName))
+    var localeTagName = T("Home.FilteredProducts.DefaultTag").Text;
+
+    var localeBestPricesTag = T("Home.FilteredProducts.BestPricesTag").Text;
+    var localeMostOrderedTag = T("Home.FilteredProducts.MostOrderedTag").Text;
+    var localeBestRatedTag = T("Home.FilteredProducts.BestRatedTag").Text;
+
+    var localeBestPricesText = T("Home.FilteredProducts.BestPricesText").Text;
+    var localeMostOrderedText = T("Home.FilteredProducts.MostOrderedText").Text;
+    var localeBestRatedText = T("Home.FilteredProducts.BestRatedText").Text;    
+
+    var initialFilterTagName = !string.IsNullOrWhiteSpace(localeTagName) && localeTagName !=
+    "Home.FilteredProducts.DefaultTag" ? localeTagName : defaultFilterTagName;
+
+    var finalBestPricesText = !string.IsNullOrWhiteSpace(localeBestPricesText) && localeBestPricesText != "Home.FilteredProducts.BestPricesText" 
+        ? localeBestPricesText : "Mejores precios";
+    var finalMostOrderedText = !string.IsNullOrWhiteSpace(localeMostOrderedText) && localeMostOrderedText != "Home.FilteredProducts.MostOrderedText" 
+        ? localeMostOrderedText : "Los más pedidos";
+    var finalBestRatedText = !string.IsNullOrWhiteSpace(localeBestRatedText) && localeBestRatedText != "Home.FilteredProducts.BestRatedText" 
+        ? localeBestRatedText : "Los mejor calificados";
+
+    int? initialProductTagId = null;
+
+    var tags = await _productTagService.GetAllProductTagsAsync(tagName: initialFilterTagName);
+    var initialProductTag = tags.FirstOrDefault();
+
+    if (initialProductTag == null && initialFilterTagName != defaultFilterTagName)
     {
-        var tags = await _productTagService.GetAllProductTagsAsync(tagName: initialFilterTagName);
-        var initialProductTag = tags.FirstOrDefault(); 
-        if (initialProductTag != null)
-        {
-            initialProductTagId = initialProductTag.Id;
-        }
+        tags = await _productTagService.GetAllProductTagsAsync(tagName: defaultFilterTagName);
+        initialProductTag = tags.FirstOrDefault();
+        initialFilterTagName = defaultFilterTagName;
+    }
+
+    if (initialProductTag != null)
+    {
+        initialProductTagId = initialProductTag.Id;
     }
 
     var initialProducts = await _productService.SearchProductsAsync(
@@ -52,17 +81,17 @@
 
 <div class="custom-product-section">
     <div class="filter-section">
-        <span class="section-title">Productos pensados para ti</span>
+        <span class="section-title">@T("Home.FilteredProducts.SectionTitle")</span>
 
         <div class="filters-bar">
-            <button class="filter-button active" data-filter-tag="best-prices">Mejores precios</button>
-            <button class="filter-button" data-filter-tag="most-ordered">Los más pedidos</button>
-            <button class="filter-button" data-filter-tag="best-rated">Los mejor calificados</button>
+            <button class="filter-button active" data-filter-tag="@finalBestPricesTag">@finalBestPricesText</button>
+            <button class="filter-button" data-filter-tag="@finalMostOrderedTag">@finalMostOrderedText</button>
+            <button class="filter-button" data-filter-tag="@finalBestRatedTag">@finalBestRatedText</button>
         </div>
     </div>
     <div class="products-container">
         <div class="ajax-products-busy" style="display: none; text-align: center; padding: 20px;">
-            <img src="@Url.Content("~/images/ajax-loader.gif")" alt="Loading..." />
+            <img src="@Url.Content("/Themes/MarketTheme/Content/css/ajax-loader.gif")" alt="Loading..." />
         </div>
         <div class="products-wrapper" id="custom-products-grid">
             @{ await Html.RenderPartialAsync("_CustomProductGridItems",initialProductModels); }

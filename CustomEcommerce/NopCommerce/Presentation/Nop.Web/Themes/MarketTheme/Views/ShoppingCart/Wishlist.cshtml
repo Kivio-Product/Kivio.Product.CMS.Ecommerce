@@ -349,6 +349,7 @@
             cancelButtonText: "@Html.Raw(JavaScriptEncoder.Default.Encode(T("theme.phoenix.clear.cart.clearbuttontext").Text))",
         }).then((result) => {
             if (result.isConfirmed) {
+                displayAjaxLoading(true);
                 if (button == "removeall") {
                     // remove all items from cart
                     $("input[name='removefromcart']:checkbox").prop('checked', true);
@@ -365,25 +366,27 @@
                     $("input[name='addtocart']:checkbox").prop('checked', true);
                     $(".bs_move_allcartitem_to_wishlist").trigger("click");
                 }
-
-                swal.fire({
-                    title: '',
-                    allowEscapeKey: false,
-                    allowOutsideClick: false,
-                    onOpen: () => {
-                        swal.showLoading();
-                    }
-                })
             }
         })
 
         return false;
     }
+
+    $('form[asp-route="Wishlist"]').on('submit', function() {
+        displayAjaxLoading(true);
+    });
+
+    $(document).ready(function() {
+        displayAjaxLoading(false);
+    });
+
+    $(window).on('load', function() {
+        displayAjaxLoading(false);
+    });
 </script>
 
 <script asp-location="Footer">
     // cart item pluse minus
-
 
     $(document).ready(function() {
         $('.pi-minus').click(function() {
@@ -401,8 +404,4 @@
             return false;
         });
     });
-
-
-
-
 </script>

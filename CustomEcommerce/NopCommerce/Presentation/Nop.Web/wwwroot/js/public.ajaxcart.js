@@ -116,6 +116,26 @@ var AjaxCart = {
         });
     },
 
+    removeProductFromWishlist_Catalog: function (urlremove) {
+        if (this.loadWaiting !== false) {
+            return;
+        }
+        this.setLoadWaiting(true);
+
+        var postData = {};
+        addAntiForgeryToken(postData); 
+
+        $.ajax({
+            cache: false,
+            url: urlremove,
+            type: "POST",
+            data: postData,
+            success: this.success_process,
+            complete: this.resetLoadWaiting,
+            error: this.ajaxFailure
+        });
+    },
+
     success_process: function (response) {
         if (response.updatetopcartsectionhtml) {
             $(AjaxCart.topcartselector).html(response.updatetopcartsectionhtml);
@@ -125,6 +145,18 @@ var AjaxCart = {
         }
         if (response.updateflyoutcartsectionhtml) {
             $(AjaxCart.flyoutcartselector).replaceWith(response.updateflyoutcartsectionhtml);
+        }
+
+        if (typeof response.productId !== 'undefined' && typeof response.isInWishlist !== 'undefined') {
+            var productButtonSelector = '.product-item[data-productid="' + response.productId + '"] .add-to-wishlist-button';
+            var $button = $(productButtonSelector);
+            if ($button.length > 0) {
+                if (response.isInWishlist) {
+                    $button.addClass('selected'); 
+                } else {
+                    $button.removeClass('selected');
+                }
+            }
         }
         if (response.message) {
             //display notification

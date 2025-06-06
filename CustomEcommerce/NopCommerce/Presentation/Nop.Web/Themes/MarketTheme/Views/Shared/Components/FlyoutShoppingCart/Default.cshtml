@@ -5,11 +5,11 @@
 <div id="flyout-cart" class="flyout-cart">
     <div class="px_mini_shopping_cart_title">
         <button class="back-button mobile-only">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5" />
-            <path d="M12 19l-7-7 7-7" />
-        </svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5" />
+                <path d="M12 19l-7-7 7-7" />
+            </svg>
         </button>
         <h2>@T("Theme.Phoenix.Mini.Shopping.Cart")</h2>
 
@@ -87,21 +87,38 @@
                     </div>
                 </div>
             }
+            else
+            {
+                <div class="no-data">
+                    <span class="pi-empty-cart">
+                        <span class="path1"></span><span class="path2"></span><span class="path3"></span><span
+                            class="path4"></span><span class="path5"></span><span class="path6"></span><span
+                            class="path7"></span><span class="path8"></span><span class="path9"></span><span
+                            class="path10"></span><span class="path11"></span><span class="path12"></span><span
+                            class="path13"></span><span class="path14"></span><span class="path15"></span><span
+                            class="path16"></span><span class="path17"></span><span class="path18"></span><span
+                            class="path19"></span><span class="path20"></span><span class="path21"></span><span
+                            class="path22"></span>
+                    </span>
+                    <h4>@T("ShoppingCart.CartIsEmpty")</h4>
+                </div>
+            }
         </div>
 
         <div class="cart-summary mobile-only-cart">
-             <div class="cart-totals">
+            <div class="cart-totals">
                 <div class="total-row">
                     <span style="margin-right: 20px;">@T("ShoppingCart.Totals.SubTotal")</span><br>
                     <span style="font-weight: 200px;">@Model.SubTotal</span>
                 </div>
             </div>
 
-            @if(Model.DisplayShoppingCartButton)
+            @if (Model.DisplayShoppingCartButton)
             {
-                <button type="button" class="button-1 cart-button primary-btn checkout-button" onclick="setLocation('@(Url.RouteUrl("ShoppingCart"))')">@T("ShoppingCart.Mini.ViewCart")</button>
+                <button type="button" class="button-1 cart-button primary-btn checkout-button"
+                    onclick="setLocation('@(Url.RouteUrl("ShoppingCart"))')">@T("ShoppingCart.Mini.ViewCart")</button>
             }
-            @if(Model.DisplayCheckoutButton)
+            @if (Model.DisplayCheckoutButton)
             {
                 var checkoutUrl = "";
                 if (Model.AnonymousCheckoutAllowed && Model.CurrentCustomerIsGuest)
@@ -112,7 +129,8 @@
                 {
                     checkoutUrl = Url.RouteUrl("Checkout");
                 }
-                <button type="button" class="button-1 checkout-button secoendry-btn checkout-button" onclick="setLocation('@checkoutUrl')">@T("Checkout.Button")</button>
+                <button type="button" class="button-1 checkout-button secoendry-btn checkout-button"
+                    onclick="setLocation('@checkoutUrl')">@T("Checkout.Button")</button>
             }
         </div>
 
@@ -123,27 +141,34 @@
                     <div class="buttons">
                         @if (Model.DisplayShoppingCartButton)
                         {
-                            <button type="button" class="button-1 cart-button primary-btn" onclick="setLocation('@(Url.RouteUrl("ShoppingCart"))')">@T("ShoppingCart.Mini.ViewCart")</button>
+                            <button type="button" class="button-1 cart-button primary-btn"
+                                onclick="setLocation('@(Url.RouteUrl("ShoppingCart"))')">@T("ShoppingCart.Mini.ViewCart")</button>
                         }
                         @if (Model.DisplayCheckoutButton)
                         {
                             var checkoutUrl = "";
                             if (Model.AnonymousCheckoutAllowed && Model.CurrentCustomerIsGuest)
                             {
-                                checkoutUrl = Url.RouteUrl("LoginCheckoutAsGuest", new { returnUrl = Url.RouteUrl("ShoppingCart") });
+                                checkoutUrl = Url.RouteUrl("LoginCheckoutAsGuest", new
+                                {
+                                    returnUrl =
+                                Url.RouteUrl("ShoppingCart")
+                                });
                             }
                             else
                             {
                                 checkoutUrl = Url.RouteUrl("Checkout");
                             }
-                            <button type="button" class="button-1 checkout-button secoendry-btn" onclick="setLocation('@checkoutUrl')">@T("Checkout.Button")</button>
+                            <button type="button" class="button-1 checkout-button secoendry-btn"
+                                onclick="setLocation('@checkoutUrl')">@T("Checkout.Button")</button>
                         }
                     </div>
                     <button class="continue-shopping">
                         @T("ShoppingCart.Mini.ContinueShopping")
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M5 12h14"></path>
-                        <path d="m12 5 7 7-7 7"></path>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14"></path>
+                            <path d="m12 5 7 7-7 7"></path>
                         </svg>
                     </button>
                 </div>
@@ -242,7 +267,7 @@
             }
 
             function updateMiniCartItem(itemId, quantity) {
-                showLoadingAnimation();
+                displayAjaxLoading(true);
 
                 $.ajax({
                     cache: false,
@@ -276,14 +301,16 @@
                         refreshMiniCart();
                     },
                     complete: function () {
-                        Swal.close();
-                        isUpdating = false;
+                        setTimeout(function () {
+                            displayAjaxLoading(false);
+                            isUpdating = false;
+                        }, 1000);
                     }
                 });
             }
 
             function removeMiniCartItem(itemId) {
-                showLoadingAnimation();
+                displayAjaxLoading(true);
                 isUpdating = true;
 
                 $.ajax({
@@ -317,14 +344,16 @@
                         refreshMiniCart();
                     },
                     complete: function () {
-                        Swal.close();
-                        isUpdating = false;
+                        setTimeout(function () {
+                            displayAjaxLoading(false);
+                            isUpdating = false;
+                        }, 1000);
                     }
                 });
             }
 
             function clearMiniCart() {
-                showLoadingAnimation();
+                displayAjaxLoading(true);
                 isUpdating = true;
 
                 $.ajax({
@@ -357,7 +386,9 @@
                         refreshMiniCart();
                     },
                     complete: function () {
-                        Swal.close();
+                        setTimeout(function () {
+                            displayAjaxLoading(false);
+                        }, 1000);
                     }
                 });
             }
@@ -402,35 +433,6 @@
                 return $('input[name="__RequestVerificationToken"]').val();
             }
 
-            function showLoadingAnimation() {
-                Swal.fire({
-                    title: '',
-                    allowEscapeKey: false,
-                    allowOutsideClick: false,
-                    onOpen: function() {
-                        Swal.showLoading();
-                        
-                        setTimeout(function() {
-                            const spinner = document.querySelector('.swal2-confirm.swal2-styled');
-                            if (spinner) {
-                                spinner.style.borderLeftColor = 'transparent';
-                                spinner.style.borderRightColor = '#102c5a';
-                                spinner.style.borderTopColor = '#102c5a';
-                                spinner.style.borderBottomColor = '#102c5a';
-                                spinner.style.borderWidth = '4px';
-                                spinner.style.width = '60px';
-                                spinner.style.height = '60px';
-                            }
-                            
-                            const container = document.querySelector('.swal2-popup');
-                            if (container) {
-                                container.style.minHeight = '150px';
-                                container.style.minWidth = '200px';
-                            }
-                        }, 10);
-                    }
-                });
-            }
 
             function showRemoveItemConfirmation(confirmCallback) {
                 Swal.fire({

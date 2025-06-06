@@ -42,6 +42,7 @@
   background: url('../images/cart-icon.png') center no-repeat;
   width: 25px;
   height: 25px;
+  background-size: contain;
 }
 .pi-reply-message:before {
   content: "\e999";

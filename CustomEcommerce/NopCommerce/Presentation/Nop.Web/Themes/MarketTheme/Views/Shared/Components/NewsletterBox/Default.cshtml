@@ -7,7 +7,7 @@
         </div>
         <div class="newsletter-email">
             <input asp-for="NewsletterEmail" id="newsletter-email" class="newsletter-subscribe-text" placeholder=@T("Newsletter.Email.Placeholder") aria-label="@T("Newsletter.Subscribe")" />
-            <button type="button" id="newsletter-subscribe-button" class="button-1 newsletter-subscribe-button primary-btn">@T(Model.AllowToUnsubscribe ? "Newsletter.Options.Send" : "Newsletter.Options.Subscribe")@*<span class="pi-mail-21"></span>*@</button>
+            <button type="button" id="newsletter-subscribe-button" class="button-1 newsletter-subscribe-button primary-btn">@T(Model.AllowToUnsubscribe ? "Newsletter.Options.Send" : "Newsletter.Options.Subscribe")</button>
         </div>
         @if (Model.AllowToUnsubscribe)
         {
@@ -47,88 +47,182 @@
             <nop-captcha />
         }
         <div class="newsletter-validation"></div>
-            <span id="subscribe-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait")</span>
-            <span asp-validation-for="NewsletterEmail"></span>
-        </div>
+        <span id="subscribe-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait")</span>
+        <span asp-validation-for="NewsletterEmail"></span>
     </div>
-    <div class="newsletter-result" id="newsletter-result-block"></div>
+    
+    <div class="newsletter-result" id="newsletter-result-block" style="display: none;"></div>
+    
     <nop-antiforgery-token />
+
     <script asp-location="Footer">
         async function getCaptchaToken(action, reCaptchaPublicKey, isReCaptchaV3) {
             var recaptchaToken = '';
+            
             if (isReCaptchaV3) {
-                grecaptcha.ready(() => {
-                    grecaptcha.execute(reCaptchaPublicKey, { action: action }).then((token) => {
-                        recaptchaToken = token;
+                return new Promise((resolve) => {
+                    grecaptcha.ready(() => {
+                        grecaptcha.execute(reCaptchaPublicKey, { action: action }).then((token) => {
+                            resolve(token);
+                        });
                     });
                 });
-
-                while (recaptchaToken == '') {
-                    await new Promise(t => setTimeout(t, 100));
-                }
             } else {
-                recaptchaToken = $('#newsletter-subscribe-block .captcha-box textarea[name="g-recaptcha-response"').val();
+                recaptchaToken = $('#newsletter-subscribe-block .captcha-box textarea[name="g-recaptcha-response"]').val();
+                return recaptchaToken;
             }
+        }
 
-            return recaptchaToken;
+        var autoHideTimeout;
+
+        function createNotificationWithClose(message, isSuccess) {
+            return message + '<button type="button" class="newsletter-result-close" onclick="closeNewsletterNotification()" title="Cerrar" aria-label="Cerrar notificación">&times;</button>';
+        }
+
+        function closeNewsletterNotification() {
+            var resultBlock = $("#newsletter-result-block");
+            
+            if (autoHideTimeout) {
+                clearTimeout(autoHideTimeout);
+                autoHideTimeout = null;
+            }
+            
+            resultBlock.slideUp(300, function() {
+                $(this).removeClass('success error').empty();
+            });
+        }
+
+        function showSuccessNotification(message) {
+            var resultBlock = $("#newsletter-result-block");
+            var subscribeBlock = $('#newsletter-subscribe-block');
+            
+            resultBlock.html(createNotificationWithClose(message, true))
+                      .addClass('success')
+                      .removeClass('error');
+            
+            subscribeBlock.slideUp(300, function() {
+                resultBlock.slideDown(300);
+                
+                autoHideTimeout = setTimeout(function() {
+                    closeNewsletterNotification();
+                }, 8000);
+            });
+        }
+
+        function showErrorNotification(message) {
+            var resultBlock = $("#newsletter-result-block");
+            
+            resultBlock.html(createNotificationWithClose(message, false))
+                      .addClass('error')
+                      .removeClass('success')
+                      .slideDown(300);
+            
+            autoHideTimeout = setTimeout(function() {
+                closeNewsletterNotification();
+            }, 6000);
         }
 
         async function newsletter_subscribe(subscribe) {
             var subscribeProgress = $("#subscribe-loading-progress");
-            subscribeProgress.show();
-            var captchaTok = '';
-            if (@Model.DisplayCaptcha.ToString().ToLowerInvariant() == true) {
-                captchaTok = await getCaptchaToken('SubscribeNewsletter', '@Model.ReCaptchaPublicKey', @Model.IsReCaptchaV3.ToString().ToLowerInvariant());
+            var resultBlock = $("#newsletter-result-block");
+            
+            if (autoHideTimeout) {
+                clearTimeout(autoHideTimeout);
+                autoHideTimeout = null;
             }
-            var postData = {
-                subscribe: subscribe,
-                email: $("#newsletter-email").val(),
-                'g-recaptcha-response': captchaTok
-            };
-            addAntiForgeryToken(postData);
-            $.ajax({
-                cache: false,
-                type: "POST",
-                url: "@(Url.RouteUrl("SubscribeNewsletter"))",
-                data: postData,
-                success: function (data, textStatus, jqXHR) {
-                    $("#newsletter-result-block").html(data.Result);
-                    if (data.Success) {
-                        $('#newsletter-subscribe-block').hide();
-                        $('#newsletter-result-block').show();
-                    } else {
-                        $('#newsletter-result-block').fadeIn("slow").delay(2000).fadeOut("slow");
-                    }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    alert('Failed to subscribe.');
-                },
-                complete: function (jqXHR, textStatus) {
-                    subscribeProgress.hide();
+            resultBlock.removeClass('success error').hide();
+            
+            subscribeProgress.show();
+            
+            try {
+                var captchaTok = '';
+                
+                var displayCaptcha = @Json.Serialize(Model.DisplayCaptcha);
+                if (displayCaptcha === true) {
+                    var isReCaptchaV3 = @Json.Serialize(Model.IsReCaptchaV3);
+                    captchaTok = await getCaptchaToken('SubscribeNewsletter', '@Model.ReCaptchaPublicKey', isReCaptchaV3);
                 }
-            });
+                
+                var postData = {
+                    subscribe: subscribe,
+                    email: $("#newsletter-email").val().trim(),
+                    'g-recaptcha-response': captchaTok
+                };
+                
+                addAntiForgeryToken(postData);
+                
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.RouteUrl("SubscribeNewsletter"))",
+                    data: postData,
+                    success: function (data, textStatus, jqXHR) {                        
+                        if (data.Success) {
+                            showSuccessNotification(data.Result);
+                        } else {
+                            showErrorNotification(data.Result);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error('Newsletter subscription error:', textStatus, errorThrown);
+                        
+                        var errorMessage = 'Error en la suscripción. Por favor, intenta nuevamente.';
+                        if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+                            errorMessage = jqXHR.responseJSON.message;
+                        }
+                        
+                        showErrorNotification(errorMessage);
+                    },
+                    complete: function (jqXHR, textStatus) {
+                        subscribeProgress.hide();
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error during newsletter subscription:', error);
+                subscribeProgress.hide();
+                
+                showErrorNotification('Error inesperado. Por favor, recarga la página e intenta nuevamente.');
+            }
         }
 
         $(function () {
             $('#newsletter-subscribe-button').on('click', function () {
+                var email = $("#newsletter-email").val().trim();
+                
+                if (!email) {
+                    showErrorNotification('Por favor, ingresa tu dirección de email.');
+                    return;
+                }
+                
                 @if (Model.AllowToUnsubscribe)
                 {
-                    <text>if ($('#newsletter_subscribe').is(':checked')) {
-                    newsletter_subscribe('true');
+                    <text>
+                    if ($('#newsletter_subscribe').is(':checked')) {
+                        newsletter_subscribe(true);
+                    } else {
+                        newsletter_subscribe(false);
+                    }
+                    </text>
                 } else {
-                    newsletter_subscribe('false');
-                }</text>
-                }
-                else
-                {
-                    <text>newsletter_subscribe('true');</text>
+                    <text>newsletter_subscribe(true);</text>
                 }
             });
+
             $("#newsletter-email").on("keydown", function (event) {
-                if (event.keyCode == 13) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
                     $("#newsletter-subscribe-button").trigger("click");
                     return false;
                 }
+            });
+            
+            $("#newsletter-email").on("input", function() {
+                if (autoHideTimeout) {
+                    clearTimeout(autoHideTimeout);
+                    autoHideTimeout = null;
+                }
+                $("#newsletter-result-block").slideUp(200);
             });
         });
     </script>
