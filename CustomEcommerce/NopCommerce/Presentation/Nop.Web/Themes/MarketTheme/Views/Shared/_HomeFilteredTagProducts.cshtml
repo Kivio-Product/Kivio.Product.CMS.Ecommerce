@@ -43,6 +43,13 @@
     var finalBestRatedText = !string.IsNullOrWhiteSpace(localeBestRatedText) && localeBestRatedText != "Home.FilteredProducts.BestRatedText" 
         ? localeBestRatedText : "Los mejor calificados";
 
+    var finalBestPricesTag = !string.IsNullOrWhiteSpace(localeBestPricesTag) && localeBestPricesTag != "Home.FilteredProducts.BestPricesTag" 
+        ? localeBestPricesTag : defaultBestPricesTag;
+    var finalMostOrderedTag = !string.IsNullOrWhiteSpace(localeMostOrderedTag) && localeMostOrderedTag != "Home.FilteredProducts.MostOrderedTag" 
+        ? localeMostOrderedTag : defaultMostOrderedTag;
+    var finalBestRatedTag = !string.IsNullOrWhiteSpace(localeBestRatedTag) && localeBestRatedTag != "Home.FilteredProducts.BestRatedTag" 
+        ? localeBestRatedTag : defaultBestRatedTag;
+
     int? initialProductTagId = null;
 
     var tags = await _productTagService.GetAllProductTagsAsync(tagName: initialFilterTagName);
