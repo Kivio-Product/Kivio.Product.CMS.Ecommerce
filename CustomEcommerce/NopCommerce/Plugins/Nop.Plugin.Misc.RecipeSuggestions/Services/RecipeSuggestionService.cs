@@ -105,7 +105,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             var recipeSuggestion = new RecipeSuggestionViewModel
             {
                 RecipeTitle = recipeTitle,
-                RecipeImageBase64 = await _aiRecipeService.GenerateImageForRecipeAsync(recipeTitle),
+                RecipeImageBase64 = await _aiRecipeService.GenerateImageForRecipeAsync(recipeTitle, 75),
                 RecipeDescription = instructions,
                 RecipeDate = DateTime.UtcNow
             };
@@ -132,7 +132,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                     ingredientVm.IsNewIngredient = true;
                     if (!string.IsNullOrWhiteSpace(aiIngredient.IngredientName))
                     {
-                        ingredientVm.Base64Image = await _aiRecipeService.GenerateImageForIngredientAsync(aiIngredient.IngredientName);
+                        ingredientVm.Base64Image = await _aiRecipeService.GenerateImageForIngredientAsync(aiIngredient.IngredientName, 60);
                     }
                     else
                     {
