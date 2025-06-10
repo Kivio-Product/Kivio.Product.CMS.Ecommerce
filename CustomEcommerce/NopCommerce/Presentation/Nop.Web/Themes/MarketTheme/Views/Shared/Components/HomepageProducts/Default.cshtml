@@ -45,14 +45,16 @@
 
             @if (highDiscountProducts.Any())
             {
-                <div id="high-discount-products" class="item-grid high-discount-row">
+                <div class="high-discount-container">
+                    <div id="high-discount-products" class="item-grid high-discount-row">
                     @foreach (var item in highDiscountProducts)
                     {
                         <div class="item-box high-discount-box">
                             @await Html.PartialAsync("_ProductBox", item)
                         </div>
                     }
-                </div>
+                    </div>
+                </div> 
             }
 
             @if (regularDiscountProducts.Any())
@@ -164,9 +166,10 @@
 
                 if (highDiscountContainer.length && highDiscountContainer.find('.item-box').length > 3 && !highDiscountContainer.hasClass('owl-carousel')) {
                     highDiscountContainer.addClass('owl-carousel px_featured');
+                    highDiscountContainer.css('width', '60%');
                     highDiscountContainer.owlCarousel({
                         autoplay: false,
-                        loop: highDiscountContainer.find('.item-box').length > 3,
+                        loop: false,
                         rtl: true,
                         responsiveClass: true,
                         autoHeight: true,
@@ -185,6 +188,10 @@
                             }
                         }
                     });
+                    $('.regular-discount-row').css('margin-top', '40px');
+                } else {
+                    highDiscountContainer.css('width', '100%');
+                    $('.regular-discount-row').css('margin-top', '');
                 }
 
                 if (regularDiscountContainer.length && regularDiscountContainer.find('.item-box').length > 5 && !regularDiscountContainer.hasClass('owl-carousel')) {
