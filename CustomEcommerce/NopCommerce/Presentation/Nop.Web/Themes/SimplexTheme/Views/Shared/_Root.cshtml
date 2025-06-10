@@ -4,6 +4,112 @@
 @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.BodyStartHtmlTagAfter })
 @{ await Html.RenderPartialAsync("_Notifications"); }
 @{ await Html.RenderPartialAsync("_JavaScriptDisabledWarning"); }
+<script asp-location="Head" src="~/Themes/SimplexTheme/Content/js/ageVerification.js"></script>
+<div id="ageConfirmationModal" class="age-modal-overlay">
+    <div class="age-modal-content">
+        <h2>Para poder navegar por esta web tienes que cumplir los siguientes términos</h2>
+        <ol class="age-modal-description">
+            <li>Tengo 18 años o más.</li>
+            <li>Entiendo que habrá contenido explicito.</li>
+            <li>El contenido impactante no me ofenderá.</li>
+            <li>Al hacer click en "Aceptar", liberará a OpenLust y sus proveedores de internet, propietarios y fundadores de cualquier responsabilidad en relación con el contenido y el uso del contenido de este sitio web.</li>
+        </ol> 
+        <p class="age-modal-description">
+            Para Más información, lee nuestros	<a href="/terms&conditions" target="_blank" class="age-modal-link">Términos y condiciones</a>.
+        </p>
+        <div class="age-modal-buttons">
+            <button id="btnYesAdult" class="age-modal-button age-modal-button-yes">Soy mayor de 18 años, Aceptar</button>
+            <button id="btnNoAdult" class="age-modal-button age-modal-button-no">No, tengo menos de 18 años</button>
+        </div>
+    </div>
+</div>
+<style asp-location="Head">
+    .age-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 99999;
+        display: none;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    .age-modal-content {
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        font-family: Arial, sans-serif;
+    }
+
+    .age-modal-description {
+        font-size: 1.1em;
+        line-height: 1.6;
+        margin-bottom: 25px;
+        color: #333;
+    }
+
+    .age-modal-link {
+        color: #007bff;
+        text-decoration: underline;
+    }
+
+    .age-modal-link:hover {
+        color: #0056b3;
+        text-decoration: none;
+    }
+
+    .age-modal-buttons {
+        display: flex;
+        justify-content: space-around;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .age-modal-button {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: bold;
+        transition: background-color 0.2s ease;
+        flex-grow: 1;
+    }
+
+    .age-modal-button-yes {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .age-modal-button-yes:hover {
+        background-color: #218838;
+    }
+
+    .age-modal-button-no {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .age-modal-button-no:hover {
+        background-color: #c82333;
+    }
+
+    @@media (max-width: 600px) {
+        .age-modal-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
 <div class="master-wrapper-page">
     <div class="admin-header-link">
         <ul>
