@@ -93,12 +93,19 @@
 
 .plus-sign-container,
 .equals-sign-container{
+    width: 50px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .plus-sign-container .plus-sign{
+    font-size: 30px;
+    color: white;
+}
+
+.equals-sign-container {
+    margin-left: 50px;
     font-size: 30px;
     color: white;
 }

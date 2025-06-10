@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic; 
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 using DotnetGeminiSDK.Client.Interfaces;
-using DotnetGeminiSDK.Model.Request;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Misc.RecipeSuggestions.Interfaces;
 using Nop.Plugin.Misc.RecipeSuggestions.Models;
 using Nop.Services.Logging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 {
@@ -16,6 +13,8 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
     {
         private readonly IGeminiClient _geminiClient;
         private readonly ILogger _logger;
+
+        private readonly int _maxImageSizeInKB = 256;
 
         public AIRecipeService(IGeminiClient geminiClient, ILogger logger)
         {
@@ -27,10 +26,10 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
         {
             // Create the prompt for the AI model.
             // Structure  prompt: Crea una receta corta para el producto ID: 2014 - Leche Enterea TetraPack 1000ml y con estos potenciales ingredientes adicionales (Elige 3 o menos): [ID: 1015 - Whisky Jack Daniels 700ml,ID: 4052 - Queso Crema Alqueria 250gr,ID: 3023 - Huevos x30 AAA, ID: 510 - Jabón detergente Fab 1000kg, ID: 511 - Salsa de tomate Fruco 750ml]. IMPORTANTE: Responde siguiendo estrictamente esta estructura, eg:{ Title: 'Titulo de la receta', Ingredients: [{ Id: 'XXXX', Name: 'exactly name of existing principal ingredient'}, { Id: 'XXXX', Name: 'exactly name of existing ingredient on batch'}, { Id: '9999', Name: 'new ingredient 1'}, { Id: '9999', Name: 'new ingredient 2'}...],Instructions: 'Instrucciones breves de la receta'} Consideraciones: Aquellos ingredientes que si te haya proporcionado agrégalos a la lista de ingredientes con id y nombre exactamente igual a como te lo compartí. Para ingredientes que no te haya proporcionado, colócales el Id : '9999'Las instrucciones de la receta deben quedar en español
-            var prompt = $"Crea una receta corta para el producto ID: {currentProduct.Id} - {currentProduct.Name} y con estos potenciales ingredientes adicionales (Elige 3 o menos): [{string.Join(",", availableStoreProducts.Select(p => $"ID: {p.Id} - {p.Name}"))}]. IMPORTANTE: Responde siguiendo estrictamente esta estructura, eg: {{ \"Title\": \"Titulo de la receta\", \"Ingredients\": [{{ \"Id\": \"{currentProduct.Id}\", \"Name\": \"{currentProduct.Name}\" }}, {{\"Id\": \"XXXX\", \"Name\": \"exactly name of existing ingredient on batch\"}}, {{ \"Id\": \"9999\", \"Name\": \"nuevo ingrediente 1\" }}, {{ \"Id\": \"9999\", \"Name\": \"nuevo ingrediente 2\" }}...], \"Instructions\": \"Instrucciones breves de la receta\"}} Consideraciones: Aquellos ingredientes que si te haya proporcionado agrégalos a la lista de ingredientes con id y nombre exactamente igual a como te lo compartí. Para ingredientes que no te haya proporcionado, colócales el Id : '9999'. Las instrucciones de la receta deben quedar en español.";
+            var prompt = $"Crea una receta corta para el producto ID: {currentProduct.Id} - {currentProduct.Name} y con estos potenciales ingredientes adicionales (Elige 3 o menos): [{string.Join(",", availableStoreProducts.Select(p => $"ID: {p.Id} - {p.Name}"))}]. IMPORTANTE: Responde siguiendo estrictamente esta estructura, eg: {{ \"Title\": \"Titulo de la receta\", \"Ingredients\": [{{ \"Id\": \"{currentProduct.Id}\", \"Name\": \"{currentProduct.Name}\" }}, {{\"Id\": \"XXXX\", \"Name\": \"exactly name of existing ingredient on batch\"}}, {{ \"Id\": \"9999\", \"Name\": \"nuevo ingrediente 1\" }}, {{ \"Id\": \"9999\", \"Name\": \"nuevo ingrediente 2\" }}...], \"Instructions\": \"Instrucciones breves de la receta\"}} Consideraciones: Aquellos ingredientes que si te haya proporcionado agrégalos a la lista de ingredientes con id y nombre exactamente igual a como te lo compartí. Para ingredientes que no te haya proporcionado, colócales el Id : '9999'. Las instrucciones de la receta deben quedar en español y deben ser mínimo 2 ingredientes y máximo 8 ingredientes.";
 
             _logger.Information($"AI Recipe Prompt: {prompt}");
-            
+
             var response = await _geminiClient.TextPrompt(prompt);
 
             if (response == null || response.Candidates == null || !response.Candidates.Any())
@@ -38,7 +37,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 _logger.Error("AI response is null or has no candidates.");
                 throw new Exception("AI response is null or has no candidates.");
             }
-            
+
             var responseContent = response.Candidates[0].Content;
             if (responseContent == null || responseContent.Parts == null || !responseContent.Parts.Any())
             {
@@ -73,13 +72,13 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 }
                 else if (cleanedResponseText.StartsWith("```")) // Simpler ``` ``` block without "json" tag
                 {
-                     cleanedResponseText = cleanedResponseText.Substring(3).TrimStart();
-                     if (cleanedResponseText.EndsWith("```"))
-                     {
+                    cleanedResponseText = cleanedResponseText.Substring(3).TrimStart();
+                    if (cleanedResponseText.EndsWith("```"))
+                    {
                         cleanedResponseText = cleanedResponseText.Substring(0, cleanedResponseText.Length - 3).TrimEnd();
-                     }
+                    }
                 }
-                
+
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true, // Handles "Title" vs "title", "ID" vs "Id"
@@ -126,7 +125,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 if (string.IsNullOrWhiteSpace(recipeTitle))
                 {
                     _logger.Warning("Recipe title was missing or empty in AI response. Using a default title.");
-                    recipeTitle = "AI Generated Recipe"; 
+                    recipeTitle = "AI Generated Recipe";
                 }
                 if (string.IsNullOrWhiteSpace(instructions))
                 {
@@ -152,23 +151,23 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 _logger.Error($"An unexpected error occurred during AI response processing: {ex.Message}. Response text was: '{responseText}'", ex);
                 throw new Exception($"An unexpected error occurred while processing the AI recipe response. Details: {ex.Message}", ex);
             }
-            
+
             return (recipeTitle, ingredients, instructions);
         }
 
-        public async Task<string> GenerateImageForIngredientAsync(string ingredientName)
+        public async Task<string> GenerateImageForIngredientAsync(string ingredientName, int qualityImage)
         {
             var prompt = $"Genera una imagen de alta calidad de un ingrediente llamado '{ingredientName}'. La imagen debe ser clara, bien iluminada y mostrar el ingrediente de manera atractiva con un fondo de mesa de cocina. Dame solo la imagen";
-            return await ProcessImagePrompt(prompt);
+            return await ProcessImagePrompt(prompt, qualityImage);
         }
 
-        public async Task<string> GenerateImageForRecipeAsync(string recipeName)
+        public async Task<string> GenerateImageForRecipeAsync(string recipeName, int qualityImage)
         {
             var prompt = $"Genera una imagen de alta calidad de una receta llamada {recipeName}. La imagen debe ser clara, bien iluminada y atractiva. Dame solo la imagen";
-            return await ProcessImagePrompt(prompt);
+            return await ProcessImagePrompt(prompt, qualityImage);
         }
 
-        private async Task<string> ProcessImagePrompt(string prompt, int retries = 0)
+        private async Task<string> ProcessImagePrompt(string prompt, int qualityImage, int retries = 0)
         {
             _logger.Information($"AI Image Generation Prompt: {prompt}");
             var response = await _geminiClient.GenerateImagePrompt(prompt);
@@ -194,7 +193,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 if (retries < 3)
                 {
                     _logger.Information($"Retrying image generation due to missing inline data. Attempt {retries + 1}/3");
-                    return await ProcessImagePrompt(prompt, retries + 1);
+                    return await ProcessImagePrompt(prompt,qualityImage, retries + 1);
                 }
                 else
                 {
@@ -208,7 +207,42 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 _logger.Error("Base64 image data is null or empty.");
                 throw new Exception("Base64 image data is null or empty.");
             }
+
+            if (ShouldCompressImage(base64Image))
+            {
+                _logger.Information("Compressing image before returning.");
+                base64Image = CompressImage(base64Image, qualityImage);
+            }
             return base64Image;
+        }
+
+        private bool ShouldCompressImage(string base64Image)
+        {
+            var imageBytes = Convert.FromBase64String(base64Image);
+            return imageBytes.Length > (_maxImageSizeInKB * 1024);
+        }
+
+        private string CompressImage(string base64Image, int qualityImage)
+        {
+            var imageBytes = Convert.FromBase64String(base64Image);
+
+            using (var image = Image.Load(imageBytes))
+            {
+                using (var outputStream = new MemoryStream())
+                {
+                    var encoder = new JpegEncoder
+                    {
+                        Quality = qualityImage
+                    };
+
+                    image.Save(outputStream, encoder);
+                    var compressedBytes = outputStream.ToArray();
+
+                    _logger.Information($"Compresión exitosa. Tamaño original: {imageBytes.Length / 1024} KB, Tamaño comprimido: {compressedBytes.Length / 1024} KB.");
+
+                    return Convert.ToBase64String(compressedBytes);
+                }
+            }
         }
     }
 }

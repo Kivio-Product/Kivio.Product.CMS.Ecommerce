@@ -66,14 +66,6 @@
                                 </div>
                             </div>
                         }
-                        else
-                        {
-                            <div class="equals-sign-container">
-                                <div class="circle-sign-container">
-                                    <span class="equals-sign">=</span>
-                                </div>
-                            </div>
-                        }
                     }
                 </div>
             }
@@ -82,7 +74,12 @@
                 <p>@T("Plugins.Misc.RecipeSuggestions.PublicView.NoFoundRecipe")</p>
             }
         </div>
-
+        @* Columna de Signo Igual *@
+        <div class="equals-sign-container">
+            <div class="circle-sign-container">
+                <span class="equals-sign">=</span>
+            </div>
+        </div>
         @* Columna de Receta Ideal *@
         <div class="recipe-ideal-section">
             <p class="ideal-recipe-label">@T("Plugins.Misc.RecipeSuggestions.PublicView.IdealRecipre")</p>

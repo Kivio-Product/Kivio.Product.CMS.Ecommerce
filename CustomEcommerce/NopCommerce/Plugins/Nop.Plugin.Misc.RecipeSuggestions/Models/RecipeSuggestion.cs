@@ -14,7 +14,6 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Models
     public partial class RecipeIngredient : BaseEntity
     {
         public string Name { get; set; }
-        public string ImageUrl { get; set; }
         public bool IsNewIngredient { get; set; }
         public int? NopCommerceProductId { get; set; }
         public string NopCommerceProductSeName { get; set; }
