@@ -1,7 +1,7 @@
 using Nop.Data;
 using Nop.Plugin.Misc.RecipeSuggestions.Interfaces;
 using Nop.Plugin.Misc.RecipeSuggestions.Models;
-using static LinqToDB.Reflection.Methods.LinqToDB.Insert;
+using Nop.Services.Media;
 
 namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 {
@@ -9,12 +9,15 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
     {
         private readonly IRepository<RecipeSuggestion> _aiRecipeSuggestionRepository;
         private readonly IRepository<RecipeIngredient> _aiRecipeIngredientRepository;
+        private readonly IPictureService _pictureService;
 
         public PersistentCacheService(IRepository<RecipeSuggestion> aiRecipeSuggestionRepository,
-                                      IRepository<RecipeIngredient> aiRecipeIngredientRepository)
+                                      IRepository<RecipeIngredient> aiRecipeIngredientRepository,
+                                      IPictureService pictureService)
         {
             _aiRecipeSuggestionRepository = aiRecipeSuggestionRepository;
             _aiRecipeIngredientRepository = aiRecipeIngredientRepository;
+            _pictureService = pictureService;
         }
 
         public async Task<RecipeSuggestionViewModel> GetAsync(string productId)
@@ -38,8 +41,9 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             result.Ingredients = ingredients?.Select(i => new IngredientViewModel
             {
                 Name = i.Name,
-                ImageUrl = i.ImageUrl,
                 IsNewIngredient = i.IsNewIngredient,
+                ImageUrl = (i.IsNewIngredient) ? null :  _pictureService.GetPicturesByProductIdAsync((int) i.NopCommerceProductId, 1)
+                    .ContinueWith(t => t.Result.Any() ? _pictureService.GetPictureUrlAsync(t.Result.First()).Result.Url : string.Empty).Result,
                 NopCommerceProductId = i.NopCommerceProductId,
                 NopCommerceProductSeName = i.NopCommerceProductSeName,
                 Base64Image = i.Base64Image
@@ -74,7 +78,6 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                             {
                                 RecipeSuggestionId = recipeSuggestion.Id,
                                 Name = ingredient.Name,
-                                ImageUrl = ingredient.ImageUrl,
                                 IsNewIngredient = ingredient.IsNewIngredient,
                                 NopCommerceProductId = ingredient.NopCommerceProductId,
                                 NopCommerceProductSeName = ingredient.NopCommerceProductSeName,
