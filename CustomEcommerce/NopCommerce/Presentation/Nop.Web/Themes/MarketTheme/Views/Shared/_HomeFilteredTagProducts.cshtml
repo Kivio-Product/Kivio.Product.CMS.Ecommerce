@@ -19,10 +19,6 @@
 
     var defaultFilterTagName = "best-prices";
 
-    var defaultBestPricesTag = "best-prices";
-    var defaultMostOrderedTag = "most-ordered";
-    var defaultBestRatedTag = "best-rated";
-
     var localeTagName = T("Home.FilteredProducts.DefaultTag").Text;
 
     var localeBestPricesTag = T("Home.FilteredProducts.BestPricesTag").Text;
@@ -35,13 +31,6 @@
 
     var initialFilterTagName = !string.IsNullOrWhiteSpace(localeTagName) && localeTagName !=
     "Home.FilteredProducts.DefaultTag" ? localeTagName : defaultFilterTagName;
-
-    var finalBestPricesText = !string.IsNullOrWhiteSpace(localeBestPricesText) && localeBestPricesText != "Home.FilteredProducts.BestPricesText" 
-        ? localeBestPricesText : "Mejores precios";
-    var finalMostOrderedText = !string.IsNullOrWhiteSpace(localeMostOrderedText) && localeMostOrderedText != "Home.FilteredProducts.MostOrderedText" 
-        ? localeMostOrderedText : "Los más pedidos";
-    var finalBestRatedText = !string.IsNullOrWhiteSpace(localeBestRatedText) && localeBestRatedText != "Home.FilteredProducts.BestRatedText" 
-        ? localeBestRatedText : "Los mejor calificados";
 
     int? initialProductTagId = null;
 
@@ -84,9 +73,9 @@
         <span class="section-title">@T("Home.FilteredProducts.SectionTitle")</span>
 
         <div class="filters-bar">
-            <button class="filter-button active" data-filter-tag="@finalBestPricesTag">@finalBestPricesText</button>
-            <button class="filter-button" data-filter-tag="@finalMostOrderedTag">@finalMostOrderedText</button>
-            <button class="filter-button" data-filter-tag="@finalBestRatedTag">@finalBestRatedText</button>
+            <button class="filter-button active" data-filter-tag="@localeBestPricesTag">@localeBestPricesText</button>
+            <button class="filter-button" data-filter-tag="@localeMostOrderedTag">@localeMostOrderedText</button>
+            <button class="filter-button" data-filter-tag="@localeBestRatedTag">@localeBestRatedText</button>
         </div>
     </div>
     <div class="products-container">
