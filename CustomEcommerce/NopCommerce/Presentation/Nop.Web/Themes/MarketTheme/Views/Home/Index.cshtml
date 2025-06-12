@@ -31,8 +31,8 @@
         @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "HomepageText" })
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBeforeCategories })
         @await Component.InvokeAsync(typeof(HomepageCategoriesViewComponent))
-        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBeforeProducts })
         @await Component.InvokeAsync(typeof(HomepageProductsViewComponent))
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBeforeProducts })
         @{ await Html.RenderPartialAsync("_HomeFilteredTagProducts"); }
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBottom })
         @await Component.InvokeAsync(typeof(NewsletterBoxViewComponent))

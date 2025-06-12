@@ -21,10 +21,12 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
         private readonly ISettingService _settingService;
         private readonly IUrlRecordService _urlRecordService; 
         private readonly IRepository<RecipeSuggestion> _recipeSuggestionRepository;
+        private readonly IRepository<RecipeIngredient> _recipeIngredientRepository;
         private readonly ILogger _logger;
 
         private string CACHE_KEY_PREFIX = "";
         private const int DEFAULT_CACHE_TIME_MINUTES = 72000;
+        private const int MAX_FEATURED_RECIPES = 3;
 
         public RecipeSuggestionService(
             ICacheService cacheService,
@@ -35,7 +37,8 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             ISettingService settingService,
             IUrlRecordService urlRecordService,
             ILogger logger,
-            IRepository<RecipeSuggestion> recipeSuggestionRepository)
+            IRepository<RecipeSuggestion> recipeSuggestionRepository,
+            IRepository<RecipeIngredient> recipeIngredientRepository)
         {
             _cacheService = cacheService;
             _aiRecipeService = aiRecipeService;
@@ -45,6 +48,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             _settingService = settingService;
             _urlRecordService = urlRecordService;
             _recipeSuggestionRepository = recipeSuggestionRepository;
+            _recipeIngredientRepository = recipeIngredientRepository;
             _logger = logger;
             CACHE_KEY_PREFIX = _cacheService is PersistentCacheService ? "" : "recipesuggestion.product.";
         }
@@ -209,6 +213,38 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
         {
             string cacheKey = $"{CACHE_KEY_PREFIX}{productId}";
             return _cacheService.GetAsync(cacheKey).Result != null;
+        }
+
+        public async Task<IList<RecipeSuggestionViewModel>> GetFeaturedRecipeSuggestionsAsync()
+        {
+            _logger.Information("Retrieving random featured recipe suggestions.");
+
+            var allRecipes = await _recipeSuggestionRepository.Table
+                    .OrderByDescending(rs => rs.CreatedOnUtc)
+                    .ToListAsync();
+
+            if (allRecipes.Count == 0)
+            {
+                _logger.Information("No featured recipes found.");
+                return new List<RecipeSuggestionViewModel>();
+            }
+
+            var randomRecipes = allRecipes.OrderBy(r => Guid.NewGuid()).Take(MAX_FEATURED_RECIPES).ToList();
+            return randomRecipes.Select( r => new RecipeSuggestionViewModel
+            {
+                RecipeTitle = r.RecipeTitle,
+                RecipeImageBase64 = r.ImageBase64,
+                RecipeDescription = r.Description,
+                RecipeDate = r.CreatedOnUtc,
+                Ingredients = _recipeIngredientRepository.Table
+                    .Where(i => i.RecipeSuggestionId == r.Id)
+                    .Select(i => new IngredientViewModel
+                    {
+                        Name = i.Name,
+                        IsNewIngredient = false,
+                        NopCommerceProductSeName = i.NopCommerceProductSeName,
+                    }).ToList()
+            }).ToList();
         }
     }
 }
