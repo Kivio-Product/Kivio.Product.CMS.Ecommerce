@@ -22,11 +22,11 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
         private readonly IStoreContext _storeContext;
         private readonly ISettingService _settingService;
         private readonly IUrlRecordService _urlRecordService;
+        private readonly ICategoryService _categoryService;
         private readonly IRepository<RecipeSuggestion> _recipeSuggestionRepository;
         private readonly IRepository<RecipeIngredient> _recipeIngredientRepository;
         private readonly ILogger _logger;
 
-        private const int DEFAULT_CACHE_TIME_MINUTES = 72000;
         private const int MAX_FEATURED_RECIPES = 3;
         private const int FEATURED_RECIPES_CACHE_TIME_MINUTES = 1440;
         private const string FEATURED_RECIPES_CACHE_KEY = "featured_recipes";
@@ -43,7 +43,8 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             ILogger logger,
             IRepository<RecipeSuggestion> recipeSuggestionRepository,
             IRepository<RecipeIngredient> recipeIngredientRepository,
-            IStaticCacheManager staticCacheManager)
+            IStaticCacheManager staticCacheManager,
+            ICategoryService categoryService)
         {
             _persistentRepositoryService = persistentRepositoryService;
             _staticCacheManager = staticCacheManager;
@@ -55,6 +56,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             _urlRecordService = urlRecordService;
             _recipeSuggestionRepository = recipeSuggestionRepository;
             _recipeIngredientRepository = recipeIngredientRepository;
+            _categoryService = categoryService;
             _logger = logger;
         }
 
@@ -93,7 +95,17 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 
             // Load settings to get cache time, etc.
             var settings = await _settingService.LoadSettingAsync<RecipeSuggestionSettings>(_storeContext.GetCurrentStore().Id);
-            int cacheTime = DEFAULT_CACHE_TIME_MINUTES;
+            if (settings?.ExcludeCategoryIds?.Trim().Length != 0)
+            {
+                var excludedCategoryIds = settings?.ExcludeCategoryIds?.Split(',').Select(int.Parse).ToList() ?? new List<int>();
+
+                if (await HasProductInvalidCategoryAsync(product, excludedCategoryIds))
+                {
+                    _logger.Warning($"Product with ID {productId} does not belong to a valid category for recipe suggestions.");
+                    return;
+                }
+            }
+            
 
             var availableStoreProducts = await _productService.SearchProductsAsync(
                 visibleIndividuallyOnly: true,
@@ -148,7 +160,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 recipeSuggestion.Ingredients.Add(ingredientVm);
             }
 
-            await _persistentRepositoryService.SetAsync(productId, recipeSuggestion, cacheTime);
+            await _persistentRepositoryService.SetAsync(productId, recipeSuggestion);
         }
 
         public async Task GenerateRecipeSuggestionsForNewProductsAsync(int newProductsBatchSize)
@@ -233,7 +245,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 _logger.Information("Cache miss. Retrieving featured recipes from database.");
 
                 var dbRecipes = await _recipeSuggestionRepository.Table
-                    .OrderBy(rs => Guid.NewGuid()) 
+                    .OrderBy(rs => Guid.NewGuid())
                     .Take(FEATURES_RECIPES_BATCH_SIZE)
                     .Select(rs => new RecipeSuggestionViewModel
                     {
@@ -267,6 +279,19 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
         private List<RecipeSuggestionViewModel> GetRandomRecipes(List<RecipeSuggestionViewModel> allRecipes)
         {
             return allRecipes.OrderBy(x => Guid.NewGuid()).Take(MAX_FEATURED_RECIPES).ToList();
+        }
+
+        private async Task<bool> HasProductInvalidCategoryAsync(Product product, List<int> excludedCategoryIds)
+        {
+            if (excludedCategoryIds == null || !excludedCategoryIds.Any())
+            {
+                return false;
+            }
+
+            var productCategories = await _categoryService.GetProductCategoriesByProductIdAsync(product.Id);
+
+            var productCategoryIds = productCategories.Select(pc => pc.CategoryId);
+            return productCategoryIds.Any(id => excludedCategoryIds.Contains(id));
         }
     }
 }

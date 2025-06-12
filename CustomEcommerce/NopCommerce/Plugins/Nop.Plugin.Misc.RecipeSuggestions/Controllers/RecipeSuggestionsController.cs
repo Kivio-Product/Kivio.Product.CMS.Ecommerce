@@ -52,7 +52,8 @@ public class RecipeSuggestionsController : BasePluginController
             NewProductsBatchSize = settings.NewProductsBatchSize,
             RefreshProductsBatchSize = settings.RefreshProductsBatchSize,
             RefreshRecipeAgeDays = settings.RefreshRecipeAgeDays,
-            GeminiApiKey = settings.GeminiApiKey
+            GeminiApiKey = settings.GeminiApiKey,
+            ExcludeCategoryIds = settings.ExcludeCategoryIds,
         };
 
         model.ActiveStoreScopeConfiguration = storeScope;
@@ -64,6 +65,7 @@ public class RecipeSuggestionsController : BasePluginController
             model.RefreshProductsBatchSize_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.RefreshProductsBatchSize, storeScope);
             model.RefreshRecipeAgeDays_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.RefreshRecipeAgeDays, storeScope);
             model.GeminiApiKey_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.GeminiApiKey, storeScope);
+            model.ExcludeCategoryIds_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.ExcludeCategoryIds, storeScope);
         }
         return View("~/Plugins/Misc.RecipeSuggestions/Views/Configure.cshtml", model);
     }
@@ -80,6 +82,7 @@ public class RecipeSuggestionsController : BasePluginController
         settings.RefreshProductsBatchSize = model.RefreshProductsBatchSize;
         settings.RefreshRecipeAgeDays = model.RefreshRecipeAgeDays;
         settings.GeminiApiKey = model.GeminiApiKey;
+        settings.ExcludeCategoryIds = model.ExcludeCategoryIds;
 
         await _settingService.SaveSettingOverridablePerStoreAsync(
             settings,
@@ -115,6 +118,12 @@ public class RecipeSuggestionsController : BasePluginController
             settings,
             x => x.GeminiApiKey,
             model.GeminiApiKey_OverrideForStore,
+            storeScope,
+            false);
+        await _settingService.SaveSettingOverridablePerStoreAsync(
+            settings,
+            x => x.ExcludeCategoryIds,
+            model.ExcludeCategoryIds_OverrideForStore,
             storeScope,
             false);
         await _settingService.ClearCacheAsync();

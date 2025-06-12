@@ -27,7 +27,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             var recipeSuggestion = await _aiRecipeSuggestionRepository.Table
                 .FirstOrDefaultAsync(s => s.ProductId == productId);
             if (recipeSuggestion == null)
-            {
+            {   
                 return null;
             }
             var ingredients = await _aiRecipeIngredientRepository.Table
@@ -57,7 +57,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             return _aiRecipeSuggestionRepository.DeleteAsync(s => s.ProductId == productId);
         }
 
-        public Task SetAsync(int productId, RecipeSuggestionViewModel data, int cacheTimeInMinutes)
+        public Task SetAsync(int productId, RecipeSuggestionViewModel data)
         {
             var recipeSuggestion = new RecipeSuggestion
             {
