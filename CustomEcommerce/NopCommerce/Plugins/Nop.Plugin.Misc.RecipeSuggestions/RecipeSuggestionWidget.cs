@@ -36,9 +36,10 @@ namespace Nop.Plugin.Misc.RecipeSuggestions
         public async Task<IList<string>> GetWidgetZonesAsync()
         {
             var settings = await _settingService.LoadSettingAsync<RecipeSuggestionSettings>(_storeContext.GetCurrentStore().Id);
-            string zone = !string.IsNullOrWhiteSpace(settings?.WidgetZone) ? settings.WidgetZone : PublicWidgetZones.ProductDetailsBottom;
-            
-            return new List<string> { zone };
+            string zoneProduct = !string.IsNullOrWhiteSpace(settings?.WidgetZone) ? settings.WidgetZone : PublicWidgetZones.ProductDetailsBottom;
+            string zoneHomepage = PublicWidgetZones.HomepageBeforeProducts;
+
+            return new List<string> { zoneProduct, zoneHomepage };
         }
 
         public string GetPublicViewComponentName()
