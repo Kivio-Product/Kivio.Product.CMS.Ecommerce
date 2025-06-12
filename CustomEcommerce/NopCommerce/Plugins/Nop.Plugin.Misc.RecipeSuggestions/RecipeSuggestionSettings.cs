@@ -9,6 +9,7 @@ public class RecipeSuggestionSettings : ISettings
     public int NewProductsBatchSize { get; set; }
     public int RefreshProductsBatchSize { get; set; }
     public int RefreshRecipeAgeDays { get; set; }
+    public string ExcludeCategoryIds { get; set; }
     public string WidgetZone { get; set; }
     #endregion
 }

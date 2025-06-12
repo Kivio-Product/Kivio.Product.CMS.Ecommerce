@@ -5,13 +5,13 @@ using Nop.Services.Media;
 
 namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 {
-    public class PersistentCacheService : ICacheService
+    public class PersistentRepositoryService : IPersistentRepositoryService
     {
         private readonly IRepository<RecipeSuggestion> _aiRecipeSuggestionRepository;
         private readonly IRepository<RecipeIngredient> _aiRecipeIngredientRepository;
         private readonly IPictureService _pictureService;
 
-        public PersistentCacheService(IRepository<RecipeSuggestion> aiRecipeSuggestionRepository,
+        public PersistentRepositoryService(IRepository<RecipeSuggestion> aiRecipeSuggestionRepository,
                                       IRepository<RecipeIngredient> aiRecipeIngredientRepository,
                                       IPictureService pictureService)
         {
@@ -20,14 +20,14 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             _pictureService = pictureService;
         }
 
-        public async Task<RecipeSuggestionViewModel> GetAsync(string productId)
+        public async Task<RecipeSuggestionViewModel> GetAsync(int productId)
         {
             var result = new RecipeSuggestionViewModel();
             
             var recipeSuggestion = await _aiRecipeSuggestionRepository.Table
-                .FirstOrDefaultAsync(s => s.ProductId.ToString() == productId);
+                .FirstOrDefaultAsync(s => s.ProductId == productId);
             if (recipeSuggestion == null)
-            {
+            {   
                 return null;
             }
             var ingredients = await _aiRecipeIngredientRepository.Table
@@ -52,16 +52,16 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             return result;
         }
 
-        public Task RemoveAsync(string productId)
+        public Task RemoveAsync(int productId)
         {
-            return _aiRecipeSuggestionRepository.DeleteAsync(s => s.ProductId.ToString() == productId);
+            return _aiRecipeSuggestionRepository.DeleteAsync(s => s.ProductId == productId);
         }
 
-        public Task SetAsync(string productId, RecipeSuggestionViewModel data, int cacheTimeInMinutes)
+        public Task SetAsync(int productId, RecipeSuggestionViewModel data)
         {
             var recipeSuggestion = new RecipeSuggestion
             {
-                ProductId = int.Parse(productId),
+                ProductId = productId,
                 RecipeTitle = data.RecipeTitle,
                 Description = data.RecipeDescription,
                 ImageBase64 = data.RecipeImageBase64,

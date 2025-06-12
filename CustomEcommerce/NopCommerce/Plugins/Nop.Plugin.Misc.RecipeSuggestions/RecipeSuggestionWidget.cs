@@ -60,7 +60,8 @@ namespace Nop.Plugin.Misc.RecipeSuggestions
                 RefreshProductsBatchSize = 5,
                 RefreshRecipeAgeDays = 7,
                 WidgetZone = PublicWidgetZones.ProductDetailsBottom,
-                GeminiApiKey = "Your-Gemini-API-Key-Here"
+                GeminiApiKey = "Your-Gemini-API-Key-Here",
+                ExcludeCategoryIds = "999, 25"
             };
             await _settingService.SaveSettingAsync(settings);
 
@@ -79,6 +80,8 @@ namespace Nop.Plugin.Misc.RecipeSuggestions
                 ["Plugins.Misc.RecipeSuggestions.Settings.RefreshProductsBatchSize.Hint"] = "Max number of old recipes to refresh in each task run.",
                 ["Plugins.Misc.RecipeSuggestions.Settings.RefreshRecipeAgeDays"] = "Refresh Recipe Age (days)",
                 ["Plugins.Misc.RecipeSuggestions.Settings.RefreshRecipeAgeDays.Hint"] = "How old a recipe must be (in days) to be considered for refresh.",
+                ["Plugins.Misc.RecipeSuggestions.Settings.ExcludeCategoryIds"] = "Exclude Category IDs",
+                ["Plugins.Misc.RecipeSuggestions.Settings.ExcludeCategoryIds.Hint"] = "Comma-separated list of category IDs to exclude from recipe suggestions.",
                 ["Plugins.Misc.RecipeSuggestions.Settings.WidgetZone"] = "Widget Zone",
                 ["Plugins.Misc.RecipeSuggestions.Settings.WidgetZone.Hint"] = "The widget zone where the recipe suggestions will be displayed (e.g., productdetails_bottom).",
                 // Public View

@@ -72,6 +72,17 @@
                                 <span asp-validation-for="RefreshRecipeAgeDays"></span>
                             </div>
                         </div>
+                        <!-- ExcludeCategoryIds -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="ExcludeCategoryIds_OverrideForStore" asp-input="ExcludeCategoryIds" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="ExcludeCategoryIds" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="ExcludeCategoryIds" />
+                                <span asp-validation-for="ExcludeCategoryIds"></span>
+                            </div>
+                        </div>
                         <!-- WidgetZone -->
                         <div class="form-group row">
                             <div class="col-md-3">
