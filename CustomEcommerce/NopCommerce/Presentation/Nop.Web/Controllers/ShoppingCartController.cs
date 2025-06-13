@@ -1354,8 +1354,13 @@ public partial class ShoppingCartController : BasePublicController
         var anonymousPermissed = _orderSettings.AnonymousCheckoutAllowed
                                  && _customerSettings.UserRegistrationType == UserRegistrationType.Disabled;
 
-        if (anonymousPermissed || !await _customerService.IsGuestAsync(customer))
+        // if (anonymousPermissed || !await _customerService.IsGuestAsync(customer))
+        //     return RedirectToRoute("Checkout");
+
+        if (_orderSettings.AnonymousCheckoutAllowed)
+        {
             return RedirectToRoute("Checkout");
+        }
 
         var cartProductIds = cart.Select(ci => ci.ProductId).ToArray();
         var downloadableProductsRequireRegistration =
