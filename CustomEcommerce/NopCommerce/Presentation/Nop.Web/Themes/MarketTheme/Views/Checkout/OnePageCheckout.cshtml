@@ -17,6 +17,9 @@
     NopHtml.AddTitleParts(T("PageTitle.Checkout").Text);
     //page class
     NopHtml.AppendPageCssClassParts("html-checkout-page");
+
+    var currentCustomer = await workContext.GetCurrentCustomerAsync();
+    var isGuest = await _customerService.IsGuestAsync(currentCustomer);
 }
 @{
     //step numbers
@@ -45,6 +48,16 @@
     <div class="section-head">
         <h1>@T("Checkout")</h1>
     </div>
+    @if (isGuest)
+    {
+        <!-- Are you registered? -->
+        <div class="are-you-registered-container">
+            <div class="are-you-registered">
+                <p>@T("Checkout.AreYouRegisteredDescription")</p>
+                <a href="@Url.RouteUrl("Login")">@T("Checkout.AreYouRegisteredLink")</a>
+            </div>
+        </div>
+    }
     <div class="page-body checkout-data checkout-grid">
         <div class="checkout-main-column">
             @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone =

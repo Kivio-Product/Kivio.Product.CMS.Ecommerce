@@ -8439,3 +8439,13 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
     padding: 20px;
     color: #777;
 }
+
+.are-you-registered{
+  display: flex;
+  margin: 15px 0px;
+}
+
+.are-you-registered a{
+  color: #7a37f0;
+  margin-left:5px;
+}
