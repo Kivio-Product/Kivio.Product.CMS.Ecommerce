@@ -4602,7 +4602,7 @@ button.email-a-friend-button:hover{
   position: relative;
 }
 .shipping-method .method-description {
-  padding: 5px 0;
+  padding: 10px;
   font-size: 14px;
 }
 .payment-method .use-reward-points {
