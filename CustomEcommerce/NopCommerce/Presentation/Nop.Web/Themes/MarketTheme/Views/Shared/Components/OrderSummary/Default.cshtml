@@ -16,6 +16,7 @@
 
         @*we add enctype = "multipart/form-data" because "File upload" attribute control type requires it*@
         <form asp-route="ShoppingCart" method="post" enctype="multipart/form-data" id="shopping-cart-form">
+            @Html.AntiForgeryToken() @* Important for POST requests *@
             <div class="px_cart_data">
                 @if (Model.Warnings.Count > 0)
                 {
@@ -148,6 +149,37 @@
                                                     }
                                                 </ul>
                                             </div>
+                                            <script asp-location="Footer">
+                                                $(function () {
+                                                    // Data to be sent
+                                                    var postData = {
+                                                        'removefromcart': '@item.Id', // ID of the item to remove
+                                                        'updatecart': 'Update shopping cart' // This name/value pair triggers the update logic on the server
+                                                    };
+                                                    // Add antiforgery token
+                                                    postData['__RequestVerificationToken'] = $('input[name="__RequestVerificationToken"]').val();
+
+                                                    console.log('Attempting to remove item @item.Id due to warnings.');
+
+                                                    $.ajax({
+                                                        cache: false,
+                                                        url: '@Url.RouteUrl("ShoppingCart")', // URL of the shopping cart page (handles updates)
+                                                        data: postData,
+                                                        type: 'POST',
+                                                        success: function (response) {
+                                                            // On successful removal, NopCommerce typically redirects or updates.
+                                                            // We will force a reload of the cart page to reflect changes.
+                                                            console.log('Item @item.Id removed due to warning. Reloading cart.');
+                                                            window.location.href = '@Url.RouteUrl("ShoppingCart")';
+                                                        },
+                                                        error: function (xhr, ajaxOptions, thrownError) {
+                                                            console.error('Failed to remove item @item.Id automatically. Error: ' + thrownError);
+                                                            // Optionally, inform the user that an automatic removal failed.
+                                                            alert('@T("ShoppingCart.RemoveItemError")');
+                                                        }
+                                                    });
+                                                });
+                                            </script>
                                         }
                                     </td>
                                     @if (Model.ShowVendorName)
@@ -275,26 +307,10 @@
                         }
                     </div>
                 </div>
-                @* <div class="cart-options">
-                    @if (Model.IsEditable)
-                    {
-                        @await Html.PartialAsync("_CheckoutAttributes", Model)
-                    }
-                    @await Component.InvokeAsync(typeof(SelectedCheckoutAttributesViewComponent))
-                </div> *@
-
             </div>
             <div class="px_total">
                 <div class="cart-footer">
                     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryCartFooter, additionalData = Model })
-                    @* @if (Model.IsEditable)
-                    {
-                        <div class="cart-collaterals">
-                            @await Html.PartialAsync("_DiscountBox", Model.DiscountBox)
-                            @await Html.PartialAsync("_GiftCardBox", Model.GiftCardBox)
-                            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryContentDeals, additionalData = Model })
-                        </div>
-                    } *@
                     <div class="totals">
                         <div class="px_cart_total">
                             @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryTotals, additionalData = Model })
@@ -352,24 +368,192 @@
                                     {
                                         <script asp-location="Footer">
                                             $(function () {
-                                                $('#checkout').on('click', function () {
-                                                    //terms of service
+                                                $('#checkout').on('click', function (e) { 
+                                                    e.preventDefault();
+                                                    
+                                                    //terms of service validation
                                                     var termOfServiceOk = true;
                                                     if ($('#termsofservice').length > 0) {
-                                                        //terms of service element exists
                                                         if (!$('#termsofservice').is(':checked')) {
-                                                            $("#terms-of-service-warning-box").dialog();
-                                                            termOfServiceOk = false;
-                                                        } else {
-                                                            termOfServiceOk = true;
+                                                            // Usar el popup moderno en lugar del dialog básico
+                                                            showTermsWarningPopup();
+                                                            return false;
                                                         }
                                                     }
-                                                    return termOfServiceOk;
+
+                                                    $(this).prop('disabled', true).text('Procesando...');
+
+                                                    $.ajax({
+                                                        url: '@Url.Action("Cart", "ShoppingCart")',
+                                                        type: 'POST',
+                                                        data: $('#shopping-cart-form').serialize() + '&checkout=checkout',
+                                                        timeout: 30000,
+                                                        success: function (response) {
+                                                            // Reset button state
+                                                            $('#checkout').prop('disabled', false).text('@T("Checkout.Button")');
+                                                                                                                        
+                                                            if (response.success) {
+                                                                if (response.redirectUrl) {
+                                                                    window.location.href = response.redirectUrl;
+                                                                } else {
+                                                                    console.error('No redirect URL provided');
+                                                                    showErrorAlert('Error de configuración. Contacta al soporte.');
+                                                                }
+                                                            } else if (response.isMinimumAmountError) {
+                                                                Swal.fire({
+                                                                    icon: 'warning',
+                                                                    title: '@Html.Raw(JavaScriptEncoder.Default.Encode(T("Checkout.MinimumOrderAmount.PopupTitle").Text))',
+                                                                    html: response.message,
+                                                                    confirmButtonText: '@Html.Raw(JavaScriptEncoder.Default.Encode(T("Common.Ok").Text))',
+                                                                    customClass: {
+                                                                        confirmButton: 'primary-btn',
+                                                                    },
+                                                                    confirmButtonColor: '#7A37F0',
+                                                                });
+                                                            } else {
+                                                                showErrorAlert(response.message || 'Ha ocurrido un error inesperado.');
+                                                            }
+                                                        },
+                                                        error: function (xhr, status, error) {
+                                                            // Reset button state
+                                                            $('#checkout').prop('disabled', false).text('@T("Checkout.Button")');
+                                                            
+                                                            console.error('AJAX Error:', {
+                                                                status: status,
+                                                                error: error,
+                                                                responseText: xhr.responseText,
+                                                                statusCode: xhr.status
+                                                            });
+                                                            
+                                                            let errorMessage = 'Error de conexión. ';
+                                                            
+                                                            if (xhr.status === 0) {
+                                                                errorMessage += 'Verifica tu conexión a internet.';
+                                                            } else if (xhr.status === 404) {
+                                                                errorMessage += 'Página no encontrada.';
+                                                            } else if (xhr.status === 500) {
+                                                                errorMessage += 'Error interno del servidor.';
+                                                            } else if (status === 'timeout') {
+                                                                errorMessage += 'La solicitud ha expirado.';
+                                                            } else {
+                                                                errorMessage += `Código de error: ${xhr.status}`;
+                                                            }
+                                                            
+                                                            showErrorAlert(errorMessage);
+                                                        }
+                                                    });
                                                 });
+                                                
+                                                function showErrorAlert(message) {
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Error',
+                                                        text: message,
+                                                        confirmButtonText: '@Html.Raw(JavaScriptEncoder.Default.Encode(T("Common.Ok").Text))',
+                                                        customClass: {
+                                                            confirmButton: 'primary-btn',
+                                                        },
+                                                        confirmButtonColor: '#7A37F0',
+                                                    });
+                                                }
+
+                                                function showTermsWarningPopup() {
+                                                    const stickyHeader = document.querySelector('.header.sticky');
+                                                    let originalZIndex = null;
+                                                    
+                                                    if (stickyHeader) {
+                                                        const computedStyle = window.getComputedStyle(stickyHeader);
+                                                        originalZIndex = computedStyle.zIndex;
+                                                        stickyHeader.style.zIndex = 'auto';
+                                                    }
+
+                                                    const overlay = document.createElement('div');
+                                                    overlay.className = 'modern-modal-overlay';
+                                                    overlay.innerHTML = `
+                                                        <div class="modern-modal-container" style="max-width: 450px;">
+                                                            <div class="modern-modal-header">
+                                                                <h2 class="modern-modal-title">@T("Checkout.TermsOfService")</h2>
+                                                                <button class="modern-modal-close" type="button">×</button>
+                                                            </div>
+                                                            <div class="modern-modal-content">
+                                                                <div style="padding: 20px 0; text-align: center;">
+                                                                    <p style="margin-bottom: 20px; font-size: 16px; color: #666;">
+                                                                        @T("Checkout.TermsOfService.PleaseAccept")
+                                                                    </p>
+                                                                    <button class="modern-modal-accept-btn" style="
+                                                                        background: #7A37F0;
+                                                                        color: white;
+                                                                        border: none;
+                                                                        padding: 12px 24px;
+                                                                        border-radius: 6px;
+                                                                        font-size: 14px;
+                                                                        font-weight: 500;
+                                                                        cursor: pointer;
+                                                                        transition: all 0.2s ease;
+                                                                    ">
+                                                                        @T("Common.Ok")
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    `;
+                                                    
+                                                    const closeModal = function() {
+                                                        if (stickyHeader && originalZIndex !== null) {
+                                                            if (originalZIndex === 'auto' || originalZIndex === '') {
+                                                                stickyHeader.style.zIndex = '';
+                                                            } else {
+                                                                stickyHeader.style.zIndex = originalZIndex;
+                                                            }
+                                                        }
+                                                        
+                                                        overlay.style.opacity = '0';
+                                                        overlay.querySelector('.modern-modal-container').style.transform = 'translateY(-20px) scale(0.95)';
+                                                        
+                                                        setTimeout(() => {
+                                                            if (overlay.parentNode) {
+                                                                overlay.parentNode.removeChild(overlay);
+                                                            }
+                                                            document.body.style.overflow = '';
+                                                        }, 300);
+                                                    };
+                                                    
+                                                    overlay.querySelector('.modern-modal-close').addEventListener('click', closeModal);
+                                                    overlay.querySelector('.modern-modal-accept-btn').addEventListener('click', closeModal);
+                                                    
+                                                    overlay.addEventListener('click', function(e) {
+                                                        if (e.target === overlay) {
+                                                            closeModal();
+                                                        }
+                                                    });
+                                                    
+                                                    const escapeHandler = function(e) {
+                                                        if (e.key === 'Escape') {
+                                                            document.removeEventListener('keydown', escapeHandler);
+                                                            closeModal();
+                                                        }
+                                                    };
+                                                    document.addEventListener('keydown', escapeHandler);
+                                                    
+                                                    const acceptBtn = overlay.querySelector('.modern-modal-accept-btn');
+                                                    acceptBtn.addEventListener('mouseenter', function() {
+                                                        this.style.background = '#6B2DD9';
+                                                        this.style.transform = 'translateY(-1px)';
+                                                    });
+                                                    acceptBtn.addEventListener('mouseleave', function() {
+                                                        this.style.background = '#7A37F0';
+                                                        this.style.transform = 'translateY(0)';
+                                                    });
+                                                    
+                                                    document.body.appendChild(overlay);
+                                                    document.body.style.overflow = 'hidden';
+                                                    
+                                                    return overlay;
+                                                }
                                             });
                                         </script>
 
-                                        if (orderSettings.CheckoutDisabled)
+                                        @if (orderSettings.CheckoutDisabled)
                                         {
                                             <div class="checkout-disabled">
                                                 @T("Checkout.Disabled")

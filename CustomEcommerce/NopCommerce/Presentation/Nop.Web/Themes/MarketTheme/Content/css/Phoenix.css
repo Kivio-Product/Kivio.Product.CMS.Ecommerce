@@ -1242,6 +1242,7 @@ ul.login-list li :hover{
 }
 .px_shipping_method {
   background: #f4f4f4;
+  border-radius: 10px;
 }
 /*#opc-shipping .step-title {
   background: #CAD2DF;

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nop.Plugin.Misc.RecipeSuggestions.Interfaces;
 using Nop.Plugin.Misc.RecipeSuggestions.Models; 
 using Nop.Web.Framework.Components;
+using Nop.Web.Framework.Infrastructure;
 using Nop.Web.Models.Catalog;
 
 namespace Nop.Plugin.Misc.RecipeSuggestions.Components
@@ -17,6 +18,16 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Components
 
         public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData)
         {
+            if (widgetZone == PublicWidgetZones.HomepageBeforeProducts)
+            {
+                var featuredRecipes = await _recipeSuggestionService.GetFeaturedRecipeSuggestionsAsync();
+                if (featuredRecipes?.Any() == true)
+                {
+                    return View("~/Plugins/Misc.RecipeSuggestions/Views/FeaturedRecipes.cshtml", featuredRecipes);
+                }
+                return Content("");
+            }
+            
             if (additionalData is not ProductDetailsModel productDetailsModel)
             {
                 return Content(""); 

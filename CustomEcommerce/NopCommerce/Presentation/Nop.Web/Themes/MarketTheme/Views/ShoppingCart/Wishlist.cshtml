@@ -3,9 +3,11 @@
 @using Nop.Core.Domain.Catalog
 @using Nop.Core.Domain.Media
 @using Nop.Core.Domain.Tax
+@using Nop.Services.Customers
 @inject IWebHelper webHelper
 @inject IWorkContext workContext
 @inject MediaSettings mediaSettings
+@inject ICustomerService _customerService
 @{
     Layout = "_ColumnsOne";
 
@@ -13,6 +15,10 @@
     NopHtml.AddTitleParts(T("PageTitle.Wishlist").Text);
     //page class
     NopHtml.AppendPageCssClassParts("html-wishlist-page");
+
+    // Is Guess
+    var currentCustomer = await workContext.GetCurrentCustomerAsync();
+    var isGuest = await _customerService.IsGuestAsync(currentCustomer);
 }
 <div class="page wishlist-page section-width">
     <div class="section-head">
@@ -253,7 +259,7 @@
                                     @T("ShoppingCart.AddToCart")
                                 </button>
                             }
-                            @if (Model.IsEditable && Model.EmailWishlistEnabled)
+                            @if (Model.IsEditable && Model.EmailWishlistEnabled && !isGuest)
                             {
                                 <button type="button" value="@T("Wishlist.EmailAFriend")" class="secoendry-btn" onclick="setLocation('@Url.RouteUrl("EmailWishlist")')">
 
@@ -300,7 +306,16 @@
             var wishlistUrl = Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid }, webHelper.GetCurrentRequestProtocol());
             <div class="share-info">
                 <span class="share-label">@T("Wishlist.YourWishlistURL"):</span>
-                <a href="@wishlistUrl" class="share-link">@wishlistUrl</a>
+                <button type="button" id="copy-wishlist-url-button" class="button-2 copy-wishlist-url-button" title="@T("Common.CopyToClipboard")"
+                onclick="navigator.clipboard.writeText('@wishlistUrl').then(function() {
+                    document.getElementById('copy-wishlist-feedback').style.display = 'inline';
+                }, function(err) {
+                    console.error('Error copying text: ', err);
+                });">
+                    <div class="clipboard-image">
+                    </div>
+                </button>
+                <span id="copy-wishlist-feedback" style="display:none; margin-left: 5px; color: #7A37F0;">@T("Common.Copied")!</span>
             </div>
         }
     </div>

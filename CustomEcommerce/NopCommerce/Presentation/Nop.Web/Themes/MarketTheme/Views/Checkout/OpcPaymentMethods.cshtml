@@ -117,6 +117,18 @@
                                             <span class="payment-method-name">@paymentMethodName</span>
                                         </label>
                                     </div>
+                                    @if (!string.IsNullOrEmpty(paymentMethod.Description))
+                                    {
+                                        <div class="payment-method-description">
+                                            @Html.Raw(paymentMethod.Description)
+                                        </div>
+                                        if (payUPaymentFee != null && isPayU)
+                                        {
+                                            <div class="payment-method-fee">
+                                                <span class="fee-amount">@Html.Raw(string.Format(T("Checkout.PayU.AdditionalFee").Text, payUPaymentFee, currencyCode))</span>
+                                            </div>
+                                        }
+                                    }
                                 </div>
                             </div>
                         </li>
@@ -132,85 +144,6 @@
                         e.preventDefault();
                         e.stopPropagation();
                         return false;
-                    });
-                    
-                    $('.payment-methods-list input[type="radio"]:not([disabled])').on('click', function(e) {
-                        var $this = $(this);
-                        var isPayU = $this.data('is-payu') === true;
-                        var isCod = $this.data('is-cod') === true;
-                        var isPayUBelowMinimum = $this.data('payu-below-minimum') === true;
-                        var isCodBelowMinimum = $this.data('cod-below-minimum') === true;
-                        var currency = $this.data('currency');
-                        
-                        if (isPayUBelowMinimum || isCodBelowMinimum) {
-                            e.preventDefault();
-                            $this.prop('checked', false);
-                            
-                            if (isPayUBelowMinimum) {
-                                var payUMinimum = $this.data('payu-minimum');
-                                var payUMessage = '@Html.Raw(T("Checkout.PayU.MinimumAmount").Text)';
-                                payUMessage = payUMessage.replace('{0}', payUMinimum.toLocaleString()).replace('{1}', currency);
-                                
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Monto mínimo requerido',
-                                    html: payUMessage,
-                                    confirmButtonText: 'Entendido'
-                                });
-                            }
-                            
-                            if (isCodBelowMinimum) {
-                                var codMinimum = $this.data('cod-minimum');
-                                var codMessage = '@Html.Raw(T("Checkout.CashOnDelivery.MinimumAmount").Text)';
-                                codMessage = codMessage.replace('{0}', codMinimum.toLocaleString()).replace('{1}', currency);
-                                
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Monto mínimo requerido',
-                                    html: codMessage,
-                                    confirmButtonText: 'Entendido'
-                                });
-                            }
-                            
-                            return false;
-                        }
-                        
-                        if (isPayU && !isPayUBelowMinimum) {
-                            var payUFee = $this.data('payu-fee');
-                            var payUFeeMessage = '@Html.Raw(T("Checkout.PayU.AdditionalFee").Text)';
-                            payUFeeMessage = payUFeeMessage.replace('{0}', payUFee).replace('{1}', currency);
-
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Información importante',
-                                html: payUFeeMessage,
-                                confirmButtonText: 'Continuar',
-                                showCancelButton: true,
-                                cancelButtonText: 'Cancelar'
-                            }).then((result) => {
-                                if (!result.isConfirmed) {
-                                    $this.prop('checked', false);
-                                }
-                            });
-                        }
-                        
-                        if (isCod && !isCodBelowMinimum) {
-                            var codInfo1 = '@Html.Raw(T("Checkout.CashOnDelivery.AcceptedMethods").Text)';
-                            var codInfo2 = '@Html.Raw(T("Checkout.CashOnDelivery.WhatsappRedirection").Text)';
-                            
-                            Swal.fire({
-                                icon: 'info',
-                                title: 'Pago contra entrega',
-                                html: '<p>' + codInfo1 + '</p><p>' + codInfo2 + '</p>',
-                                confirmButtonText: 'Continuar',
-                                showCancelButton: true,
-                                cancelButtonText: 'Cancelar'
-                            }).then((result) => {
-                                if (!result.isConfirmed) {
-                                    $this.prop('checked', false);
-                                }
-                            });
-                        }
                     });
                     
                     $('.payment-method-disabled input[type="radio"][disabled]').closest('.payment-method-item').on('click', function(e) {

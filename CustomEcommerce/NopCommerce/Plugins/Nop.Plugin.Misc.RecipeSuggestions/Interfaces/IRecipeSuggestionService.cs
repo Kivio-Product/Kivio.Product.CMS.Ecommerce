@@ -9,5 +9,6 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Interfaces
         Task GenerateAndCacheRecipeSuggestionAsync(int productId, string context);
         Task GenerateRecipeSuggestionsForNewProductsAsync(int newProductsBatchSize);
         Task RefreshRecipeSuggestionsAsync(int refreshProductsBatchSize, int refreshRecipeAgeDays);
+        Task<IList<RecipeSuggestionViewModel>> GetFeaturedRecipeSuggestionsAsync();
     }
 }
