@@ -318,7 +318,6 @@ label, label + * {
 .inputs input[type="tel"],
 .inputs input[type="password"],
 .inputs select {
-  width: 400px;
   max-width: 100%;
   min-height: 40px;
   background-color: #fff;
