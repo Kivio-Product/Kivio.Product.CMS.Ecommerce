@@ -8461,3 +8461,9 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
     border: none;
     font-size: 30px;
 }
+.clipboard-image {
+  background:  url('../images/clipboard.png') no-repeat center center;
+  background-size: contain;
+  width: 30px; 
+  height: 30px; 
+}
