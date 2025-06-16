@@ -1484,37 +1484,21 @@ public partial class CheckoutController : BasePublicController
 
     protected virtual async Task<JsonResult> OpcLoadStepAfterPaymentMethod(IPaymentMethod paymentMethod, IList<ShoppingCartItem> cart)
     {
-        if (paymentMethod.SkipPaymentInfo ||
-            (paymentMethod.PaymentMethodType == PaymentMethodType.Redirection && _paymentSettings.SkipPaymentInfoStepForRedirectionPaymentMethods))
-        {
-            //skip payment info page
-            var paymentInfo = new ProcessPaymentRequest();
+        //skip payment info page
+        var paymentInfo = new ProcessPaymentRequest();
 
-            //session save
-            await HttpContext.Session.SetAsync("OrderPaymentInfo", paymentInfo);
+        //session save
+        await HttpContext.Session.SetAsync("OrderPaymentInfo", paymentInfo);
 
-            var confirmOrderModel = await _checkoutModelFactory.PrepareConfirmOrderModelAsync(cart);
-            return Json(new
-            {
-                update_section = new UpdateSectionJsonModel
-                {
-                    name = "confirm-order",
-                    html = await RenderPartialViewToStringAsync("OpcConfirmOrder", confirmOrderModel)
-                },
-                goto_section = "confirm_order"
-            });
-        }
-
-        //return payment info page
-        var paymenInfoModel = await _checkoutModelFactory.PreparePaymentInfoModelAsync(paymentMethod);
+        var confirmOrderModel = await _checkoutModelFactory.PrepareConfirmOrderModelAsync(cart);
         return Json(new
         {
             update_section = new UpdateSectionJsonModel
             {
-                name = "payment-info",
-                html = await RenderPartialViewToStringAsync("OpcPaymentInfo", paymenInfoModel)
+                name = "confirm-order",
+                html = await RenderPartialViewToStringAsync("OpcConfirmOrder", confirmOrderModel)
             },
-            goto_section = "payment_info"
+            goto_section = "confirm_order"
         });
     }
 

@@ -24,20 +24,20 @@
     var shippingAddressStepNumber = 2;
     var shippingMethodStepNumber = 3;
     var paymentMethodStepNumber = 4;
-    var paymentInfoStepNumber = 5;
-    var confirmOrderStepNumber = 6;
+    //var paymentInfoStepNumber = 5;
+    var confirmOrderStepNumber = 5;
     if (!Model.ShippingRequired)
     {
         paymentMethodStepNumber = paymentMethodStepNumber - 2;
-        paymentInfoStepNumber = paymentInfoStepNumber - 2;
-        confirmOrderStepNumber = confirmOrderStepNumber - 2;
+        //paymentInfoStepNumber = paymentInfoStepNumber - 2;
+        confirmOrderStepNumber = confirmOrderStepNumber - 2; 
     }
     if (Model.DisableBillingAddressCheckoutStep)
     {
         shippingAddressStepNumber--;
         shippingMethodStepNumber--;
         paymentMethodStepNumber--;
-        paymentInfoStepNumber--;
+        //paymentInfoStepNumber--;
         confirmOrderStepNumber--;
     }
 }
@@ -194,6 +194,7 @@
                         </div>
                     </div>
                 </li>
+                @* 
                 <li id="opc-payment_info" class="tab-section">
                     <div class="step-title">
                         <span class="number">@paymentInfoStepNumber</span>
@@ -202,7 +203,7 @@
                     <div id="checkout-step-payment-info" class="step a-item" style="display: none;">
                         <form action="" id="co-payment-info-form" method="post">
                             <div id="checkout-payment-info-load">
-                                @*payment info content will be loaded here*@ Payment is not required
+                                payment info content will be loaded here Payment is not required
                             </div>
                         </form>
                         <script asp-location="Footer">
@@ -220,6 +221,7 @@
                         </div>
                     </div>
                 </li>
+                *@
                 <li id="opc-confirm_order" class="tab-section">
                     <div class="step-title">
                         <span class="number">@confirmOrderStepNumber</span>
