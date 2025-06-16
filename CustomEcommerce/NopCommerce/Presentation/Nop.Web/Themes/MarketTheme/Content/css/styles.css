@@ -8448,3 +8448,16 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
   color: #7a37f0;
   margin-left:5px;
 }
+
+.wishlist-url-link {
+    margin-right: 10px;
+    word-break: break-all;
+}
+.copy-wishlist-url-button {
+    padding: 6px 8px; /* Padding ajustado para un icono */
+    line-height: 1;   /* Para mejor alineación vertical del icono */
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    font-size: 30px;
+}

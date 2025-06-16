@@ -306,7 +306,15 @@
             var wishlistUrl = Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid }, webHelper.GetCurrentRequestProtocol());
             <div class="share-info">
                 <span class="share-label">@T("Wishlist.YourWishlistURL"):</span>
-                <a href="@wishlistUrl" class="share-link">@wishlistUrl</a>
+                <button type="button" id="copy-wishlist-url-button" class="button-2 copy-wishlist-url-button" title="@T("Common.CopyToClipboard")"
+                onclick="navigator.clipboard.writeText('@wishlistUrl').then(function() {
+                    document.getElementById('copy-wishlist-feedback').style.display = 'inline';
+                }, function(err) {
+                    console.error('Error copying text: ', err);
+                });">
+                    <span>&#128203</span> 
+                </button>
+                <span id="copy-wishlist-feedback" style="display:none; margin-left: 5px; color: #7A37F0;">@T("Common.Copied")!</span>
             </div>
         }
     </div>
