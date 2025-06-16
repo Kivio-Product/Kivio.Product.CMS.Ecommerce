@@ -275,26 +275,10 @@
                         }
                     </div>
                 </div>
-                @* <div class="cart-options">
-                    @if (Model.IsEditable)
-                    {
-                        @await Html.PartialAsync("_CheckoutAttributes", Model)
-                    }
-                    @await Component.InvokeAsync(typeof(SelectedCheckoutAttributesViewComponent))
-                </div> *@
-
             </div>
             <div class="px_total">
                 <div class="cart-footer">
                     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryCartFooter, additionalData = Model })
-                    @* @if (Model.IsEditable)
-                    {
-                        <div class="cart-collaterals">
-                            @await Html.PartialAsync("_DiscountBox", Model.DiscountBox)
-                            @await Html.PartialAsync("_GiftCardBox", Model.GiftCardBox)
-                            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryContentDeals, additionalData = Model })
-                        </div>
-                    } *@
                     <div class="totals">
                         <div class="px_cart_total">
                             @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryTotals, additionalData = Model })
@@ -351,25 +335,104 @@
                                     @if (string.IsNullOrEmpty(Model.MinOrderSubtotalWarning) && !Model.HideCheckoutButton)
                                     {
                                         <script asp-location="Footer">
-                                            $(function () {
-                                                $('#checkout').on('click', function () {
-                                                    //terms of service
+                                           $(function () {
+                                                $('#checkout').on('click', function (e) { 
+                                                    e.preventDefault(); // Prevent default form submission
+                                                    
+                                                    //terms of service validation
                                                     var termOfServiceOk = true;
                                                     if ($('#termsofservice').length > 0) {
-                                                        //terms of service element exists
                                                         if (!$('#termsofservice').is(':checked')) {
                                                             $("#terms-of-service-warning-box").dialog();
-                                                            termOfServiceOk = false;
-                                                        } else {
-                                                            termOfServiceOk = true;
+                                                            return false;
                                                         }
                                                     }
-                                                    return termOfServiceOk;
+
+                                                    // Show loading state
+                                                    $(this).prop('disabled', true).text('Procesando...');
+
+                                                    $.ajax({
+                                                        url: '@Url.Action("Cart", "ShoppingCart")',
+                                                        type: 'POST',
+                                                        data: $('#shopping-cart-form').serialize() + '&checkout=checkout',
+                                                        timeout: 30000, // 30 seconds timeout
+                                                        success: function (response) {
+                                                            // Reset button state
+                                                            $('#checkout').prop('disabled', false).text('@T("Checkout.Button")');
+                                                            
+                                                            console.log('Response:', response); // Para debugging
+                                                            
+                                                            if (response.success) {
+                                                                // Successful response - redirect
+                                                                if (response.redirectUrl) {
+                                                                    window.location.href = response.redirectUrl;
+                                                                } else {
+                                                                    console.error('No redirect URL provided');
+                                                                    showErrorAlert('Error de configuración. Contacta al soporte.');
+                                                                }
+                                                            } else if (response.isMinimumAmountError) {
+                                                                // Minimum amount error
+                                                                Swal.fire({
+                                                                    icon: 'warning',
+                                                                    title: '@Html.Raw(JavaScriptEncoder.Default.Encode(T("Checkout.MinimumOrderAmount.PopupTitle").Text))',
+                                                                    html: response.message, // Use html instead of text for formatted prices
+                                                                    confirmButtonText: '@Html.Raw(JavaScriptEncoder.Default.Encode(T("Common.Ok").Text))',
+                                                                    customClass: {
+                                                                        confirmButton: 'primary-btn',
+                                                                    },
+                                                                    confirmButtonColor: '#7A37F0',
+                                                                });
+                                                            } else {
+                                                                // Other errors
+                                                                showErrorAlert(response.message || 'Ha ocurrido un error inesperado.');
+                                                            }
+                                                        },
+                                                        error: function (xhr, status, error) {
+                                                            // Reset button state
+                                                            $('#checkout').prop('disabled', false).text('@T("Checkout.Button")');
+                                                            
+                                                            console.error('AJAX Error:', {
+                                                                status: status,
+                                                                error: error,
+                                                                responseText: xhr.responseText,
+                                                                statusCode: xhr.status
+                                                            });
+                                                            
+                                                            let errorMessage = 'Error de conexión. ';
+                                                            
+                                                            if (xhr.status === 0) {
+                                                                errorMessage += 'Verifica tu conexión a internet.';
+                                                            } else if (xhr.status === 404) {
+                                                                errorMessage += 'Página no encontrada.';
+                                                            } else if (xhr.status === 500) {
+                                                                errorMessage += 'Error interno del servidor.';
+                                                            } else if (status === 'timeout') {
+                                                                errorMessage += 'La solicitud ha expirado.';
+                                                            } else {
+                                                                errorMessage += `Código de error: ${xhr.status}`;
+                                                            }
+                                                            
+                                                            showErrorAlert(errorMessage);
+                                                        }
+                                                    });
                                                 });
+                                                
+                                                function showErrorAlert(message) {
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Error',
+                                                        text: message,
+                                                        confirmButtonText: '@Html.Raw(JavaScriptEncoder.Default.Encode(T("Common.Ok").Text))',
+                                                        customClass: {
+                                                            confirmButton: 'primary-btn',
+                                                        },
+                                                        confirmButtonColor: '#7A37F0',
+                                                    });
+                                                }
                                             });
                                         </script>
 
-                                        if (orderSettings.CheckoutDisabled)
+                                        @if (orderSettings.CheckoutDisabled)
                                         {
                                             <div class="checkout-disabled">
                                                 @T("Checkout.Disabled")

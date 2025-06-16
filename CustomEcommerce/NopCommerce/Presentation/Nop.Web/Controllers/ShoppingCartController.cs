@@ -37,6 +37,7 @@ using Nop.Web.Framework.Mvc.Routing;
 using Nop.Web.Infrastructure.Cache;
 using Nop.Web.Models.Media;
 using Nop.Web.Models.ShoppingCart;
+using Nop.Services.Orders;
 
 namespace Nop.Web.Controllers;
 
@@ -78,6 +79,7 @@ public partial class ShoppingCartController : BasePublicController
     protected readonly IWebHelper _webHelper;
     protected readonly IWorkContext _workContext;
     protected readonly IWorkflowMessageService _workflowMessageService;
+    protected readonly IOrderTotalCalculationService _orderTotalCalculationService;
     protected readonly MediaSettings _mediaSettings;
     protected readonly OrderSettings _orderSettings;
     protected readonly ShoppingCartSettings _shoppingCartSettings;
@@ -121,6 +123,7 @@ public partial class ShoppingCartController : BasePublicController
         IWebHelper webHelper,
         IWorkContext workContext,
         IWorkflowMessageService workflowMessageService,
+        IOrderTotalCalculationService orderTotalCalculationService,
         MediaSettings mediaSettings,
         OrderSettings orderSettings,
         ShoppingCartSettings shoppingCartSettings,
@@ -159,6 +162,7 @@ public partial class ShoppingCartController : BasePublicController
         _webHelper = webHelper;
         _workContext = workContext;
         _workflowMessageService = workflowMessageService;
+        _orderTotalCalculationService = orderTotalCalculationService;
         _mediaSettings = mediaSettings;
         _orderSettings = orderSettings;
         _shoppingCartSettings = shoppingCartSettings;
@@ -1332,47 +1336,79 @@ public partial class ShoppingCartController : BasePublicController
     [FormValueRequired("checkout")]
     public virtual async Task<IActionResult> StartCheckout(IFormCollection form)
     {
-        var customer = await _workContext.GetCurrentCustomerAsync();
-        var store = await _storeContext.GetCurrentStoreAsync();
-        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-
-        //parse and save checkout attributes
-        await ParseAndSaveCheckoutAttributesAsync(cart, form);
-
-        //validate attributes
-        var checkoutAttributes = await _genericAttributeService.GetAttributeAsync<string>(customer,
-            NopCustomerDefaults.CheckoutAttributes, store.Id);
-        var checkoutAttributeWarnings = await _shoppingCartService.GetShoppingCartWarningsAsync(cart, checkoutAttributes, true);
-        if (checkoutAttributeWarnings.Any())
+        try
         {
-            //something wrong, redisplay the page with warnings
-            var model = new ShoppingCartModel();
-            model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart, validateCheckoutAttributes: true);
-            return View(model);
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            var store = await _storeContext.GetCurrentStoreAsync();
+            var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+            //parse and save checkout attributes
+            await ParseAndSaveCheckoutAttributesAsync(cart, form);
+
+            //validate attributes
+            var checkoutAttributes = await _genericAttributeService.GetAttributeAsync<string>(customer,
+                NopCustomerDefaults.CheckoutAttributes, store.Id);
+            var checkoutAttributeWarnings = await _shoppingCartService.GetShoppingCartWarningsAsync(cart, checkoutAttributes, true);
+            if (checkoutAttributeWarnings.Any())
+            {
+                //something wrong, redisplay the page with warnings
+                var model = new ShoppingCartModel();
+                model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart, validateCheckoutAttributes: true);
+                return View(model);
+            }
+
+            // Calculate order total
+            var (orderTotal, _, _, _, _, _) = await _orderTotalCalculationService.GetShoppingCartTotalAsync(cart, usePaymentMethodAdditionalFee: false);
+            
+            var minimumOrderAmount = _orderSettings.MinOrderTotalAmount;
+
+            if (orderTotal.HasValue && minimumOrderAmount > 0 && orderTotal.Value < minimumOrderAmount)
+            {
+                // Formatear el mensaje con el monto mínimo
+                var formattedMinAmount = await _priceFormatter.FormatPriceAsync(minimumOrderAmount, true, false);
+                var errorMessage = string.Format(
+                    await _localizationService.GetResourceAsync("Checkout.MinimumOrderAmount.ErrorMessage"), 
+                    formattedMinAmount);
+                
+                return Json(new { 
+                    success = false, 
+                    message = errorMessage, 
+                    isMinimumAmountError = true,
+                    minimumAmount = minimumOrderAmount,
+                    currentTotal = orderTotal.Value
+                });
+            }
+
+            // Verificar si el checkout anónimo está permitido
+            var anonymousPermitted = _orderSettings.AnonymousCheckoutAllowed
+                                    && _customerSettings.UserRegistrationType == UserRegistrationType.Disabled;
+
+            if (_orderSettings.AnonymousCheckoutAllowed)
+            {
+                return Json(new { success = true, redirectUrl = Url.RouteUrl("Checkout") });
+            }
+
+            var cartProductIds = cart.Select(ci => ci.ProductId).ToArray();
+            var downloadableProductsRequireRegistration =
+                _customerSettings.RequireRegistrationForDownloadableProducts && 
+                await _productService.HasAnyDownloadableProductAsync(cartProductIds);
+
+            if (!_orderSettings.AnonymousCheckoutAllowed || downloadableProductsRequireRegistration)
+            {
+                var loginUrl = Url.RouteUrl("Login", new { returnUrl = Url.RouteUrl("ShoppingCart") });
+                return Json(new { success = true, redirectUrl = loginUrl });
+            }
+
+            return Json(new { success = true, redirectUrl = Url.RouteUrl("LoginCheckoutAsGuest") });
         }
-
-        var anonymousPermissed = _orderSettings.AnonymousCheckoutAllowed
-                                 && _customerSettings.UserRegistrationType == UserRegistrationType.Disabled;
-
-        // if (anonymousPermissed || !await _customerService.IsGuestAsync(customer))
-        //     return RedirectToRoute("Checkout");
-
-        if (_orderSettings.AnonymousCheckoutAllowed)
+        catch (Exception ex)
         {
-            return RedirectToRoute("Checkout");
+            return Json(new { 
+                success = false, 
+                message = "Ha ocurrido un error. Por favor, inténtalo de nuevo.",
+                isMinimumAmountError = false
+            });
         }
-
-        var cartProductIds = cart.Select(ci => ci.ProductId).ToArray();
-        var downloadableProductsRequireRegistration =
-            _customerSettings.RequireRegistrationForDownloadableProducts && await _productService.HasAnyDownloadableProductAsync(cartProductIds);
-
-        if (!_orderSettings.AnonymousCheckoutAllowed || downloadableProductsRequireRegistration)
-        {
-            //verify user identity (it may be facebook login page, or google, or local)
-            return Challenge();
-        }
-
-        return RedirectToRoute("LoginCheckoutAsGuest", new { returnUrl = Url.RouteUrl("ShoppingCart") });
     }
 
     [HttpPost, ActionName("Cart")]
