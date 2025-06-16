@@ -1197,25 +1197,27 @@ input[type="radio"]:checked + .radio-custom {
 }
 
 .swal2-confirm {
-  background-color: #007bff !important;
   border: none !important;
   color: white !important;
   font-weight: 500 !important;
 }
 
 .swal2-confirm:hover {
-  background-color: #0056b3 !important;
+  background-color: white  !important;
+  color: #7A37F0 !important;
+  border: 1px solid #7A37F0 !important;
 }
 
 .swal2-cancel {
-  background-color: #dc3545 !important;
-  border: none !important;
-  color: white !important;
+  color: #7A37F0 !important;
   font-weight: 500 !important;
+  background-color: transparent !important;
 }
 
 .swal2-cancel:hover {
-  background-color: #c82333 !important;
+  background-color: #aeabab !important;
+  color: #7A37F0 !important;
+  border: 1px solid #7A37F0 !important;
 }
 
 .swal2-deny {

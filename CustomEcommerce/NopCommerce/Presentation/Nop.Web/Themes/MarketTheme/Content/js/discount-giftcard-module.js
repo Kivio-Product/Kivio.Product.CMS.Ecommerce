@@ -78,7 +78,7 @@ var DiscountGiftCard = {
                 text:
                   response.message || "Error al aplicar el código de descuento",
                 icon: "error",
-                confirmButtonColor: "#102c5a",
+                confirmButtonColor: "#7A37F0",
               });
             }
           } else {
@@ -93,7 +93,7 @@ var DiscountGiftCard = {
             title: "Error",
             text: "Ocurrió un error al aplicar el código de descuento",
             icon: "error",
-            confirmButtonColor: "#102c5a",
+            confirmButtonColor: "#7A37F0",
           });
         },
         complete: function () {
@@ -134,7 +134,7 @@ var DiscountGiftCard = {
                 title: "Error",
                 text: response.message || "Error al aplicar la tarjeta regalo",
                 icon: "error",
-                confirmButtonColor: "#102c5a",
+                confirmButtonColor: "#7A37F0",
               });
             }
           } else {
@@ -149,7 +149,7 @@ var DiscountGiftCard = {
             title: "Error",
             text: "Ocurrió un error al aplicar la tarjeta regalo",
             icon: "error",
-            confirmButtonColor: "#102c5a",
+            confirmButtonColor: "#7A37F0",
           });
         },
         complete: function () {
@@ -188,7 +188,7 @@ var DiscountGiftCard = {
               text:
                 response.message || "Error al eliminar el código de descuento",
               icon: "error",
-              confirmButtonColor: "#102c5a",
+              confirmButtonColor: "#7A37F0",
             });
           }
         } else {
@@ -206,7 +206,7 @@ var DiscountGiftCard = {
           title: "Error",
           text: "Ocurrió un error al eliminar el código de descuento",
           icon: "error",
-          confirmButtonColor: "#102c5a",
+          confirmButtonColor: "#7A37F0",
         });
       },
       complete: function () {
@@ -244,7 +244,7 @@ var DiscountGiftCard = {
               title: "Error",
               text: response.message || "Error al eliminar la tarjeta regalo",
               icon: "error",
-              confirmButtonColor: "#102c5a",
+              confirmButtonColor: "#7A37F0",
             });
           }
         } else {
@@ -262,7 +262,7 @@ var DiscountGiftCard = {
           title: "Error",
           text: "Ocurrió un error al eliminar la tarjeta regalo",
           icon: "error",
-          confirmButtonColor: "#102c5a",
+          confirmButtonColor: "#7A37F0",
         });
       },
       complete: function () {
