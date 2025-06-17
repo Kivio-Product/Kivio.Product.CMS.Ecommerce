@@ -113,8 +113,27 @@ var Checkout = {
       }
 
       if (response.goto_section) {
-        Checkout.gotoSection(response.goto_section);
-        return true;
+          const nextStep = response.goto_section.replace(/-/g, '_');
+
+          const currentStep = $('.opc-section.active, .tab-section.allow.active')
+              .attr('id')
+              ?.replace('opc-', '');
+
+          const stepOrder = $('.opc .tab-section').map(function () {
+              return this.id.replace('opc-', '');
+          }).get();
+
+          const currentIndex = stepOrder.indexOf(currentStep);
+          const nextIndex = stepOrder.indexOf(nextStep);
+
+          if (currentIndex >= 0 && nextIndex > currentIndex) {
+              for (let i = currentIndex + 1; i < nextIndex; i++) {
+                  $('#opc-' + stepOrder[i]).addClass('allow completed');
+              }
+          }
+
+          Checkout.gotoSection(nextStep);
+          return true;
       }
       if (response.redirect) {
         location.href = response.redirect;
