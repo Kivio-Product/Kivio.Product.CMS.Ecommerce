@@ -252,18 +252,7 @@ ul.login-list li :hover{
   left: 0;
   bottom: -6px;
 }
-.section-head h2::after,
-.section-head h1::after {
-  content: '';
-  position: absolute;
-  height: 5px;
-  width: 50px;
-  display: inline-block;
-  background-color: #CAD2DF;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: -8px;
-}
+
 .header-links ul li a{
   position: relative;
   margin-top: 14px
