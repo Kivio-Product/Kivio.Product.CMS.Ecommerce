@@ -26,6 +26,9 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Models
         [NopResourceDisplayName("Plugins.Misc.RecipeSuggestions.Settings.WidgetZone")]
         public string WidgetZone { get; set; }
         public bool WidgetZone_OverrideForStore { get; set; }
+        [NopResourceDisplayName("Plugins.Misc.RecipeSuggestions.Settings.ExcludeCategoryIds")]
+        public string ExcludeCategoryIds { get; set; }
+        public bool ExcludeCategoryIds_OverrideForStore { get; set; }
 
     }
 }

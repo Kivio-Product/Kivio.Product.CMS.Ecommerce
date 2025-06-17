@@ -318,7 +318,6 @@ label, label + * {
 .inputs input[type="tel"],
 .inputs input[type="password"],
 .inputs select {
-  width: 400px;
   max-width: 100%;
   min-height: 40px;
   background-color: #fff;
@@ -920,7 +919,7 @@ label, label + * {
 .header-logo a img {
   max-height: 80px;
   object-fit: cover;
-  max-width: 200px;
+  max-width: 145px;
 }
 .search-box.store-search-box {
   flex: 1;
@@ -8441,4 +8440,33 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
     text-align: center;
     padding: 20px;
     color: #777;
+}
+
+.are-you-registered{
+  display: flex;
+  margin: 15px 0px;
+}
+
+.are-you-registered a{
+  color: #7a37f0;
+  margin-left:5px;
+}
+
+.wishlist-url-link {
+    margin-right: 10px;
+    word-break: break-all;
+}
+.copy-wishlist-url-button {
+    padding: 6px 8px; /* Padding ajustado para un icono */
+    line-height: 1;   /* Para mejor alineación vertical del icono */
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    font-size: 30px;
+}
+.clipboard-image {
+  background:  url('../images/clipboard.png') no-repeat center center;
+  background-size: contain;
+  width: 30px; 
+  height: 30px; 
 }

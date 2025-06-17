@@ -20,8 +20,7 @@ public class NopStartup : INopStartup
     {
         services.AddScoped<IAIRecipeService, AIRecipeService>();
         services.AddScoped<IRecipeSuggestionService, RecipeSuggestionService>();
-        // services.AddScoped<ICacheService, CacheService>(); // Uncomment if you want to use the memory cache service
-        services.AddScoped<ICacheService, PersistentCacheService>(); // Commentt if you want to use the memory cache service
+        services.AddScoped<IPersistentRepositoryService, PersistentRepositoryService>();
 
 
         // Gemini SDK configuration

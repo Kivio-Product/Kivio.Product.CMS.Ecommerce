@@ -8,26 +8,32 @@ using Nop.Services.Media;
 using Nop.Services.Seo;
 using Nop.Services.Logging;
 using Nop.Data;
+using Nop.Core.Caching;
 
 namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 {
     public class RecipeSuggestionService : IRecipeSuggestionService
     {
-        private readonly ICacheService _cacheService;
+        private readonly IPersistentRepositoryService _persistentRepositoryService;
+        private readonly IStaticCacheManager _staticCacheManager;
         private readonly IAIRecipeService _aiRecipeService;
         private readonly IProductService _productService;
         private readonly IPictureService _pictureService;
         private readonly IStoreContext _storeContext;
         private readonly ISettingService _settingService;
-        private readonly IUrlRecordService _urlRecordService; 
+        private readonly IUrlRecordService _urlRecordService;
+        private readonly ICategoryService _categoryService;
         private readonly IRepository<RecipeSuggestion> _recipeSuggestionRepository;
+        private readonly IRepository<RecipeIngredient> _recipeIngredientRepository;
         private readonly ILogger _logger;
 
-        private string CACHE_KEY_PREFIX = "";
-        private const int DEFAULT_CACHE_TIME_MINUTES = 72000;
+        private const int MAX_FEATURED_RECIPES = 3;
+        private const int FEATURED_RECIPES_CACHE_TIME_MINUTES = 1440;
+        private const string FEATURED_RECIPES_CACHE_KEY = "featured_recipes";
+        private const int FEATURES_RECIPES_BATCH_SIZE = 10;
 
         public RecipeSuggestionService(
-            ICacheService cacheService,
+            IPersistentRepositoryService persistentRepositoryService,
             IAIRecipeService aiRecipeService,
             IProductService productService,
             IPictureService pictureService,
@@ -35,9 +41,13 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             ISettingService settingService,
             IUrlRecordService urlRecordService,
             ILogger logger,
-            IRepository<RecipeSuggestion> recipeSuggestionRepository)
+            IRepository<RecipeSuggestion> recipeSuggestionRepository,
+            IRepository<RecipeIngredient> recipeIngredientRepository,
+            IStaticCacheManager staticCacheManager,
+            ICategoryService categoryService)
         {
-            _cacheService = cacheService;
+            _persistentRepositoryService = persistentRepositoryService;
+            _staticCacheManager = staticCacheManager;
             _aiRecipeService = aiRecipeService;
             _productService = productService;
             _pictureService = pictureService;
@@ -45,8 +55,9 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
             _settingService = settingService;
             _urlRecordService = urlRecordService;
             _recipeSuggestionRepository = recipeSuggestionRepository;
+            _recipeIngredientRepository = recipeIngredientRepository;
+            _categoryService = categoryService;
             _logger = logger;
-            CACHE_KEY_PREFIX = _cacheService is PersistentCacheService ? "" : "recipesuggestion.product.";
         }
 
         public async Task<RecipeSuggestionViewModel?> GetRecipeSuggestionForProductAsync(int productId)
@@ -58,20 +69,17 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 return null;
             }
 
-            string cacheKey = $"{CACHE_KEY_PREFIX}{productId}";
-            var cachedSuggestion = await _cacheService.GetAsync(cacheKey);
+            var persistentSuggestion = await _persistentRepositoryService.GetAsync(productId);
 
-            if (cachedSuggestion != null)
+            if (persistentSuggestion != null)
             {
-                return cachedSuggestion;
+                return persistentSuggestion;
             }
 
-            // If not in cache, generate and cache it.
-            // The generation context here is "ondemand" as per the requirements.
+            // If not in repository, generate and cache it.
             await GenerateAndCacheRecipeSuggestionAsync(productId, "ondemand");
-            
-            // Attempt to get it again from cache after generation.
-            return await _cacheService.GetAsync(cacheKey);
+
+            return await _persistentRepositoryService.GetAsync(productId);
         }
 
         public async Task GenerateAndCacheRecipeSuggestionAsync(int productId, string context)
@@ -87,7 +95,17 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 
             // Load settings to get cache time, etc.
             var settings = await _settingService.LoadSettingAsync<RecipeSuggestionSettings>(_storeContext.GetCurrentStore().Id);
-            int cacheTime = DEFAULT_CACHE_TIME_MINUTES;
+            if (settings?.ExcludeCategoryIds?.Trim().Length != 0)
+            {
+                var excludedCategoryIds = settings?.ExcludeCategoryIds?.Split(',').Select(int.Parse).ToList() ?? new List<int>();
+
+                if (await HasProductInvalidCategoryAsync(product, excludedCategoryIds))
+                {
+                    _logger.Warning($"Product with ID {productId} does not belong to a valid category for recipe suggestions.");
+                    return;
+                }
+            }
+            
 
             var availableStoreProducts = await _productService.SearchProductsAsync(
                 visibleIndividuallyOnly: true,
@@ -101,11 +119,11 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 _logger.Warning($"AI did not return a valid recipe for product ID {productId}.");
                 return;
             }
-            
+
             var recipeSuggestion = new RecipeSuggestionViewModel
             {
                 RecipeTitle = recipeTitle,
-                RecipeImageBase64 = await _aiRecipeService.GenerateImageForRecipeAsync(recipeTitle),
+                RecipeImageBase64 = await _aiRecipeService.GenerateImageForRecipeAsync(recipeTitle, 75),
                 RecipeDescription = instructions,
                 RecipeDate = DateTime.UtcNow
             };
@@ -122,7 +140,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                     ingredientVm.IsNewIngredient = false;
                     ingredientVm.NopCommerceProductId = existingProduct.Id;
                     ingredientVm.NopCommerceProductSeName = $"{await _urlRecordService.GetSeNameAsync(existingProduct)}"; // Assuming default URL structure
-                    
+
                     var productPictures = await _pictureService.GetPicturesByProductIdAsync(existingProduct.Id, 1);
                     ingredientVm.ImageUrl = productPictures.Any() ? (await _pictureService.GetPictureUrlAsync(productPictures.First())).Url ?? string.Empty : string.Empty;
 
@@ -132,7 +150,7 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                     ingredientVm.IsNewIngredient = true;
                     if (!string.IsNullOrWhiteSpace(aiIngredient.IngredientName))
                     {
-                        ingredientVm.Base64Image = await _aiRecipeService.GenerateImageForIngredientAsync(aiIngredient.IngredientName);
+                        ingredientVm.Base64Image = await _aiRecipeService.GenerateImageForIngredientAsync(aiIngredient.IngredientName, 60);
                     }
                     else
                     {
@@ -141,9 +159,8 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 }
                 recipeSuggestion.Ingredients.Add(ingredientVm);
             }
-            
-            string cacheKey = $"{CACHE_KEY_PREFIX}{productId}";
-            await _cacheService.SetAsync(cacheKey, recipeSuggestion, cacheTime);
+
+            await _persistentRepositoryService.SetAsync(productId, recipeSuggestion);
         }
 
         public async Task GenerateRecipeSuggestionsForNewProductsAsync(int newProductsBatchSize)
@@ -185,20 +202,28 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
         public async Task RefreshRecipeSuggestionsAsync(int refreshProductsBatchSize, int refreshRecipeAgeDays)
         {
             _logger.Information($"Refreshing recipe suggestions for products older than {refreshRecipeAgeDays} days, batch size: {refreshProductsBatchSize}.");
-            
+
             var cutoffDate = DateTime.UtcNow.AddDays(-refreshRecipeAgeDays);
             var productIdsToRefresh = _recipeSuggestionRepository.Table
                 .Where(rs => rs.CreatedOnUtc < cutoffDate)
                 .Select(rs => rs.ProductId)
                 .Take(refreshProductsBatchSize)
                 .ToList();
-            
+
             foreach (var productId in productIdsToRefresh)
             {
+                // Verify product is still valid
+                var product = await _productService.GetProductByIdAsync(productId);
+                if (product == null || !product.Published || product.Deleted)
+                {
+                    _logger.Warning($"Product with ID {productId} is not valid for recipe suggestion refresh. Removing from cache.");
+                    await _persistentRepositoryService.RemoveAsync(productId);
+                    continue;
+                }
                 if (ExistsRecipeOnCache(productId))
                 {
                     _logger.Information($"Refreshing recipe suggestion for product ID {productId}.");
-                    await _cacheService.RemoveAsync($"{CACHE_KEY_PREFIX}{productId}");
+                    await _persistentRepositoryService.RemoveAsync(productId);
                     await GenerateAndCacheRecipeSuggestionAsync(productId, "refresh");
                     _logger.Information($"Recipe suggestion for product ID {productId} refreshed successfully.");
                 }
@@ -207,8 +232,66 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
 
         public bool ExistsRecipeOnCache(int productId)
         {
-            string cacheKey = $"{CACHE_KEY_PREFIX}{productId}";
-            return _cacheService.GetAsync(cacheKey).Result != null;
+            return _persistentRepositoryService.GetAsync(productId).Result != null;
+        }
+
+        public async Task<IList<RecipeSuggestionViewModel>> GetFeaturedRecipeSuggestionsAsync()
+        {
+            var cacheKey = new CacheKey(FEATURED_RECIPES_CACHE_KEY);
+            cacheKey.CacheTime = FEATURED_RECIPES_CACHE_TIME_MINUTES;
+
+            var recipes = await _staticCacheManager.GetAsync(cacheKey, async () =>
+            {
+                _logger.Information("Cache miss. Retrieving featured recipes from database.");
+
+                var dbRecipes = await _recipeSuggestionRepository.Table
+                    .OrderBy(rs => Guid.NewGuid())
+                    .Take(FEATURES_RECIPES_BATCH_SIZE)
+                    .Select(rs => new RecipeSuggestionViewModel
+                    {
+                        RecipeTitle = rs.RecipeTitle,
+                        RecipeImageBase64 = rs.ImageBase64,
+                        RecipeDescription = rs.Description,
+                        RecipeDate = rs.CreatedOnUtc,
+                        Ingredients = _recipeIngredientRepository.Table
+                            .Where(ri => ri.RecipeSuggestionId == rs.Id)
+                            .Select(ri => new IngredientViewModel
+                            {
+                                Name = ri.Name,
+                                IsNewIngredient = ri.IsNewIngredient,
+                                NopCommerceProductSeName = ri.NopCommerceProductSeName,
+                            }).ToList()
+                    }).ToListAsync();
+
+                if (dbRecipes == null || !dbRecipes.Any())
+                {
+                    _logger.Warning("No recipe suggestions found to be featured.");
+                    return new List<RecipeSuggestionViewModel>();
+                }
+
+                _logger.Information($"Found {dbRecipes.Count} recipes. Caching them.");
+                return dbRecipes;
+            });
+
+            return GetRandomRecipes(recipes);
+        }
+
+        private List<RecipeSuggestionViewModel> GetRandomRecipes(List<RecipeSuggestionViewModel> allRecipes)
+        {
+            return allRecipes.OrderBy(x => Guid.NewGuid()).Take(MAX_FEATURED_RECIPES).ToList();
+        }
+
+        private async Task<bool> HasProductInvalidCategoryAsync(Product product, List<int> excludedCategoryIds)
+        {
+            if (excludedCategoryIds == null || !excludedCategoryIds.Any())
+            {
+                return false;
+            }
+
+            var productCategories = await _categoryService.GetProductCategoriesByProductIdAsync(product.Id);
+
+            var productCategoryIds = productCategories.Select(pc => pc.CategoryId);
+            return productCategoryIds.Any(id => excludedCategoryIds.Contains(id));
         }
     }
 }

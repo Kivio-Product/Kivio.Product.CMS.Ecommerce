@@ -16,6 +16,7 @@
 
         @*we add enctype = "multipart/form-data" because "File upload" attribute control type requires it*@
         <form asp-route="ShoppingCart" method="post" enctype="multipart/form-data" id="shopping-cart-form">
+            @Html.AntiForgeryToken() @* Important for POST requests *@
             <div class="px_cart_data">
                 @if (Model.Warnings.Count > 0)
                 {
@@ -148,6 +149,37 @@
                                                     }
                                                 </ul>
                                             </div>
+                                            <script asp-location="Footer">
+                                                $(function () {
+                                                    // Data to be sent
+                                                    var postData = {
+                                                        'removefromcart': '@item.Id', // ID of the item to remove
+                                                        'updatecart': 'Update shopping cart' // This name/value pair triggers the update logic on the server
+                                                    };
+                                                    // Add antiforgery token
+                                                    postData['__RequestVerificationToken'] = $('input[name="__RequestVerificationToken"]').val();
+
+                                                    console.log('Attempting to remove item @item.Id due to warnings.');
+
+                                                    $.ajax({
+                                                        cache: false,
+                                                        url: '@Url.RouteUrl("ShoppingCart")', // URL of the shopping cart page (handles updates)
+                                                        data: postData,
+                                                        type: 'POST',
+                                                        success: function (response) {
+                                                            // On successful removal, NopCommerce typically redirects or updates.
+                                                            // We will force a reload of the cart page to reflect changes.
+                                                            console.log('Item @item.Id removed due to warning. Reloading cart.');
+                                                            window.location.href = '@Url.RouteUrl("ShoppingCart")';
+                                                        },
+                                                        error: function (xhr, ajaxOptions, thrownError) {
+                                                            console.error('Failed to remove item @item.Id automatically. Error: ' + thrownError);
+                                                            // Optionally, inform the user that an automatic removal failed.
+                                                            alert('@T("ShoppingCart.RemoveItemError")');
+                                                        }
+                                                    });
+                                                });
+                                            </script>
                                         }
                                     </td>
                                     @if (Model.ShowVendorName)

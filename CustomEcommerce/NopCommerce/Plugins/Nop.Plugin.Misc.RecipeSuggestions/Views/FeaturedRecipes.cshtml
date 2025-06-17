@@ -1,0 +1,33 @@
+@model IList<Nop.Plugin.Misc.RecipeSuggestions.Models.RecipeSuggestionViewModel>
+
+<link href="~/Plugins/Misc.RecipeSuggestions/Content/css/styles.css" rel="stylesheet">
+
+<div class="featured-recipes-container section-width">
+    <div class="featured-recipes-header">
+        <h2>@T("Plugins.Misc.RecipeSuggestions.FeaturedRecipes.Title") <span class="ai-text">@T("Plugins.Misc.RecipeSuggestions.FeaturedRecipes.Title.AI")</span></h2>
+    </div>
+    
+    <div class="featured-recipes-grid">
+        @foreach (var recipe in Model)
+        {
+            <div class="featured-recipe-card">
+                <div class="recipe-image">
+                    @if (!string.IsNullOrEmpty(recipe.RecipeImageBase64))
+                    {
+                        <img src="@($"data:image/png;base64,{recipe.RecipeImageBase64}")" alt="@recipe.RecipeTitle" />
+                    }
+                    else
+                    {
+                        <img src="#" alt="@recipe.RecipeTitle" />
+                    }
+                </div>
+                <div class="recipe-content">
+                    <h3>@recipe.RecipeTitle</h3>
+                    <a href="@recipe.Ingredients.FirstOrDefault()?.NopCommerceProductSeName" class="view-recipe-button">
+                        @T("Plugins.Misc.RecipeSuggestions.FeaturedRecipes.ViewRecipe")
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

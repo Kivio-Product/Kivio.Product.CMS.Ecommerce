@@ -8,7 +8,7 @@
     <PackageLicenseUrl></PackageLicenseUrl>
     <OutputPath>$(SolutionDir)NopCommerce\src\Presentation\Nop.Web\Plugins\Misc.RecipeSuggestions</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
-    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   
@@ -18,6 +18,7 @@
     <None Remove="Views\Configure.cshtml" />    
     <None Remove="Views\_ViewImports.cshtml" />
     <None Remove="Views\PublicView.cshtml" />
+    <None Remove="Views\FeaturedRecipes.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,12 +40,19 @@
     <Content Include="Content\css\styles.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Views\FeaturedRecipes.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)NopCommerce\src\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
     <ProjectReference Include="$(SolutionDir)NopCommerce\src\Presentation\Nop.Web\Nop.Web.csproj" />
     <ClearPluginAssemblies Include="$(SolutionDir)NopCommerce\src\Build\ClearPluginAssemblies.proj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.9" />
   </ItemGroup>
   
   <!-- This target execute after "Build" target -->
