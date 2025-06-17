@@ -254,8 +254,8 @@
                         {
                             <div class="common-buttons">
                                 <div class="px_cart_three_btn">
-                                    <button type="submit" id="updatecart" name="updatecart" class="button-2 update-cart-button" style="display: none;">@T("ShoppingCart.UpdateCart")</button>
-                                    <button type="submit" name="continueshopping" class="button-2 continue-shopping-button">@T("ShoppingCart.ContinueShopping")</button>
+                                    <button type="submit" id="updatecart" name="updatecart" class="button-2 update-cart-button background-button" style="display: none;">@T("ShoppingCart.UpdateCart")</button>
+                                    <button type="submit" name="continueshopping" class="button-2 continue-shopping-button background-button">@T("ShoppingCart.ContinueShopping")</button>
                                     @*@await Component.InvokeAsync(typeof(ShoppingCartEstimateShippingViewComponent)))*@
                                     @if (Model.IsEditable && Model.Items.Count > 0 && Model.DisplayTaxShippingInfo)
                                     {
