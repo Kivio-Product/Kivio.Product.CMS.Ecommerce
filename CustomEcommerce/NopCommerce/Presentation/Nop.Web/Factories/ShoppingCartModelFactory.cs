@@ -997,6 +997,11 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
         //cart items
         foreach (var sci in cart)
         {
+            var product = await _productService.GetProductByIdAsync(sci.ProductId);
+    
+            if (product == null || product.Deleted || !product.Published)
+                continue;
+
             var cartItemModel = await PrepareWishlistItemModelAsync(sci);
             model.Items.Add(cartItemModel);
         }
