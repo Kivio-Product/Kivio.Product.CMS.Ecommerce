@@ -2029,8 +2029,8 @@ input[type="radio"] {
   height: 100%;
 }
 .px_mini_shopping_cart_item .px_items_scroll {
+  overflow-y: auto;
   position: relative;
-  overflow: hidden;
   height: calc(100vh - 235px);
 }
 .px_mini_shopping_cart_item .items {

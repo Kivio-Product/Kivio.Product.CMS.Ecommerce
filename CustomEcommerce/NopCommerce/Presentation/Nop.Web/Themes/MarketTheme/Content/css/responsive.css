@@ -797,6 +797,9 @@
     .px-payment img {
         margin-bottom: 0;
     }
+    .px_mini_shopping_cart_item .px_items_scroll {
+      height: calc(100vh - 160px);
+    }
 }
 
 @media all and (max-width: 768px){  
