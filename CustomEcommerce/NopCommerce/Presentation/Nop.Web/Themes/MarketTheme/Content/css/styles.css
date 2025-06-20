@@ -740,39 +740,67 @@ label, label + * {
 .ui-dialog-content .back-in-stock-subscription-page .tooltip {
   margin-bottom: 10px;
 }
-.eu-cookie-bar-notification {
+/* --- Estilos de la Barra de Cookies --- */
+        
+.cookie-banner {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  z-index: 1050;
-  width: 320px;
-  height: 180px;
-  margin: -90px 0 0 -160px;
-  border: 1px solid #ccc;
-  box-shadow: 0 0 2px rgba(0,0,0,0.15);
+  bottom: 0;
+  left: 0;
+  width: 100%;
   background-color: #fff;
-  padding: 20px;
-  text-align: center;
+  border-top: 2px solid #7A37F0;
+  box-shadow: 0 -2px 10px #b68dff;
+  z-index: 1000;
+  box-sizing: border-box;
 }
-.eu-cookie-bar-notification .text {
-  margin-bottom: 20px;
-  line-height: 20px;
+
+.cookie-banner-content {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    text-align: center;
+    padding: 15px;
+    gap: 15px; 
+    font-size: 14px;
 }
-.eu-cookie-bar-notification button {
-  min-width: 60px;
-  margin: 5px 0 10px;
-  border: none;
-  padding: 8px 12px;
-  font-size: 14px;
-  color: #fff;
+
+.cookie-banner-text {
+    margin: 0;
+    color: black;
 }
-.eu-cookie-bar-notification a {
-  display: block;
+
+.cookie-banner-text a {
+    color: black;
+    text-decoration: underline; 
+}
+
+.cookie-banner-button {
+  font-family: inherit;
+  font-weight: 400;
+  background-color: #fff;
+  border: 2px solid #7A37F0;
+  border-radius: 12px;
   color: #7A37F0;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: background-color .2s,color .2s;
 }
-.eu-cookie-bar-notification a:hover,
-.eu-cookie-bar-notification a:focus {
-  text-decoration: underline;
+
+.cookie-banner-button:hover {
+    background-color: rgb(209, 209, 209);
+    color: rgb(0, 0, 0);
+}
+
+/* --- Vista de Escritorio (Web) --- */
+@media (min-width: 768px) {
+    .cookie-banner-content {
+        flex-direction: row; 
+        justify-content: space-between; 
+        padding: 15px 30px;
+        text-align: left;
+        gap: 20px;
+        font-size: 16px;
+    }
 }
 
 
