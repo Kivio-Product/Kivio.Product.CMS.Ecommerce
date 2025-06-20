@@ -1478,23 +1478,35 @@ input[type="radio"]:checked + .radio-custom {
 .facebook {
   background: linear-gradient(135deg, #1877f2, #42a5f5);
   color: white;
-  box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
+  /* box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3); */
 }
 
 .facebook:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(24, 119, 242, 0.4);
+  /* box-shadow: 0 6px 20px rgba(24, 119, 242, 0.4); */
 }
 
 .instagram {
   background: linear-gradient(135deg, #e4405f, #f77737, #fcaf45);
   color: white;
-  box-shadow: 0 4px 15px rgba(228, 64, 95, 0.3);
+  /* box-shadow: 0 4px 15px rgba(228, 64, 95, 0.3); */
 }
 
 .instagram:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(228, 64, 95, 0.4);
+  /* box-shadow: 0 6px 20px rgba(228, 64, 95, 0.4); */
+}
+
+.whatsapp {
+  background: linear-gradient(135deg, #25d366, #128c7e);
+}
+
+.whatsapp:hover {
+  transform: translateY(-2px);
+}
+.whatsapp-svg {
+  width: 30px;
+  height: 30px;
 }
 
 .twitter {
@@ -1864,6 +1876,13 @@ button.add-to-wishlist-button.selected {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.px_clear_cart_btn button {
+  border: 0.5px solid !important;
+  border-color: #7a37f07a !important;
+  background: none;
+  color: #7A37F0;
 }
 
 @media all and (max-width: 1000px) {

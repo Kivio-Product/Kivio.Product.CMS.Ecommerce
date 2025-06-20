@@ -1,4 +1,10 @@
-﻿<nop-antiforgery-token />
+﻿@inject IThemeContext themeContext
+@{
+    var themeName = await themeContext.GetWorkingThemeNameAsync();
+    var privacyPolicyPDFPath = Url.Content($"~/Themes/{themeName}/Content/files/politica-tratamiento-datos.pdf");
+}
+
+<nop-antiforgery-token />
 <script asp-location="Footer">
     $(function () {
         $('#eu-cookie-bar-notification').show();
@@ -22,12 +28,12 @@
         });
     });
 </script>
-<div id="eu-cookie-bar-notification" class="eu-cookie-bar-notification">
-    <div class="content">
-        <div class="text">@T("EUCookieLaw.Description2")</div>
-        <div class="buttons-more">
-            <button type="button" class="ok-button button-1 primary-btn" id="eu-cookie-ok">@T("Common.OK")</button>
-            <a class="learn-more" href="@Url.RouteTopicUrl("privacyinfo")">@T("EUCookieLaw.LearnMore")</a>
-        </div>
+<div class="cookie-banner" id="eu-cookie-bar-notification">
+    <div class="cookie-banner-content">
+        <p class="cookie-banner-text">
+            @T("EUCookieLaw.Description2") 
+            <a href="@privacyPolicyPDFPath" target="_blank">@T("EUCookieLaw.LearnMore")</a>.
+        </p>
+        <button class="cookie-banner-button" id="eu-cookie-ok">@T("Common.OK")</button>
     </div>
 </div>

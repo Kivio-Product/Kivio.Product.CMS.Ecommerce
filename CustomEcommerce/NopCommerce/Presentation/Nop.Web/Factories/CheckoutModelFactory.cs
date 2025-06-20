@@ -523,12 +523,12 @@ public partial class CheckoutModelFactory : ICheckoutModelFactory
                 paymentMethodToSelect.Selected = true;
         }
         //if no option has been selected, let's do it for the first one
-        if (model.PaymentMethods.FirstOrDefault(so => so.Selected) == null)
-        {
-            var paymentMethodToSelect = model.PaymentMethods.FirstOrDefault();
-            if (paymentMethodToSelect != null)
-                paymentMethodToSelect.Selected = true;
-        }
+        // if (model.PaymentMethods.FirstOrDefault(so => so.Selected) == null)
+        // {
+        //     var paymentMethodToSelect = model.PaymentMethods.FirstOrDefault();
+        //     if (paymentMethodToSelect != null)
+        //         paymentMethodToSelect.Selected = true;
+        // }
 
         return model;
     }

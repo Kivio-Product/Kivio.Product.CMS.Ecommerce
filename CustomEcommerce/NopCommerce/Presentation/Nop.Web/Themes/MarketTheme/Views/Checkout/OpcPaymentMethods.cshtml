@@ -101,7 +101,7 @@
                                                    type="radio" 
                                                    name="paymentmethod" 
                                                    value="@(paymentMethod.PaymentMethodSystemName)" 
-                                                   checked="false"
+                                                   checked=@(paymentMethod.Selected)
                                                    @(isDisabled ? "disabled" : "")
                                                    data-payu-below-minimum="@isPayUBelowMinimum.ToString().ToLower()"
                                                    data-payu-minimum="@payUMinimumAmount"
@@ -138,7 +138,6 @@
             
             <script>
                 $(document).ready(function() {
-                    $('.payment-methods-list input[type="radio"]').prop('checked', false);
                     
                     $('.payment-method-disabled').on('click', function(e) {
                         e.preventDefault();

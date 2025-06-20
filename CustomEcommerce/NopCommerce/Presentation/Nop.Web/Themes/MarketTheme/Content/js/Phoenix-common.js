@@ -2,12 +2,16 @@
 
 $(window).load(function () {
   $(function () {
+    var hideFiltersText = window.FilterTranslations?.hideFilters || "Ocultar Filtros";
+    var showFiltersText = window.FilterTranslations?.showFilters || "Mostrar Filtros";
+
     if ($(this).width() <= 991) {
       var text = $("#sidebar-button").text();
-      if (text.trim() === "Hide Filters") {
-        $("#sidebar-button").html("Show Filters");
+      if (text.trim() === hideFiltersText) {
+        $("#sidebar-button").html(showFiltersText);
       }
     }
+    
     $(".sidebar-button").click(function () {
       $(".generalLeftSide").toggleClass("col-sidebar");
       $(".generalSideRight").toggleClass("col-full");
@@ -15,23 +19,23 @@ $(window).load(function () {
         "px-full-width-grid"
       );
       var text = $("#sidebar-button").text();
-      if (text.trim() === "Hide Filters") {
-        $("#sidebar-button").html("Show Filters");
+      if (text.trim() === hideFiltersText) {
+        $("#sidebar-button").html(showFiltersText);
       } else {
-        $("#sidebar-button").html("Hide Filters");
+        $("#sidebar-button").html(hideFiltersText);
       }
     });
 
     $(window).resize(function () {
       if ($(this).width() <= 991) {
         var text = $("#sidebar-button").text();
-        if (text.trim() === "Hide Filters") {
-          $("#sidebar-button").html("Show Filters");
+        if (text.trim() === hideFiltersText) {
+          $("#sidebar-button").html(showFiltersText);
         }
       } else {
         var text = $("#sidebar-button").text();
-        if (text.trim() === "Show Filters") {
-          $("#sidebar-button").html("Hide Filters");
+        if (text.trim() === showFiltersText) {
+          $("#sidebar-button").html(hideFiltersText);
         }
       }
     });
