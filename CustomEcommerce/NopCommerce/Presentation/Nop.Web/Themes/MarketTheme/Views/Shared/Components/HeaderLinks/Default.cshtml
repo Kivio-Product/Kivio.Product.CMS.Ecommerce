@@ -5,6 +5,8 @@
 <div class="header-links">
     <ul>
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderLinksBefore, additionalData = Model })
+        <li><a href="/about-us" class="ico-account login-list-item">@T("Common.AboutUs")</a></li>
+        <span class="header-plica-separator">|</span>
         @if (Model.IsAuthenticated)
             {
                 <li><a href="@Url.RouteUrl("CustomerInfo")" class="ico-account login-list-item">@T("Account.MyAccount")</a></li>
