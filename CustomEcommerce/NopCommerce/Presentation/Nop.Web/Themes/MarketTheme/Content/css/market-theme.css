@@ -1497,6 +1497,18 @@ input[type="radio"]:checked + .radio-custom {
   /* box-shadow: 0 6px 20px rgba(228, 64, 95, 0.4); */
 }
 
+.whatsapp {
+  background: linear-gradient(135deg, #25d366, #128c7e);
+}
+
+.whatsapp:hover {
+  transform: translateY(-2px);
+}
+.whatsapp-svg {
+  width: 30px;
+  height: 30px;
+}
+
 .twitter {
   background: linear-gradient(135deg, #1da1f2, #0d8bd9);
   color: white;
