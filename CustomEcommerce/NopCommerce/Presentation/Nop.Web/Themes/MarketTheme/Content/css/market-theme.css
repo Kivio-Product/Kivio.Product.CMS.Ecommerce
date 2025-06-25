@@ -638,7 +638,7 @@
   justify-content: center;
   align-items: center;
   background-color: #ffffff;
-  height: 300px;
+  /* height: 300px; */
 }
 
 .swiper-slide img {
@@ -2094,9 +2094,9 @@ button.add-to-wishlist-button.selected {
     display: block;
   }
 
-  .swiper-slide {
+  /* .swiper-slide {
     height: 250px;
-  }
+  } */
 
   .mobile-product-footer {
     display: flex;
