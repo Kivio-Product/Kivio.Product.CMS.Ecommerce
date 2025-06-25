@@ -1,9 +1,11 @@
 ﻿@using Nop.Core
 @using Nop.Core.Domain.Orders
+@using Nop.Services.Catalog
 @using Nop.Services.Customers
 @using Nop.Services.Orders
 @using Nop.Services.Stores
 @inject IShoppingCartService _shoppingCartService
+@inject IProductService _productService
 @inject IWorkContext _workContext
 @inject IStoreContext _storeContext
 
@@ -14,8 +16,20 @@
     var ShoppingCartItems = (await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id))
                     .Sum(item => item.Quantity);
 
-    var WishlistItems = (await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.Wishlist, store.Id))
-                    .Sum(item => item.Quantity);
+
+    var whishlistCart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.Wishlist, store.Id);
+
+    var validWishlistItems = 0;
+    foreach (var sci in whishlistCart)
+    {
+        var product = await _productService.GetProductByIdAsync(sci.ProductId);
+        
+        if (product == null || product.Deleted || !product.Published)
+            continue;
+            
+        validWishlistItems += sci.Quantity;
+    }
+    var WishlistItems = validWishlistItems;
 }
 
 <div class="topbar">

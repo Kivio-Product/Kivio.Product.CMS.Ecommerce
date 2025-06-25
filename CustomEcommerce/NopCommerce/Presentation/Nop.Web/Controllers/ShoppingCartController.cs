@@ -374,9 +374,20 @@ public partial class ShoppingCartController : BasePublicController
                 //display notification message and update appropriate blocks
                 var shoppingCarts = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.Wishlist, store.Id);
 
+                var validWishlistItems = 0;
+                foreach (var sci in shoppingCarts)
+                {
+                    var productFilter = await _productService.GetProductByIdAsync(sci.ProductId);
+                    
+                    if (productFilter == null || productFilter.Deleted || !productFilter.Published)
+                        continue;
+                        
+                    validWishlistItems += sci.Quantity;
+                }
+
                 var updateTopWishlistSectionHtml = string.Format(
                     await _localizationService.GetResourceAsync("Wishlist.HeaderQuantity"),
-                    shoppingCarts.Sum(item => item.Quantity));
+                    validWishlistItems);
 
                 return Json(new
                 {
@@ -666,9 +677,20 @@ public partial class ShoppingCartController : BasePublicController
 
                 //display notification message and update appropriate blocks
                 var shoppingCarts = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.Wishlist, store.Id);
+                
+                var validWishlistItems = 0;
+                foreach (var sci in shoppingCarts)
+                {
+                    var productFilter = await _productService.GetProductByIdAsync(sci.ProductId);
+                    
+                    if (productFilter == null || productFilter.Deleted || !productFilter.Published)
+                        continue;
+                        
+                    validWishlistItems += sci.Quantity;
+                }
 
                 var updatetopwishlistsectionhtml = string.Format(await _localizationService.GetResourceAsync("Wishlist.HeaderQuantity"),
-                    shoppingCarts.Sum(item => item.Quantity));
+                    validWishlistItems);
                 // Determine if the item is now in the wishlist (it should be, as it was just added)
                 // For robustness, a direct check could be added, but for an "add" operation, it's implicitly true.
                 // However, if this method were ever to handle "remove from wishlist" from catalog, a real check would be needed.
@@ -728,6 +750,7 @@ public partial class ShoppingCartController : BasePublicController
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
         var cartType = ShoppingCartType.Wishlist;
+        var validWishlistItems = 0;
 
         var product = await _productService.GetProductByIdAsync(productId);
         if (product == null)
@@ -753,9 +776,21 @@ public partial class ShoppingCartController : BasePublicController
                 string.Format(await _localizationService.GetResourceAsync("ActivityLog.PublicStore.RemoveFromWishlist"), product.Name), product);
 
             var updatedWishlist = await _shoppingCartService.GetShoppingCartAsync(customer, cartType, store.Id);
+
+            
+            foreach (var sci in updatedWishlist)
+            {
+                var productFilter = await _productService.GetProductByIdAsync(sci.ProductId);
+                
+                if (productFilter == null || productFilter.Deleted || !productFilter.Published)
+                    continue;
+                    
+                validWishlistItems += sci.Quantity;
+            }
+
             var updatetopwishlistsectionhtml = string.Format(
                 await _localizationService.GetResourceAsync("Wishlist.HeaderQuantity"),
-                updatedWishlist.Sum(item => item.Quantity));
+                validWishlistItems);
 
             return Json(new
             {
@@ -768,9 +803,21 @@ public partial class ShoppingCartController : BasePublicController
         }
 
         var currentWishlist = await _shoppingCartService.GetShoppingCartAsync(customer, cartType, store.Id);
+
+        validWishlistItems = 0;
+        foreach (var sci in currentWishlist)
+        {
+            var productFilter = await _productService.GetProductByIdAsync(sci.ProductId);
+            
+            if (productFilter == null || productFilter.Deleted || !productFilter.Published)
+                continue;
+                
+            validWishlistItems += sci.Quantity;
+        }
+
         var currentTopWishlistSectionHtml = string.Format(
             await _localizationService.GetResourceAsync("Wishlist.HeaderQuantity"),
-            currentWishlist.Sum(item => item.Quantity));
+            validWishlistItems);
 
         return Json(new
         {
