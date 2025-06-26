@@ -38,6 +38,10 @@
     {
       "SystemName": "Misc.RecipeSuggestions",
       "Version": "1.0"
+    },
+    {
+      "SystemName": "Widgets.GoogleAnalytics",
+      "Version": "4.80.3"
     }
   ],
   "PluginNamesToUninstall": [],
