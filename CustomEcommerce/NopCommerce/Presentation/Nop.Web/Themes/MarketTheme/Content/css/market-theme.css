@@ -2047,6 +2047,9 @@ button.add-to-wishlist-button.selected {
     flex-direction: column;
     background-color: transparent;
   }
+  .high-discount-row {
+    width: 95%;
+  }
 
   .discount-input,
   .giftcard-input {
