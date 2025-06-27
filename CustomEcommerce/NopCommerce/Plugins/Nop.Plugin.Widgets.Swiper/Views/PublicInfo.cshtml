@@ -30,9 +30,11 @@
 
 <script asp-location="Footer">
     var swiper6 = new Swiper(".nop-slider", {
-      @* autoHeight: true, *@
         grabCursor: true,
         effect: "fade",
+        fadeEffect: {
+            crossFade: true
+        },
         lazy: true,
         @if (Model.Autoplay)
         {

@@ -954,8 +954,7 @@ input[type="radio"]:checked + .radio-custom {
 }
 
 .payment-method-description,
-.payment-method-fee
- {
+.payment-method-fee {
   font-size: 12px;
   color: #818181;
 }
@@ -1203,21 +1202,21 @@ input[type="radio"]:checked + .radio-custom {
 }
 
 .swal2-confirm:hover {
-  background-color: white  !important;
-  color: #7A37F0 !important;
-  border: 1px solid #7A37F0 !important;
+  background-color: white !important;
+  color: #7a37f0 !important;
+  border: 1px solid #7a37f0 !important;
 }
 
 .swal2-cancel {
-  color: #7A37F0 !important;
+  color: #7a37f0 !important;
   font-weight: 500 !important;
   background-color: transparent !important;
 }
 
 .swal2-cancel:hover {
   background-color: #aeabab !important;
-  color: #7A37F0 !important;
-  border: 1px solid #7A37F0 !important;
+  color: #7a37f0 !important;
+  border: 1px solid #7a37f0 !important;
 }
 
 .swal2-deny {
@@ -1872,7 +1871,8 @@ button.add-to-wishlist-button.selected {
   display: inline-block;
 }
 
-.high-discount-row .owl-item, .high-discount-container {
+.high-discount-row .owl-item,
+.high-discount-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1882,7 +1882,16 @@ button.add-to-wishlist-button.selected {
   border: 0.5px solid !important;
   border-color: #7a37f07a !important;
   background: none;
-  color: #7A37F0;
+  color: #7a37f0;
+}
+
+.nop-slider .swiper-slide {
+  opacity: 0 !important;
+  transition: opacity 0.3s ease;
+}
+
+.nop-slider .swiper-slide-active {
+  opacity: 1 !important;
 }
 
 @media all and (max-width: 1000px) {
