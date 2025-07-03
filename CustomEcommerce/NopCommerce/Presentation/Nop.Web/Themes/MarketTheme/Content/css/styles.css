@@ -8092,6 +8092,10 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 }
 }
 @media (max-width: 480px) {
+.item-box .product-box-add-to-cart-button
+  {
+    font-size: 12px !important;
+  }
 .flash-sale-container .flash-title {
     font-size: 18px;
 }
