@@ -2276,7 +2276,7 @@ button.add-to-wishlist-button.selected {
   .mobile-grid {
     display: flex !important;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: center;
     gap: 10px;
   }
 
