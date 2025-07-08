@@ -39,6 +39,7 @@ namespace Nop.Plugin.Api.Controllers
         private readonly ICopyProductService _copyProductService;
         private readonly IProductTagService _productTagService;
         private readonly IUrlRecordService _urlRecordService;
+        protected readonly ILocalizationService _localizationService;
 
         public ProductsController(
             IProductApiService productApiService,
@@ -69,6 +70,7 @@ namespace Nop.Plugin.Api.Controllers
             _productAttributeService = productAttributeService;
             _dtoHelper = dtoHelper;
             _copyProductService = copyProductService;
+            _localizationService = localizationService;
         }
 
         /// <summary>
@@ -233,6 +235,17 @@ namespace Nop.Plugin.Api.Controllers
             // Inserting the new product
             var product = await _factory.InitializeAsync();
             productDelta.Merge(product);
+
+            // SKU validation
+            if (!string.IsNullOrEmpty(product.Sku))
+            {
+                var productBySku = await _productService.GetProductBySkuAsync(product.Sku);
+                if (productBySku != null)
+                {
+                    var message = string.Format(await _localizationService.GetResourceAsync("Admin.Catalog.Products.Fields.Sku.Reserved"), productBySku.Name);
+                    return Error(HttpStatusCode.UnprocessableEntity, "sku", message);
+                }
+            }
 
             await _productService.InsertProductAsync(product);
 

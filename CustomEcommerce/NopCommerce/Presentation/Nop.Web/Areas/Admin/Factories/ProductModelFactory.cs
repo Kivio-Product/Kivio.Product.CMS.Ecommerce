@@ -746,13 +746,6 @@ public partial class ProductModelFactory : IProductModelFactory
 
         var primaryStoreCurrency = await _currencyService.GetCurrencyByIdAsync(_currencySettings.PrimaryStoreCurrencyId);
 
-        // Put warning for products that are not published
-        foreach (var product in products)
-        {
-            if (product.AvailableEndDateTimeUtc.HasValue && product.AvailableEndDateTimeUtc.Value < DateTime.UtcNow)
-                product.Name = $"({ await _localizationService.GetResourceAsync("Admin.Catalog.Products.List.EndDateTimeUtc")}) - {product.Name}";
-        }
-
         //prepare list model
         var model = await new ProductListModel().PrepareToGridAsync(searchModel, products, () =>
         {
