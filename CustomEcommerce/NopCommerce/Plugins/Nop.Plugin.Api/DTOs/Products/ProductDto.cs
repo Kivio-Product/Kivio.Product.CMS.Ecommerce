@@ -613,5 +613,11 @@ namespace Nop.Plugin.Api.DTO.Products
 
         [JsonProperty("se_name")]
         public string SeName { get; set; }
+
+        [JsonProperty("published_last_updated")]
+        public DateTime? PublishedLastUpdated { get; set; }
+
+        [JsonProperty("extra_category_id")]
+        public int? ExtraCategoryId { get; set; }
     }
 }
