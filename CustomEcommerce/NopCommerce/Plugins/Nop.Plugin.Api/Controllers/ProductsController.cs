@@ -24,6 +24,7 @@ using Nop.Services.Media;
 using Nop.Services.Security;
 using Nop.Services.Seo;
 using Nop.Services.Stores;
+using Nop.Services.Configuration;
 using System.Net;
 
 namespace Nop.Plugin.Api.Controllers
@@ -40,9 +41,11 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IProductTagService _productTagService;
         private readonly IUrlRecordService _urlRecordService;
         protected readonly ILocalizationService _localizationService;
+        private readonly ISettingService _settingService;
 
         public ProductsController(
             IProductApiService productApiService,
+            ISettingService settingService,
             IJsonFieldsSerializer jsonFieldsSerializer,
             IProductService productService,
             IUrlRecordService urlRecordService,
@@ -71,6 +74,7 @@ namespace Nop.Plugin.Api.Controllers
             _dtoHelper = dtoHelper;
             _copyProductService = copyProductService;
             _localizationService = localizationService;
+            _settingService = settingService;
         }
 
         /// <summary>
@@ -224,7 +228,9 @@ namespace Nop.Plugin.Api.Controllers
         public async Task<IActionResult> CreateProduct(
             [FromBody]
             [ModelBinder(typeof(JsonModelBinder<ProductDto>))]
-            Delta<ProductDto> productDelta)
+            Delta<ProductDto> productDelta,
+            [FromQuery] string fields = ""
+        )
         {
             // Here we display the errors if the validation has failed at some point.
             if (!ModelState.IsValid)
@@ -236,14 +242,22 @@ namespace Nop.Plugin.Api.Controllers
             var product = await _factory.InitializeAsync();
             productDelta.Merge(product);
 
+            var isRenewalEnabled = await _settingService.GetSettingByKeyAsync<bool>("ApiSettings.EnableProductRenewal");
+
+            Console.WriteLine($"Is Renewal Enabled: {isRenewalEnabled}");
+
             // SKU validation
             if (!string.IsNullOrEmpty(product.Sku))
             {
                 var productBySku = await _productService.GetProductBySkuAsync(product.Sku);
-                if (productBySku != null)
+                if (productBySku != null && !isRenewalEnabled)
                 {
                     var message = string.Format(await _localizationService.GetResourceAsync("Admin.Catalog.Products.Fields.Sku.Reserved"), productBySku.Name);
                     return Error(HttpStatusCode.UnprocessableEntity, "sku", message);
+                }
+                else if (productBySku != null && isRenewalEnabled)
+                {
+                    return await RenewProductAsync(product, productBySku, productDelta.Dto.ExtraCategoryId);
                 }
             }
 
@@ -280,7 +294,7 @@ namespace Nop.Plugin.Api.Controllers
 
             productsRootObject.Products.Add(productDto);
 
-            var json = JsonFieldsSerializer.Serialize(productsRootObject, string.Empty);
+            var json = JsonFieldsSerializer.Serialize(productsRootObject, fields);
 
             return new RawJsonActionResult(json);
         }
@@ -388,6 +402,36 @@ namespace Nop.Plugin.Api.Controllers
         }
 
         #region Private methods
+
+        private async Task<IActionResult> RenewProductAsync(Product newProduct, Product existingProduct, int? extraCategoryId = null)
+        {
+            var renewalResult = await _productApiService.RenewProductAsync(newProduct, existingProduct, extraCategoryId);
+
+            Console.WriteLine($"Renewal Result: Success = {renewalResult.Success}, ErrorMessage = {renewalResult.ErrorMessage}");
+            
+            if (!renewalResult.Success)
+            {
+                HttpStatusCode statusCode = renewalResult.ErrorMessage.Contains("null") 
+                    ? HttpStatusCode.BadRequest 
+                    : HttpStatusCode.UnprocessableEntity;
+                    
+                return Error(statusCode, "product", renewalResult.ErrorMessage);
+            }
+
+            try
+            {
+                var productDto = await _dtoHelper.PrepareProductDTOAsync(renewalResult.RenewedProduct);
+                var productsRootObject = new ProductsRootObjectDto();
+                productsRootObject.Products.Add(productDto);
+                
+                var json = JsonFieldsSerializer.Serialize(productsRootObject, string.Empty);
+                return new RawJsonActionResult(json);
+            }
+            catch (Exception)
+            {
+                return Error(HttpStatusCode.InternalServerError, "product", "An error occurred while preparing the response");
+            }
+        }
 
         private async Task UpdateProductPicturesAsync(Product entityToUpdate, List<ImageMappingDto> setPictures)
         {

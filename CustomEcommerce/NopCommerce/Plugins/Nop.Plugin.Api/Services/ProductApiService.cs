@@ -4,6 +4,11 @@ using Nop.Data;
 using Nop.Plugin.Api.DataStructures;
 using Nop.Plugin.Api.Infrastructure;
 using Nop.Services.Stores;
+using Nop.Services.Catalog;
+using Nop.Services.Configuration;
+using Nop.Services.Localization;
+using Nop.Services.Logging;
+
 
 namespace Nop.Plugin.Api.Services
 {
@@ -13,17 +18,32 @@ namespace Nop.Plugin.Api.Services
         private readonly IRepository<Product> _productRepository;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IRepository<Vendor> _vendorRepository;
+        private readonly IProductService _productService;
+        private readonly ISettingService _settingService;
+        private readonly ICategoryService _categoryService;
+        private readonly ICustomerActivityService _customerActivityService;
+        private readonly ILocalizationService _localizationService;
 
         public ProductApiService(
             IRepository<Product> productRepository,
             IRepository<ProductCategory> productCategoryMappingRepository,
             IRepository<Vendor> vendorRepository,
-            IStoreMappingService storeMappingService)
+            IStoreMappingService storeMappingService,
+            IProductService productService,
+            ISettingService settingService,
+            ICategoryService categoryService,
+            ICustomerActivityService customerActivityService,
+            ILocalizationService localizationService)
         {
             _productRepository = productRepository;
             _productCategoryMappingRepository = productCategoryMappingRepository;
             _vendorRepository = vendorRepository;
             _storeMappingService = storeMappingService;
+            _productService = productService;
+            _settingService = settingService;
+            _categoryService = categoryService;
+            _customerActivityService = customerActivityService;
+            _localizationService = localizationService;
         }
 
         public IList<Product> GetProducts(
@@ -72,6 +92,81 @@ namespace Nop.Plugin.Api.Services
             }
 
             return _productRepository.Table.FirstOrDefault(product => product.Id == productId && !product.Deleted);
+        }
+
+        public async Task<ProductRenewalResult> RenewProductAsync(Product newProduct, Product existingProduct, int? extraCategoryId = null)
+        {
+            if (newProduct == null || existingProduct == null)
+            {
+                return new ProductRenewalResult
+                {
+                    Success = false,
+                    ErrorMessage = "Product or existing product is null"
+                };
+            }
+            
+            // var daysLimitToRenew = await _settingService.GetSettingByKeyAsync<int>("ApiSettings.ProductRenewalDaysLimit");
+            
+            bool canRenew = existingProduct.Published;
+            
+            if (!canRenew)
+            {
+                return new ProductRenewalResult
+                {
+                    Success = false,
+                    ErrorMessage = "Product cannot be renewed - is not published"
+                };
+            }
+            
+            try
+            {        
+                existingProduct.StockQuantity = newProduct.StockQuantity;
+                existingProduct.OrderMaximumQuantity = newProduct.OrderMaximumQuantity;
+                existingProduct.ManageInventoryMethodId = newProduct.ManageInventoryMethodId;
+                // existingProduct.Published = newProduct.Published;
+                existingProduct.Price = newProduct.Price;
+                existingProduct.OldPrice = newProduct.OldPrice;
+                
+                existingProduct.UpdatedOnUtc = DateTime.UtcNow; 
+                
+                await _productService.UpdateProductAsync(existingProduct);
+
+                if(extraCategoryId.HasValue && extraCategoryId.Value > 0)
+                {
+                    // Verificar si ya existe el mapping
+                    var existingMapping = await _productCategoryMappingRepository.Table
+                        .FirstOrDefaultAsync(pcm => pcm.ProductId == existingProduct.Id && pcm.CategoryId == extraCategoryId.Value);
+
+                    if (existingMapping == null)
+                    {
+                        var newProductCategory = new ProductCategory
+                        {
+                            ProductId = existingProduct.Id,
+                            CategoryId = extraCategoryId.Value
+                        };
+
+                        await _categoryService.InsertProductCategoryAsync(newProductCategory);
+                    }
+                }
+
+                await _customerActivityService.InsertActivityAsync("RenewProduct",
+                    await _localizationService.GetResourceAsync("ActivityLog.RenewProduct"), existingProduct);
+                
+                return new ProductRenewalResult
+                {
+                    Success = true,
+                    RenewedProduct = existingProduct
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ProductRenewalResult
+                {
+                    Success = false,
+                    ErrorMessage = "An error occurred while renewing the product",
+                    Exception = ex
+                };
+            }
         }
 
         private IQueryable<Product> GetProductsQuery(
@@ -148,5 +243,13 @@ namespace Nop.Plugin.Api.Services
 
             return query;
         }
+    }
+
+    public class ProductRenewalResult
+    {
+        public bool Success { get; set; }
+        public string ErrorMessage { get; set; }
+        public Product RenewedProduct { get; set; }
+        public Exception Exception { get; set; }
     }
 }
