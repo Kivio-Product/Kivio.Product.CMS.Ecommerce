@@ -593,9 +593,4 @@ public partial class Product : BaseEntity, ILocalizedEntity, ISlugSupported, IAc
         get => (RentalPricePeriod)RentalPricePeriodId;
         set => RentalPricePeriodId = (int)value;
     }
-    
-    /// <summary>
-    /// Gets or sets the date and time of the last update for published products
-    /// </summary>
-    public DateTime? PublishedLastUpdated { get; set; }
 }

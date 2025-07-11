@@ -536,20 +536,6 @@ public partial class ProductService : IProductService
         await _productReviewHelpfulnessRepository.InsertAsync(productReviewHelpfulness);
     }
 
-
-    /// <summary>
-    /// Helper method to update PublishedLastUpdated only when product is being published for the first time
-    /// </summary>
-    /// <param name="product">Product to update</param>
-    private async Task UpdatePublishedLastUpdatedAsync(Product product)
-    {
-        var existingProduct = await _productRepository.GetByIdAsync(product.Id);
-        if (existingProduct != null && !existingProduct.Published && product.Published)
-        {
-            product.PublishedLastUpdated = DateTime.UtcNow;
-        }
-    }
-
     #endregion
 
     #region Methods
@@ -631,13 +617,6 @@ public partial class ProductService : IProductService
     /// <returns>A task that represents the asynchronous operation</returns>
     public virtual async Task InsertProductAsync(Product product)
     {
-        ArgumentNullException.ThrowIfNull(product);
-
-        if(product.Published)
-        {
-            product.PublishedLastUpdated = DateTime.UtcNow;
-        }
-
         await _productRepository.InsertAsync(product);
     }
 
@@ -648,17 +627,6 @@ public partial class ProductService : IProductService
     /// <returns>A task that represents the asynchronous operation</returns>
     public virtual async Task InsertProductsAsync(IList<Product> products)
     {
-        ArgumentNullException.ThrowIfNull(products);
-        if (!products.Any())
-            throw new ArgumentException("No products provided", nameof(products));
-
-        foreach (var product in products)
-        {
-            if (product.Published)
-            {
-                product.PublishedLastUpdated = DateTime.UtcNow;
-            }
-        }
         await _productRepository.InsertAsync(products);
     }
 
@@ -669,10 +637,6 @@ public partial class ProductService : IProductService
     /// <returns>A task that represents the asynchronous operation</returns>
     public virtual async Task UpdateProductAsync(Product product)
     {
-        ArgumentNullException.ThrowIfNull(product);
-
-        //update PublishedLastUpdated only when product is being published for the first time
-        await UpdatePublishedLastUpdatedAsync(product);
         await _productRepository.UpdateAsync(product);
     }
 
@@ -683,17 +647,6 @@ public partial class ProductService : IProductService
     /// <returns>A task that represents the asynchronous operation</returns>
     public virtual async Task UpdateProductsAsync(IList<Product> products)
     {
-        ArgumentNullException.ThrowIfNull(products);
-
-        if (!products.Any())
-            throw new ArgumentException("No products provided", nameof(products));
-
-        //update PublishedLastUpdated only when products are being published for the first time
-        foreach (var product in products)
-        {
-            await UpdatePublishedLastUpdatedAsync(product);
-        }
-
         await _productRepository.UpdateAsync(products);
     }
 
