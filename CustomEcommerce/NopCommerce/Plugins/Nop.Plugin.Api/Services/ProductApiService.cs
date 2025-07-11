@@ -6,9 +6,7 @@ using Nop.Plugin.Api.Infrastructure;
 using Nop.Services.Stores;
 using Nop.Services.Catalog;
 using Nop.Services.Configuration;
-using Nop.Services.Customers;
 using Nop.Services.Localization;
-using Nop.Plugin.Api.Services;
 using Nop.Services.Logging;
 
 
@@ -107,31 +105,29 @@ namespace Nop.Plugin.Api.Services
                 };
             }
             
-            var daysLimitToRenew = await _settingService.GetSettingByKeyAsync<int>("ApiSettings.ProductRenewalDaysLimit");
+            // var daysLimitToRenew = await _settingService.GetSettingByKeyAsync<int>("ApiSettings.ProductRenewalDaysLimit");
             
-            bool canRenew = existingProduct.Published || 
-                        (existingProduct.PublishedLastUpdated != null && 
-                            existingProduct.PublishedLastUpdated.Value.AddDays(daysLimitToRenew) >= DateTime.UtcNow);
+            bool canRenew = existingProduct.Published;
             
             if (!canRenew)
             {
                 return new ProductRenewalResult
                 {
                     Success = false,
-                    ErrorMessage = "Product cannot be renewed - exceeds renewal time limit"
+                    ErrorMessage = "Product cannot be renewed - is not published"
                 };
             }
             
             try
             {        
                 existingProduct.StockQuantity = newProduct.StockQuantity;
-                existingProduct.Published = newProduct.Published;
+                existingProduct.OrderMaximumQuantity = newProduct.OrderMaximumQuantity;
+                existingProduct.ManageInventoryMethodId = newProduct.ManageInventoryMethodId;
+                // existingProduct.Published = newProduct.Published;
                 existingProduct.Price = newProduct.Price;
                 existingProduct.OldPrice = newProduct.OldPrice;
-                existingProduct.AvailableStartDateTimeUtc = newProduct.AvailableStartDateTimeUtc;
-                existingProduct.AvailableEndDateTimeUtc = newProduct.AvailableEndDateTimeUtc;
                 
-                existingProduct.UpdatedOnUtc = DateTime.UtcNow;
+                existingProduct.UpdatedOnUtc = DateTime.UtcNow; 
                 
                 await _productService.UpdateProductAsync(existingProduct);
 

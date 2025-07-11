@@ -417,7 +417,7 @@ namespace Nop.Plugin.Api.Controllers
                     
                 return Error(statusCode, "product", renewalResult.ErrorMessage);
             }
-            
+
             try
             {
                 var productDto = await _dtoHelper.PrepareProductDTOAsync(renewalResult.RenewedProduct);
@@ -427,7 +427,7 @@ namespace Nop.Plugin.Api.Controllers
                 var json = JsonFieldsSerializer.Serialize(productsRootObject, string.Empty);
                 return new RawJsonActionResult(json);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Error(HttpStatusCode.InternalServerError, "product", "An error occurred while preparing the response");
             }
