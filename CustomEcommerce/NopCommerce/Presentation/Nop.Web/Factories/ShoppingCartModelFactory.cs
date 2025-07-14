@@ -999,7 +999,7 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
         {
             var product = await _productService.GetProductByIdAsync(sci.ProductId);
     
-            if (product == null || product.Deleted || !product.Published)
+            if (product == null)
                 continue;
 
             var cartItemModel = await PrepareWishlistItemModelAsync(sci);
