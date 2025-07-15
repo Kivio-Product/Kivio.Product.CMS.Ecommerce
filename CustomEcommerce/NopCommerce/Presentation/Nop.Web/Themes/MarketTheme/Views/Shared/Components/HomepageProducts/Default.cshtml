@@ -40,7 +40,11 @@
 
             @{
                 var highDiscountProducts = Model.Where(p => p.HasHighDiscount).ToList();
-                var regularDiscountProducts = Model.Where(p => !p.HasHighDiscount).ToList();
+                var regularDiscountProducts = Model
+                    .Where(p => !p.HasHighDiscount)
+                    .OrderBy(x => Guid.NewGuid()) // Mezcla aleatoriamente
+                    .Take(30) // Toma solo 30
+                    .ToList();
             }
 
             @if (highDiscountProducts.Any())
@@ -198,7 +202,7 @@
                     regularDiscountContainer.addClass('owl-carousel px_featured');
                     regularDiscountContainer.owlCarousel({
                         autoplay: false,
-                        loop: true,
+                        loop: false,
                         rtl: false,
                         responsiveClass: true,
                         autoHeight: true,
