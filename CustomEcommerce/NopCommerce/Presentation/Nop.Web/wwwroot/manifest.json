@@ -1,0 +1,51 @@
+{
+    "name": "Merkko",
+    "short_name": "Merkko",
+    "icons": [
+        {
+            "src": "./icons/icons_0/Merkko_72_Morado.png",
+            "sizes": "72x72",
+            "type": "image/png"
+        },
+        {
+            "src": "./icons/icons_0/Merkko_96_Morado.png",
+            "sizes": "96x96",
+            "type": "image/png"
+        },
+        {
+            "src": "./icons/icons_0/Merkko_128_Morado.png",
+            "sizes": "128x128",
+            "type": "image/png"
+        },
+        {
+            "src": "./icons/icons_0/Merkko_144_Morado.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        },
+        {
+            "src": "./icons/icons_0/Merkko_152_Morado.png",
+            "sizes": "152x152",
+            "type": "image/png"
+        },
+        {
+            "src": "./icons/icons_0/Merkko_192_Morado.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "./icons/icons_0/Merkko_384_Morado.png",
+            "sizes": "384x384",
+            "type": "image/png"
+        },
+        {
+            "src": "./icons/icons_0/Merkko_512_Morado.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#7c3aed",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "start_url": "/",
+    "scope": "/"
+}
