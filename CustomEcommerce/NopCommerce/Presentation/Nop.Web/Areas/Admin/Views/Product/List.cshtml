@@ -421,24 +421,13 @@
     </form>
 
 <script>
-    $(function() {
-        $('#exportxml-selected').click(function (e) {
-            e.preventDefault();
-            var ids = selectedIds.join(",");
-            if (!ids) {
-                $('#exportXmlSelected-info').text("@T("Admin.Products.NoProducts")");
-                $("#exportXmlSelected").trigger("click");
-            }
-            else {
-                $('#export-xml-selected-form #selectedIds').val(ids);
-                $('#export-xml-selected-form').submit();
-                updateTable('#products-grid');
-            }
-            return false;
-        });
-
-
-        function saveSearchParams() {
+$(function() {
+    var isRestoring = false;
+    var tableInitialized = false;
+    
+    function saveSearchParams() {
+        if (isRestoring) return;
+        
         var searchParams = {
             SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
             SearchCategoryId: $('#@Html.IdFor(model => model.SearchCategoryId)').val(),
@@ -451,39 +440,127 @@
             SearchPublishedId: $('#@Html.IdFor(model => model.SearchPublishedId)').val()
         };
         
+        if (tableInitialized && $('#products-grid').length > 0) {
+            try {
+                var table = $('#products-grid').DataTable();
+                if (table && table.page && table.page.info) {
+                    var pageInfo = table.page.info();
+                    searchParams.CurrentPage = pageInfo.page;
+                    searchParams.PageSize = pageInfo.length;
+                }
+            } catch (e) {
+                console.log('Error getting table info:', e);
+            }
+        }
+        
         sessionStorage.setItem('productSearchParams', JSON.stringify(searchParams));
     }
 
     function restoreSearchParams() {
         var savedParams = sessionStorage.getItem('productSearchParams');
-        if (savedParams) {
-            var params = JSON.parse(savedParams);
+        if (!savedParams) return;
+        
+        isRestoring = true;
+        var params = JSON.parse(savedParams);
+        
+        $('#@Html.IdFor(model => model.SearchProductName)').val(params.SearchProductName || '');
+        $('#@Html.IdFor(model => model.SearchCategoryId)').val(params.SearchCategoryId || '');
+        $('#@Html.IdFor(model => model.SearchIncludeSubCategories)').prop('checked', params.SearchIncludeSubCategories || false);
+        $('#@Html.IdFor(model => model.SearchManufacturerId)').val(params.SearchManufacturerId || '');
+        $('#@Html.IdFor(model => model.SearchStoreId)').val(params.SearchStoreId || '');
+        $('#@Html.IdFor(model => model.SearchWarehouseId)').val(params.SearchWarehouseId || '');
+        $('#@Html.IdFor(model => model.SearchVendorId)').val(params.SearchVendorId || '');
+        $('#@Html.IdFor(model => model.SearchProductTypeId)').val(params.SearchProductTypeId || '');
+        $('#@Html.IdFor(model => model.SearchPublishedId)').val(params.SearchPublishedId || '');
+        
+        $('#search-products').trigger('click');
+        
+        if (params.CurrentPage !== undefined || params.PageSize !== undefined) {
+            var checkTableReady = setInterval(function() {
+                if ($('#products-grid').length > 0) {
+                    try {
+                        var table = $('#products-grid').DataTable();
+                        if (table && table.page && table.page.info) {
+                            clearInterval(checkTableReady);
+                            restorePagination(params.CurrentPage, params.PageSize);
+                        }
+                    } catch (e) {
+                        // Tabla aún no está lista
+                    }
+                }
+            }, 100);
             
-            $('#@Html.IdFor(model => model.SearchProductName)').val(params.SearchProductName || '');
-            $('#@Html.IdFor(model => model.SearchCategoryId)').val(params.SearchCategoryId || '');
-            $('#@Html.IdFor(model => model.SearchIncludeSubCategories)').prop('checked', params.SearchIncludeSubCategories || false);
-            $('#@Html.IdFor(model => model.SearchManufacturerId)').val(params.SearchManufacturerId || '');
-            $('#@Html.IdFor(model => model.SearchStoreId)').val(params.SearchStoreId || '');
-            $('#@Html.IdFor(model => model.SearchWarehouseId)').val(params.SearchWarehouseId || '');
-            $('#@Html.IdFor(model => model.SearchVendorId)').val(params.SearchVendorId || '');
-            $('#@Html.IdFor(model => model.SearchProductTypeId)').val(params.SearchProductTypeId || '');
-            $('#@Html.IdFor(model => model.SearchPublishedId)').val(params.SearchPublishedId || '');
-            
-            $('#search-products').trigger('click');
+            setTimeout(function() {
+                clearInterval(checkTableReady);
+                isRestoring = false;
+            }, 5000);
+        } else {
+            isRestoring = false;
+        }
+    }
+
+    function restorePagination(page, pageSize) {
+        try {
+            var table = $('#products-grid').DataTable();
+            if (table && table.page) {
+                if (pageSize && pageSize > 0) {
+                    table.page.len(pageSize);
+                }
+                
+                if (page !== undefined && page >= 0) {
+                    table.page(page);
+                }
+                
+                table.draw('page');
+            }
+        } catch (e) {
+            console.log('Error restoring pagination:', e);
+        } finally {
+            isRestoring = false;
         }
     }
 
     $('#search-products').on('click', function() {
-        saveSearchParams();
+        if (!isRestoring) {
+            saveSearchParams();
+        }
     });
 
     $(document).on('click', 'a[href*="/Admin/Product/Edit/"]', function() {
-        saveSearchParams();
+        if (!isRestoring) {
+            saveSearchParams();
+        }
     });
 
-    if (document.referrer.includes('/Admin/Product/Edit/')) {
-        restoreSearchParams();
-    }
+    $(document).on('init.dt', '#products-grid', function() {
+        tableInitialized = true;
+        
+        if (document.referrer.includes('/Admin/Product/Edit/')) {
+            setTimeout(function() {
+                restoreSearchParams();
+            }, 200);
+        }
+    });
+
+    var pageChangeTimeout;
+    $(document).on('page.dt', '#products-grid', function() {
+        if (!isRestoring) {
+            clearTimeout(pageChangeTimeout);
+            pageChangeTimeout = setTimeout(function() {
+                saveSearchParams();
+            }, 300);
+        }
+    });
+
+    var lengthChangeTimeout;
+    $(document).on('length.dt', '#products-grid', function() {
+        if (!isRestoring) {
+            clearTimeout(lengthChangeTimeout);
+            lengthChangeTimeout = setTimeout(function() {
+                saveSearchParams();
+            }, 300);
+        }
+    });
 
     $('.search-row').on('click', function() {
         if ($(this).hasClass('closed')) {
@@ -491,7 +568,10 @@
         }
     });
 
-    });
+    window.clearSearchCache = function() {
+        sessionStorage.removeItem('productSearchParams');
+    };
+});
 </script>
 <nop-alert asp-alert-id="exportXmlSelected" />
 

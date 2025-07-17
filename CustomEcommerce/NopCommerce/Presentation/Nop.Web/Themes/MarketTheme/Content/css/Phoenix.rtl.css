@@ -6,7 +6,7 @@
 
 @font-face {
   font-family: 'Inter';
-  src: url("../fonts/Inter-Thin") format("truetype"), /* Safari, Android, iOS */
+  src: url("../fonts/Inter-Thin.ttf") format("truetype"), /* Safari, Android, iOS */
   url("../fonts/Inter-Thin.woff2") format('woff2'), /* Super Modern Browsers */
   url("../fonts/Inter-Thin.woff") format('woff'); /* Pretty Modern Browsers */
   font-weight: 100;
