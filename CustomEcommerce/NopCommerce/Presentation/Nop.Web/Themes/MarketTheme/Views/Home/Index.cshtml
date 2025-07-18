@@ -110,9 +110,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const dismissButton = document.getElementById('pwa-dismiss-button');
 
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            if (androidPrompt) {
+            const isAndroid = /android/i.test(navigator.userAgent);
+            if (isAndroid && androidPrompt) {
+                e.preventDefault();
+                deferredPrompt = e;
                 androidPrompt.style.display = 'flex';
                 androidPrompt.classList.add('pwa-install-banner');
             }
