@@ -59,37 +59,21 @@ namespace Nop.Plugin.Api.Controllers
             Customer oldCustomer = await _authenticationService.GetAuthenticatedCustomerAsync();
             Customer newCustomer;
 
-            if (model.Guest)
+            if (string.IsNullOrEmpty(model.Username))
             {
-                newCustomer = await _customerService.InsertGuestCustomerAsync();
-
-                if (!await _customerService.IsInCustomerRoleAsync(newCustomer, Constants.Roles.ApiRoleSystemName))
-                {
-                    //add to 'ApiUserRole' role if not yet present
-                    var apiRole = await _customerService.GetCustomerRoleBySystemNameAsync(Constants.Roles.ApiRoleSystemName);
-                    if (apiRole == null)
-                        throw new InvalidOperationException($"'{Constants.Roles.ApiRoleSystemName}' role could not be loaded");
-                    await _customerService.AddCustomerRoleMappingAsync(new CustomerCustomerRoleMapping { CustomerId = newCustomer.Id, CustomerRoleId = apiRole.Id });
-                }
+                return BadRequest("Missing username");
             }
-            else
+
+            if (string.IsNullOrEmpty(model.Password))
             {
-                if (string.IsNullOrEmpty(model.Username))
-                {
-                    return BadRequest("Missing username");
-                }
+                return BadRequest("Missing password");
+            }
 
-                if (string.IsNullOrEmpty(model.Password))
-                {
-                    return BadRequest("Missing password");
-                }
+            newCustomer = await LoginAsync(model.Username, model.Password, model.RememberMe);
 
-                newCustomer = await LoginAsync(model.Username, model.Password, model.RememberMe);
-
-                if (newCustomer is null)
-                {
-                    return StatusCode((int)HttpStatusCode.Forbidden, "Wrong username or password");
-                }
+            if (newCustomer is null)
+            {
+                return StatusCode((int)HttpStatusCode.Forbidden, "Wrong username or password");
             }
 
             // migrate shopping cart, if the user is different
