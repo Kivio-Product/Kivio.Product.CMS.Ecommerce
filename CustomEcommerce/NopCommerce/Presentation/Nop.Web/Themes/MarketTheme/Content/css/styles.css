@@ -8505,13 +8505,13 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 
 #ios-pwa-install-prompt {
     position: fixed;
-    bottom: 85px; 
+    bottom: 12px;
     left: 10px;
     right: 10px;
     z-index: 1001;
     display: none;
-    -webkit-filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+    -webkit-filter: drop-shadow(0 4px 8px rgba(0,0,0,.15));
+    filter: drop-shadow(0px 0px 10px rgba(124,58,237.15));
     max-width: 400px;
     margin: 0 auto;
 }
