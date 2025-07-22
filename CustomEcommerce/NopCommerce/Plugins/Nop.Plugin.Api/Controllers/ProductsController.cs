@@ -246,6 +246,8 @@ namespace Nop.Plugin.Api.Controllers
 
             Console.WriteLine($"Is Renewal Enabled: {isRenewalEnabled}");
 
+            var discountPercentage = await _settingService.GetSettingByKeyAsync<decimal>("ApiSettings.MinDiscountPercentageForScrapedProducts", 0.0m);
+
             // SKU validation
             if (!string.IsNullOrEmpty(product.Sku))
             {
@@ -255,10 +257,15 @@ namespace Nop.Plugin.Api.Controllers
                     var message = string.Format(await _localizationService.GetResourceAsync("Admin.Catalog.Products.Fields.Sku.Reserved"), productBySku.Name);
                     return Error(HttpStatusCode.UnprocessableEntity, "sku", message);
                 }
-                else if (productBySku != null && isRenewalEnabled)
+                else if (productBySku != null && isRenewalEnabled && ( IsProductDiscountValid(productDelta, discountPercentage) || productBySku.Published ))
                 {
                     return await RenewProductAsync(product, productBySku, productDelta.Dto.ExtraCategoryId);
                 }
+            }
+            
+            if (!IsProductDiscountValid(productDelta, discountPercentage) && isRenewalEnabled)
+            {
+                return Error(HttpStatusCode.UnprocessableEntity, "product", "The discount percentage is below the minimum required value.");
             }
 
             await _productService.InsertProductAsync(product);
@@ -755,6 +762,19 @@ namespace Nop.Plugin.Api.Controllers
                 product.RequiredProductIds = null;
             else
                 product.RequiredProductIds = string.Join(',', requiredProductIds.Select(id => id.ToString()));
+        }
+        private bool IsProductDiscountValid(Delta<ProductDto> productDelta, decimal discountPercentage)
+        {
+            if (discountPercentage == 0) return true;
+
+            if (productDelta.Dto.Price.HasValue && productDelta.Dto.Price.Value > 0  && productDelta.Dto.OldPrice.HasValue && productDelta.Dto.OldPrice.Value > 0)
+            {
+                var discountAmount = productDelta.Dto.OldPrice.Value - productDelta.Dto.Price.Value;
+                var discountPercentageCalculated = (discountAmount / productDelta.Dto.OldPrice.Value) * 100;
+                return discountPercentageCalculated >= discountPercentage;
+            }
+
+            return false;
         }
 
         #endregion
