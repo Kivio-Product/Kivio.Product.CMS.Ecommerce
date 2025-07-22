@@ -34,6 +34,8 @@
         @await Component.InvokeAsync(typeof(HomepageProductsViewComponent))
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBeforeProducts })
         @{ await Html.RenderPartialAsync("_HomeFilteredTagProducts"); }
+        @await Component.InvokeAsync(typeof(PantryStaplesViewComponent))
+        @await Component.InvokeAsync(typeof(SuperDealsViewComponent))
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBottom })
         @await Component.InvokeAsync(typeof(NewsletterBoxViewComponent))
     </div>
