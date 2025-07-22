@@ -169,9 +169,9 @@
                                             {
                                                 <div class="message-error">
                                                     <ul>
-                                                        @foreach (var warning in item.Warnings)
+                                                        @if (item.Warnings.Count > 0)
                                                         {
-                                                            <li>@Html.Raw(warning)</li>
+                                                            <li>@Html.Raw(item.Warnings.First())</li>
                                                         }
                                                     </ul>
                                                 </div>
