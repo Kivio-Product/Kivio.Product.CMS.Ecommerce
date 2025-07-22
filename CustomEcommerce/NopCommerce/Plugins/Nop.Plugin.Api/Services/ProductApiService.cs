@@ -107,17 +107,6 @@ namespace Nop.Plugin.Api.Services
             
             // var daysLimitToRenew = await _settingService.GetSettingByKeyAsync<int>("ApiSettings.ProductRenewalDaysLimit");
             
-            bool canRenew = existingProduct.Published;
-            
-            if (!canRenew)
-            {
-                return new ProductRenewalResult
-                {
-                    Success = false,
-                    ErrorMessage = "Product cannot be renewed - is not published"
-                };
-            }
-            
             try
             {        
                 existingProduct.StockQuantity = newProduct.StockQuantity;
