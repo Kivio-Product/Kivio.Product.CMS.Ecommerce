@@ -8,50 +8,44 @@
 
 @if (Model.CategoryProducts.Any())
 {
-    <div class="section-padding section-bg product-grid home-page-product-grid">
-        <div class="section-width">
-            <div class="section-header">
-                <h2 class="section-title">@T("SuperDeals.Title")</h2>
-            </div>
-            
-            <div class="category-filters">
+    <div class="super-deals-section">
+        <div class="section-padding section-bg product-grid home-page-product-grid">
+            <div class="section-width">
+                <div class="section-header">
+                    <h2 class="section-title">@T("SuperDeals.Title")</h2>
+                </div>
+
+                <div class="category-filters">
+                    @for (int i = 0; i < Model.CategoryProducts.Count; i++)
+                    {
+                        var category = Model.CategoryProducts[i];
+                        <button class="category-filter-btn @(i == 0 ? "active" : "")" data-category="@category.CategoryName"
+                            data-index="@i">
+                            @category.CategoryName
+                        </button>
+                    }
+                </div>
+
                 @for (int i = 0; i < Model.CategoryProducts.Count; i++)
                 {
                     var category = Model.CategoryProducts[i];
-                    <button class="category-filter-btn @(i == 0 ? "active" : "")" 
-                            data-category="@category.CategoryName"
-                            data-index="@i">
-                        @category.CategoryName
-                    </button>
-                }
-            </div>
+                    <div class="category-products-container @(i == 0 ? "active" : "")" data-category="@category.CategoryName">
 
-            @for (int i = 0; i < Model.CategoryProducts.Count; i++)
-            {
-                var category = Model.CategoryProducts[i];
-                <div class="category-products-container @(i == 0 ? "active" : "")" 
-                     data-category="@category.CategoryName">
-                    
-                    <div id="products-container-@i" class="item-grid super-deal-row">
-                        @foreach (var product in category.Products)
-                        {
-                            <div class="item-box">
-                                @await Html.PartialAsync("_ProductBox", product)
-                            </div>
-                        }
+                        <div id="products-container-@i" class="item-grid super-deal-row">
+                            @foreach (var product in category.Products)
+                            {
+                                <div class="item-box">
+                                    @await Html.PartialAsync("_ProductBox", product)
+                                </div>
+                            }
+                        </div>
                     </div>
-                </div>
-            }
+                }
 
-            <div class="view-all-mobile">
-                <a href="@Url.RouteUrl("ProductSearch")" class="view-all-button">
-                    @T("SuperDeals.ViewAll")
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                </a>
+                <div class="view-all-mobile">
+                    <img src="@Url.Content("~/Themes/MarketTheme/Content/images/view-all.svg")" alt="Ver todo" class="view-all-svg-button"
+                        onclick="window.location.href='@Url.RouteUrl("ProductSearch")'" role="button" tabindex="0">
+                </div>
             </div>
         </div>
     </div>
@@ -59,13 +53,13 @@
 
 <script asp-location="Footer">
     $(document).ready(function () {
-        $('.category-filter-btn').on('click', function() {
+        $('.category-filter-btn').on('click', function () {
             const $button = $(this);
             const category = $button.data('category');
-            
+
             $('.category-filter-btn').removeClass('active');
             $button.addClass('active');
-            
+
             $('.category-products-container').removeClass('active');
             $('.category-products-container[data-category="' + category + '"]').addClass('active');
 

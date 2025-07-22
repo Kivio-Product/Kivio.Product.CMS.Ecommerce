@@ -1,0 +1,33 @@
+@model IEnumerable<ProductOverviewModel>
+
+@if (Model.Any())
+{
+    <div class="pantry-staples-section">
+            <!-- Header -->
+            <div class="section-header">
+                <h2 class="section-title">@T("PantryStaples.Title")</h2>
+                <a href="#" class="view-all-link">@T("PantryStaples.ViewAll")</a>
+            </div>
+
+            <!-- Main Content Layout -->
+            <div class="pantry-content">
+                <!-- Widget Column (Left) -->
+                <div class="widget-column">
+                    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageTop, additionalData =
+                    "DESPENSA" })
+                </div>
+
+                <!-- Products Column (Right) -->
+                <div class="products-column">
+                    <div id="pantry-staples-products" class="item-grid super-deal-row">
+                        @foreach (var item in Model)
+                        {
+                            <div class="item-box">
+                                @await Html.PartialAsync("_ProductBox", item)
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+    </div>
+}
