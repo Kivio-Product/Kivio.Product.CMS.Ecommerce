@@ -1899,7 +1899,7 @@ button.add-to-wishlist-button.selected {
 
 .super-deals-section .section-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin: 30px 0;
 }
 
 .super-deals-section .section-title {
@@ -1975,6 +1975,62 @@ button.add-to-wishlist-button.selected {
 
 .super-deals-section .view-all-svg-button:active {
   transform: scale(0.98);
+}
+
+.pantry-staples-section {
+  margin: 20px auto;
+  padding: 0 70px;
+}
+
+.pantry-staples-section .section-header {
+  padding: 20px 15px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.pantry-staples-section .section-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.pantry-staples-section .view-all-link {
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 8px;
+  transition: background-color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.pantry-staples-section .pantry-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-around;
+  gap: 40px;
+}
+
+.pantry-staples-section .widget-column {
+  flex: 0 0 40%;
+}
+
+.pantry-staples-section .products-column {
+  max-width: 58%;
+}
+
+.pantry-staples-section .products-column .item-grid .item-box {
+  width: 90%;
+  border: 1px solid #e0d2d2;
+  border-radius: 12px;
+  margin: 10px 1% !important;
 }
 
 @media all and (max-width: 1000px) {
@@ -2425,9 +2481,6 @@ button.add-to-wishlist-button.selected {
 
   .product-tag-page .product-grid .item-grid .item-box {
     width: 48%;
-    border: 1px solid #e0d2d2;
-    border-radius: 12px;
-    margin: 10px 1% !important;
   }
 
   .product-icon .button-2,
@@ -2567,6 +2620,31 @@ button.add-to-wishlist-button.selected {
   .super-deals-section .section-title {
     font-size: 1.5rem;
   }
+
+  .pantry-staples-section {
+    padding: 0 40px;
+  }
+
+  .pantry-staples-section .pantry-content {
+    flex-direction: column;
+  }
+
+  .pantry-staples-section .widget-column {
+    flex: none;
+    width: 100%;
+  }
+
+  .pantry-staples-section .products-column {
+    max-width: 100%;
+  }
+
+  .pantry-staples-section .section-header {
+    justify-content: space-around;
+  }
+
+  .pantry-staples-section .view-all-link {
+    margin-top: 10px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -2614,58 +2692,5 @@ button.add-to-wishlist-button.selected {
     right: auto !important;
     left: auto !important;
     top: auto !important;
-  }
-}
-
-
-.pantry-staples-section {
-  margin: 20px auto;
-  padding: 0 70px;
-}
-
-.section-header {
-  padding: 0 15px;
-  display: flex;
-  padding-top: 40px;
-  flex-direction: row;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
-
-.section-title {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.view-all-link {
-  color: #6c5ce7;
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.pantry-content {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-}
-
-.widget-column {
-  flex: 0 0 400px;
-}
-
-.products-column {
-  /* flex: 1; */
-  width: 80%;
-}
-
-/* Responsive para móviles */
-@media (max-width: 768px) {
-  .pantry-content {
-    flex-direction: column;
-  }
-
-  .widget-column {
-    flex: none;
   }
 }
