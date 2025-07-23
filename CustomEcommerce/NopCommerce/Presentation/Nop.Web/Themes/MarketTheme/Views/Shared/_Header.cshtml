@@ -33,6 +33,9 @@
 }
 
 <div class="topbar">
+    <div class="header-advice">
+        <img src="@Url.Content("~/Themes/MarketTheme/Content/images/header-advice.png")" alt="header advice" />
+    </div>
     <div class="header-upper">        
           @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = "phoenix_theme_header_text" })
         <div class="topmenu-right">

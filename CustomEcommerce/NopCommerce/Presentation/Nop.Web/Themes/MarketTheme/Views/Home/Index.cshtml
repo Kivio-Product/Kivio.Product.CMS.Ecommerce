@@ -76,6 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
     const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+    const headerAdvice = document.querySelector('.header-advice');
 
     if (isInStandaloneMode || isPWA) {
         return;
@@ -85,13 +86,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const iosPrompt = document.getElementById('ios-pwa-install-prompt');
         if (iosPrompt && sessionStorage.getItem('iosPwaPromptDismissed') !== 'true') {
             iosPrompt.style.display = 'block';
-            
+            headerAdvice.style.display = 'block';
+
             const dismissIosPrompt = () => {
                 if (iosPrompt.style.display !== 'none') {
                     iosPrompt.style.display = 'none';
                     sessionStorage.setItem('iosPwaPromptDismissed', 'true');
                     document.removeEventListener('click', dismissIosPrompt);
                     document.removeEventListener('touchstart', dismissIosPrompt);
+                    headerAdvice.style.display = 'none';
                 }
             };
             
@@ -111,9 +114,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         window.addEventListener('beforeinstallprompt', (e) => {
             const isAndroid = /android/i.test(navigator.userAgent);
+            e.preventDefault();
+            deferredPrompt = e;
+            headerAdvice.style.display = 'block';
             if (isAndroid && androidPrompt) {
-                e.preventDefault();
-                deferredPrompt = e;
                 androidPrompt.style.display = 'flex';
                 androidPrompt.classList.add('pwa-install-banner');
             }
@@ -123,6 +127,16 @@ document.addEventListener("DOMContentLoaded", function () {
             installButton.addEventListener('click', async () => {
                 if (!deferredPrompt) return;
                 androidPrompt.style.display = 'none';
+                headerAdvice.style.display = 'none';
+                deferredPrompt.prompt();
+                await deferredPrompt.userChoice;
+                deferredPrompt = null;
+            });
+
+            headerAdvice.addEventListener('click', async() => {
+                if (!deferredPrompt) return;
+                androidPrompt.style.display = 'none';
+                headerAdvice.style.display = 'none';
                 deferredPrompt.prompt();
                 await deferredPrompt.userChoice;
                 deferredPrompt = null;
@@ -132,11 +146,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if (dismissButton) {
             dismissButton.addEventListener('click', () => {
                 androidPrompt.style.display = 'none';
+                headerAdvice.style.display = 'none';
             });
         }
         
         window.addEventListener('appinstalled', () => {
-            if(androidPrompt) androidPrompt.style.display = 'none';
+            headerAdvice.style.display = 'none';
+            if(androidPrompt){
+                androidPrompt.style.display = 'none';
+            }
             deferredPrompt = null;
         });
     }
