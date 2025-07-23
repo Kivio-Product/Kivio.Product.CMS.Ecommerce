@@ -39,8 +39,16 @@
             </div>
 
             @{
-                var highDiscountProducts = Model.Where(p => p.HasHighDiscount).ToList();
-                var regularDiscountProducts = Model.Where(p => !p.HasHighDiscount).ToList();
+                var highDiscountProducts = Model
+                    .Where(p => p.HasHighDiscount)
+                    .OrderBy(x => Guid.NewGuid())
+                    .Take(15) 
+                    .ToList();
+                var regularDiscountProducts = Model
+                    .Where(p => !p.HasHighDiscount)
+                    .OrderBy(x => Guid.NewGuid())
+                    .Take(30) 
+                    .ToList();
             }
 
             @if (highDiscountProducts.Any())

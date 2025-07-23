@@ -75,6 +75,8 @@
     <meta name="keywords" content="@keywords" />
     <meta name="generator" content="nopCommerce" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="manifest" href="~/manifest.json" />
+
     @NopHtml.GenerateHeadCustom()
     @*This is used so that themes can inject content into the header*@
     @await Html.PartialAsync("Head")
