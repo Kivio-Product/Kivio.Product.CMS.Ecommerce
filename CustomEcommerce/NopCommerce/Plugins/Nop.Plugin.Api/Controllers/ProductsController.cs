@@ -261,6 +261,11 @@ namespace Nop.Plugin.Api.Controllers
                 {
                     return await RenewProductAsync(product, productBySku, productDelta.Dto.ExtraCategoryId);
                 }
+                else if (productBySku != null && isRenewalEnabled && !IsProductDiscountValid(productDelta, discountPercentage) && !productBySku.Published)
+                {
+                    await _productService.DeleteProductAsync(productBySku);
+                    return Error(HttpStatusCode.UnprocessableEntity, "sku", "The product is not published and the discount is not valid, so we need to remove it.");
+                }
             }
             
             if (!IsProductDiscountValid(productDelta, discountPercentage) && isRenewalEnabled)
