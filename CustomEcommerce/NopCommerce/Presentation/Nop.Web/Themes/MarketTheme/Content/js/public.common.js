@@ -436,13 +436,13 @@ window.ProductDisplayManager = {
       container.addClass("super-deal-row");
       container.find(".item-box").show();
 
-      if (productCount > 5) {
+      if (productCount > 3) {
         this.setupDesktopCarousel(container, {
           responsive: {
             0: { items: 1 },
-            600: { items: 2 },
-            1024: { items: 5 },
-            1366: { items: 5 },
+            600: { items: 3 },
+            1024: { items: 3 },
+            1366: { items: 3 },
           },
         });
       } else {

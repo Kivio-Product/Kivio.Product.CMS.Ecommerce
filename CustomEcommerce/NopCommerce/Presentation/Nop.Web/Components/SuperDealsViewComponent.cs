@@ -59,6 +59,8 @@ namespace Nop.Web.Components
                 .Where(name => !string.IsNullOrEmpty(name))
                 .ToList();
 
+            var minimumDiscountPercentage = await _settingService.GetSettingByKeyAsync<decimal>("Catalog.MinimumDiscountPercentage", defaultValue: 0.2m);
+
             foreach (var categoryName in categoryNamesList)
             {
                 var categories = await _categoryService.GetAllCategoriesAsync(
@@ -92,6 +94,19 @@ namespace Nop.Web.Components
                     prepareSpecificationAttributes: false,
                     forceRedirectionAfterAddingToCart: false
                 );
+
+                productModels = productModels
+                    .Where(p => p.ProductPrice.OldPriceValue.HasValue &&
+                                p.ProductPrice.PriceValue.HasValue &&
+                                p.ProductPrice.OldPriceValue.Value > 0)
+                    .Where(p =>
+                    {
+                        var oldPrice = p.ProductPrice.OldPriceValue.Value;
+                        var newPrice = p.ProductPrice.PriceValue.Value;
+                        var discount = (oldPrice - newPrice) / oldPrice;
+                        return discount >= minimumDiscountPercentage;
+                    })
+                    .ToList();
 
                 model.CategoryProducts.Add(new CategoryProductsModel
                 {

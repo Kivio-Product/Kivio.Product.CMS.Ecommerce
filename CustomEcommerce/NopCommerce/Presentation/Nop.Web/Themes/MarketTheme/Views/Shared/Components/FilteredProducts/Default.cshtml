@@ -1,0 +1,69 @@
+@model FilteredProductsModel
+
+<div class="custom-product-section">
+    <div class="filter-section">
+        <span class="section-title">@Model.SectionTitle</span>
+
+        <div class="filters-bar">
+            @foreach (var button in Model.FilterButtons)
+            {
+                <button class="filter-button @(button.IsActive ? "active" : "")" data-filter-tag="@button.TagName">
+                    @button.Text
+                </button>
+            }
+        </div>
+    </div>
+    <div class="products-container">
+        <div class="ajax-products-busy" style="display: none; text-align: center; padding: 20px;">
+            <img src="@Url.Content("/Themes/MarketTheme/Content/css/ajax-loader.gif")" alt="Loading..." />
+        </div>
+        <div class="products-wrapper" id="custom-products-grid">
+            @{ await Html.RenderPartialAsync("_CustomProductGridItems", Model.InitialProducts); }
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.filters-bar .filter-button').on('click', function () {
+            var $button = $(this);
+            if ($button.hasClass('active')) {
+                return; 
+            }
+
+            $('.filters-bar .filter-button').removeClass('active');
+            $button.addClass('active');
+
+            var filterTagName = $button.data('filter-tag');
+            var $grid = $('#custom-products-grid');
+            var $loader = $('.ajax-products-busy');
+
+            $loader.show();
+            $grid.html(''); 
+
+            $.ajax({
+                cache: false,
+                url: '@Url.Action("GetFilteredProducts", "CustomProductSection")',
+                data: {
+                    productTagName: filterTagName, 
+                    productThumbPictureSize: @Model.ProductThumbPictureSize
+                },
+                type: 'GET',
+                success: function (response) {
+                    $grid.html(response);
+                    if (typeof AjaxCart !== 'undefined' && typeof AjaxCart.init !== 'undefined') {
+                        AjaxCart.init(false, '.header-links .cart-qty', '.header-links .wishlist-qty', '#flyout-cart');
+                    }
+                    $(document).trigger('nopAjaxCartResponse');
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.error('Error loading products:', thrownError);
+                    $grid.html('<div class="no-products">Error loading products. Please try again.</div>');
+                },
+                complete: function () {
+                    $loader.hide();
+                }
+            });
+        });
+    });
+</script>

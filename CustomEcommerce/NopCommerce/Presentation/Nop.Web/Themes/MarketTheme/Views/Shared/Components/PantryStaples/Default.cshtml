@@ -1,33 +1,28 @@
-@model IEnumerable<ProductOverviewModel>
+@model PantryStaplesModel
 
-@if (Model.Any())
+@if (Model.Products.Any())
 {
     <div class="pantry-staples-section">
-            <!-- Header -->
-            <div class="section-header">
-                <h2 class="section-title">@T("PantryStaples.Title")</h2>
-                <a href="#" class="view-all-link">@T("PantryStaples.ViewAll")</a>
+        <div class="section-header">
+            <h2 class="section-title">@T("PantryStaples.Title")</h2>
+            <a href="@Url.RouteUrl("Category", new { SeName = Model.CategorySeName })" class="view-all-link">@T("PantryStaples.ViewAll")</a>
+        </div>
+
+        <div class="pantry-content">
+            <div class="widget-column">
+                @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageTop, additionalData = Model.CategoryName.ToUpper() })
             </div>
 
-            <!-- Main Content Layout -->
-            <div class="pantry-content">
-                <!-- Widget Column (Left) -->
-                <div class="widget-column">
-                    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageTop, additionalData =
-                    "DESPENSA" })
-                </div>
-
-                <!-- Products Column (Right) -->
-                <div class="products-column">
-                    <div id="pantry-staples-products" class="item-grid super-deal-row">
-                        @foreach (var item in Model)
-                        {
-                            <div class="item-box">
-                                @await Html.PartialAsync("_ProductBox", item)
-                            </div>
-                        }
-                    </div>
+            <div class="products-column">
+                <div id="pantry-staples-products" class="item-grid super-deal-row pantry-staples-grid">
+                    @foreach (var item in Model.Products)
+                    {
+                        <div class="item-box">
+                            @await Html.PartialAsync("_ProductBox", item)
+                        </div>
+                    }
                 </div>
             </div>
+        </div>
     </div>
 }
