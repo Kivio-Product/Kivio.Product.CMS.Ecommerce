@@ -8634,7 +8634,7 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
     background-color: #FDC345;
     padding-top: 8px;
     cursor: pointer;
-    display: none;
+    display: block;
 }
 .header-advice img {
     display: block;
