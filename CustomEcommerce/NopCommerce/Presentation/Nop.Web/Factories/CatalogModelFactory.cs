@@ -607,17 +607,22 @@ public partial class CatalogModelFactory : ICatalogModelFactory
                 activeCategoryId = productCategories[0].CategoryId;
         }
 
-        var categoryNameToRemove = await _settingService.GetSettingByKeyAsync<string>("Catalog.AllProducts.CategoryName");
+        var showAllProductsCategory = await _settingService.GetSettingByKeyAsync<bool>("Catalog.AllProducts.ShowOnCategoryNavigation", defaultValue: false);
+        var categoryNameToRedirect = await _settingService.GetSettingByKeyAsync<string>("Catalog.AllProducts.CategoryName");
         var cachedCategoriesModel = await PrepareCategorySimpleModelsAsync();
 
-        cachedCategoriesModel = cachedCategoriesModel
-            .Where(c => !string.Equals(c.Name, categoryNameToRemove.Trim(), StringComparison.OrdinalIgnoreCase))
-            .ToList();
+        if (!showAllProductsCategory)
+        {
+            cachedCategoriesModel = cachedCategoriesModel
+                .Where(c => !string.Equals(c.Name, categoryNameToRedirect.Trim(), StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
 
         var model = new CategoryNavigationModel
         {
             CurrentCategoryId = activeCategoryId,
-            Categories = cachedCategoriesModel
+            Categories = cachedCategoriesModel,
+            AllProductsCategoryName = showAllProductsCategory ? categoryNameToRedirect?.Trim() : string.Empty,
         };
 
         return model;
