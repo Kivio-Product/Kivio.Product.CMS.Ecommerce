@@ -2123,6 +2123,7 @@ button.add-to-wishlist-button.selected {
     box-sizing: border-box;
     display: flex;
     margin-bottom: 0;
+    background-color: white;
   }
 
   .cart-totals {

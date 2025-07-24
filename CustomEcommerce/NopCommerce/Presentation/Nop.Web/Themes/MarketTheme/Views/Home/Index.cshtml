@@ -85,14 +85,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (isIOS) {
+        if (!isInStandaloneMode) {
+            localStorage.removeItem('iosPwaPromptDismissed');
+        }
         const iosPrompt = document.getElementById('ios-pwa-install-prompt');
-        if (iosPrompt && sessionStorage.getItem('iosPwaPromptDismissed') !== 'true') {
+        if (iosPrompt && localStorage.getItem('iosPwaPromptDismissed') !== 'true') {
             iosPrompt.style.display = 'block';
 
             const dismissIosPrompt = () => {
                 if (iosPrompt.style.display !== 'none') {
                     iosPrompt.style.display = 'none';
-                    sessionStorage.setItem('iosPwaPromptDismissed', 'true');
+                    localStorage.setItem('iosPwaPromptDismissed', 'true');
                     document.removeEventListener('click', dismissIosPrompt);
                     document.removeEventListener('touchstart', dismissIosPrompt);
                 }
