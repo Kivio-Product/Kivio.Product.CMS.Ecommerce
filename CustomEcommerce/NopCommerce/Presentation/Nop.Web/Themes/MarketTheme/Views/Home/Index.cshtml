@@ -80,6 +80,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const isPWA = window.matchMedia('(display-mode: standalone)').matches;
     const headerAdvice = document.querySelector('.header-advice');
 
+    if (isIOS && !isInStandaloneMode) {
+        localStorage.removeItem('iosPwaPromptDismissed');
+    }
+
     if (isInStandaloneMode || isPWA) {
         return;
     }
@@ -92,18 +96,24 @@ document.addEventListener("DOMContentLoaded", function () {
         if (iosPrompt && localStorage.getItem('iosPwaPromptDismissed') !== 'true') {
             iosPrompt.style.display = 'block';
 
+            headerAdvice.addEventListener('click', async() => {
+                iosPrompt.style.display = 'block';
+                localStorage.removeItem('iosPwaPromptDismissed');
+                setTimeout(() => { 
+                    document.addEventListener('click', dismissIosPrompt);
+                }, 500);
+            });
+
             const dismissIosPrompt = () => {
                 if (iosPrompt.style.display !== 'none') {
                     iosPrompt.style.display = 'none';
                     localStorage.setItem('iosPwaPromptDismissed', 'true');
                     document.removeEventListener('click', dismissIosPrompt);
-                    document.removeEventListener('touchstart', dismissIosPrompt);
                 }
             };
             
             setTimeout(() => { 
                  document.addEventListener('click', dismissIosPrompt);
-                 document.addEventListener('touchstart', dismissIosPrompt);
             }, 500);
 
             setTimeout(dismissIosPrompt, 20000);
