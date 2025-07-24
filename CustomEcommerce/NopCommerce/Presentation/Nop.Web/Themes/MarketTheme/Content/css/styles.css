@@ -6432,9 +6432,6 @@ a.ui-button:active, .ui-button:active,
   .sublist .sublist-toggle {
     height: 49px;
   }
-  .block-category-navigation {
-    display: none;
-  }
   .block-account-navigation {
     float: none;
     margin: auto !important;
