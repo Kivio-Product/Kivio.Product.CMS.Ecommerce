@@ -6432,9 +6432,6 @@ a.ui-button:active, .ui-button:active,
   .sublist .sublist-toggle {
     height: 49px;
   }
-  .block-category-navigation {
-    display: none;
-  }
   .block-account-navigation {
     float: none;
     margin: auto !important;
@@ -8627,4 +8624,25 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 
 .pwa-dismiss-btn:hover {
     color: #333;
+}
+
+.header-advice {
+    text-align: center;
+    background-color: #FDC345;
+    padding-top: 8px;
+    cursor: pointer;
+    display: block;
+}
+.header-advice img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 60px;
+}
+@media (max-width: 991px) {
+    .header-advice img {
+        max-height: none;
+    }
 }

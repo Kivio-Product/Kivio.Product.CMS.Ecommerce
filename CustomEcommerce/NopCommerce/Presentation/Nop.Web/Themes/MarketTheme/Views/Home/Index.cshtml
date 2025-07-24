@@ -33,7 +33,9 @@
         @await Component.InvokeAsync(typeof(HomepageCategoriesViewComponent))
         @await Component.InvokeAsync(typeof(HomepageProductsViewComponent))
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBeforeProducts })
-        @{ await Html.RenderPartialAsync("_HomeFilteredTagProducts"); }
+        @await Component.InvokeAsync(typeof(PantryStaplesViewComponent))
+        @await Component.InvokeAsync(typeof(SuperDealsViewComponent))
+        @await Component.InvokeAsync(typeof(FilteredProductsViewComponent))
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBottom })
         @await Component.InvokeAsync(typeof(NewsletterBoxViewComponent))
     </div>
@@ -76,28 +78,42 @@ document.addEventListener("DOMContentLoaded", function () {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
     const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+    const headerAdvice = document.querySelector('.header-advice');
+
+    if (isIOS && !isInStandaloneMode) {
+        localStorage.removeItem('iosPwaPromptDismissed');
+    }
 
     if (isInStandaloneMode || isPWA) {
         return;
     }
 
     if (isIOS) {
+        if (!isInStandaloneMode) {
+            localStorage.removeItem('iosPwaPromptDismissed');
+        }
         const iosPrompt = document.getElementById('ios-pwa-install-prompt');
-        if (iosPrompt && sessionStorage.getItem('iosPwaPromptDismissed') !== 'true') {
+        if (iosPrompt && localStorage.getItem('iosPwaPromptDismissed') !== 'true') {
             iosPrompt.style.display = 'block';
-            
+
+            headerAdvice.addEventListener('click', async() => {
+                iosPrompt.style.display = 'block';
+                localStorage.removeItem('iosPwaPromptDismissed');
+                setTimeout(() => { 
+                    document.addEventListener('click', dismissIosPrompt);
+                }, 500);
+            });
+
             const dismissIosPrompt = () => {
                 if (iosPrompt.style.display !== 'none') {
                     iosPrompt.style.display = 'none';
-                    sessionStorage.setItem('iosPwaPromptDismissed', 'true');
+                    localStorage.setItem('iosPwaPromptDismissed', 'true');
                     document.removeEventListener('click', dismissIosPrompt);
-                    document.removeEventListener('touchstart', dismissIosPrompt);
                 }
             };
             
             setTimeout(() => { 
                  document.addEventListener('click', dismissIosPrompt);
-                 document.addEventListener('touchstart', dismissIosPrompt);
             }, 500);
 
             setTimeout(dismissIosPrompt, 20000);
@@ -111,9 +127,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         window.addEventListener('beforeinstallprompt', (e) => {
             const isAndroid = /android/i.test(navigator.userAgent);
+            e.preventDefault();
+            deferredPrompt = e;
             if (isAndroid && androidPrompt) {
-                e.preventDefault();
-                deferredPrompt = e;
                 androidPrompt.style.display = 'flex';
                 androidPrompt.classList.add('pwa-install-banner');
             }
@@ -121,6 +137,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (installButton) {
             installButton.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                androidPrompt.style.display = 'none';
+                deferredPrompt.prompt();
+                await deferredPrompt.userChoice;
+                deferredPrompt = null;
+            });
+
+            headerAdvice.addEventListener('click', async() => {
                 if (!deferredPrompt) return;
                 androidPrompt.style.display = 'none';
                 deferredPrompt.prompt();
@@ -136,7 +160,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         
         window.addEventListener('appinstalled', () => {
-            if(androidPrompt) androidPrompt.style.display = 'none';
+            if(androidPrompt){
+                androidPrompt.style.display = 'none';
+            }
             deferredPrompt = null;
         });
     }

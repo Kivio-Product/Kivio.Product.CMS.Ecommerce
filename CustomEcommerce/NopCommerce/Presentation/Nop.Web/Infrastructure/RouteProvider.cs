@@ -21,6 +21,12 @@ public partial class RouteProvider : BaseRouteProvider, IRouteProvider
         //use it only for URLs of pages that the user can go to
         var lang = GetLanguageRoutePattern();
 
+        // all products category
+
+        endpointRouteBuilder.MapControllerRoute(name: "AllProducts",
+            pattern: $"{lang}/allproducts/",
+            defaults: new { controller = "Catalog", action = "AllProducts" });
+
         //areas
         endpointRouteBuilder.MapControllerRoute(name: "areaRoute",
             pattern: $"{{area:exists}}/{{controller=Home}}/{{action=Index}}/{{id?}}");

@@ -9,6 +9,7 @@ using Nop.Web.Factories;
 using Nop.Web.Framework.Controllers;
 using System.Linq;
 using System.Threading.Tasks;
+using Nop.Services.Configuration;
 
 namespace Nop.Web.Controllers
 {
@@ -21,6 +22,7 @@ namespace Nop.Web.Controllers
         private readonly IWorkContext _workContext;
         private readonly IAclService _aclService;
         private readonly IStoreMappingService _storeMappingService;
+        private readonly ISettingService _settingService;
 
         public CustomProductSectionController(
             IProductService productService,
@@ -29,7 +31,8 @@ namespace Nop.Web.Controllers
             IStoreContext storeContext,
             IWorkContext workContext,
             IAclService aclService,
-            IStoreMappingService storeMappingService)
+            IStoreMappingService storeMappingService,
+            ISettingService settingService)
         {
             _productService = productService;
             _productModelFactory = productModelFactory;
@@ -38,6 +41,7 @@ namespace Nop.Web.Controllers
             _workContext = workContext;
             _aclService = aclService;
             _storeMappingService = storeMappingService;
+            _settingService = settingService;
         }
 
         public async Task<IActionResult> GetFilteredProducts(string productTagName, int productThumbPictureSize = 280)
@@ -83,6 +87,21 @@ namespace Nop.Web.Controllers
                 prepareSpecificationAttributes: false,
                 forceRedirectionAfterAddingToCart: false
             )).ToList();
+
+            var minimumDiscountPercentage = await _settingService.GetSettingByKeyAsync<decimal>("Catalog.MinimumDiscountPercentage", defaultValue: 0.2m);
+
+            productModels = productModels
+                .Where(p => p.ProductPrice.OldPriceValue.HasValue &&
+                            p.ProductPrice.PriceValue.HasValue &&
+                            p.ProductPrice.OldPriceValue.Value > 0)
+                .Where(p =>
+                {
+                    var oldPrice = p.ProductPrice.OldPriceValue.Value;
+                    var newPrice = p.ProductPrice.PriceValue.Value;
+                    var discount = (oldPrice - newPrice) / oldPrice;
+                    return discount >= minimumDiscountPercentage;
+                })
+                .ToList();
 
             return PartialView("_CustomProductGridItems", productModels);
         }

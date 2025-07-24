@@ -1032,17 +1032,20 @@ input[type="radio"]:checked + .radio-custom {
   justify-content: center;
 }
 
-.regular-discount-row {
+.regular-discount-row,
+.super-deal-row {
   margin-bottom: 20px;
   width: 100%;
   display: flex;
   flex-wrap: wrap;
 }
 
-.regular-discount-row .item-box {
+.regular-discount-row .item-box,
+.super-deal-row .item-box {
   width: calc(20% - 30px);
 }
-.regular-discount-row .item-box {
+.regular-discount-row .item-box,
+.super-deal-row .item-box {
   width: calc(25% - 30px);
 }
 
@@ -1894,6 +1897,133 @@ button.add-to-wishlist-button.selected {
   opacity: 1 !important;
 }
 
+.super-deals-section .section-header {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.super-deals-section .section-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.super-deals-section .category-filters {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.super-deals-section .category-filter-btn {
+  padding: 12px 24px;
+  border: none;
+  background: #fff;
+  color: #666;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.super-deals-section .category-filter-btn.active,
+.super-deals-section .category-filter-btn:hover {
+  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.super-deals-section .category-products-container {
+  display: none;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.super-deals-section .category-products-container.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.super-deals-section .view-all-mobile {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.super-deals-section .view-all-svg-button {
+  cursor: pointer;
+  max-width: 100%;
+  height: auto;
+}
+
+.pantry-staples-section {
+  margin: 20px auto;
+  padding: 0 70px;
+}
+
+.pantry-staples-section .section-header {
+  padding: 20px 15px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.pantry-staples-section .section-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.pantry-staples-section .view-all-link {
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 8px;
+  transition: background-color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.pantry-staples-section .pantry-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-around;
+  gap: 40px;
+}
+
+.pantry-staples-section .widget-column {
+  flex: 0 0 40%;
+}
+
+.pantry-staples-section .products-column {
+  max-width: 58%;
+}
+
+.pantry-staples-section .products-column .item-grid .item-box {
+  width: 90%;
+  border: 1px solid #e0d2d2;
+  border-radius: 12px;
+  margin: 10px 1% !important;
+}
+
 @media all and (max-width: 1000px) {
   .flyout-cart {
     position: fixed;
@@ -1984,6 +2114,7 @@ button.add-to-wishlist-button.selected {
     box-sizing: border-box;
     display: flex;
     margin-bottom: 0;
+    background-color: white;
   }
 
   .cart-totals {
@@ -2158,7 +2289,8 @@ button.add-to-wishlist-button.selected {
     margin-bottom: 20px;
   }
 
-  .regular-discount-row .mobile-grid .item-box {
+  .regular-discount-row .mobile-grid .item-box,
+  .super-deal-row .mobile-grid .item-box {
     width: calc(33.33% - 10px) !important;
     margin-bottom: 20px;
   }
@@ -2220,11 +2352,17 @@ button.add-to-wishlist-button.selected {
 }
 
 @media (min-width: 768px) {
+
+  .super-deals-section .view-all-svg-button {
+    width: 40%;
+  }
+
   .high-discount-row .item-box {
     width: 25%;
   }
 
-  .regular-discount-row .item-box {
+  .regular-discount-row .item-box,
+  .super-deal-row .item-box {
     width: calc(20% - 30px);
   }
 
@@ -2245,7 +2383,8 @@ button.add-to-wishlist-button.selected {
     width: calc(33.33% - 200px) !important;
   }
 
-  .regular-discount-row .item-box {
+  .regular-discount-row .item-box,
+  .super-deal-row .item-box {
     width: calc(20% - 30px);
   }
 
@@ -2285,7 +2424,8 @@ button.add-to-wishlist-button.selected {
     flex: 0 0 calc(50% - 5px);
   }
 
-  .mobile-grid.regular-discount-row .item-box {
+  .mobile-grid.regular-discount-row .item-box,
+  .mobile-grid.super-deal-row .item-box {
     width: calc(33.33% - 7px);
     flex: 0 0 calc(33.33% - 7px);
   }
@@ -2338,9 +2478,6 @@ button.add-to-wishlist-button.selected {
 
   .product-tag-page .product-grid .item-grid .item-box {
     width: 48%;
-    border: 1px solid #e0d2d2;
-    border-radius: 12px;
-    margin: 10px 1% !important;
   }
 
   .product-icon .button-2,
@@ -2467,6 +2604,44 @@ button.add-to-wishlist-button.selected {
   .px_mini_shopping_cart_item .product {
     width: 100%;
   }
+
+  .super-deals-section .category-filters {
+    gap: 10px;
+  }
+
+  .super-deals-section .category-filter-btn {
+    padding: 10px 18px;
+    font-size: 0.9rem;
+  }
+
+  .super-deals-section .section-title {
+    font-size: 1.5rem;
+  }
+
+  .pantry-staples-section {
+    padding: 0 40px;
+  }
+
+  .pantry-staples-section .pantry-content {
+    flex-direction: column;
+  }
+
+  .pantry-staples-section .widget-column {
+    flex: none;
+    width: 100%;
+  }
+
+  .pantry-staples-section .products-column {
+    max-width: 100%;
+  }
+
+  .pantry-staples-section .section-header {
+    justify-content: space-around;
+  }
+
+  .pantry-staples-section .view-all-link {
+    margin-top: 10px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -2486,9 +2661,9 @@ button.add-to-wishlist-button.selected {
   .search-bar-mobile .search-box-text {
     font-size: 16px;
   }
-  
+
   .product-item .product-icon,
-  .item-box .product-icon{
+  .item-box .product-icon {
     animation: none !important;
     transition: none !important;
     transform: none !important;
