@@ -78,8 +78,9 @@ namespace Nop.Web.Components
                     storeId: currentStore.Id,
                     visibleIndividuallyOnly: true,
                     overridePublished: true,
-                    pageSize: 10,
-                    orderBy: ProductSortingEnum.PriceDesc
+                    pageSize: 40,
+                    orderBy: ProductSortingEnum.PriceDesc,
+                    pageIndex: 0
                 );
 
                 var categoryProducts = products.Take(15).ToList();
