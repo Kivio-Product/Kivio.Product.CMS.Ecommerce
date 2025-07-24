@@ -28,6 +28,7 @@ using Nop.Web.Framework.Events;
 using Nop.Web.Framework.Mvc.Routing;
 using Nop.Web.Infrastructure.Cache;
 using Nop.Web.Models.Catalog;
+using Nop.Services.Configuration;
 using Nop.Web.Models.Media;
 
 namespace Nop.Web.Factories;
@@ -68,6 +69,7 @@ public partial class CatalogModelFactory : ICatalogModelFactory
     protected readonly IWorkContext _workContext;
     protected readonly MediaSettings _mediaSettings;
     protected readonly SeoSettings _seoSettings;
+    private readonly ISettingService _settingService;
     protected readonly VendorSettings _vendorSettings;
     private static readonly char[] _separator = [',', ' '];
 
@@ -107,7 +109,8 @@ public partial class CatalogModelFactory : ICatalogModelFactory
         IWorkContext workContext,
         MediaSettings mediaSettings,
         SeoSettings seoSettings,
-        VendorSettings vendorSettings)
+        VendorSettings vendorSettings,
+        ISettingService settingService)
     {
         _blogSettings = blogSettings;
         _catalogSettings = catalogSettings;
@@ -142,6 +145,7 @@ public partial class CatalogModelFactory : ICatalogModelFactory
         _mediaSettings = mediaSettings;
         _seoSettings = seoSettings;
         _vendorSettings = vendorSettings;
+        _settingService = settingService;
     }
 
     #endregion
@@ -591,22 +595,25 @@ public partial class CatalogModelFactory : ICatalogModelFactory
     /// </returns>
     public virtual async Task<CategoryNavigationModel> PrepareCategoryNavigationModelAsync(int currentCategoryId, int currentProductId)
     {
-        //get active category
         var activeCategoryId = 0;
         if (currentCategoryId > 0)
         {
-            //category details page
             activeCategoryId = currentCategoryId;
         }
         else if (currentProductId > 0)
         {
-            //product details page
             var productCategories = await _categoryService.GetProductCategoriesByProductIdAsync(currentProductId);
             if (productCategories.Any())
                 activeCategoryId = productCategories[0].CategoryId;
         }
 
+        var categoryNameToRemove = await _settingService.GetSettingByKeyAsync<string>("Catalog.AllProducts.CategoryName");
         var cachedCategoriesModel = await PrepareCategorySimpleModelsAsync();
+
+        cachedCategoriesModel = cachedCategoriesModel
+            .Where(c => !string.Equals(c.Name, categoryNameToRemove.Trim(), StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
         var model = new CategoryNavigationModel
         {
             CurrentCategoryId = activeCategoryId,
@@ -2266,7 +2273,7 @@ public partial class CatalogModelFactory : ICatalogModelFactory
             filteredSpecOptions: filteredSpecs,
             orderBy: (ProductSortingEnum)command.OrderBy);
 
-        var isFiltering = filterableOptions.Any() || selectedPriceRange?.From is not null ;
+        var isFiltering = filterableOptions.Any() || selectedPriceRange?.From is not null;
 
         await PrepareCatalogProductsAsync(model, products, isFiltering);
 
