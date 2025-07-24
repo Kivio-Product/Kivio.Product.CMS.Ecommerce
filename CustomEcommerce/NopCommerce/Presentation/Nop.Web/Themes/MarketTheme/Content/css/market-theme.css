@@ -1964,17 +1964,8 @@ button.add-to-wishlist-button.selected {
 
 .super-deals-section .view-all-svg-button {
   cursor: pointer;
-  transition: transform 0.3s ease;
   max-width: 100%;
   height: auto;
-}
-
-.super-deals-section .view-all-svg-button:hover {
-  transform: scale(1.05);
-}
-
-.super-deals-section .view-all-svg-button:active {
-  transform: scale(0.98);
 }
 
 .pantry-staples-section {
