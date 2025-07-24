@@ -2351,6 +2351,11 @@ button.add-to-wishlist-button.selected {
 }
 
 @media (min-width: 768px) {
+
+  .super-deals-section .view-all-svg-button {
+    width: 40%;
+  }
+
   .high-discount-row .item-box {
     width: 25%;
   }
