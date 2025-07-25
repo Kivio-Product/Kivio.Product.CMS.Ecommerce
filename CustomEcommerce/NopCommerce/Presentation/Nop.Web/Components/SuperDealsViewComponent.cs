@@ -134,11 +134,8 @@ namespace Nop.Web.Components
                 var products = await _productService.SearchProductsAsync(
                     categoryIds: new List<int> { category.Id },
                     storeId: storeId,
-                    visibleIndividuallyOnly: true,
-                    pageSize: maxProductsPerCategory
+                    visibleIndividuallyOnly: true
                 );
-
-                Console.WriteLine($"SuperDealsViewComponent: Found {products.Count} products in category '{category.Name}'");
 
                 var categoryProducts = products.ToList();
                 if (!categoryProducts.Any()) return null;
@@ -163,7 +160,7 @@ namespace Nop.Web.Components
                         var discount = (oldPrice - newPrice) / oldPrice;
                         return discount >= minimumDiscountPercentage;
                     })
-                    .ToList();
+                    .Take(maxProductsPerCategory).ToList();
 
                 return new CategoryProductsModel
                 {

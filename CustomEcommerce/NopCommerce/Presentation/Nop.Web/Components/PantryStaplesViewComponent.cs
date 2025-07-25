@@ -153,8 +153,7 @@ namespace Nop.Web.Components
                 var products = await _productService.SearchProductsAsync(
                     categoryIds: new List<int> { categoryId },
                     storeId: storeId,
-                    visibleIndividuallyOnly: true,
-                    pageSize: maxProductsPerCategory
+                    visibleIndividuallyOnly: true
                 );
 
                 var categoryProducts = products.ToList();
@@ -184,7 +183,7 @@ namespace Nop.Web.Components
                         var discount = (oldPrice - newPrice) / oldPrice;
                         return discount >= minimumDiscountPercentage;
                     })
-                    .ToList();
+                    .Take(maxProductsPerCategory).ToList();
 
                 return filteredProducts;
             });
