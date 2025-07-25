@@ -95,6 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const iosPrompt = document.getElementById('ios-pwa-install-prompt');
         if (iosPrompt && localStorage.getItem('iosPwaPromptDismissed') !== 'true') {
             iosPrompt.style.display = 'block';
+            headerAdvice.style.display = 'block';
 
             headerAdvice.addEventListener('click', async() => {
                 iosPrompt.style.display = 'block';
@@ -129,6 +130,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const isAndroid = /android/i.test(navigator.userAgent);
             e.preventDefault();
             deferredPrompt = e;
+            headerAdvice.style.display = 'block';
             if (isAndroid && androidPrompt) {
                 androidPrompt.style.display = 'flex';
                 androidPrompt.classList.add('pwa-install-banner');
@@ -139,6 +141,7 @@ document.addEventListener("DOMContentLoaded", function () {
             installButton.addEventListener('click', async () => {
                 if (!deferredPrompt) return;
                 androidPrompt.style.display = 'none';
+                headerAdvice.style.display = 'none';
                 deferredPrompt.prompt();
                 await deferredPrompt.userChoice;
                 deferredPrompt = null;
@@ -147,6 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
             headerAdvice.addEventListener('click', async() => {
                 if (!deferredPrompt) return;
                 androidPrompt.style.display = 'none';
+                headerAdvice.style.display = 'none';
                 deferredPrompt.prompt();
                 await deferredPrompt.userChoice;
                 deferredPrompt = null;
@@ -156,10 +160,12 @@ document.addEventListener("DOMContentLoaded", function () {
         if (dismissButton) {
             dismissButton.addEventListener('click', () => {
                 androidPrompt.style.display = 'none';
+                headerAdvice.style.display = 'none';
             });
         }
         
         window.addEventListener('appinstalled', () => {
+            headerAdvice.style.display = 'none';
             if(androidPrompt){
                 androidPrompt.style.display = 'none';
             }
