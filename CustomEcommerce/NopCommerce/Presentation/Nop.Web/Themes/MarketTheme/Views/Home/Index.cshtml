@@ -76,22 +76,15 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
-    const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+    const isInStandaloneMode = ('standalone' in window.navigator);
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     const headerAdvice = document.querySelector('.header-advice');
-
-    if (isIOS && !isInStandaloneMode) {
-        localStorage.removeItem('iosPwaPromptDismissed');
-    }
 
     if (isInStandaloneMode || isPWA) {
         return;
     }
 
     if (isIOS) {
-        if (!isInStandaloneMode) {
-            localStorage.removeItem('iosPwaPromptDismissed');
-        }
         const iosPrompt = document.getElementById('ios-pwa-install-prompt');
         if (iosPrompt && localStorage.getItem('iosPwaPromptDismissed') !== 'true') {
             iosPrompt.style.display = 'block';
@@ -130,8 +123,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const isAndroid = /android/i.test(navigator.userAgent);
             e.preventDefault();
             deferredPrompt = e;
-            headerAdvice.style.display = 'block';
             if (isAndroid && androidPrompt) {
+                headerAdvice.style.display = 'block';
                 androidPrompt.style.display = 'flex';
                 androidPrompt.classList.add('pwa-install-banner');
             }
@@ -160,7 +153,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (dismissButton) {
             dismissButton.addEventListener('click', () => {
                 androidPrompt.style.display = 'none';
-                headerAdvice.style.display = 'none';
             });
         }
         
