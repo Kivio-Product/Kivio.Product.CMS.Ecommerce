@@ -2107,7 +2107,7 @@ button.add-to-wishlist-button.selected {
     right: 0;
     align-items: center;
     justify-content: space-between;
-    z-index: 999;
+    z-index: 9999;
     padding: 1rem;
     gap: 1rem;
     width: 100%;
