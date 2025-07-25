@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Orders;
 using Nop.Services.Configuration;
+using Nop.Services.Caching;
+using Nop.Core.Caching;
+using Nop.Core.Domain.Stores;
 
 namespace Nop.Web.Components
 {
@@ -23,6 +26,7 @@ namespace Nop.Web.Components
         private readonly ICategoryService _categoryService;
         private readonly IWorkContext _workContext;
         private readonly ISettingService _settingService;
+        private readonly IStaticCacheManager _staticCacheManager;
 
         public SuperDealsViewComponent(
             IProductService productService,
@@ -30,7 +34,8 @@ namespace Nop.Web.Components
             IStoreContext storeContext,
             ICategoryService categoryService,
             IWorkContext workContext,
-            ISettingService settingService)
+            ISettingService settingService,
+            IStaticCacheManager staticCacheManager)
         {
             _productService = productService;
             _productModelFactory = productModelFactory;
@@ -38,20 +43,40 @@ namespace Nop.Web.Components
             _categoryService = categoryService;
             _workContext = workContext;
             _settingService = settingService;
+            _staticCacheManager = staticCacheManager;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var model = new SuperDealsModel();
             var currentStore = await _storeContext.GetCurrentStoreAsync();
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            
+            // Crear clave de caché única para el componente completo
+            var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(
+                SuperDealsCacheDefaults.SuperDealsModelKey, 
+                currentStore.Id, 
+                await _workContext.GetWorkingLanguageAsync()
+            );
 
-            var categoryNames =  await _settingService.GetSettingByKeyAsync<string>("SuperDeals.CategoryNames");
+            var model = await _staticCacheManager.GetAsync(cacheKey, async () =>
+            {
+                return await PrepareModelAsync(currentStore);
+            });
 
+            return View(model);
+        }
+
+        private async Task<SuperDealsModel> PrepareModelAsync(Store currentStore)
+        {
+            var model = new SuperDealsModel();
+            
+            var categoryNames = await _settingService.GetSettingByKeyAsync<string>("SuperDeals.CategoryNames");
+            
             Console.WriteLine($"SuperDealsViewComponent: Category Names from settings: {categoryNames}");
 
             if (string.IsNullOrEmpty(categoryNames))
             {
-                return Content("");
+                return model;
             }
 
             var categoryNamesList = categoryNames.Split(',')
@@ -60,32 +85,63 @@ namespace Nop.Web.Components
                 .ToList();
 
             var minimumDiscountPercentage = await _settingService.GetSettingByKeyAsync<decimal>("Catalog.MinimumDiscountPercentage", defaultValue: 0.2m);
+            var maxProductsPerCategory = await _settingService.GetSettingByKeyAsync<int>("Catalog.Home.MaxProductsPerCategory", defaultValue: 20);
 
             foreach (var categoryName in categoryNamesList)
             {
+                var categoryModel = await GetCachedCategoryProductsAsync(
+                    categoryName, 
+                    currentStore.Id, 
+                    minimumDiscountPercentage, 
+                    maxProductsPerCategory
+                );
+
+                if (categoryModel != null && categoryModel.Products.Any())
+                {
+                    model.CategoryProducts.Add(categoryModel);
+                }
+            }
+
+            return model;
+        }
+
+        private async Task<CategoryProductsModel> GetCachedCategoryProductsAsync(
+            string categoryName, 
+            int storeId, 
+            decimal minimumDiscountPercentage, 
+            int maxProductsPerCategory)
+        {
+            var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(
+                SuperDealsCacheDefaults.CategoryProductsKey,
+                categoryName,
+                storeId,
+                minimumDiscountPercentage,
+                maxProductsPerCategory,
+                await _workContext.GetWorkingLanguageAsync()
+            );
+
+            return await _staticCacheManager.GetAsync(cacheKey, async () =>
+            {
                 var categories = await _categoryService.GetAllCategoriesAsync(
                     categoryName: categoryName,
-                    storeId: currentStore.Id,
+                    storeId: storeId,
                     showHidden: false
                 );
 
                 var category = categories.FirstOrDefault();
-
-                if (category == null) continue;
+                if (category == null) return null;
 
                 var products = await _productService.SearchProductsAsync(
                     categoryIds: new List<int> { category.Id },
-                    storeId: currentStore.Id,
+                    storeId: storeId,
                     visibleIndividuallyOnly: true,
-                    overridePublished: true,
-                    pageSize: 40,
-                    orderBy: ProductSortingEnum.PriceDesc,
-                    pageIndex: 0
+                    pageSize: maxProductsPerCategory
                 );
 
-                var categoryProducts = products.Take(15).ToList();
+                Console.WriteLine($"SuperDealsViewComponent: Found {products.Count} products in category '{category.Name}'");
 
-                if (!categoryProducts.Any()) continue;
+                var categoryProducts = products.ToList();
+                if (!categoryProducts.Any()) return null;
 
                 var productModels = await _productModelFactory.PrepareProductOverviewModelsAsync(
                     categoryProducts,
@@ -96,7 +152,7 @@ namespace Nop.Web.Components
                     forceRedirectionAfterAddingToCart: false
                 );
 
-                productModels = productModels
+                var filteredProducts = productModels
                     .Where(p => p.ProductPrice.OldPriceValue.HasValue &&
                                 p.ProductPrice.PriceValue.HasValue &&
                                 p.ProductPrice.OldPriceValue.Value > 0)
@@ -109,16 +165,44 @@ namespace Nop.Web.Components
                     })
                     .ToList();
 
-                model.CategoryProducts.Add(new CategoryProductsModel
+                return new CategoryProductsModel
                 {
                     CategoryName = category.Name,
                     CategoryId = category.Id,
-                    Products = productModels.ToList()
-                });
-            }
-
-            return View(model);
+                    Products = filteredProducts
+                };
+            });
         }
+    }
+
+    public static class SuperDealsCacheDefaults
+    {
+        /// <summary>
+        /// Clave para cachear el modelo completo de SuperDeals
+        /// {0} : store ID
+        /// {1} : language ID
+        /// </summary>
+        public static CacheKey SuperDealsModelKey => new("Nop.superdeals.model.{0}-{1}", SuperDealsPrefix);
+
+        /// <summary>
+        /// Clave para cachear productos por categoría
+        /// {0} : category name
+        /// {1} : store ID  
+        /// {2} : minimum discount percentage
+        /// {3} : max products per category
+        /// {4} : language ID
+        /// </summary>
+        public static CacheKey CategoryProductsKey => new("Nop.superdeals.categoryproducts.{0}-{1}-{2}-{3}-{4}", SuperDealsPrefix);
+
+        /// <summary>
+        /// Prefijo para todas las claves de caché de SuperDeals
+        /// </summary>
+        public static string SuperDealsPrefix => "Nop.superdeals.";
+
+        /// <summary>
+        /// Tiempo de expiración del caché (en minutos)
+        /// </summary>
+        public static int CacheTime => 60; // 1 hora
     }
 
     public class SuperDealsModel
