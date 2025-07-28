@@ -1,6 +1,12 @@
 ﻿@model IList<CategoryModel>
 
 @using Nop.Core.Domain.Catalog
+@using Nop.Core.Infrastructure
+@using Nop.Services.Configuration;
+
+@{
+    var categoryNameToRedirect = EngineContext.Current.Resolve<ISettingService>().GetSettingByKeyAsync<string>("Catalog.AllProducts.CategoryName").Result;
+}
 
 @if (Model.Count > 0)
 {
@@ -13,11 +19,16 @@
             <div class="item-grid px_category_slider owl-carousel">
                 @foreach (var item in Model)
                 {
+                    
+                    var categoryUrl = !string.IsNullOrEmpty(categoryNameToRedirect) && 
+                                    item.Name.Equals(categoryNameToRedirect, StringComparison.OrdinalIgnoreCase)
+                        ? Url.RouteUrl("AllProducts")
+                        : Url.RouteUrl<Category>(new { SeName = item.SeName });
+                    
                     <div class="item-box px_category">
                         <div class="category-item">
                             <div class="picture">
-                                <a href="@(Url.RouteUrl<Category>(new { SeName = item.SeName }))"
-                                    title="@item.PictureModel.Title">
+                                <a href="@categoryUrl" title="@item.PictureModel.Title">
                                     <img alt="@item.PictureModel.AlternateText" src="@item.PictureModel.ImageUrl"
                                         title="@item.PictureModel.Title" />
                                     <div class="px_category_hover">
@@ -42,11 +53,16 @@
                     <div class="category-row">
                         @for (int i = 0; i < Math.Min(4, Model.Count); i++)
                         {
+                            
+                            var categoryUrl = !string.IsNullOrEmpty(categoryNameToRedirect) && 
+                                            Model[i].Name.Equals(categoryNameToRedirect, StringComparison.OrdinalIgnoreCase)
+                                ? Url.RouteUrl("AllProducts")
+                                : Url.RouteUrl<Category>(new { SeName = Model[i].SeName });
+                            
                             <div class="item-box px_category">
                                 <div class="category-item">
                                     <div class="picture">
-                                        <a href="@(Url.RouteUrl<Category>(new { SeName = Model[i].SeName }))"
-                                            title="@Model[i].PictureModel.Title">
+                                        <a href="@categoryUrl" title="@Model[i].PictureModel.Title">
                                             <img alt="@Model[i].PictureModel.AlternateText" src="@Model[i].PictureModel.ImageUrl"
                                                 title="@Model[i].PictureModel.Title" />
                                             <div class="px_category_hover"></div>
@@ -64,11 +80,16 @@
                         <div class="category-row">
                             @for (int i = 4; i < Model.Count; i++)
                             {
+                                
+                                var categoryUrl = !string.IsNullOrEmpty(categoryNameToRedirect) && 
+                                                Model[i].Name.Equals(categoryNameToRedirect, StringComparison.OrdinalIgnoreCase)
+                                    ? Url.RouteUrl("AllProducts")
+                                    : Url.RouteUrl<Category>(new { SeName = Model[i].SeName });
+                                
                                 <div class="item-box px_category">
                                     <div class="category-item">
                                         <div class="picture">
-                                            <a href="@(Url.RouteUrl<Category>(new { SeName = Model[i].SeName }))"
-                                                title="@Model[i].PictureModel.Title">
+                                            <a href="@categoryUrl" title="@Model[i].PictureModel.Title">
                                                 <img alt="@Model[i].PictureModel.AlternateText" src="@Model[i].PictureModel.ImageUrl"
                                                     title="@Model[i].PictureModel.Title" />
                                                 <div class="px_category_hover"></div>
@@ -100,11 +121,15 @@
                             <div class="category-row">
                                 @for (int i = slideIndex * itemsPerSlide; i < Math.Min((slideIndex * itemsPerSlide) + 4, Model.Count); i++)
                                 {
+                                    var categoryUrl = !string.IsNullOrEmpty(categoryNameToRedirect) && 
+                                                    Model[i].Name.Equals(categoryNameToRedirect, StringComparison.OrdinalIgnoreCase)
+                                        ? Url.RouteUrl("AllProducts")
+                                        : Url.RouteUrl<Category>(new { SeName = Model[i].SeName });
+                                    
                                     <div class="item-box px_category">
                                         <div class="category-item">
                                             <div class="picture">
-                                                <a href="@(Url.RouteUrl<Category>(new { SeName = Model[i].SeName }))"
-                                                    title="@Model[i].PictureModel.Title">
+                                                <a href="@categoryUrl" title="@Model[i].PictureModel.Title">
                                                     <img alt="@Model[i].PictureModel.AlternateText" src="@Model[i].PictureModel.ImageUrl"
                                                         title="@Model[i].PictureModel.Title" />
                                                     <div class="px_category_hover"></div>
@@ -124,11 +149,15 @@
                                 <div class="category-row">
                                     @for (int i = (slideIndex * itemsPerSlide) + 4; i < Math.Min((slideIndex * itemsPerSlide) + 8, Model.Count); i++)
                                     {
+                                        var categoryUrl = !string.IsNullOrEmpty(categoryNameToRedirect) && 
+                                                        Model[i].Name.Equals(categoryNameToRedirect, StringComparison.OrdinalIgnoreCase)
+                                            ? Url.RouteUrl("AllProducts")
+                                            : Url.RouteUrl<Category>(new { SeName = Model[i].SeName });
+                                        
                                         <div class="item-box px_category">
                                             <div class="category-item">
                                                 <div class="picture">
-                                                    <a href="@(Url.RouteUrl<Category>(new { SeName = Model[i].SeName }))"
-                                                        title="@Model[i].PictureModel.Title">
+                                                    <a href="@categoryUrl" title="@Model[i].PictureModel.Title">
                                                         <img alt="@Model[i].PictureModel.AlternateText" src="@Model[i].PictureModel.ImageUrl"
                                                             title="@Model[i].PictureModel.Title" />
                                                         <div class="px_category_hover"></div>
