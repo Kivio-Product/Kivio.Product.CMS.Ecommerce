@@ -1115,7 +1115,7 @@ text-decoration: underline;
   min-width: 250px;
   height: 44px;
   margin-right: 20px;
-  border-radius: 10px;
+  border-radius: 5px;
   border: 0;
   font-size: 16px;
   font-family: 'Inter', sans-serif;
@@ -1139,7 +1139,7 @@ text-decoration: underline;
   min-width: 124px;
   height: 44px;
   min-height: auto;
-  border-radius: 10px;
+  border-radius: 5px;
 }
 .newsletter-subscribe-button:hover,
 .newsletter-subscribe-button:focus,
@@ -8042,14 +8042,14 @@ white-space: nowrap; /* Evita que el texto del botón se parta */
 }
 
 .flash-sale-container .view-all-button:hover {
-background-color: #f8f9fa;
-border-color: #bbb;
+  background-color: #7a37f0;
+  border-color: #bbb;
+  color: white;
 }
 
 .flash-sale-container .view-all-button svg {
-width: 14px;
-height: 14px;
-stroke: #333; /* Asegúrate de que el color se aplique bien */
+  width: 14px;
+  height: 14px;
 }
 
 .custom-product-section {
@@ -8454,14 +8454,15 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
 }
 
 .filters-bar .filter-button:hover {
-    background-color: #f5f5f5;
+    background-color: #7a37f0;
     border-color: #ccc;
+    color: white;
 }
 
 .filters-bar .filter-button.active {
-    background-color: #222; /* Dark background for active */
-    color: #fff;
-    border-color: #222;
+    background-color: #7a37f0;
+    border-color: #ccc;
+    color: white;
     font-weight: bold;
 }
 
@@ -8631,7 +8632,7 @@ stroke: #333; /* Asegúrate de que el color se aplique bien */
     background-color: #FDC345;
     padding-top: 8px;
     cursor: pointer;
-    display: block;
+    display: none;
 }
 .header-advice img {
     display: block;

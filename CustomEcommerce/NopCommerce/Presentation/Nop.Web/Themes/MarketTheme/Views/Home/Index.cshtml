@@ -76,29 +76,22 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
-    const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+    const isInStandaloneMode = ('standalone' in window.navigator) && window.navigator.standalone;
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     const headerAdvice = document.querySelector('.header-advice');
-
-    if (isIOS && !isInStandaloneMode) {
-        localStorage.removeItem('iosPwaPromptDismissed');
-    }
 
     if (isInStandaloneMode || isPWA) {
         return;
     }
 
     if (isIOS) {
-        if (!isInStandaloneMode) {
-            localStorage.removeItem('iosPwaPromptDismissed');
-        }
         const iosPrompt = document.getElementById('ios-pwa-install-prompt');
-        if (iosPrompt && localStorage.getItem('iosPwaPromptDismissed') !== 'true') {
+        if (iosPrompt) {
             iosPrompt.style.display = 'block';
+            headerAdvice.style.display = 'block';
 
             headerAdvice.addEventListener('click', async() => {
                 iosPrompt.style.display = 'block';
-                localStorage.removeItem('iosPwaPromptDismissed');
                 setTimeout(() => { 
                     document.addEventListener('click', dismissIosPrompt);
                 }, 500);
@@ -107,13 +100,13 @@ document.addEventListener("DOMContentLoaded", function () {
             const dismissIosPrompt = () => {
                 if (iosPrompt.style.display !== 'none') {
                     iosPrompt.style.display = 'none';
-                    localStorage.setItem('iosPwaPromptDismissed', 'true');
                     document.removeEventListener('click', dismissIosPrompt);
                 }
             };
             
             setTimeout(() => { 
                  document.addEventListener('click', dismissIosPrompt);
+                 document.addEventListener('touchstart', dismissIosPrompt);
             }, 500);
 
             setTimeout(dismissIosPrompt, 20000);
@@ -130,6 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
             e.preventDefault();
             deferredPrompt = e;
             if (isAndroid && androidPrompt) {
+                headerAdvice.style.display = 'block';
                 androidPrompt.style.display = 'flex';
                 androidPrompt.classList.add('pwa-install-banner');
             }
@@ -139,6 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
             installButton.addEventListener('click', async () => {
                 if (!deferredPrompt) return;
                 androidPrompt.style.display = 'none';
+                headerAdvice.style.display = 'none';
                 deferredPrompt.prompt();
                 await deferredPrompt.userChoice;
                 deferredPrompt = null;
@@ -147,6 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
             headerAdvice.addEventListener('click', async() => {
                 if (!deferredPrompt) return;
                 androidPrompt.style.display = 'none';
+                headerAdvice.style.display = 'none';
                 deferredPrompt.prompt();
                 await deferredPrompt.userChoice;
                 deferredPrompt = null;
@@ -160,6 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         
         window.addEventListener('appinstalled', () => {
+            headerAdvice.style.display = 'none';
             if(androidPrompt){
                 androidPrompt.style.display = 'none';
             }
