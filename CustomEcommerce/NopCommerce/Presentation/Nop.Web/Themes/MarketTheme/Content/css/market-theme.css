@@ -1301,10 +1301,15 @@ input[type="radio"]:checked + .radio-custom {
   margin: 25px 0px;
 }
 
+.home-page-product-grid .view-all-mobile .view-all-button:hover {
+  background-color: #7a37f0;
+  border-color: #bbb;
+  color: #fff;
+}
+
 .home-page-product-grid .view-all-mobile .view-all-button svg {
   width: 14px;
   height: 14px;
-  fill: #333;
 }
 
 .mobile-only-cart {
@@ -1898,45 +1903,49 @@ button.add-to-wishlist-button.selected {
 }
 
 .super-deals-section .section-header {
-  text-align: center;
-  margin: 30px 0;
+  padding: 0 15px;
+  display: flex;
+  padding-top: 40px;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .super-deals-section .section-title {
-  font-size: 2rem;
+  font-size: 24px;
   font-weight: bold;
+  margin-bottom: 20px;
   color: #333;
-  margin: 0;
 }
 
 .super-deals-section .category-filters {
   display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
+  justify-content: flex-start; /* Align to the start, like in the image */
+  gap: 10px;
+  margin-bottom: 25px;
 }
 
 .super-deals-section .category-filter-btn {
-  padding: 12px 24px;
-  border: none;
-  background: #fff;
-  color: #666;
-  border-radius: 25px;
+  padding: 8px 15px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  color: #555;
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  font-size: 14px;
+  transition: background-color .3s,color .3s,border-color .3s;
 }
 
 .super-deals-section .category-filter-btn.active,
 .super-deals-section .category-filter-btn:hover {
-  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+  background-color: #7a37f0;
+  border-color: #ccc;
+  color: #fff;
 }
 
+.super-deals-section .category-filter-btn.active{
+  font-weight: bold;
+}
 .super-deals-section .category-products-container {
   display: none;
   animation: fadeIn 0.5s ease-in-out;
@@ -1999,6 +2008,17 @@ button.add-to-wishlist-button.selected {
   gap: 8px;
   transition: background-color 0.2s, border-color 0.2s;
   white-space: nowrap;
+}
+
+.pantry-staples-section .view-all-link:hover {
+  background-color: #7a37f0;
+  border-color: #bbb;
+  color: white;
+}
+
+.pantry-staples-section .view-all-link svg {
+  width: 14px;
+  height: 14px;
 }
 
 .pantry-staples-section .pantry-content {
@@ -2354,7 +2374,7 @@ button.add-to-wishlist-button.selected {
 @media (min-width: 768px) {
 
   .super-deals-section .view-all-svg-button {
-    width: 40%;
+    width: 20%;
   }
 
   .high-discount-row .item-box {
@@ -2616,6 +2636,10 @@ button.add-to-wishlist-button.selected {
 
   .super-deals-section .section-title {
     font-size: 1.5rem;
+  }
+
+  .super-deals-section .view-all-svg-button {
+    width: 70%;
   }
 
   .pantry-staples-section {
