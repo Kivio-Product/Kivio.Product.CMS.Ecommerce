@@ -4,7 +4,10 @@
 {
     <div class="pantry-staples-section">
         <div class="section-header">
-            <h2 class="section-title">@T("PantryStaples.Title")</h2>
+            <div class="section-icon-title">
+                <img src="@Url.Content("~/Themes/MarketTheme/Content/images/pantry-staples-icon.png")" alt="@T("PantryStaples.Icon")" class="pantry-icon" />
+                <h2 class="section-title">@T("PantryStaples.Title")</h2>
+            </div>
             <a href="@Url.RouteUrl("Category", new { SeName = Model.CategorySeName })" class="view-all-link">@T("PantryStaples.ViewAll")
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round">
