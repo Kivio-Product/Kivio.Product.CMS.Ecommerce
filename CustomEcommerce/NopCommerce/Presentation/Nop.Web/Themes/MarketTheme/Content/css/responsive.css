@@ -367,8 +367,8 @@
   }
   .px-products-filters,
   .product-selectors {
-    padding: 20px;
-    min-height: 81px;
+    padding: 10px;
+    /* min-height: 81px; */
   }
   .shopping-cart-page .tax-shipping-info {
     float: left;
@@ -631,9 +631,14 @@
     font-size: 14px;
   }
   .breadcrumb,
-  .product-selectors,
-  .px-products-filters {
+  .product-selectors
+  {
     margin: 0 0 30px 0;
+  }
+
+  .px-products-filters {
+    margin: 0 0 15px 0;
+    width: 100%;
   }
   .price-range-filter .filter-content {
     margin: 20px 0 0 0;
