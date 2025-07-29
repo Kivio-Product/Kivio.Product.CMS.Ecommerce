@@ -86,7 +86,15 @@
 
         <div class="description" @(catalogSettings.ShowShortDescriptionOnCatalogPages ? "" : "data-short-description=none")>
             @Html.Raw(Model.ShortDescription)
+            
         </div>
+
+        @if (Model.ProductPrice.DiscountPercentage.HasValue && Model.ProductPrice.DiscountPercentage.Value > 0)
+        {
+            <div class="discount-badge-price">
+                -@Math.Floor(Model.ProductPrice.DiscountPercentage.Value)%
+            </div>
+        }
 
         <div class="add-info">
             @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductBoxAddinfoBefore, additionalData = Model })
