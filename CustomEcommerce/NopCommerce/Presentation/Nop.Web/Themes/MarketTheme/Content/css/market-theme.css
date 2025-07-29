@@ -1312,7 +1312,7 @@ input[type="radio"]:checked + .radio-custom {
 }
 
 .category-page .product-grid .item-box {
-  width: 31% !important;
+  width: 23% !important;
   margin: 1% !important;
 }
 
@@ -2375,7 +2375,7 @@ button.add-to-wishlist-button.selected {
 
   .recently-added-products-page .product-grid .item-box,
   .category-page .product-grid .item-box {
-    width: 31% !important;
+    width: 23% !important;
     margin: 1% !important;
   }
 
@@ -2402,7 +2402,7 @@ button.add-to-wishlist-button.selected {
 
   .recently-added-products-page .product-grid .item-box,
   .category-page .product-grid .item-box {
-    width: 31% !important;
+    width: 23% !important;
     margin: 1% !important;
   }
 }

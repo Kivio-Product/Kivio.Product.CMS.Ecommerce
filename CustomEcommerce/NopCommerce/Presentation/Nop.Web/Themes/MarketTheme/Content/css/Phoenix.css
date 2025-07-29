@@ -772,13 +772,13 @@ ul.login-list li :hover{
 .px-products-filters {
   width: 20%;
   display: inline-block;
-  margin: 0 0 50px;
-  padding: 30px;
+  margin: 0 0 30px;
+  padding: 15px;
   background-color: #CAD2DF;
-  border-radius: 10px 0px 0px 10px;
+  border-radius: 10px;
   box-shadow: 0px 10px 20px rgba(0,0,0,0.3);
   text-align: center;
-  min-height: 100px;
+  /* min-height: 100px; */
 }
 .px-products-filters h3{
   display: inline-block;
