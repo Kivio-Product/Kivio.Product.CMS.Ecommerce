@@ -2252,7 +2252,7 @@ button.swal2-cancel.secoendry-btn.swal2-styled {
 .returning-wrapper.fieldset {
   width: 60%;
   max-width: 80%;
-  display: inline-block;
+  /* display: inline-block; */
 }
 .px-checkoutgest .px_login_icon span.pi-add-user-1::before{
   position: absolute;

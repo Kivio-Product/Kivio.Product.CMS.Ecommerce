@@ -2069,6 +2069,62 @@ button.add-to-wishlist-button.selected {
   margin: 5px 0px;
 }
 
+.register-link-container {
+  margin-top: 20px;
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.register-text {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.register-link {
+  color: #7a37f0;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.register-link:hover {
+  color: #4100b2;
+  text-decoration: underline;
+}
+
+.checkout-guest-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkout-guest-text {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.checkout-guest-link {
+  color: #7a37f0;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.checkout-guest-link:hover {
+  color: #4100b2;
+  text-decoration: underline;
+}
+
+.register-disabled-text {
+  margin: 0;
+  font-size: 14px;
+  color: #dc3545;
+  font-style: italic;
+}
+
 @media all and (max-width: 1000px) {
   .flyout-cart {
     position: fixed;
@@ -2691,8 +2747,28 @@ button.add-to-wishlist-button.selected {
   .pantry-staples-section .view-all-link {
     margin-top: 10px;
   }
+
   .discount-badge-price {
     width: 25% !important;
+  }
+
+  .px-login-unified-block {
+    max-width: 100%;
+    padding: 0 15px;
+  }
+
+  .register-link-container {
+    margin-top: 15px;
+    padding-top: 15px;
+  }
+
+  .register-text,
+  .checkout-guest-text {
+    font-size: 13px;
+  }
+
+  .checkout-guest-options {
+    gap: 6px;
   }
 }
 
