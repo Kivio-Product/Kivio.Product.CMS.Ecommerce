@@ -2032,6 +2032,14 @@ button.add-to-wishlist-button.selected {
   height: 14px;
 }
 
+.pantry-staples-section .view-all-link-mobile {
+  display: none;
+}
+
+.pantry-staples-section .view-all-link-desktop {
+  display: block;
+}
+
 .pantry-staples-section .pantry-content {
   display: flex;
   align-items: center;
@@ -2141,6 +2149,21 @@ button.add-to-wishlist-button.selected {
     overflow: hidden;
     transform: translateX(104%);
     transition: transform 0.3s ease-in-out;
+  }
+
+  .pantry-staples-section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pantry-staples-section .view-all-link-mobile {
+    display: block;
+    width: min-content;
+  }
+
+  .pantry-staples-section .view-all-link-desktop {
+    display: none;
   }
 
   .flyout-cart.slideright.active {
