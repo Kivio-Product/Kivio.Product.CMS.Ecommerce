@@ -75,6 +75,13 @@ namespace Nop.Web.Components
 
         private async Task<PantryStaplesModel> PrepareModelAsync(Store currentStore)
         {
+            var strategyByProductType = await _settingService.GetSettingByKeyAsync<string>("PantryStaples.ProductTypeStrategy", defaultValue: "None");
+
+            if (strategyByProductType != "None")
+            {
+                return await PrepareModelByProductTypeStrategy(strategyByProductType, currentStore);
+            }
+
             var categoryName = await _settingService.GetSettingByKeyAsync<string>("PantryStaples.CategoryName");
             var maxProductsPerCategory = await _settingService.GetSettingByKeyAsync<int>("Catalog.Home.MaxProductsPerCategory", defaultValue: 20);
 
@@ -109,6 +116,37 @@ namespace Nop.Web.Components
                 CategorySeName = categorySeName,
                 CategoryId = category.Id
             };
+        }
+
+        private async Task<PantryStaplesModel> PrepareModelByProductTypeStrategy(string strategy, Store currentStore)
+        {
+            var model = new PantryStaplesModel();
+            var maxProductsPerCategory = await _settingService.GetSettingByKeyAsync<int>("Catalog.Home.MaxProductsPerCategory", defaultValue: 20);
+            var minimumDiscountPercentage = await _settingService.GetSettingByKeyAsync<decimal>("Catalog.MinimumDiscountPercentage", defaultValue: 0.2m);
+
+            switch (strategy)
+            {
+                case "Newest":
+                    var newestProducts = await _productService.GetProductsMarkedAsNewAsync(
+                        storeId: currentStore.Id,
+                        pageIndex: 0,
+                        pageSize: maxProductsPerCategory
+                    );
+
+                    if (!newestProducts.Any())
+                    {
+                        return null;
+                    }
+
+                    model.Products = await GetFilteredProductsAsync(newestProducts, maxProductsPerCategory, 0.2m);
+                    model.CategoryName = strategy;
+                    model.CategorySeName = "newproducts";
+                    break;
+                default:
+                    break;
+            }
+
+            return model;
         }
 
         private async Task<Category> GetCachedCategoryAsync(string categoryName, int storeId)
@@ -163,8 +201,14 @@ namespace Nop.Web.Components
                     return new List<ProductOverviewModel>();
                 }
 
-                var productModels = (await _productModelFactory.PrepareProductOverviewModelsAsync(
-                    categoryProducts,
+                return await GetFilteredProductsAsync(categoryProducts, maxProductsPerCategory, minimumDiscountPercentage);
+            });
+        }
+        
+        private async Task<IList<ProductOverviewModel>> GetFilteredProductsAsync(IList<Product> products, int maxProductsPerCategory, decimal minimumDiscountPercentage)
+        {
+            var productModels = (await _productModelFactory.PrepareProductOverviewModelsAsync(
+                    products,
                     preparePriceModel: true,
                     preparePictureModel: true,
                     productThumbPictureSize: 280,
@@ -172,21 +216,18 @@ namespace Nop.Web.Components
                     forceRedirectionAfterAddingToCart: false
                 )).ToList();
 
-                var filteredProducts = productModels
-                    .Where(p => p.ProductPrice.OldPriceValue.HasValue &&
-                                p.ProductPrice.PriceValue.HasValue &&
-                                p.ProductPrice.OldPriceValue.Value > 0)
-                    .Where(p =>
-                    {
-                        var oldPrice = p.ProductPrice.OldPriceValue.Value;
-                        var newPrice = p.ProductPrice.PriceValue.Value;
-                        var discount = (oldPrice - newPrice) / oldPrice;
-                        return discount >= minimumDiscountPercentage;
-                    })
-                    .Take(maxProductsPerCategory).ToList();
-
-                return filteredProducts;
-            });
+            return productModels
+                .Where(p => p.ProductPrice.OldPriceValue.HasValue &&
+                            p.ProductPrice.PriceValue.HasValue &&
+                            p.ProductPrice.OldPriceValue.Value > 0)
+                .Where(p =>
+                {
+                    var oldPrice = p.ProductPrice.OldPriceValue.Value;
+                    var newPrice = p.ProductPrice.PriceValue.Value;
+                    var discount = (oldPrice - newPrice) / oldPrice;
+                    return discount >= minimumDiscountPercentage;
+                })
+                .Take(maxProductsPerCategory).ToList();
         }
     }
 

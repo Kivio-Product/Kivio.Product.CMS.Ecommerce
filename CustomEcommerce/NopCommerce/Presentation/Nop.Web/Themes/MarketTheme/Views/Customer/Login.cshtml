@@ -28,7 +28,7 @@
                 </div>
                 <div class="px-login">
                     @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "LoginRegistrationInfo" })
-                    <div class="px-login-register-block">
+                    <div class="px-login-unified-block">
                         <div class="returning-wrapper fieldset">
                             <div class="px_login_icon">
                                 <span class="pi-key"></span>
@@ -91,57 +91,40 @@
                                     }
                                 </div>
                                 <div class="buttons">
-                                    <button type="submit" class="button-1 login-button primary-btn"><span class="pi-log-in"></span> @T("Account.Login.LoginButton")</button>
+                                    <button type="submit" class="button-1 login-button primary-btn">
+                                        <span class="pi-log-in"></span> @T("Account.Login.LoginButton")
+                                    </button>
                                 </div>
                             </form>
-                        </div>
-                        <div class="px-checkoutgest">
-                            <div class="px_login_icon">
-                                <span class="pi-add-user-1"></span>
-                            </div>
-                            <div class="px_loginpage-register">
-                                @if (Model.RegistrationType == UserRegistrationType.Disabled)
+                            
+                            <div class="register-link-container">
+                                @if (Model.RegistrationType != UserRegistrationType.Disabled)
                                 {
-                                    <div class="new-wrapper">
-                                        <div class="title">
-                                            <h2>@T("Account.Register")</h2>
+                                    @if (Model.CheckoutAsGuest)
+                                    {
+                                        <div class="checkout-guest-options">
+                                            <p class="register-text">
+                                                @T("Account.Login.NoAccount")
+                                                <a href="@registerUrl" class="register-link">@T("Account.Login.RegisterLink")</a>
+                                            </p>
+                                            <p class="checkout-guest-text">
+                                                @T("Account.Login.ContinueAsGuest.Or") <a href="@Url.RouteUrl("Checkout")" class="checkout-guest-link">@T("Account.Login.ContinueAsGuest")</a>
+                                            </p>
                                         </div>
-                                        <div class="text">
-                                            <p>@T("Account.Register.Result.Disabled")</p>
-                                        </div>
-                                    </div>
-                                }
-                                else if (Model.CheckoutAsGuest)
-                                {
-                                    <div class="new-wrapper checkout-as-guest-or-register-block">
-                                        <div class="title">
-                                            <h2>@T("Account.Login.CheckoutAsGuestOrRegister")</h2>
-                                        </div>
-                                        <div class="text">
-                                            @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "CheckoutAsGuestOrRegister" })
-                                        </div>
-                                        <div class="buttons">
-                                            <button type="button" class="button-1 checkout-as-guest-button primary-btn" onclick="location.href='@Url.RouteUrl("Checkout")'">@T("Account.Login.CheckoutAsGuest")</button>
-                                            <button type="button" class="button-1 register-button primary-btn" onclick="location.href='@registerUrl'">@T("Account.Register")</button>
-                                        </div>
-                                    </div>
+                                    }
+                                    else
+                                    {
+                                        <p class="register-text">
+                                            @T("Account.Login.NoAccount") 
+                                            <a href="@registerUrl" class="register-link">@T("Account.Login.RegisterLink")</a>
+                                        </p>
+                                    }
                                 }
                                 else
                                 {
-                                    <div class="new-wrapper register-block">
-                                        <div class="title">
-                                            <h2>@T("Account.Login.NewCustomer")</h2>
-                                        </div>
-                                        <div class="text">
-                                            <p> @T("Account.Login.NewCustomerText")</p>
-                                        </div>
-                                        <div class="buttons">
-                                            <button type="button" class="button-1 register-button primary-btn" onclick="location.href='@registerUrl'">
-                                                <span class="pi-add-user-1"></span>
-                                                @T("Account.Register")
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <p class="register-disabled-text">
+                                        @T("Account.Register.Result.Disabled")
+                                    </p>
                                 }
                             </div>
                         </div>

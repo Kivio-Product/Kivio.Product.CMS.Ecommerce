@@ -317,6 +317,7 @@ window.ProductDisplayManager = {
     this.setupFlashSaleDisplay();
     this.setupSuperDealsDisplay();
     this.setupPantryStaplesDisplay();
+    this.setupFilteredProductsDisplay();
   },
 
   setupFlashSaleDisplay: function () {
@@ -447,6 +448,41 @@ window.ProductDisplayManager = {
         });
       } else {
         this.destroyCarousel(container);
+      }
+    }
+  },
+
+  setupFilteredProductsDisplay: function () {
+    var activeContainer = $(".filtered-products-row");
+    var productContainer = activeContainer.find(".item-grid");
+
+    if (!productContainer.length) return;
+
+    if (window.innerWidth <= 767) {
+      this.setupMobileCarousel(productContainer, 2, "filtered-products-row", {
+        items: 2,
+        margin: 8,
+        stagePadding: 0,
+        center: false,
+      });
+    } else {
+      productContainer.removeClass("mobile-grid");
+      productContainer.addClass("filtered-products-row");
+      productContainer.find(".item-box").show();
+
+      var productCount = productContainer.find(".item-box").length;
+
+      if (productCount > 5) {
+        this.setupDesktopCarousel(productContainer, {
+          responsive: {
+            0: { items: 1 },
+            600: { items: 2 },
+            1024: { items: 5 },
+            1366: { items: 5 },
+          },
+        });
+      } else {
+        this.destroyCarousel(productContainer);
       }
     }
   },

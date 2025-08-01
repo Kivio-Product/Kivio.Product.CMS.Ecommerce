@@ -12,7 +12,10 @@
         <div class="section-padding section-bg product-grid home-page-product-grid">
             <div class="section-width">
                 <div class="section-header">
-                    <h2 class="section-title">@T("SuperDeals.Title")</h2>
+                    <div class="section-icon-title">
+                        <img src="@Url.Content("~/Themes/MarketTheme/Content/images/super-deals-icon.png")" alt="@T("SuperDeals.Icon")" class="super-deals-icon" />
+                        <h2 class="section-title">@T("SuperDeals.Title")</h2>
+                    </div>
                     <div class="category-filters">
                         @for (int i = 0; i < Model.CategoryProducts.Count; i++)
                         {

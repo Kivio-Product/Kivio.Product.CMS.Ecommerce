@@ -21,8 +21,6 @@
 
                 @if (Model.RegistrationType != UserRegistrationType.Disabled)
                 {
-                    <li><a href="@Url.RouteUrl("Register", new { returnUrl })" class="ico-register login-list-item">@T("Account.Register")</a></li>
-                    <span class="header-plica-separator">|</span>
                     <li><a href="@Url.RouteUrl("Login", new { returnUrl })" class="ico-login login-list-item">@T("Account.Login")</a>                                </li>
                 }
             }

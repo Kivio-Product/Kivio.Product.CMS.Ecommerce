@@ -87,6 +87,23 @@
             });
         });
     }
+
+    document.addEventListener('touchstart', function(event) {
+        // Prevenir el comportamiento predeterminado solo si hay más de un toque
+        if (event.touches.length > 1) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(event) {
+        const now = (new Date()).getTime();
+        // Si el tiempo entre dos toques es menor a 300ms, se considera un doble toque
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
 </script>
 <script asp-location="Footer">
     jQuery(window).on('load', function (event) {
