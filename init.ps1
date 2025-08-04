@@ -50,6 +50,16 @@ if (Test-Path $PresentationSource) {
     Write-Warning "No se encontró la carpeta Presentation en: $PresentationSource"
 }
 
+# Copiar la carpeta Tests
+$TestsSource = Join-Path $SolutionDir "CustomEcommerce\NopCommerce\Tests\*"
+$TestsTarget = Join-Path $TargetDir "Tests"
+if (Test-Path $TestsSource) {
+    Write-Host "Copiando la carpeta Tests..."
+    xcopy /Y /E $TestsSource $TestsTarget
+} else {
+    Write-Warning "No se encontró la carpeta Tests en: $TestsSource"
+}
+
 # Script 1: Reemplazar rutas de archivos en archivos .csproj
 $SearchPattern = "SolutionDir)\"  # Texto a buscar
 $ReplacePattern = "SolutionDir)NopCommerce\src\"  # Texto con el que se reemplaza
