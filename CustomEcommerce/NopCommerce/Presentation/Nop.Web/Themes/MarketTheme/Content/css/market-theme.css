@@ -2080,6 +2080,10 @@ button.add-to-wishlist-button.selected {
   margin: 5px 0px;
 }
 
+.discount-badge-price.dummy {
+  visibility: hidden;
+}
+
 .register-link-container {
   margin-top: 20px;
   text-align: center;
