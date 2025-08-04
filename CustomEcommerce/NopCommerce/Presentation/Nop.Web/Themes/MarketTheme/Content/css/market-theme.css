@@ -1038,7 +1038,8 @@ input[type="radio"]:checked + .radio-custom {
   margin-bottom: 20px;
   width: 100%;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  justify-content: center;
 }
 
 .regular-discount-row .item-box,
@@ -2411,7 +2412,7 @@ button.add-to-wishlist-button.selected {
 
   .mobile-grid {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: space-between;
   }
 
@@ -2547,7 +2548,7 @@ button.add-to-wishlist-button.selected {
 
   .mobile-grid {
     display: flex !important;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
     gap: 10px;
   }

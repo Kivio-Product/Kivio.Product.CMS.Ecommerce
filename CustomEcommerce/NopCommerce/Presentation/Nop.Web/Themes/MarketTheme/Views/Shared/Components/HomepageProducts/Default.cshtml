@@ -45,18 +45,10 @@
                 </a>
             </div>
 
-            @{
-                var highDiscountProducts = Model
-                .Where(p => p.HasHighDiscount)
-                .OrderBy(x => Guid.NewGuid())
-                .Take(maxProductsPerCategory)
-                .ToList();
-            }
-
-            @if (highDiscountProducts.Any())
+            @if (Model.Any())
             {
                 <div id="regular-discount-products" class="item-grid regular-discount-row">
-                    @foreach (var item in highDiscountProducts)
+                    @foreach (var item in Model)
                     {
                         <div class="item-box">
                             @await Html.PartialAsync("_ProductBox", item)
