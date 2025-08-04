@@ -250,11 +250,17 @@
   .px-checkoutgest {
     max-width: 80%;
   }  
-  .html-category-page .px_sidebar{
+  .html-category-page .px_sidebar,
+  .html-product-tag-page .px_sidebar,
+  .html-recently-added-products-page .px_sidebar 
+  {
       width: 100%;
       display: none;
   }
-  .html-category-page .col-sidebar{
+
+  .html-category-page .col-sidebar,
+  .html-product-tag-page .col-sidebar,
+  .html-recently-added-products-page .col-sidebar{
       display: block;
   }
   .check-gift-card-balance-page form{
