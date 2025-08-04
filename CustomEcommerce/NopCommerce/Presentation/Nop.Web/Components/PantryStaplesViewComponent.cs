@@ -53,10 +53,10 @@ namespace Nop.Web.Components
         {
             var currentStore = await _storeContext.GetCurrentStoreAsync();
             var workingLanguage = await _workContext.GetWorkingLanguageAsync();
-            
+
             var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(
-                PantryStaplesCacheDefaults.PantryStaplesModelKey, 
-                currentStore.Id, 
+                PantryStaplesCacheDefaults.PantryStaplesModelKey,
+                currentStore.Id,
                 workingLanguage.Id
             );
 
@@ -97,8 +97,8 @@ namespace Nop.Web.Components
             }
 
             var productModels = await GetCachedCategoryProductsAsync(
-                category.Id, 
-                currentStore.Id, 
+                category.Id,
+                currentStore.Id,
                 maxProductsPerCategory
             );
 
@@ -170,13 +170,13 @@ namespace Nop.Web.Components
         }
 
         private async Task<IList<ProductOverviewModel>> GetCachedCategoryProductsAsync(
-            int categoryId, 
-            int storeId, 
+            int categoryId,
+            int storeId,
             int maxProductsPerCategory)
         {
             var workingLanguage = await _workContext.GetWorkingLanguageAsync();
             var minimumDiscountPercentage = await _settingService.GetSettingByKeyAsync<decimal>("Catalog.MinimumDiscountPercentage", defaultValue: 0.2m);
-            
+
             var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(
                 PantryStaplesCacheDefaults.CategoryProductsKey,
                 categoryId,
@@ -204,30 +204,24 @@ namespace Nop.Web.Components
                 return await GetFilteredProductsAsync(categoryProducts, maxProductsPerCategory, minimumDiscountPercentage);
             });
         }
-        
+
         private async Task<IList<ProductOverviewModel>> GetFilteredProductsAsync(IList<Product> products, int maxProductsPerCategory, decimal minimumDiscountPercentage)
         {
             var productModels = (await _productModelFactory.PrepareProductOverviewModelsAsync(
-                    products,
-                    preparePriceModel: true,
-                    preparePictureModel: true,
-                    productThumbPictureSize: 280,
-                    prepareSpecificationAttributes: false,
-                    forceRedirectionAfterAddingToCart: false
-                )).ToList();
+                products,
+                preparePriceModel: true,
+                preparePictureModel: true,
+                productThumbPictureSize: 280,
+                prepareSpecificationAttributes: false,
+                forceRedirectionAfterAddingToCart: false,
+                sortByDiscount: true
+            )).ToList();
 
             return productModels
-                .Where(p => p.ProductPrice.OldPriceValue.HasValue &&
-                            p.ProductPrice.PriceValue.HasValue &&
-                            p.ProductPrice.OldPriceValue.Value > 0)
-                .Where(p =>
-                {
-                    var oldPrice = p.ProductPrice.OldPriceValue.Value;
-                    var newPrice = p.ProductPrice.PriceValue.Value;
-                    var discount = (oldPrice - newPrice) / oldPrice;
-                    return discount >= minimumDiscountPercentage;
-                })
-                .Take(maxProductsPerCategory).ToList();
+                .Where(p => p.ProductPrice?.DiscountPercentage.HasValue == true &&
+                           p.ProductPrice.DiscountPercentage.Value >= (minimumDiscountPercentage * 100))
+                .Take(maxProductsPerCategory)
+                .ToList();
         }
     }
 

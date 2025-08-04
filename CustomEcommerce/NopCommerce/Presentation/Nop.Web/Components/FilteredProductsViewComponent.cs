@@ -131,8 +131,7 @@ namespace Nop.Web.Components
                 productTagId: (int)initialProductTagId,
                 visibleIndividuallyOnly: true,
                 overridePublished: false,
-                orderBy: ProductSortingEnum.Position,
-                pageSize: 6
+                orderBy: ProductSortingEnum.Position
             );
 
             var initialProductModels = (await _productModelFactory.PrepareProductOverviewModelsAsync(
@@ -141,22 +140,17 @@ namespace Nop.Web.Components
                 preparePictureModel: true,
                 productThumbPictureSize: productThumbPictureSize,
                 prepareSpecificationAttributes: false,
-                forceRedirectionAfterAddingToCart: false
+                forceRedirectionAfterAddingToCart: false,
+                sortByDiscount: true
             )).ToList();
 
             var minimumDiscountPercentage = await _settingService.GetSettingByKeyAsync<decimal>("Catalog.MinimumDiscountPercentage", defaultValue: 0.2m);
-
+            var maxProductsPerCategory = await _settingService.GetSettingByKeyAsync<int>("Catalog.MaxProductsPerCategory", defaultValue: 10);
+            
             initialProductModels = initialProductModels
-                .Where(p => p.ProductPrice.OldPriceValue.HasValue &&
-                            p.ProductPrice.PriceValue.HasValue &&
-                            p.ProductPrice.OldPriceValue.Value > 0)
-                .Where(p =>
-                {
-                    var oldPrice = p.ProductPrice.OldPriceValue.Value;
-                    var newPrice = p.ProductPrice.PriceValue.Value;
-                    var discount = (oldPrice - newPrice) / oldPrice;
-                    return discount >= minimumDiscountPercentage;
-                })
+                .Where(p => p.ProductPrice?.DiscountPercentage.HasValue == true &&
+                           p.ProductPrice.DiscountPercentage.Value >= (minimumDiscountPercentage * 100))
+                .Take(maxProductsPerCategory)
                 .ToList();
 
             return initialProductModels;

@@ -50,11 +50,11 @@ namespace Nop.Web.Components
         {
             var currentStore = await _storeContext.GetCurrentStoreAsync();
             var customer = await _workContext.GetCurrentCustomerAsync();
-            
+
             // Crear clave de caché única para el componente completo
             var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(
-                SuperDealsCacheDefaults.SuperDealsModelKey, 
-                currentStore.Id, 
+                SuperDealsCacheDefaults.SuperDealsModelKey,
+                currentStore.Id,
                 await _workContext.GetWorkingLanguageAsync()
             );
 
@@ -69,9 +69,9 @@ namespace Nop.Web.Components
         private async Task<SuperDealsModel> PrepareModelAsync(Store currentStore)
         {
             var model = new SuperDealsModel();
-            
+
             var categoryNames = await _settingService.GetSettingByKeyAsync<string>("SuperDeals.CategoryNames");
-            
+
             Console.WriteLine($"SuperDealsViewComponent: Category Names from settings: {categoryNames}");
 
             if (string.IsNullOrEmpty(categoryNames))
@@ -90,9 +90,9 @@ namespace Nop.Web.Components
             foreach (var categoryName in categoryNamesList)
             {
                 var categoryModel = await GetCachedCategoryProductsAsync(
-                    categoryName, 
-                    currentStore.Id, 
-                    minimumDiscountPercentage, 
+                    categoryName,
+                    currentStore.Id,
+                    minimumDiscountPercentage,
                     maxProductsPerCategory
                 );
 
@@ -106,9 +106,9 @@ namespace Nop.Web.Components
         }
 
         private async Task<CategoryProductsModel> GetCachedCategoryProductsAsync(
-            string categoryName, 
-            int storeId, 
-            decimal minimumDiscountPercentage, 
+            string categoryName,
+            int storeId,
+            decimal minimumDiscountPercentage,
             int maxProductsPerCategory)
         {
             var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(
@@ -146,21 +146,15 @@ namespace Nop.Web.Components
                     preparePictureModel: true,
                     productThumbPictureSize: 280,
                     prepareSpecificationAttributes: false,
-                    forceRedirectionAfterAddingToCart: false
+                    forceRedirectionAfterAddingToCart: false,
+                    sortByDiscount: true
                 );
 
                 var filteredProducts = productModels
-                    .Where(p => p.ProductPrice.OldPriceValue.HasValue &&
-                                p.ProductPrice.PriceValue.HasValue &&
-                                p.ProductPrice.OldPriceValue.Value > 0)
-                    .Where(p =>
-                    {
-                        var oldPrice = p.ProductPrice.OldPriceValue.Value;
-                        var newPrice = p.ProductPrice.PriceValue.Value;
-                        var discount = (oldPrice - newPrice) / oldPrice;
-                        return discount >= minimumDiscountPercentage;
-                    })
-                    .Take(maxProductsPerCategory).ToList();
+                .Where(p => p.ProductPrice?.DiscountPercentage.HasValue == true &&
+                           p.ProductPrice.DiscountPercentage.Value >= (minimumDiscountPercentage * 100))
+                .Take(maxProductsPerCategory)
+                .ToList();
 
                 return new CategoryProductsModel
                 {
