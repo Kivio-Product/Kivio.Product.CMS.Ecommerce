@@ -2422,7 +2422,7 @@ button.add-to-wishlist-button.selected {
   }
 
   .regular-discount-row .mobile-grid .item-box,
-  .super-deal-row .mobile-grid .item-box,
+  .super-deal-row .item-box,
   .filtered-products-row .mobile-grid .item-box {
     width: calc(48% - 10px) !important;
     margin-bottom: 20px;
@@ -2772,6 +2772,7 @@ button.add-to-wishlist-button.selected {
 
   .pantry-staples-section .products-column {
     max-width: 100%;
+    width: 100%;
   }
 
   .pantry-staples-section .section-header {
