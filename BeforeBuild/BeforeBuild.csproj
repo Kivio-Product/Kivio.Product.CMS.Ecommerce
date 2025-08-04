@@ -26,16 +26,18 @@
       Command="xcopy /Y/E &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Presentation\*&quot; &quot;$(NopCommerceRootDir)\Presentation\&quot;" />
     <Exec Condition="'$(OS)' == 'Windows_NT'"
       Command="xcopy /Y/E &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Plugins\*&quot; &quot;$(NopCommerceRootDir)\Plugins\&quot;" />
+    <Exec Condition="'$(OS)' == 'Windows_NT'"
+      Command="xcopy /Y/E &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Tests\*&quot; &quot;$(NopCommerceRootDir)\Tests\&quot;" />
 
     <!-- Linux/macOS -->
     <Exec Condition="'$(OS)' != 'Windows_NT'"
-      Command="cp -r &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Libraries/*&quot; &quot;$(NopCommerceRootDir)/Libraries/&quot;" />
+      Command="cp -r &quot;$(SolutionDir)CustomEcommerce/NopCommerce/Libraries/*&quot; &quot;$(NopCommerceRootDir)/Libraries/&quot;" />
     <Exec Condition="'$(OS)' != 'Windows_NT'"
-      Command="cp -r &quot;$(SolutionDir)CustomEcommerce\NopCommerce\Presentation/*&quot; &quot;$(NopCommerceRootDir)/Presentation/&quot;" />
+      Command="cp -r &quot;$(SolutionDir)CustomEcommerce/NopCommerce/Presentation/*&quot; &quot;$(NopCommerceRootDir)/Presentation/&quot;" />
 
     <Exec Condition="'$(OS)' == 'Windows_NT'"
       Command="powershell -ExecutionPolicy Bypass -File &quot;$(SolutionDir)\BeforeBuild\Utils\Replacer.ps1&quot; &quot;$(NopCommerceRootDir)&quot; &quot;$(ScriptArg2)&quot; &quot;$(ScriptArg3)&quot; &quot;$(ScriptArg4)&quot;" />
     <Exec Condition="'$(OS)' != 'Windows_NT'"
-      Command="bash &quot;$(SolutionDir)\BeforeBuild\Utils\Replacer.sh&quot; &quot;$(NopCommerceRootDir)&quot; &quot;$(ScriptArg2)&quot; &quot;$(ScriptArg3)&quot; &quot;$(ScriptArg4)&quot;" />
+      Command="bash &quot;$(SolutionDir)/BeforeBuild/Utils/Replacer.sh&quot; &quot;$(NopCommerceRootDir)&quot; &quot;$(ScriptArg2)&quot; &quot;$(ScriptArg3)&quot; &quot;$(ScriptArg4)&quot;" />
   </Target>
 </Project>
