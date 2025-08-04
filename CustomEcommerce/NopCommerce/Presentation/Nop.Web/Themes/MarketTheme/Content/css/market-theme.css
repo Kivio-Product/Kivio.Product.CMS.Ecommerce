@@ -1923,9 +1923,11 @@ button.add-to-wishlist-button.selected {
 
 .super-deals-section .category-filters {
   display: flex;
-  justify-content: flex-start; /* Align to the start, like in the image */
-  gap: 10px;
+  gap: 5px;
   margin-bottom: 25px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .super-deals-section .category-filter-btn {
