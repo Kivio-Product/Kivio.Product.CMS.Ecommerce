@@ -126,12 +126,17 @@ namespace Nop.Web.Components
                 initialProductTagId = initialProductTag.Id;
             }
 
+            var minimumDiscountPercentage = await _settingService.GetSettingByKeyAsync<decimal>("Catalog.MinimumDiscountPercentage", defaultValue: 0.2m);
+            var maxProductsPerCategory = await _settingService.GetSettingByKeyAsync<int>("Catalog.MaxProductsPerCategory", defaultValue: 10);
+
             var initialProducts = await _productService.SearchProductsAsync(
                 storeId: (await _storeContext.GetCurrentStoreAsync()).Id,
                 productTagId: (int)initialProductTagId,
                 visibleIndividuallyOnly: true,
                 overridePublished: false,
-                orderBy: ProductSortingEnum.Position
+                orderBy: ProductSortingEnum.Position,
+                pageSize: maxProductsPerCategory,
+                minimumDiscountPercentage: minimumDiscountPercentage
             );
 
             var initialProductModels = (await _productModelFactory.PrepareProductOverviewModelsAsync(
@@ -140,18 +145,8 @@ namespace Nop.Web.Components
                 preparePictureModel: true,
                 productThumbPictureSize: productThumbPictureSize,
                 prepareSpecificationAttributes: false,
-                forceRedirectionAfterAddingToCart: false,
-                sortByDiscount: true
+                forceRedirectionAfterAddingToCart: false
             )).ToList();
-
-            var minimumDiscountPercentage = await _settingService.GetSettingByKeyAsync<decimal>("Catalog.MinimumDiscountPercentage", defaultValue: 0.2m);
-            var maxProductsPerCategory = await _settingService.GetSettingByKeyAsync<int>("Catalog.MaxProductsPerCategory", defaultValue: 10);
-            
-            initialProductModels = initialProductModels
-                .Where(p => p.ProductPrice?.DiscountPercentage.HasValue == true &&
-                           p.ProductPrice.DiscountPercentage.Value >= (minimumDiscountPercentage * 100))
-                .Take(maxProductsPerCategory)
-                .ToList();
 
             return initialProductModels;
         }

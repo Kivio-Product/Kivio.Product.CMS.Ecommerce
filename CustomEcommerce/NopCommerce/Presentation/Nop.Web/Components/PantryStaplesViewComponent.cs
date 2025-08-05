@@ -130,7 +130,8 @@ namespace Nop.Web.Components
                     var newestProducts = await _productService.GetProductsMarkedAsNewAsync(
                         storeId: currentStore.Id,
                         pageIndex: 0,
-                        pageSize: maxProductsPerCategory
+                        pageSize: maxProductsPerCategory,
+                        minimumDiscountPercentage: 0.2m
                     );
 
                     if (!newestProducts.Any())
@@ -138,7 +139,7 @@ namespace Nop.Web.Components
                         return null;
                     }
 
-                    model.Products = await GetFilteredProductsAsync(newestProducts, maxProductsPerCategory, 0.2m);
+                    model.Products = await GetFilteredProductsAsync(newestProducts);
                     model.CategoryName = strategy;
                     model.CategorySeName = "newproducts";
                     break;
@@ -191,7 +192,9 @@ namespace Nop.Web.Components
                 var products = await _productService.SearchProductsAsync(
                     categoryIds: new List<int> { categoryId },
                     storeId: storeId,
-                    visibleIndividuallyOnly: true
+                    visibleIndividuallyOnly: true,
+                    pageSize: maxProductsPerCategory,
+                    minimumDiscountPercentage: minimumDiscountPercentage
                 );
 
                 var categoryProducts = products.ToList();
@@ -201,11 +204,11 @@ namespace Nop.Web.Components
                     return new List<ProductOverviewModel>();
                 }
 
-                return await GetFilteredProductsAsync(categoryProducts, maxProductsPerCategory, minimumDiscountPercentage);
+                return await GetFilteredProductsAsync(categoryProducts);
             });
         }
 
-        private async Task<IList<ProductOverviewModel>> GetFilteredProductsAsync(IList<Product> products, int maxProductsPerCategory, decimal minimumDiscountPercentage)
+        private async Task<IList<ProductOverviewModel>> GetFilteredProductsAsync(IList<Product> products)
         {
             var productModels = (await _productModelFactory.PrepareProductOverviewModelsAsync(
                 products,
@@ -213,15 +216,10 @@ namespace Nop.Web.Components
                 preparePictureModel: true,
                 productThumbPictureSize: 280,
                 prepareSpecificationAttributes: false,
-                forceRedirectionAfterAddingToCart: false,
-                sortByDiscount: true
-            )).ToList();
+                forceRedirectionAfterAddingToCart: false
+                )).ToList();
 
-            return productModels
-                .Where(p => p.ProductPrice?.DiscountPercentage.HasValue == true &&
-                           p.ProductPrice.DiscountPercentage.Value >= (minimumDiscountPercentage * 100))
-                .Take(maxProductsPerCategory)
-                .ToList();
+            return productModels;
         }
     }
 

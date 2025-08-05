@@ -1267,8 +1267,7 @@ public partial class ProductModelFactory : IProductModelFactory
     public virtual async Task<IEnumerable<ProductOverviewModel>> PrepareProductOverviewModelsAsync(IEnumerable<Product> products,
          bool preparePriceModel = true, bool preparePictureModel = true,
          int? productThumbPictureSize = null, bool prepareSpecificationAttributes = false,
-         bool forceRedirectionAfterAddingToCart = false,
-         bool sortByDiscount = true)
+         bool forceRedirectionAfterAddingToCart = false)
     {
         ArgumentNullException.ThrowIfNull(products);
 
@@ -1327,17 +1326,6 @@ public partial class ProductModelFactory : IProductModelFactory
             model.ReviewOverviewModel = await PrepareProductReviewOverviewModelAsync(product);
 
             models.Add(model);
-        }
-
-        if (sortByDiscount && preparePriceModel)
-        {
-            models = models.OrderByDescending(m =>
-            {
-                var discountPercentage = m.ProductPrice?.DiscountPercentage ?? 0;
-                return discountPercentage;
-            })
-            .ThenBy(m => m.Name)
-            .ToList();
         }
 
         return models;

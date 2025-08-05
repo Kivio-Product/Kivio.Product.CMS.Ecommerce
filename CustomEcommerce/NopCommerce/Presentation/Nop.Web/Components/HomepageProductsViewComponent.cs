@@ -82,7 +82,7 @@ public partial class HomepageProductsViewComponent : NopViewComponent
         if (!products.Any())
             return model;
 
-        var productModels = (await _productModelFactory.PrepareProductOverviewModelsAsync(products, true, true, productThumbPictureSize, sortByDiscount: true)).ToList();
+        var productModels = (await _productModelFactory.PrepareProductOverviewModelsAsync(products, true, true, productThumbPictureSize)).ToList();
 
         var maxProductsPerCategory = await _settingService.GetSettingByKeyAsync<int>("Catalog.MaxProductsPerCategory", defaultValue: 20);
 
