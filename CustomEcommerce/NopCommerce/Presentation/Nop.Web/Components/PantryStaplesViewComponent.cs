@@ -53,10 +53,10 @@ namespace Nop.Web.Components
         {
             var currentStore = await _storeContext.GetCurrentStoreAsync();
             var workingLanguage = await _workContext.GetWorkingLanguageAsync();
-            
+
             var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(
-                PantryStaplesCacheDefaults.PantryStaplesModelKey, 
-                currentStore.Id, 
+                PantryStaplesCacheDefaults.PantryStaplesModelKey,
+                currentStore.Id,
                 workingLanguage.Id
             );
 
@@ -97,8 +97,8 @@ namespace Nop.Web.Components
             }
 
             var productModels = await GetCachedCategoryProductsAsync(
-                category.Id, 
-                currentStore.Id, 
+                category.Id,
+                currentStore.Id,
                 maxProductsPerCategory
             );
 
@@ -130,7 +130,8 @@ namespace Nop.Web.Components
                     var newestProducts = await _productService.GetProductsMarkedAsNewAsync(
                         storeId: currentStore.Id,
                         pageIndex: 0,
-                        pageSize: maxProductsPerCategory
+                        pageSize: maxProductsPerCategory,
+                        minimumDiscountPercentage: 0.2m
                     );
 
                     if (!newestProducts.Any())
@@ -138,7 +139,7 @@ namespace Nop.Web.Components
                         return null;
                     }
 
-                    model.Products = await GetFilteredProductsAsync(newestProducts, maxProductsPerCategory, 0.2m);
+                    model.Products = await GetFilteredProductsAsync(newestProducts);
                     model.CategoryName = strategy;
                     model.CategorySeName = "newproducts";
                     break;
@@ -170,13 +171,13 @@ namespace Nop.Web.Components
         }
 
         private async Task<IList<ProductOverviewModel>> GetCachedCategoryProductsAsync(
-            int categoryId, 
-            int storeId, 
+            int categoryId,
+            int storeId,
             int maxProductsPerCategory)
         {
             var workingLanguage = await _workContext.GetWorkingLanguageAsync();
             var minimumDiscountPercentage = await _settingService.GetSettingByKeyAsync<decimal>("Catalog.MinimumDiscountPercentage", defaultValue: 0.2m);
-            
+
             var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(
                 PantryStaplesCacheDefaults.CategoryProductsKey,
                 categoryId,
@@ -191,7 +192,9 @@ namespace Nop.Web.Components
                 var products = await _productService.SearchProductsAsync(
                     categoryIds: new List<int> { categoryId },
                     storeId: storeId,
-                    visibleIndividuallyOnly: true
+                    visibleIndividuallyOnly: true,
+                    pageSize: maxProductsPerCategory,
+                    minimumDiscountPercentage: minimumDiscountPercentage
                 );
 
                 var categoryProducts = products.ToList();
@@ -201,33 +204,22 @@ namespace Nop.Web.Components
                     return new List<ProductOverviewModel>();
                 }
 
-                return await GetFilteredProductsAsync(categoryProducts, maxProductsPerCategory, minimumDiscountPercentage);
+                return await GetFilteredProductsAsync(categoryProducts);
             });
         }
-        
-        private async Task<IList<ProductOverviewModel>> GetFilteredProductsAsync(IList<Product> products, int maxProductsPerCategory, decimal minimumDiscountPercentage)
+
+        private async Task<IList<ProductOverviewModel>> GetFilteredProductsAsync(IList<Product> products)
         {
             var productModels = (await _productModelFactory.PrepareProductOverviewModelsAsync(
-                    products,
-                    preparePriceModel: true,
-                    preparePictureModel: true,
-                    productThumbPictureSize: 280,
-                    prepareSpecificationAttributes: false,
-                    forceRedirectionAfterAddingToCart: false
+                products,
+                preparePriceModel: true,
+                preparePictureModel: true,
+                productThumbPictureSize: 280,
+                prepareSpecificationAttributes: false,
+                forceRedirectionAfterAddingToCart: false
                 )).ToList();
 
-            return productModels
-                .Where(p => p.ProductPrice.OldPriceValue.HasValue &&
-                            p.ProductPrice.PriceValue.HasValue &&
-                            p.ProductPrice.OldPriceValue.Value > 0)
-                .Where(p =>
-                {
-                    var oldPrice = p.ProductPrice.OldPriceValue.Value;
-                    var newPrice = p.ProductPrice.PriceValue.Value;
-                    var discount = (oldPrice - newPrice) / oldPrice;
-                    return discount >= minimumDiscountPercentage;
-                })
-                .Take(maxProductsPerCategory).ToList();
+            return productModels;
         }
     }
 

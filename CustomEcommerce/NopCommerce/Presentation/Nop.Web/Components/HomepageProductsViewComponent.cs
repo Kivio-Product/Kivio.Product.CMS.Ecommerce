@@ -84,19 +84,11 @@ public partial class HomepageProductsViewComponent : NopViewComponent
 
         var productModels = (await _productModelFactory.PrepareProductOverviewModelsAsync(products, true, true, productThumbPictureSize)).ToList();
 
-        var minimumDiscountPercentage = await _settingService.GetSettingByKeyAsync<decimal>("Catalog.MinimumDiscountPercentage", defaultValue: 0.2m);
+        var maxProductsPerCategory = await _settingService.GetSettingByKeyAsync<int>("Catalog.MaxProductsPerCategory", defaultValue: 20);
 
-        model = productModels = productModels
-                .Where(p => p.ProductPrice.OldPriceValue.HasValue &&
-                            p.ProductPrice.PriceValue.HasValue &&
-                            p.ProductPrice.OldPriceValue.Value > 0)
-                .Where(p =>
-                {
-                    var oldPrice = p.ProductPrice.OldPriceValue.Value;
-                    var newPrice = p.ProductPrice.PriceValue.Value;
-                    var discount = (oldPrice - newPrice) / oldPrice;
-                    return discount >= minimumDiscountPercentage;
-                })
+        model = productModels
+                .Where(p => p.HasHighDiscount)
+                .Take(maxProductsPerCategory)
                 .ToList();
 
         return model;

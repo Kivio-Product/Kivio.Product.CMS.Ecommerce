@@ -54,7 +54,7 @@
 .px_mini_clear_cart_btn .clear-cart {
   background: none;
   border: 1px solid #7c3aed;
-  border-radius: 30px;
+  border-radius: 5px;
   color: #7c3aed;
   font-size: 14px;
   font-weight: 500;
@@ -1038,7 +1038,8 @@ input[type="radio"]:checked + .radio-custom {
   margin-bottom: 20px;
   width: 100%;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  justify-content: center;
 }
 
 .regular-discount-row .item-box,
@@ -1922,9 +1923,11 @@ button.add-to-wishlist-button.selected {
 
 .super-deals-section .category-filters {
   display: flex;
-  justify-content: flex-start; /* Align to the start, like in the image */
-  gap: 10px;
+  gap: 5px;
   margin-bottom: 25px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .super-deals-section .category-filter-btn {
@@ -2076,8 +2079,12 @@ button.add-to-wishlist-button.selected {
   font-weight: bold;
   margin-bottom: 5px;
   line-height: 1.2;
-  width: 20%;
+  width: fit-content;
   margin: 5px 0px;
+}
+
+.discount-badge-price.dummy {
+  visibility: hidden;
 }
 
 .register-link-container {
@@ -2407,7 +2414,7 @@ button.add-to-wishlist-button.selected {
 
   .mobile-grid {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: space-between;
   }
 
@@ -2417,7 +2424,7 @@ button.add-to-wishlist-button.selected {
   }
 
   .regular-discount-row .mobile-grid .item-box,
-  .super-deal-row .mobile-grid .item-box,
+  .super-deal-row .item-box,
   .filtered-products-row .mobile-grid .item-box {
     width: calc(48% - 10px) !important;
     margin-bottom: 20px;
@@ -2543,7 +2550,7 @@ button.add-to-wishlist-button.selected {
 
   .mobile-grid {
     display: flex !important;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
     gap: 10px;
   }
@@ -2767,6 +2774,7 @@ button.add-to-wishlist-button.selected {
 
   .pantry-staples-section .products-column {
     max-width: 100%;
+    width: 100%;
   }
 
   .pantry-staples-section .section-header {
@@ -2775,10 +2783,6 @@ button.add-to-wishlist-button.selected {
 
   .pantry-staples-section .view-all-link {
     margin-top: 10px;
-  }
-
-  .discount-badge-price {
-    width: 25% !important;
   }
 
   .px-login-unified-block {

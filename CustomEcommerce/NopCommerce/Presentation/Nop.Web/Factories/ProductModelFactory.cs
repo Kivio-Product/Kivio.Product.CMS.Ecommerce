@@ -30,6 +30,7 @@ using Nop.Services.Vendors;
 using Nop.Web.Infrastructure.Cache;
 using Nop.Web.Models.Catalog;
 using Nop.Web.Models.Common;
+using Nop.Services.Configuration;
 using Nop.Web.Models.Media;
 
 namespace Nop.Web.Factories;
@@ -81,6 +82,7 @@ public partial class ProductModelFactory : IProductModelFactory
     protected readonly SeoSettings _seoSettings;
     protected readonly ShippingSettings _shippingSettings;
     protected readonly VendorSettings _vendorSettings;
+    private readonly ISettingService _settingService;
     private static readonly char[] _separator = [','];
 
     #endregion
@@ -126,6 +128,7 @@ public partial class ProductModelFactory : IProductModelFactory
         OrderSettings orderSettings,
         SeoSettings seoSettings,
         ShippingSettings shippingSettings,
+        ISettingService settingService,
         VendorSettings vendorSettings)
     {
         _captchaSettings = captchaSettings;
@@ -167,6 +170,7 @@ public partial class ProductModelFactory : IProductModelFactory
         _seoSettings = seoSettings;
         _shippingSettings = shippingSettings;
         _vendorSettings = vendorSettings;
+        _settingService = settingService;
         _videoService = videoService;
     }
 
@@ -968,87 +972,87 @@ public partial class ProductModelFactory : IProductModelFactory
                     case AttributeControlType.Checkboxes:
                     case AttributeControlType.ColorSquares:
                     case AttributeControlType.ImageSquares:
-                    {
-                        if (!string.IsNullOrEmpty(updatecartitem.AttributesXml))
                         {
-                            //clear default selection
-                            foreach (var item in attributeModel.Values)
-                                item.IsPreSelected = false;
-
-                            //select new values
-                            var selectedValues = await _productAttributeParser.ParseProductAttributeValuesAsync(updatecartitem.AttributesXml);
-                            foreach (var attributeValue in selectedValues)
+                            if (!string.IsNullOrEmpty(updatecartitem.AttributesXml))
+                            {
+                                //clear default selection
                                 foreach (var item in attributeModel.Values)
-                                    if (attributeValue.Id == item.Id)
-                                    {
-                                        item.IsPreSelected = true;
+                                    item.IsPreSelected = false;
 
-                                        //set customer entered quantity
-                                        if (attributeValue.CustomerEntersQty)
-                                            item.Quantity = attributeValue.Quantity;
-                                    }
+                                //select new values
+                                var selectedValues = await _productAttributeParser.ParseProductAttributeValuesAsync(updatecartitem.AttributesXml);
+                                foreach (var attributeValue in selectedValues)
+                                    foreach (var item in attributeModel.Values)
+                                        if (attributeValue.Id == item.Id)
+                                        {
+                                            item.IsPreSelected = true;
+
+                                            //set customer entered quantity
+                                            if (attributeValue.CustomerEntersQty)
+                                                item.Quantity = attributeValue.Quantity;
+                                        }
+                            }
                         }
-                    }
 
                         break;
                     case AttributeControlType.ReadonlyCheckboxes:
-                    {
-                        //values are already pre-set
-
-                        //set customer entered quantity
-                        if (!string.IsNullOrEmpty(updatecartitem.AttributesXml))
                         {
-                            foreach (var attributeValue in (await _productAttributeParser.ParseProductAttributeValuesAsync(updatecartitem.AttributesXml))
-                                     .Where(value => value.CustomerEntersQty))
+                            //values are already pre-set
+
+                            //set customer entered quantity
+                            if (!string.IsNullOrEmpty(updatecartitem.AttributesXml))
                             {
-                                var item = attributeModel.Values.FirstOrDefault(value => value.Id == attributeValue.Id);
-                                if (item != null)
-                                    item.Quantity = attributeValue.Quantity;
+                                foreach (var attributeValue in (await _productAttributeParser.ParseProductAttributeValuesAsync(updatecartitem.AttributesXml))
+                                         .Where(value => value.CustomerEntersQty))
+                                {
+                                    var item = attributeModel.Values.FirstOrDefault(value => value.Id == attributeValue.Id);
+                                    if (item != null)
+                                        item.Quantity = attributeValue.Quantity;
+                                }
                             }
                         }
-                    }
 
                         break;
                     case AttributeControlType.TextBox:
                     case AttributeControlType.MultilineTextbox:
-                    {
-                        if (!string.IsNullOrEmpty(updatecartitem.AttributesXml))
                         {
-                            var enteredText = _productAttributeParser.ParseValues(updatecartitem.AttributesXml, attribute.Id);
-                            if (enteredText.Any())
-                                attributeModel.DefaultValue = enteredText[0];
+                            if (!string.IsNullOrEmpty(updatecartitem.AttributesXml))
+                            {
+                                var enteredText = _productAttributeParser.ParseValues(updatecartitem.AttributesXml, attribute.Id);
+                                if (enteredText.Any())
+                                    attributeModel.DefaultValue = enteredText[0];
+                            }
                         }
-                    }
 
                         break;
                     case AttributeControlType.Datepicker:
-                    {
-                        //keep in mind my that the code below works only in the current culture
-                        var selectedDateStr = _productAttributeParser.ParseValues(updatecartitem.AttributesXml, attribute.Id);
-                        if (selectedDateStr.Any())
                         {
-                            if (DateTime.TryParseExact(selectedDateStr[0], "D", CultureInfo.CurrentCulture, DateTimeStyles.None, out var selectedDate))
+                            //keep in mind my that the code below works only in the current culture
+                            var selectedDateStr = _productAttributeParser.ParseValues(updatecartitem.AttributesXml, attribute.Id);
+                            if (selectedDateStr.Any())
                             {
-                                //successfully parsed
-                                attributeModel.SelectedDay = selectedDate.Day;
-                                attributeModel.SelectedMonth = selectedDate.Month;
-                                attributeModel.SelectedYear = selectedDate.Year;
+                                if (DateTime.TryParseExact(selectedDateStr[0], "D", CultureInfo.CurrentCulture, DateTimeStyles.None, out var selectedDate))
+                                {
+                                    //successfully parsed
+                                    attributeModel.SelectedDay = selectedDate.Day;
+                                    attributeModel.SelectedMonth = selectedDate.Month;
+                                    attributeModel.SelectedYear = selectedDate.Year;
+                                }
                             }
                         }
-                    }
 
                         break;
                     case AttributeControlType.FileUpload:
-                    {
-                        if (!string.IsNullOrEmpty(updatecartitem.AttributesXml))
                         {
-                            var downloadGuidStr = _productAttributeParser.ParseValues(updatecartitem.AttributesXml, attribute.Id).FirstOrDefault();
-                            _ = Guid.TryParse(downloadGuidStr, out var downloadGuid);
-                            var download = await _downloadService.GetDownloadByGuidAsync(downloadGuid);
-                            if (download != null)
-                                attributeModel.DefaultValue = download.DownloadGuid.ToString();
+                            if (!string.IsNullOrEmpty(updatecartitem.AttributesXml))
+                            {
+                                var downloadGuidStr = _productAttributeParser.ParseValues(updatecartitem.AttributesXml, attribute.Id).FirstOrDefault();
+                                _ = Guid.TryParse(downloadGuidStr, out var downloadGuid);
+                                var download = await _downloadService.GetDownloadByGuidAsync(downloadGuid);
+                                if (download != null)
+                                    attributeModel.DefaultValue = download.DownloadGuid.ToString();
+                            }
                         }
-                    }
 
                         break;
                     default:
@@ -1260,14 +1264,16 @@ public partial class ProductModelFactory : IProductModelFactory
     /// A task that represents the asynchronous operation
     /// The task result contains the collection of product overview model
     /// </returns>
-   public virtual async Task<IEnumerable<ProductOverviewModel>> PrepareProductOverviewModelsAsync(IEnumerable<Product> products,
-        bool preparePriceModel = true, bool preparePictureModel = true,
-        int? productThumbPictureSize = null, bool prepareSpecificationAttributes = false,
-        bool forceRedirectionAfterAddingToCart = false)
+    public virtual async Task<IEnumerable<ProductOverviewModel>> PrepareProductOverviewModelsAsync(IEnumerable<Product> products,
+         bool preparePriceModel = true, bool preparePictureModel = true,
+         int? productThumbPictureSize = null, bool prepareSpecificationAttributes = false,
+         bool forceRedirectionAfterAddingToCart = false)
     {
         ArgumentNullException.ThrowIfNull(products);
 
         var models = new List<ProductOverviewModel>();
+        var HighDiscountPercentage = await _settingService.GetSettingByKeyAsync<decimal>("Catalog.HighDiscountPercentage", defaultValue: 40);
+
         foreach (var product in products)
         {
             var model = new ProductOverviewModel
@@ -1288,18 +1294,19 @@ public partial class ProductModelFactory : IProductModelFactory
             if (preparePriceModel)
             {
                 model.ProductPrice = await PrepareProductPriceModelAsync(product, true, forceRedirectionAfterAddingToCart);
-                
-                if (model.ProductPrice != null && 
-                    model.ProductPrice.OldPriceValue.HasValue && 
+
+
+                if (model.ProductPrice != null &&
+                    model.ProductPrice.OldPriceValue.HasValue &&
                     model.ProductPrice.PriceValue.HasValue &&
                     model.ProductPrice.OldPriceValue > 0)
                 {
-                    decimal discountPercentage = ((model.ProductPrice.OldPriceValue.Value - model.ProductPrice.PriceValue.Value) / 
+                    decimal discountPercentage = ((model.ProductPrice.OldPriceValue.Value - model.ProductPrice.PriceValue.Value) /
                                                 model.ProductPrice.OldPriceValue.Value) * 100;
-                    
+
                     discountPercentage = Math.Round(discountPercentage, 2);
                     model.ProductPrice.DiscountPercentage = discountPercentage;
-                    model.HasHighDiscount = discountPercentage >= 40;
+                    model.HasHighDiscount = discountPercentage >= HighDiscountPercentage * 100;
                 }
             }
 
@@ -1529,7 +1536,7 @@ public partial class ProductModelFactory : IProductModelFactory
         //'Add to cart' model
         model.AddToCart = await PrepareProductAddToCartModelAsync(product, updatecartitem);
         model.AddToCart.ProductPrice = model.ProductPrice.Price;
-        
+
         var customer = await _workContext.GetCurrentCustomerAsync();
         //gift card
         if (product.IsGiftCard)

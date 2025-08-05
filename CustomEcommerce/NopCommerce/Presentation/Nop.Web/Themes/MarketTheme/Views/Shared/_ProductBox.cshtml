@@ -28,6 +28,7 @@
     var customer = await workContext.GetCurrentCustomerAsync();
     var wishlist = await shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.Wishlist);
     var isInWishlist = wishlist.Any(sci => sci.ProductId == Model.Id);
+    var hasDiscount = Model.ProductPrice.DiscountPercentage.HasValue && Model.ProductPrice.DiscountPercentage.Value > 0;
 }
 <div class="product-item @highDiscountClass" data-productid="@Model.Id">
     <div class="product-img picture">
@@ -89,12 +90,9 @@
             
         </div>
 
-        @if (Model.ProductPrice.DiscountPercentage.HasValue && Model.ProductPrice.DiscountPercentage.Value > 0)
-        {
-            <div class="discount-badge-price">
-                -@Math.Floor(Model.ProductPrice.DiscountPercentage.Value)%
-            </div>
-        }
+        <div class="discount-badge-price @(hasDiscount ? "" : "dummy")">
+            @(hasDiscount ? $"-{Math.Floor(Model.ProductPrice.DiscountPercentage.Value)}%" : "&nbsp;")
+        </div>
 
         <div class="add-info">
             @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductBoxAddinfoBefore, additionalData = Model })

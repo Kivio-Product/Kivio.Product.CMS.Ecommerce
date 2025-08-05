@@ -574,7 +574,10 @@ public partial class ProductService : IProductService
         var products = await _productRepository.GetAllAsync(query =>
         {
             return from p in query
-                   orderby p.DisplayOrder, p.Id
+                   orderby p.OldPrice > 0 && p.Price > 0 && p.OldPrice > p.Price 
+                       ? (p.OldPrice - p.Price) / p.OldPrice 
+                       : 0 descending,
+                   p.DisplayOrder, p.Id
                    where p.Published &&
                          !p.Deleted &&
                          p.ShowOnHomepage
@@ -752,13 +755,23 @@ public partial class ProductService : IProductService
     /// A task that represents the asynchronous operation
     /// The task result contains the list of new products
     /// </returns>
-    public virtual async Task<IPagedList<Product>> GetProductsMarkedAsNewAsync(int storeId = 0, int pageIndex = 0, int pageSize = int.MaxValue)
+    public virtual async Task<IPagedList<Product>> GetProductsMarkedAsNewAsync(int storeId = 0, int pageIndex = 0, int pageSize = int.MaxValue, decimal? minimumDiscountPercentage = null)
     {
         var query = from p in _productRepository.Table
                     where p.Published && p.VisibleIndividually && p.MarkAsNew && !p.Deleted &&
                           DateTime.UtcNow >= (p.MarkAsNewStartDateTimeUtc ?? SqlDateTime.MinValue.Value) &&
                           DateTime.UtcNow <= (p.MarkAsNewEndDateTimeUtc ?? SqlDateTime.MaxValue.Value)
                     select p;
+
+        if (minimumDiscountPercentage.HasValue && minimumDiscountPercentage.Value > 0)
+        {
+            query = query.Where(p => 
+                p.OldPrice > 0 && 
+                p.Price > 0 && 
+                p.OldPrice > p.Price && 
+                ((p.OldPrice - p.Price) / p.OldPrice) >= minimumDiscountPercentage.Value
+            );
+        }
 
         //apply store mapping constraints
         query = await _storeMappingService.ApplyStoreMapping(query, storeId);
@@ -870,7 +883,9 @@ public partial class ProductService : IProductService
         IList<SpecificationAttributeOption> filteredSpecOptions = null,
         ProductSortingEnum orderBy = ProductSortingEnum.Position,
         bool showHidden = false,
-        bool? overridePublished = null)
+        bool? overridePublished = null,
+        bool sortByDiscount = true,
+        decimal? minimumDiscountPercentage = null)
     {
         //some databases don't support int.MaxValue
         if (pageSize == int.MaxValue)
@@ -917,6 +932,16 @@ public partial class ProductService : IProductService
                   (priceMin == null || p.Price >= priceMin) &&
                   (priceMax == null || p.Price <= priceMax)
             select p;
+
+        if (minimumDiscountPercentage.HasValue && minimumDiscountPercentage.Value > 0)
+        {            
+            productsQuery = productsQuery.Where(p => 
+                p.OldPrice > 0 && 
+                p.Price > 0 && 
+                p.OldPrice > p.Price && 
+                ((p.OldPrice - p.Price) / p.OldPrice) >= minimumDiscountPercentage.Value
+            );
+        }
 
         var activeSearchProvider = await _searchPluginManager.LoadPrimaryPluginAsync(customer, storeId);
         var providerResults = new List<int>();
@@ -1164,9 +1189,28 @@ public partial class ProductService : IProductService
             }
         }
 
-        var products = await productsQuery.OrderBy(_localizedPropertyRepository, await _workContext.GetWorkingLanguageAsync(), orderBy).ToPagedListAsync(pageIndex, pageSize);
+        // Aplicar ordenamiento por descuento si está habilitado
+        if (sortByDiscount)
+        {
+            productsQuery = productsQuery.OrderByDescending(p => 
+                p.OldPrice > 0 && p.Price > 0 && p.OldPrice > p.Price 
+                    ? (p.OldPrice - p.Price) / p.OldPrice 
+                    : 0)
+                .ThenBy(p => p.Name);
+        }
 
-        if (providerResults.Any() && orderBy == ProductSortingEnum.Position && !showHidden)
+        IPagedList<Product> products;
+
+        if (sortByDiscount)
+        {
+            products = await productsQuery.ToPagedListAsync(pageIndex, pageSize);
+        }
+        else
+        {
+            products = await productsQuery.OrderBy(_localizedPropertyRepository, await _workContext.GetWorkingLanguageAsync(), orderBy).ToPagedListAsync(pageIndex, pageSize);
+        }
+
+        if (providerResults.Any() && orderBy == ProductSortingEnum.Position && !showHidden && !sortByDiscount)
         {
             var sortedProducts = products.OrderBy(p =>
             {
