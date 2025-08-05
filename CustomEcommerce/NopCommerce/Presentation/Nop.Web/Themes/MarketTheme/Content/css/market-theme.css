@@ -2079,7 +2079,7 @@ button.add-to-wishlist-button.selected {
   font-weight: bold;
   margin-bottom: 5px;
   line-height: 1.2;
-  width: 20%;
+  width: fit-content;
   margin: 5px 0px;
 }
 
@@ -2783,10 +2783,6 @@ button.add-to-wishlist-button.selected {
 
   .pantry-staples-section .view-all-link {
     margin-top: 10px;
-  }
-
-  .discount-badge-price {
-    width: 25% !important;
   }
 
   .px-login-unified-block {
