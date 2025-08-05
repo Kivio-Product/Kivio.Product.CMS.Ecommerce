@@ -134,33 +134,28 @@ namespace Nop.Web.Components
                 var products = await _productService.SearchProductsAsync(
                     categoryIds: new List<int> { category.Id },
                     storeId: storeId,
-                    visibleIndividuallyOnly: true
+                    visibleIndividuallyOnly: true,
+                    pageSize: maxProductsPerCategory,
+                    minimumDiscountPercentage: minimumDiscountPercentage
                 );
 
                 var categoryProducts = products.ToList();
                 if (!categoryProducts.Any()) return null;
 
-                var productModels = await _productModelFactory.PrepareProductOverviewModelsAsync(
+                var productModels = (await _productModelFactory.PrepareProductOverviewModelsAsync(
                     categoryProducts,
                     preparePriceModel: true,
                     preparePictureModel: true,
                     productThumbPictureSize: 280,
                     prepareSpecificationAttributes: false,
-                    forceRedirectionAfterAddingToCart: false,
-                    sortByDiscount: true
-                );
-
-                var filteredProducts = productModels
-                .Where(p => p.ProductPrice?.DiscountPercentage.HasValue == true &&
-                           p.ProductPrice.DiscountPercentage.Value >= (minimumDiscountPercentage * 100))
-                .Take(maxProductsPerCategory)
-                .ToList();
+                    forceRedirectionAfterAddingToCart: false
+                )).ToList();
 
                 return new CategoryProductsModel
                 {
                     CategoryName = category.Name,
                     CategoryId = category.Id,
-                    Products = filteredProducts
+                    Products = productModels
                 };
             });
         }

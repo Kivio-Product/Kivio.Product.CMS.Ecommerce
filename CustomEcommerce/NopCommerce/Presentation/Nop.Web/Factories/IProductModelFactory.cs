@@ -35,8 +35,7 @@ public partial interface IProductModelFactory
     Task<IEnumerable<ProductOverviewModel>> PrepareProductOverviewModelsAsync(IEnumerable<Product> products,
         bool preparePriceModel = true, bool preparePictureModel = true,
         int? productThumbPictureSize = null, bool prepareSpecificationAttributes = false,
-        bool forceRedirectionAfterAddingToCart = false,
-        bool sortByDiscount = true);
+        bool forceRedirectionAfterAddingToCart = false);
 
     /// <summary>
     /// Prepare the product combination models
