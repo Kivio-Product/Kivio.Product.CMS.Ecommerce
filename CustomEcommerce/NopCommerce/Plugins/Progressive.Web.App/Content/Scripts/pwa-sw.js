@@ -1,5 +1,4 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.2.0/workbox-sw.js');
-importScripts('./pwa-db.js');
 
 workbox.core.setCacheNameDetails({
     prefix: 'nop-site',
