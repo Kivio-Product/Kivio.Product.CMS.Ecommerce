@@ -1,16 +1,13 @@
-﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Nop.Core;
-using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Progressive.Web.App.Models;
 using Nop.Plugin.Progressive.Web.App.Security;
+using Nop.Plugin.Progressive.Web.App.Services;
 using Nop.Plugin.Progressive.Web.App.Settings;
 using Nop.Services.Catalog;
 using Nop.Services.Configuration;
@@ -19,49 +16,40 @@ using Nop.Services.Helpers;
 using Nop.Services.Localization;
 using Nop.Services.Security;
 using Nop.Services.Stores;
-using Nop.Services.Vendors;
-using Nop.Web.Areas.Admin.Factories; 
-using Nop.Web.Areas.Admin.Infrastructure.Mapper.Extensions; 
-using Nop.Web.Areas.Admin.Models.Catalog; 
+using Nop.Web.Areas.Admin.Factories;
+using Nop.Web.Areas.Admin.Infrastructure.Mapper.Extensions;
+using Nop.Web.Areas.Admin.Models.Catalog;
 using Nop.Web.Areas.Admin.Models.Customers;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Models.Extensions;
 using Nop.Web.Framework.Mvc.Filters;
-using ICustomerServiceExtend = Nop.Plugin.Progressive.Web.App.Services.ICustomerServiceExtend;
 
 namespace Nop.Plugin.Progressive.Web.App.Controllers
 {
     [Area(AreaNames.ADMIN)]
     public class AdminWebPushController : BasePluginController
     {
-        #region fields
         private readonly ProgressiveWebAppSettings _progressiveWebAppSettings;
         private readonly ISettingService _settingService;
         private readonly ILocalizationService _localizationService;
         private readonly IPermissionService _permissionService;
         private readonly ICategoryService _categoryService;
-        private readonly IManufacturerService _manufacturerService;
         private readonly IStoreService _storeService;
-        private readonly IVendorService _vendorService;
         private readonly IProductService _productService;
         private readonly ICustomerService _customerService;
         private readonly ICustomerServiceExtend _customerServiceExtend;
         private readonly CustomerSettings _customerSettings;
         private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly ICategoryModelFactory _categoryModelFactory; 
-        private readonly IProductModelFactory _productModelFactory; 
-        #endregion
+        private readonly ICategoryModelFactory _categoryModelFactory;
+        private readonly IProductModelFactory _productModelFactory;
 
-        #region ctor
         public AdminWebPushController(ProgressiveWebAppSettings progressiveWebAppSettings,
             ISettingService settingService,
             ILocalizationService localizationService,
             IPermissionService permissionService,
             ICategoryService categoryService,
             IStoreService storeService,
-            IVendorService vendorService,
-            IManufacturerService manufacturerService,
             IProductService productService,
             ICustomerServiceExtend customerServiceExtend,
             ICustomerService customerService,
@@ -76,21 +64,16 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
             _permissionService = permissionService;
             _categoryService = categoryService;
             _storeService = storeService;
-            _vendorService = vendorService;
-            _manufacturerService = manufacturerService;
             _productService = productService;
             _customerService = customerService;
             _customerServiceExtend = customerServiceExtend;
             _customerSettings = customerSettings;
             _dateTimeHelper = dateTimeHelper;
-            _categoryModelFactory = categoryModelFactory; 
-            _productModelFactory = productModelFactory; 
+            _categoryModelFactory = categoryModelFactory;
+            _productModelFactory = productModelFactory;
         }
-        #endregion
 
-        #region configuration
         [AuthorizeAdmin]
-        [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
         public async Task<IActionResult> Configure()
         {
             var model = new ConfigurationModel
@@ -106,7 +89,6 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
 
         [HttpPost]
         [AuthorizeAdmin]
-        [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
         public async Task<IActionResult> Configure(ConfigurationModel model)
         {
             _progressiveWebAppSettings.ProgressiveWebAppCode = model.ProgressiveWebAppCode;
@@ -119,17 +101,13 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
 
             return await Configure();
         }
-        #endregion
 
-        #region OfferType
         public async Task<IActionResult> ProductAddPopupList()
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermission.Catalog.PRODUCTS_CREATE_EDIT_DELETE) &&
-                !await _permissionService.AuthorizeAsync(ProgressivePermissionProvider.ProgressivePermissionRecord))
+            if (!await _permissionService.AuthorizeAsync(StandardPermission.Catalog.PRODUCTS_VIEW))
                 return AccessDeniedView();
 
             var model = await _productModelFactory.PrepareProductSearchModelAsync(new ProductSearchModel());
-
             var addOfferModel = new AddOfferTypeModel
             {
                 AvailableCategories = model.AvailableCategories,
@@ -145,8 +123,7 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> ProductAddPopupList(ProductSearchModel searchModel)
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermission.Catalog.PRODUCTS_CREATE_EDIT_DELETE) &&
-                !await _permissionService.AuthorizeAsync(ProgressivePermissionProvider.ProgressivePermissionRecord))
+            if (!await _permissionService.AuthorizeAsync(StandardPermission.Catalog.PRODUCTS_VIEW))
                 return AccessDeniedView();
 
             var productListModel = await _productModelFactory.PrepareProductListModelAsync(searchModel);
@@ -155,8 +132,7 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
 
         public async Task<IActionResult> ProductAddPopup(int selectedOfferId)
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermission.Catalog.PRODUCTS_CREATE_EDIT_DELETE) &&
-                !await _permissionService.AuthorizeAsync(ProgressivePermissionProvider.ProgressivePermissionRecord))
+            if (!await _permissionService.AuthorizeAsync(StandardPermission.Catalog.PRODUCTS_VIEW))
                 return AccessDeniedView();
 
             var model = new AddOfferTypeModel();
@@ -177,8 +153,7 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
 
         public async Task<IActionResult> CategoryAddPopupList()
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermission.Catalog.CATEGORIES_CREATE_EDIT_DELETE) &&
-                !await _permissionService.AuthorizeAsync(ProgressivePermissionProvider.ProgressivePermissionRecord))
+            if (!await _permissionService.AuthorizeAsync(StandardPermission.Catalog.CATEGORIES_VIEW))
                 return AccessDeniedView();
 
             var model = new AddOfferTypeModel();
@@ -192,8 +167,7 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> CategoryAddPopupList(CategorySearchModel searchModel)
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermission.Catalog.CATEGORIES_CREATE_EDIT_DELETE) &&
-                !await _permissionService.AuthorizeAsync(ProgressivePermissionProvider.ProgressivePermissionRecord))
+            if (!await _permissionService.AuthorizeAsync(StandardPermission.Catalog.CATEGORIES_VIEW))
                 return AccessDeniedView();
 
             var categoryListModel = await _categoryModelFactory.PrepareCategoryListModelAsync(searchModel);
@@ -202,8 +176,7 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
 
         public async Task<IActionResult> CategoryAddPopup(int selectedOfferId)
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermission.Catalog.CATEGORIES_CREATE_EDIT_DELETE) &&
-                !await _permissionService.AuthorizeAsync(ProgressivePermissionProvider.ProgressivePermissionRecord))
+            if (!await _permissionService.AuthorizeAsync(StandardPermission.Catalog.CATEGORIES_VIEW))
                 return AccessDeniedView();
 
             var model = new AddOfferTypeModel();
@@ -221,13 +194,10 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
             model.SelectOfferType = true;
             return View("~/Plugins/Progressive.Web.App/Views/CategoryAddPopup.cshtml", model);
         }
-        #endregion
 
-        #region Customers
         public virtual async Task<IActionResult> List()
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermission.Catalog.CATEGORIES_CREATE_EDIT_DELETE) &&
-                !await _permissionService.AuthorizeAsync(ProgressivePermissionProvider.ProgressivePermissionRecord))
+            if (!await _permissionService.AuthorizeAsync(StandardPermission.Customers.CUSTOMERS_VIEW))
                 return AccessDeniedView();
 
             var registeredRole = await _customerService.GetCustomerRoleBySystemNameAsync(NopCustomerDefaults.RegisteredRoleName);
@@ -257,14 +227,13 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> CustomerList(CustomerSearchModel searchModel, OfferTypeModel offerModel, int[] searchCustomerRoleIds)
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermission.Customers.CUSTOMERS_VIEW) &&
-                !await _permissionService.AuthorizeAsync(ProgressivePermissionProvider.ProgressivePermissionRecord))
+            if (!await _permissionService.AuthorizeAsync(StandardPermission.Customers.CUSTOMERS_VIEW))
                 return AccessDeniedView();
 
             int.TryParse(searchModel.SearchDayOfBirth, out var dayOfBirth);
             int.TryParse(searchModel.SearchMonthOfBirth, out var monthOfBirth);
 
-            var customers =  _customerServiceExtend.GetAllCustomersExtend(
+            var customers = await _customerServiceExtend.GetAllCustomersExtendAsync(
                 customerRoleIds: searchCustomerRoleIds,
                 email: searchModel.SearchEmail,
                 username: searchModel.SearchUsername,
@@ -301,6 +270,5 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
 
             return Json(gridModel);
         }
-        #endregion
     }
 }

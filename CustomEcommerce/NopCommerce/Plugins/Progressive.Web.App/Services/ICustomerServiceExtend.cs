@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Nop.Core;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Orders;
@@ -38,7 +40,7 @@ namespace Nop.Plugin.Progressive.Web.App.Services
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Customers</returns>
-        IPagedList<Customer> GetAllCustomersExtend(DateTime? createdFromUtc = null,
+        Task<IPagedList<Customer>> GetAllCustomersExtendAsync(DateTime? createdFromUtc = null,
             DateTime? createdToUtc = null, int affiliateId = 0, int vendorId = 0,
             int[] customerRoleIds = null, string email = null, string username = null,
             string firstName = null, string lastName = null,

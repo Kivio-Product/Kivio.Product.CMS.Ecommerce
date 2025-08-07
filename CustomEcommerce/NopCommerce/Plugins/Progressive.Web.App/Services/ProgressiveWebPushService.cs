@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Nop.Core.Data;
+using System.Threading.Tasks;
+using Nop.Data;
 using Nop.Plugin.Progressive.Web.App.Domain;
 
 namespace Nop.Plugin.Progressive.Web.App.Services
@@ -15,55 +16,57 @@ namespace Nop.Plugin.Progressive.Web.App.Services
             _subscritionRepository = subscritionRepository;
         }
 
-        public SubscriptionRecord GetSubscriptionByCustomerId(int customerId)
+        public async Task<SubscriptionRecord> GetSubscriptionByCustomerIdAsync(int customerId)
         {
             if (customerId <= 0)
                 throw new Exception("Invalid customerId");
-            return _subscritionRepository.Table.FirstOrDefault(x => x.CustomerId == customerId);
+            return await _subscritionRepository.Table.FirstOrDefaultAsync(x => x.CustomerId == customerId);
         }
 
-        public List<SubscriptionRecord> GetSubscriptionByCustomerIds(int[] customerIds)
+        public async Task<List<SubscriptionRecord>> GetSubscriptionByCustomerIdsAsync(int[] customerIds)
         {
             if (customerIds == null)
-                throw new NullReferenceException("Null customerIds");
-            return _subscritionRepository.TableNoTracking.Where(x => customerIds.Contains(x.CustomerId)).ToList();
+                throw new NullReferenceException(nameof(customerIds));
+            return await _subscritionRepository.Table.Where(x => customerIds.Contains(x.CustomerId)).ToListAsync();
         }
 
-        public List<int> GetSubscriptionsCustomerIds()
+        public async Task<List<int>> GetSubscriptionsCustomerIdsAsync()
         {
-            return _subscritionRepository.TableNoTracking.Select(x => x.CustomerId).ToList();
+            return await _subscritionRepository.Table.Select(x => x.CustomerId).ToListAsync();
         }
 
-        public void CreateSubscription(SubscriptionRecord subscriptionRecord)
-        {
-            if (subscriptionRecord == null)
-                throw new ArgumentNullException(nameof(subscriptionRecord));
-
-            _subscritionRepository.Insert(subscriptionRecord);
-        }
-
-        public void RemoveSubscription(SubscriptionRecord subscriptionRecord)
+        public async Task CreateSubscriptionAsync(SubscriptionRecord subscriptionRecord)
         {
             if (subscriptionRecord == null)
                 throw new ArgumentNullException(nameof(subscriptionRecord));
 
-            _subscritionRepository.Delete(subscriptionRecord);
+            await _subscritionRepository.InsertAsync(subscriptionRecord);
         }
 
-        public void UpdateSuscription(SubscriptionRecord subscriptionRecord)
+        public async Task RemoveSubscriptionAsync(SubscriptionRecord subscriptionRecord)
         {
             if (subscriptionRecord == null)
                 throw new ArgumentNullException(nameof(subscriptionRecord));
 
-            _subscritionRepository.Update(subscriptionRecord);
+            await _subscritionRepository.DeleteAsync(subscriptionRecord);
         }
 
-        public void RemoveSubscriptionByCustomerId(int customerId)
+        public async Task UpdateSubscriptionAsync(SubscriptionRecord subscriptionRecord)
+        {
+            if (subscriptionRecord == null)
+                throw new ArgumentNullException(nameof(subscriptionRecord));
+
+            await _subscritionRepository.UpdateAsync(subscriptionRecord);
+        }
+
+        public async Task RemoveSubscriptionByCustomerIdAsync(int customerId)
         {
             if (customerId <= 0)
                 throw new Exception("Invalid customerId");
 
-            RemoveSubscription(GetSubscriptionByCustomerId(customerId));
+            var subscription = await GetSubscriptionByCustomerIdAsync(customerId);
+            if (subscription != null)
+                await RemoveSubscriptionAsync(subscription);
         }
     }
 }

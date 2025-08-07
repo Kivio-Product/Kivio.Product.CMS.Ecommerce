@@ -42,6 +42,10 @@
     {
       "SystemName": "Widgets.GoogleAnalytics",
       "Version": "4.80.3"
+    },
+    {
+      "SystemName": "Progressive.Web.App",
+      "Version": "1.1"
     }
   ],
   "PluginNamesToUninstall": [],

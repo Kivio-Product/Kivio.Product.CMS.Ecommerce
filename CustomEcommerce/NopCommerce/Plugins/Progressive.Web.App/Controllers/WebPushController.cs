@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
@@ -23,7 +23,6 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
 {
     public class WebPushController : BasePluginController
     {
-        #region fields
         private readonly IProgressiveWebPushService _progressiveWebPushService;
         private readonly IWorkContext _workContext;
         private readonly IEmailAccountService _emailAccountService;
@@ -34,9 +33,7 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
         private readonly ICategoryService _categoryService;
         private readonly ICatalogModelFactory _catalogModelFactory;
         private readonly ProgressiveWebAppSettings _progressiveWebAppSettings;
-        #endregion
 
-        #region ctor
         public WebPushController(IProgressiveWebPushService progressiveWebPushService,
             IWorkContext workContext,
             IEmailAccountService emailAccountService,
@@ -59,9 +56,6 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
             _catalogModelFactory = catalogModelFactory;
             _progressiveWebAppSettings = progressiveWebAppSettings;
         }
-        #endregion
-
-        #region subscription
 
         [HttpPost]
         public async Task<IActionResult> CreateOrUpdateSubscription([FromBody] SubscriptionModel subscriptionModel)
@@ -69,12 +63,11 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
             try
             {
                 var customer = await _workContext.GetCurrentCustomerAsync();
-
-                var subscriptionRecord = _progressiveWebPushService.GetSubscriptionByCustomerId(customer.Id);
+                var subscriptionRecord = await _progressiveWebPushService.GetSubscriptionByCustomerIdAsync(customer.Id);
                 if (subscriptionRecord == null)
-                     _progressiveWebPushService.CreateSubscription(subscriptionModel.ToSubscriptionRecord(customer.Id));
+                    await _progressiveWebPushService.CreateSubscriptionAsync(subscriptionModel.ToSubscriptionRecord(customer.Id));
                 else
-                     _progressiveWebPushService.UpdateSuscription(subscriptionRecord);
+                    await _progressiveWebPushService.UpdateSubscriptionAsync(subscriptionRecord);
             }
             catch (Exception e)
             {
@@ -90,7 +83,7 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
             try
             {
                 var customer = await _workContext.GetCurrentCustomerAsync();
-                _progressiveWebPushService.RemoveSubscriptionByCustomerId(customer.Id);
+                await _progressiveWebPushService.RemoveSubscriptionByCustomerIdAsync(customer.Id);
             }
             catch (Exception e)
             {
@@ -99,10 +92,6 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
             }
             return Json(new { Success = true });
         }
-
-        #endregion subscription
-
-        #region notifications
 
         public async Task<IActionResult> AddToCartNotification()
         {
@@ -142,7 +131,6 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
                         return Json(new ResultMessageModel { Success = false, Message = "No product found" });
 
                     var products = new List<Product> { product };
-
                     var productModels = await _productModelFactory.PrepareProductOverviewModelsAsync(products);
                     var productModel = productModels.FirstOrDefault();
                     if (productModel == null)
@@ -167,7 +155,8 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
                     if (category == null)
                         return Json(new ResultMessageModel { Success = false, Message = "No category found" });
 
-                    var categoryModel = await _catalogModelFactory.PrepareCategoryModelAsync(category, new CatalogProductsCommand());
+                    var command = new CatalogProductsCommand();
+                    var categoryModel = await _catalogModelFactory.PrepareCategoryModelAsync(category, command);
                     if (categoryModel == null)
                         return Json(new ResultMessageModel { Success = false, Message = "Could not prepare category model" });
 
@@ -205,7 +194,7 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
                 _progressiveWebAppSettings.PublicKey,
                 _progressiveWebAppSettings.PrivateKey);
 
-            var subscriptions = _progressiveWebPushService.GetSubscriptionByCustomerIds(customerIds);
+            var subscriptions = await _progressiveWebPushService.GetSubscriptionByCustomerIdsAsync(customerIds);
             if (subscriptions == null || !subscriptions.Any())
                 return new ResultMessageModel { Success = false, Message = "No Subcriptions" };
 
@@ -225,37 +214,6 @@ namespace Nop.Plugin.Progressive.Web.App.Controllers
                 }
             }
             return new ResultMessageModel { Success = true, Message = $"Send {sendNotificationNumber} from {subscriptions.Count} Notifications" };
-        }
-
-        #endregion
-
-        public async Task<IActionResult> GetOffer(int customerId)
-        {
-            var product = await _productService.GetProductByIdAsync(18);
-            if (product == null) return Json("No Offer for product 18");
-
-            var products = new List<Product> { product };
-            var productModels = await _productModelFactory.PrepareProductOverviewModelsAsync(products);
-            var offer = productModels.FirstOrDefault();
-
-            if (offer == null) return Json("No Offer");
-
-            var payload = JsonConvert.SerializeObject(new
-            {
-                offer = new
-                {
-                    offer.Id,
-                    offer.Name,
-                    offer.SeName,
-                    offer.ProductPrice.Price,
-                    offer.PictureModels.FirstOrDefault().ImageUrl
-                },
-                notificationType = NotificationType.Offer.ToString()
-            });
-
-            var customerIds = new[] { customerId };
-            var result = await SentNotificationAsync(customerIds, payload);
-            return Json(result);
         }
     }
 }

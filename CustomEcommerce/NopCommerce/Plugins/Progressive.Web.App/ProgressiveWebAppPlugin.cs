@@ -62,7 +62,7 @@ namespace Nop.Plugin.Progressive.Web.App
             {
                 "head_html_tag" => typeof(ProgressiveWebAppHeaderTagsViewComponent),
                 "body_end_html_tag_before" => typeof(ProgressiveWebAppCodeViewComponent),
-                "header_selectors" => typeof(PushNotificationViewComponent),
+                "home_page_top" => typeof(PushNotificationViewComponent),
                 _ => typeof(PushNotificationViewComponent),
             };
             return Task.FromResult(viewComponent);
@@ -110,13 +110,14 @@ namespace Nop.Plugin.Progressive.Web.App
 
             var rootPluginFolder = "/Plugins/Progressive.Web.App";
 
-            var progressiveWebAppCode = $@"<script src ='{rootPluginFolder}/Content/Scripts/node_modules/sweetalert2/dist/sweetalert2.min.js' type='text/javascript'></script>
-                                            <script src ='{rootPluginFolder}/Content/Scripts/node_modules/localforage/dist/localforage.min.js' type='text/javascript'></script>
-                                            <script src ='{rootPluginFolder}/Content/Scripts/pwa-site.js' type='text/javascript'></script>
-                                            <script src ='{rootPluginFolder}/Content/Scripts/pwa-push-notification.js' type='text/javascript'></script>
-                                            <link href ='{rootPluginFolder}/Content/Scripts/node_modules/sweetalert2/dist/sweetalert2.min.css' rel='stylesheet' type='text/css'>
-                                            <link href ='{rootPluginFolder}/Content/Fonts/font-awesome-4.7.0/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
-                                            <link href ='{rootPluginFolder}/Content/Css/site.css' rel='stylesheet' type='text/css'>";
+            var progressiveWebAppCode = $@"<script src='{rootPluginFolder}/Content/Scripts/node_modules/sweetalert2/dist/sweetalert2.min.js' type='text/javascript'></script>
+                                            <script src='{rootPluginFolder}/Content/Scripts/node_modules/localforage/dist/localforage.min.js' type='text/javascript'></script>
+                                            <script src='{rootPluginFolder}/Content/Scripts/pwa-db.js' type='text/javascript'></script>
+                                            <script src='{rootPluginFolder}/Content/Scripts/pwa-client.js' type='text/javascript'></script>
+                                            <script src='{rootPluginFolder}/Content/Scripts/pwa-push-notification.js' type='text/javascript'></script>
+                                            <link href='{rootPluginFolder}/Content/Scripts/node_modules/sweetalert2/dist/sweetalert2.min.css' rel='stylesheet' type='text/css'>
+                                            <link href='{rootPluginFolder}/Content/Fonts/font-awesome-4.7.0/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
+                                            <link href='{rootPluginFolder}/Content/Css/site.css' rel='stylesheet' type='text/css'>";
 
             var progressiveWebAppHeaderTags = $@"<link rel='manifest' href='{rootPluginFolder}/Content/manifest.json'>
                                                 <link rel='apple-touch-icon' sizes='180x180' href='{rootPluginFolder}/Content/Icons/apple-touch-icon.png'>

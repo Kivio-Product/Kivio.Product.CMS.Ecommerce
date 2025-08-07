@@ -1,63 +1,63 @@
-﻿importScripts('.\\node_modules\\sw-toolbox\\sw-toolbox.js');
-importScripts('.\\node_modules\\\localforage\\dist\\localforage.min.js');
-importScripts('.\\pwa-site.js');
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.2.0/workbox-sw.js');
+importScripts('./pwa-db.js');
 
-var cacheVersion = {
-    static: 'nop-site-static-v2', //TODO setting?
-    dynamic: 'nop-site-dynamic-v2'  //TODO setting? 
-}
+workbox.core.setCacheNameDetails({
+    prefix: 'nop-site',
+    suffix: 'v1',
+    precache: 'precache',
+    runtime: 'runtime-cache'
+});
 
-var cacheOptions = {
-    staticOptions: {
-        cache: {
-            name: cacheVersion.static,
-            maxAgeSecond: 60 * 60 * 24 //1 day //TODO setting
-        }
-    },
-    dynamicOptions: {
-        networkTimeoutSecond: 5, //after 5 seconds without response  //TODO setting
-        cache: {
-            name: cacheVersion.dynamic,
-            maxEntries: 50 //TODO setting
-        }
-    }
-    //staticPattern: new RegExp("^("+self.location.origin.replace("/","\/")+").*\.(js|css|gif|jpg|jpeg|tiff|png|svg|woff2)$","i")
-};
+const PRECACHE_ROUTES = [
+    { url: '/Plugins/Progressive.Web.App/Views/Offline.html', revision: '1' },
+    { url: '/Plugins/Progressive.Web.App/Content/Images/NoConnection.jpg', revision: '1' },
+    { url: '/Plugins/Progressive.Web.App/Content/Icons/safari-pinned-tab-blue.svg', revision: '1' }
+];
 
-self.addEventListener('install', function (event) {
+workbox.precaching.precacheAndRoute(PRECACHE_ROUTES);
 
-        event.waitUntil(
-            caches.open(cacheVersion.static).then(function (cache) {
-                return cache.addAll([
-                    '.\\..\\..\\Views\\Offline.html',
-                    '.\\..\\..\\Content\\Images\\NoConnection.jpg',
-                    '.\\..\\..\\Content\\Icons\\safari-pinned-tab-blue.svg',
-                    //'.\\..\\..\\Content\\Scripts\\node_modules\\sw-toolbox\\sw-toolbox.js',
-                    //'.\\..\\..\\Content\\Scripts\\node_modules\\\localforage\\dist\\localforage.min.js'
-                    //'/css/imgs/sprites-v6.png',
-                    //'/css/fonts/whatever-v8.woff',
-                    //'/js/all-min-v4.js'
-                    // etc
-                ]);
-            })
-        );
-        //self.skipWaiting();
-    });
+// Admin Area - Network Only
+workbox.routing.registerRoute(
+    new RegExp('/admin/.*'),
+    new workbox.strategies.NetworkOnly()
+);
 
-self.addEventListener('activate', function (event) {
-    event.waitUntil(
-        caches.keys().then(function (cacheNames) {
-            return Promise.all(cacheNames.filter(function (cacheName) {
-                    // Return true if you want to remove this cache,
-                    // but remember that caches are shared across
-                    // the whole origin
-                    return !Object.values(cacheVersion).includes(cacheName);
-                }).map(function (cacheName) {
-                    return caches.delete(cacheName);
-                })
-            );
-        })
-    );
+// Static Content - Cache First
+workbox.routing.registerRoute(
+    new RegExp('/(Content|Scripts|Themes|Plugins)/.*'),
+    new workbox.strategies.CacheFirst({
+        cacheName: 'nop-site-static-v1',
+        plugins: [
+            new workbox.expiration.ExpirationPlugin({
+                maxAgeSeconds: 60 * 60 * 24, // 1 Day
+            }),
+        ],
+    })
+);
+
+// Dynamic Content - Network First
+workbox.routing.registerRoute(
+    ({request}) => request.destination === 'document',
+    new workbox.strategies.NetworkFirst({
+        networkTimeoutSeconds: 5,
+        cacheName: 'nop-site-dynamic-v1',
+        plugins: [
+            new workbox.expiration.ExpirationPlugin({
+                maxEntries: 50,
+            }),
+        ],
+    })
+);
+
+// Offline Fallback
+const offlineFallback = '/Plugins/Progressive.Web.App/Views/Offline.html';
+workbox.routing.setCatchHandler(({ event }) => {
+  switch (event.request.destination) {
+    case 'document':
+      return caches.match(offlineFallback);
+    default:
+      return Response.error();
+  }
 });
 
 self.addEventListener('notificationclick', function (event) {
@@ -116,8 +116,8 @@ self.addEventListener('push', function(event) {
         title = 'New Super Offer';
         options = {
             body: body,
-            icon: '.\\..\\..\\Content\\Icons\\android-chrome-192x192.png',
-            badge: '.\\..\\..\\Content\\Icons\\android-chrome-192x192.png',
+            icon: '/Plugins/Progressive.Web.App/Content/Icons/android-chrome-192x192.png',
+            badge: '/Plugins/Progressive.Web.App/Content/Icons/android-chrome-192x192.png',
             image: payload.offer.ImageUrl,
             data: payload,
             actions: [
@@ -130,8 +130,8 @@ self.addEventListener('push', function(event) {
         title = 'You are online, continue your shopping';
         options = {
             body: 'Your cart was updated, You may proceed to purchase',
-            icon: '.\\..\\..\\Content\\Icons\\android-chrome-192x192.png',
-            badge: '.\\..\\..\\Content\\Icons\\android-chrome-192x192.png',
+            icon: '/Plugins/Progressive.Web.App/Content/Icons/android-chrome-192x192.png',
+            badge: '/Plugins/Progressive.Web.App/Content/Icons/android-chrome-192x192.png',
             //image: ,
             //data: payload,
             actions: [
@@ -224,7 +224,7 @@ async function processAddToCart(product){
 
     } else {
        
-        response = await fetch(`/addproducttocart/catalog/${product.productId}/1/${product[`addtocart_${product.productId}.EnteredQuantity`]}`,
+        response = await fetch(`/addproducttocart/catalog/${product.productId}/1/${product[`addtocart_${product.productId}.EnteredQuantity`]}`, 
         {
             headers: { 'Content-Type': 'application/json' },
             method: 'POST',
@@ -251,35 +251,3 @@ async function processAddToCart(product){
         }
     }
 }
-
-
-//self.addEventListener('fetch', function (e) {
-//    if (!navigator.onLine) {
-//        e.respondWith(new Response(' <h1>Offline</h1>', { headers : { 'Content-Type': 'text/html'} } ));
-//    } else {
-//        console.log(e.request.url);
-//        e.respondWith(fetch(e.request));   
-//    }
-//}),
-
-
-//Tsw-Toolbox for Caching
-//toolbox.options.debug = true,
-
-//Admin Area
-toolbox.router.get("/admin/*", toolbox.networkOnly),
-
-//Contents
-toolbox.router.get('/Content/*', toolbox.cacheFirst, cacheOptions.staticOptions),
-toolbox.router.get('/content/*', toolbox.cacheFirst, cacheOptions.staticOptions),
-toolbox.router.get('/Scripts/*', toolbox.cacheFirst, cacheOptions.staticOptions),
-toolbox.router.get('/Plugins/Progressive.Web.App/Content/*', toolbox.cacheFirst, cacheOptions.staticOptions),
-toolbox.router.get('/Themes/DefaultClean/Content/*', toolbox.cacheFirst, cacheOptions.staticOptions),
-
-//Manual call to network first
-toolbox.router.get('/*', function (request, values, options) {
-    return toolbox.networkFirst(request, values, options)
-        .catch(function (error) {
-            return caches.match(new Request('.\\..\\..\\Views\\Offline.html')); //TODO Custom offline page
-        });
-}, cacheOptions.dynamicOptions);

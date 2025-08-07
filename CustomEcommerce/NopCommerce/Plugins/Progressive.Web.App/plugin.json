@@ -3,7 +3,7 @@
   "FriendlyName": "Progressive Web App",
   "SystemName": "Progressive.Web.App",
   "Version": "1.1",
-  "SupportedVersions": [ "4.00" ],
+  "SupportedVersions": [ "4.80" ],
   "Author": "Aristotelis Papantonis",
   "DisplayOrder": 1,
   "FileName": "Nop.Plugin.Progressive.Web.App.dll",
