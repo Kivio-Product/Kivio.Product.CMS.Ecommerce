@@ -42,6 +42,10 @@
     {
       "SystemName": "Widgets.GoogleAnalytics",
       "Version": "4.80.3"
+    },
+    {
+      "SystemName": "Misc.PushNotifications",
+      "Version": "1.0"
     }
   ],
   "PluginNamesToUninstall": [],

@@ -1,0 +1,11 @@
+{
+  "Group": "Misc",
+  "FriendlyName": "Push Notifications",
+  "SystemName": "Misc.PushNotifications",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "KIVIO SAS",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.PushNotifications.dll",
+  "Description": "This plugin integrates push notifications with Firebase."
+}

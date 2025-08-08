@@ -1,0 +1,75 @@
+@using Nop.Web.Framework.Extensions
+@using Nop.Plugin.Misc.PushNotifications.Models
+
+@model ConfigurationModel
+
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+@await Component.InvokeAsync("StoreScopeConfiguration")
+<form asp-controller="PushNotifications" asp-action="Configure" method="post">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="cards-group">
+                <div class="card card-default">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="FirebaseCredentials" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-textarea asp-for="FirebaseCredentials" />
+                                <span asp-validation-for="FirebaseCredentials"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-9 offset-md-3">
+                                <button type="submit" class="btn btn-primary">@T("Admin.Common.Save")</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+
+<form asp-controller="PushNotifications" asp-action="SendTestNotification" method="post">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="cards-group">
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Misc.PushNotifications.Settings.SendTestNotification")
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="TestNotificationTitle" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="TestNotificationTitle" />
+                                <span asp-validation-for="TestNotificationTitle"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="TestNotificationMessage" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="TestNotificationMessage" />
+                                <span asp-validation-for="TestNotificationMessage"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-9 offset-md-3">
+                                <button type="submit" class="btn btn-primary">@T("Plugins.Misc.PushNotifications.Send")</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
