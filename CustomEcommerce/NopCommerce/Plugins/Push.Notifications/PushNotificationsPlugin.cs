@@ -31,7 +31,7 @@ namespace Nop.Plugin.Misc.PushNotifications
             _dataProvider = dataProvider;
         }
 
-        public bool HideInWidgetList => true;
+        public bool HideInWidgetList => false;
 
         public Task<IList<string>> GetWidgetZonesAsync()
         {

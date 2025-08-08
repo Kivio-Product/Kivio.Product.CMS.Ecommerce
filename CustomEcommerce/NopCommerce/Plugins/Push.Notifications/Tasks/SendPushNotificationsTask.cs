@@ -15,7 +15,6 @@ namespace Nop.Plugin.Misc.PushNotifications.Tasks
 
         public async Task ExecuteAsync()
         {
-            // Customize the notification content as needed
             await _pushNotificationService.SendNotificationToAllAsync("New Products!", "Check out our latest products.");
         }
     }
