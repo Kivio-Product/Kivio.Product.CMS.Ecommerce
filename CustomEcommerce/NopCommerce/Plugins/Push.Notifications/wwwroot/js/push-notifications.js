@@ -1,31 +1,44 @@
 document.addEventListener('DOMContentLoaded', function () {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-        navigator.serviceWorker.register('/js/service-worker.js')
-            .then(function (swReg) {
-                console.log('Service Worker is registered', swReg);
-                swReg.pushManager.getSubscription().then(function (subscription) {
-                    if (subscription === null) {
-                        // New subscription
-                        swReg.pushManager.subscribe({
-                            userVisibleOnly: true,
-                            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) 
-                        }).then(function (newSubscription) {
-                            saveSubscription(newSubscription);
-                        });
-                    } else {
-                        // Already subscribed
-                        saveSubscription(subscription);
-                    }
-                });
-            })
-            .catch(function (error) {
-                console.error('Service Worker Error', error);
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+
+    // Check for service worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/firebase-messaging-sw.js')
+            .then((registration) => {
+                messaging.useServiceWorker(registration);
+                console.log('Firebase Messaging Service Worker registered');
+                requestPermissionAndToken(messaging);
+            }).catch((err) => {
+                console.error('Service Worker registration failed:', err);
             });
     }
 });
 
-function saveSubscription(subscription) {
-    const token = JSON.stringify(subscription);
+function requestPermissionAndToken(messaging) {
+    console.log('Requesting permission...');
+    Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+            console.log('Notification permission granted.');
+            // Get token
+            messaging.getToken({ vapidKey: vapidPublicKey }).then((currentToken) => {
+                if (currentToken) {
+                    console.log('FCM Token:', currentToken);
+                    saveTokenToServer(currentToken);
+                } else {
+                    console.log('No registration token available. Request permission to generate one.');
+                }
+            }).catch((err) => {
+                console.log('An error occurred while retrieving token. ', err);
+            });
+        } else {
+            console.log('Unable to get permission to notify.');
+        }
+    });
+}
+
+function saveTokenToServer(token) {
     fetch('/PushNotificationsPublic/RegisterDevice', {
         method: 'POST',
         headers: {
@@ -33,19 +46,4 @@ function saveSubscription(subscription) {
         },
         body: JSON.stringify({ token: token })
     });
-}
-
-function urlBase64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding)
-        .replace(/\-/g, '+')
-        .replace(/_/g, '/');
-
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-
-    for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
 }

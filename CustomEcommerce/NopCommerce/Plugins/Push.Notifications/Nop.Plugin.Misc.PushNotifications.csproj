@@ -59,8 +59,8 @@
     <MSBuild Projects="@(ClearPluginAssemblies)" Properties="PluginPath=$(OutDir)" Targets="NopClear" />
   </Target>
 
-  <Target Name="CopyServiceWorker" AfterTargets="Build">
-    <Copy SourceFiles="$(ProjectDir)wwwroot\js\service-worker.js" DestinationFolder="$(SolutionDir)NopCommerce\src\Presentation\Nop.Web\wwwroot\js" />
+  <Target Name="CopyFirebaseServiceWorker" AfterTargets="Build">
+    <Copy SourceFiles="$(ProjectDir)wwwroot\firebase-messaging-sw.js" DestinationFolder="$(SolutionDir)NopCommerce\src\Presentation\Nop.Web\wwwroot" />
   </Target>
 
 </Project>
