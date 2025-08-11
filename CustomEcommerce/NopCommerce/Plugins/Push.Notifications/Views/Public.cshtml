@@ -3,11 +3,9 @@
     var vapidPublicKey = '@Model.VapidPublicKey';
 </script>
 @{
-    // Firebase SDK
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, "https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js");
-
     // Firebase configuration
     NopHtml.AppendScriptParts(ResourceLocation.Footer, "~/Plugins/Misc.PushNotifications/wwwroot/js/firebase-config.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, "~/Plugins/Misc.PushNotifications/wwwroot/js/push-notifications.js");
+    // NopHtml.AppendScriptParts(ResourceLocation.Footer, "~/Plugins/Misc.PushNotifications/wwwroot/js/push-notifications.js", excludeFromBundle: true);
 }
+
+<script type="module" src="~/Plugins/Misc.PushNotifications/wwwroot/js/push-notifications.js"></script>

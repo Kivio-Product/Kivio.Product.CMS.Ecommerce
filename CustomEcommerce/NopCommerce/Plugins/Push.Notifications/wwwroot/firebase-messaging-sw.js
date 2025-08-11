@@ -1,6 +1,6 @@
 // Import and configure the Firebase SDK
-importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
 
 const firebaseConfig = {
     apiKey: "AIzaSyDRvO2WOzXJ_FgorqeamA-mgnO5-iTuVig",
@@ -26,4 +26,16 @@ messaging.onBackgroundMessage(function(payload) {
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+
+self.addEventListener('notificationclick', function(event) {
+  console.log('User clicked on notification', event);
+
+  event.notification.close();
+  const urlToOpen = event.notification.data?.urlToOpen || '/';
+
+  event.waitUntil(
+    clients.openWindow(urlToOpen)
+  );
 });
