@@ -1,399 +1,227 @@
-using Nop.Data;
-using Nop.Core.Domain.Catalog;
-using System.Text.RegularExpressions;
+using System.Data;
+using System.Globalization;
 using LinqToDB.Data;
-using Microsoft.Extensions.Logging;
+using Nop.Core.Domain.Catalog;
+using Nop.Data;
 
 namespace Nop.Services.Catalog;
 
-public partial class ProductSimilarityService(INopDataProvider dataProvider, ILogger<ProductSimilarityService> logger) : IProductSimilarityService
+public partial class ProductSimilarityService(
+    INopDataProvider dataProvider,
+    IProductTokenizationService tokenizationService) : IProductSimilarityService
 {
-    private readonly INopDataProvider _dataProvider = dataProvider;
-    private readonly ILogger<ProductSimilarityService> _logger = logger;
+    private readonly INopDataProvider _data = dataProvider;
+    private readonly IProductTokenizationService _tokenizer = tokenizationService;
 
-    private static readonly Regex _tokenRegex = new(@"\b(?:\d+[a-zA-Z]+|[a-zA-Z]{2,})\b",
-        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    public bool UseWeightedFts { get; set; } = true;
+    public int MaxDbCandidates { get; set; } = 200;
+    public double JaccardSoft { get; set; } = 0.35;
+    public double JaccardStrict { get; set; } = 0.50;
+    public double MaxPriceDiffSoftPct { get; set; } = 0.30;
+    public double MaxPriceDiffStrictPct { get; set; } = 0.20;
 
-    // Regex para detectar unidades de medida con números
-    private static readonly Regex _measurementRegex = new(
-        @"\b(\d+(?:[.,]\d+)?)\s*(?:x\s*(\d+(?:[.,]\d+)?))?\s*(ml|cc|l|litros?|gr?|kg|kilogramos?|mg|miligramos?|g|gramos?|oz|onzas?|lb|libras?|mm|cm|m|metros?|pulg|pulgadas?|''|""|in|inches?|ft|pies?|unid|unidades?|pzs?|piezas?|und)\b",
-        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private sealed record TokenIdfRow(string Token, double Idf);
 
-    private static readonly HashSet<string> _stopWords = new(StringComparer.OrdinalIgnoreCase)
+    
+    public Task<IList<ProductMatch>> FindSimilarForSearchAsync(string productName, decimal? originalPrice = null, int maxResults = 10)
     {
-        "DE", "LA", "EL", "Y", "CON", "PARA", "EN", "UN", "UNA", "LOS", "LAS", "DEL", "AL",
-        "POR", "SIN"
-    };
+        return FindAsync(productName, originalPrice, maxResults, strict: false);
+    }
 
-    public async Task<IList<ProductMatch>> FindSimilarByNameAsync(
-        string productName,
-        decimal? originalPrice = null,
-        int maxResults = 10,
-        double minJaccardScore = 0.3,
-        int maxDbCandidates = 200,
-        double? maxPriceDifferencePercent = null,
-        bool strictMeasurementMatching = true)
+    public Task<IList<ProductMatch>> FindDuplicatesStrictAsync(string productName, decimal? originalPrice = null, int maxResults = 10)
     {
-        if (string.IsNullOrWhiteSpace(productName))
-            throw new ArgumentException("Product name cannot be null or empty", nameof(productName));
+        return FindAsync(productName, originalPrice, maxResults, strict: true);
+    }
 
-        if (productName.Length < 2)
-            throw new ArgumentException("Product name must be at least 2 characters long", nameof(productName));
+    public Task<IList<ProductMatch>> FindSimilarByNameAsync(string productName, decimal? originalPrice = null, int maxResults = 10,
+        double minJaccardScore = 0.3, int maxDbCandidates = 200, double? maxPriceDifferencePercent = null, bool strictMeasurementMatching = true)
+    {
+        return FindDuplicatesStrictAsync(productName, originalPrice, maxResults);
+    }
 
-        if (originalPrice.HasValue && originalPrice.Value < 0)
-            throw new ArgumentException("Price cannot be negative", nameof(originalPrice));
-
-        if (maxResults <= 0)
-            throw new ArgumentException("Max results must be greater than 0", nameof(maxResults));
-
-        if (minJaccardScore < 0 || minJaccardScore > 1)
-            throw new ArgumentException("Jaccard score must be between 0 and 1", nameof(minJaccardScore));
-
-        var tokens = ExtractTokens(productName);
-        var measurements = ExtractMeasurements(productName);
-
-        if (tokens.Count == 0)
-        {
-            _logger.LogWarning("No valid tokens extracted from product name: '{ProductName}'", productName);
+    
+    private async Task<IList<ProductMatch>> FindAsync(string name, decimal? originalPrice, int maxResults, bool strict)
+    {
+        if (string.IsNullOrWhiteSpace(name))
             return new List<ProductMatch>();
-        }
 
-        _logger.LogDebug("Extracted measurements from '{ProductName}': {Measurements}", 
-            productName, string.Join(", ", measurements.Select(m => m.ToString())));
+        var nameNorm = _tokenizer.Normalize(name);
+        var qTokens = _tokenizer.Tokenize(name);
 
-        var ftsQuery = BuildFtsQuery(tokens);
-        if (string.IsNullOrEmpty(ftsQuery))
-        {
-            _logger.LogWarning("No valid FTS query could be built from product name: '{ProductName}'", productName);
+        if (!qTokens.Any())
             return new List<ProductMatch>();
-        }
 
-        var parameters = new[]
+        var idf = await LoadIdfAsync();
+        var (minIdf, maxIdf) = GetMinMaxIdf(idf);
+
+        var ftsQuery = UseWeightedFts
+            ? BuildIsAboutQuery(qTokens, idf, minIdf, maxIdf)
+            : BuildSimpleOrQuery(qTokens);
+
+        double pricePct = strict ? MaxPriceDiffStrictPct : MaxPriceDiffSoftPct;
+
+        Console.WriteLine($"FTS Query: {ftsQuery}");
+        Console.WriteLine($"Query tokens: [{string.Join(", ", qTokens)}]");
+
+        var parameters = new List<DataParameter>
         {
-            new DataParameter("@FtsQuery", ftsQuery),
-            new DataParameter("@MaxCandidates", maxDbCandidates)
+            new("@FtsQuery", ftsQuery),
+            new("@MaxCandidates", MaxDbCandidates),
+            new("@Price", originalPrice ?? (object)DBNull.Value),
+            new("@MaxPriceDiffPercent", originalPrice.HasValue ? pricePct : (object)DBNull.Value)
         };
 
-        var candidates = await _dataProvider.QueryProcAsync<ProductCandidate>(
-            "dbo.GetProductsByFtsQuery", parameters);
+        var rows = await _data.QueryProcAsync<ProductCandidate>(
+            "dbo.GetProductsByFtsQuery", parameters.ToArray());
 
-        if (!candidates.Any())
+        var list = new List<ProductMatch>();
+
+        foreach (var r in rows)
         {
-            _logger.LogInformation("No candidates found for product name: '{ProductName}'", productName);
-            return new List<ProductMatch>();
-        }
+            var nameC = _tokenizer.Normalize(r.Name);
+            var cTokens = _tokenizer.Tokenize(r.Name);
 
-        _logger.LogDebug("Found {CandidateCount} initial candidates for query '{ProductName}'",
-            candidates.Count, productName);
+            var jw = WeightedJaccard(qTokens, cTokens, idf);
+            var lev = NormalizedLevenshtein(nameNorm, nameC);
+            var ft = NormalizeRank(r.FtRank);
 
-        var priceFilteredCandidates = candidates;
-        if (originalPrice.HasValue && maxPriceDifferencePercent.HasValue)
-        {
-            priceFilteredCandidates = candidates.Where(c =>
-            {
-                var priceDiff = Math.Abs(c.Price - originalPrice.Value);
-                var percentDiff = (originalPrice.Value > 0) ? (priceDiff / originalPrice.Value) * 100 : 100;
-                return percentDiff <= (decimal)maxPriceDifferencePercent.Value;
-            }).ToList();
+            double score = 0.70 * jw + 0.10 * ft + 0.20 * (1.0 - lev);
 
-            _logger.LogDebug("After price filter: {FilteredCount} candidates remain",
-                priceFilteredCandidates.Count);
-        }
-
-        var results = new List<ProductMatch>();
-        var jaccardFilterCount = 0;
-        var measurementFilterCount = 0;
-
-        foreach (var candidate in priceFilteredCandidates)
-        {
-            var candidateTokens = ExtractTokens(candidate.Name);
-            var candidateMeasurements = ExtractMeasurements(candidate.Name);
-            
-            var jaccard = CalculateJaccardSimilarity(tokens, candidateTokens);
-
-            // PRIMER FILTRO: Jaccard
-            if (jaccard < minJaccardScore)
-                continue;
-
-            jaccardFilterCount++;
-
-            // SEGUNDO FILTRO: Verificación de unidades de medida
-            if (strictMeasurementMatching && measurements.Any())
-            {
-                var measurementCompatible = AreMeasurementsCompatible(measurements, candidateMeasurements);
-                if (!measurementCompatible)
+            double thr = strict ? JaccardStrict : JaccardSoft;
+            if (jw >= thr || score >= (strict ? 0.60 : 0.45))
+                list.Add(new ProductMatch
                 {
-                    _logger.LogDebug("Candidate '{CandidateName}' rejected due to measurement mismatch. Original: [{OriginalMeasurements}], Candidate: [{CandidateMeasurements}]",
-                        candidate.Name, 
-                        string.Join(", ", measurements.Select(m => m.ToString())),
-                        string.Join(", ", candidateMeasurements.Select(m => m.ToString())));
-                    continue;
-                }
-            }
-
-            measurementFilterCount++;
-
-            // TERCER FILTRO: Levenshtein
-            var levenshtein = NormalizedLevenshtein(
-                productName.ToUpperInvariant(),
-                candidate.Name.ToUpperInvariant());
-
-            var combined = CalculateCombinedScore(jaccard, candidate.FtRank, levenshtein);
-
-            results.Add(new ProductMatch
-            {
-                Product = candidate,
-                JaccardSimilarity = jaccard,
-                LevenshteinSimilarity = levenshtein,
-                CombinedScore = combined,
-                MeasurementMatch = AreMeasurementsCompatible(measurements, candidateMeasurements)
-            });
+                    Product = new ProductCandidate
+                    {
+                        Id = r.Id,
+                        Name = r.Name,
+                        Sku = r.Sku ?? string.Empty,
+                        Price = r.Price,
+                        ShortDescription = r.ShortDescription ?? string.Empty,
+                        FtRank = r.FtRank
+                    },
+                    JaccardSimilarity = jw,
+                    LevenshteinSimilarity = lev,
+                    MeasurementMatch = true,
+                    CombinedScore = score
+                });
         }
 
-        _logger.LogDebug("Jaccard filter passed: {JaccardCount} candidates, Measurement filter passed: {MeasurementCount} candidates, Final results: {ResultCount}",
-            jaccardFilterCount, measurementFilterCount, results.Count);
-
-        return results
-            .OrderByDescending(r => r.CombinedScore)
-            .ThenByDescending(r => r.JaccardSimilarity)
+        return list
+            .OrderByDescending(x => x.CombinedScore)
             .Take(maxResults)
             .ToList();
     }
 
-    private static List<MeasurementInfo> ExtractMeasurements(string input)
+    private static double WeightedJaccard(HashSet<string> a, HashSet<string> b, Dictionary<string, double> idf)
     {
-        var measurements = new List<MeasurementInfo>();
-        if (string.IsNullOrWhiteSpace(input)) return measurements;
+        if (a.Count == 0 && b.Count == 0)
+            return 0;
 
-        var matches = _measurementRegex.Matches(input);
+        double intersection = 0, union = 0;
+        var allTokens = new HashSet<string>(a, StringComparer.OrdinalIgnoreCase);
+        allTokens.UnionWith(b);
 
-        foreach (Match match in matches)
+        foreach (var token in allTokens)
         {
-            var value1Str = match.Groups[1].Value.Replace(',', '.');
-            var value2Str = match.Groups[2].Success ? match.Groups[2].Value.Replace(',', '.') : null;
-            var unit = match.Groups[3].Value.ToLowerInvariant();
+            var weight = idf.TryGetValue(token, out var idfValue) ? idfValue : 1.0;
+            union += weight;
 
-            if (decimal.TryParse(value1Str, out var value1))
+            if (a.Contains(token) && b.Contains(token))
+                intersection += weight;
+        }
+
+        return union == 0 ? 0 : intersection / union;
+    }
+
+    private static double NormalizedLevenshtein(string a, string b)
+    {
+        int n = a.Length, m = b.Length;
+        if (n == 0)
+            return m > 0 ? 1 : 0;
+        if (m == 0)
+            return n > 0 ? 1 : 0;
+
+        var dp = new int[n + 1, m + 1];
+
+        for (int i = 0; i <= n; i++)
+            dp[i, 0] = i;
+        for (int j = 0; j <= m; j++)
+            dp[0, j] = j;
+
+        for (int i = 1; i <= n; i++)
+            for (int j = 1; j <= m; j++)
             {
-                var normalizedUnit = NormalizeUnit(unit);
-                measurements.Add(new MeasurementInfo
-                {
-                    Value = value1,
-                    SecondaryValue = value2Str != null && decimal.TryParse(value2Str, out var v2) ? v2 : null,
-                    Unit = normalizedUnit,
-                    OriginalText = match.Value
-                });
+                int cost = a[i - 1] == b[j - 1] ? 0 : 1;
+                dp[i, j] = Math.Min(
+                    Math.Min(dp[i - 1, j] + 1, dp[i, j - 1] + 1),
+                    dp[i - 1, j - 1] + cost);
             }
+
+        return (double)dp[n, m] / Math.Max(n, m);
+    }
+
+    private static double NormalizeRank(int ftRank) => Math.Tanh(ftRank / 400.0);
+
+    private async Task<Dictionary<string, double>> LoadIdfAsync()
+    {
+        var rows = await _data.QueryAsync<TokenIdfRow>(
+            "SELECT Token, Idf FROM dbo.TokenStats WITH (NOLOCK)");
+        var dictionary = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+
+        Console.WriteLine($"Loaded {rows.Count} IDF rows");
+
+        foreach (var row in rows)
+            dictionary[row.Token] = row.Idf;
+
+        return dictionary;
+    }
+
+    private static (double min, double max) GetMinMaxIdf(IDictionary<string, double> idf)
+    {
+        if (idf.Count == 0)
+            return (1, 7);
+
+        double min = double.PositiveInfinity, max = double.NegativeInfinity;
+
+        foreach (var value in idf.Values)
+        {
+            if (value < min) min = value;
+            if (value > max) max = value;
         }
 
-        return measurements;
+        if (double.IsInfinity(min) || double.IsInfinity(max))
+            return (1, 7);
+
+        return (min, max);
     }
 
-    private static string NormalizeUnit(string unit)
+    private static string BuildSimpleOrQuery(HashSet<string> tokens)
     {
-        var normalizedUnit = unit.ToLowerInvariant().Trim();
-        
-        // Normalizar unidades de volumen
-        if (normalizedUnit is "ml" or "cc") return "ml";
-        if (normalizedUnit is "l" or "litros" or "litro") return "l";
-        
-        // Normalizar unidades de peso
-        if (normalizedUnit is "g" or "gr" or "gramos" or "gramo") return "g";
-        if (normalizedUnit is "kg" or "kilogramos" or "kilogramo") return "kg";
-        if (normalizedUnit is "mg" or "miligramos" or "miligramo") return "mg";
-        
-        // Normalizar unidades de longitud
-        if (normalizedUnit is "mm") return "mm";
-        if (normalizedUnit is "cm") return "cm";
-        if (normalizedUnit is "m" or "metros" or "metro") return "m";
-        if (normalizedUnit is "pulg" or "pulgadas" or "pulgada" or "''" or "\"" or "in" or "inches" or "inch") return "in";
-        
-        // Normalizar unidades de cantidad
-        if (normalizedUnit is "unid" or "unidades" or "unidad" or "und" or "pzs" or "pz" or "piezas" or "pieza") return "unit";
-        
-        return normalizedUnit;
+        if (!tokens.Any())
+            return "\"placeholder\""; 
+
+        var parts = tokens.Select(t => $"\"{t}*\"");
+        return string.Join(" OR ", parts);
     }
 
-    private static bool AreMeasurementsCompatible(List<MeasurementInfo> measurements1, List<MeasurementInfo> measurements2)
+    private static string BuildIsAboutQuery(HashSet<string> tokens, IDictionary<string, double> idf, double minIdf, double maxIdf)
     {
-        // Si no hay medidas en el producto original, no aplicar filtro
-        if (!measurements1.Any()) return true;
-        
-        // Si el producto original tiene medidas pero el candidato no, rechazar
-        if (measurements1.Any() && !measurements2.Any()) return false;
+        if (!tokens.Any())
+            return "\"placeholder\"";
 
-        // Verificar que al menos una medida sea compatible
-        foreach (var m1 in measurements1)
+        double MapIdfToWeight(double idfValue)
         {
-            foreach (var m2 in measurements2)
-            {
-                if (IsSameMeasurementType(m1.Unit, m2.Unit))
-                {
-                    // Convertir a la misma unidad base para comparar
-                    var convertedValue1 = ConvertToBaseUnit(m1.Value, m1.Unit);
-                    var convertedValue2 = ConvertToBaseUnit(m2.Value, m2.Unit);
-                    
-                    // Permitir una tolerancia del 5% en las medidas
-                    var tolerance = Math.Max(convertedValue1, convertedValue2) * 0.05m;
-                    if (Math.Abs(convertedValue1 - convertedValue2) <= tolerance)
-                    {
-                        return true;
-                    }
-                }
-            }
+            var normalized = (idfValue - minIdf) / (maxIdf - minIdf + 1e-9);
+            return Math.Clamp(normalized, 0, 1);
         }
 
-        return false;
-    }
-
-    private static bool IsSameMeasurementType(string unit1, string unit2)
-    {
-        var volumeUnits = new HashSet<string> { "ml", "l" };
-        var weightUnits = new HashSet<string> { "g", "kg", "mg" };
-        var lengthUnits = new HashSet<string> { "mm", "cm", "m", "in" };
-        var countUnits = new HashSet<string> { "unit" };
-
-        return (volumeUnits.Contains(unit1) && volumeUnits.Contains(unit2)) ||
-               (weightUnits.Contains(unit1) && weightUnits.Contains(unit2)) ||
-               (lengthUnits.Contains(unit1) && lengthUnits.Contains(unit2)) ||
-               (countUnits.Contains(unit1) && countUnits.Contains(unit2));
-    }
-
-    private static decimal ConvertToBaseUnit(decimal value, string unit)
-    {
-        return unit switch
+        var parts = tokens.Select(token =>
         {
-            // Volumen - base: ml
-            "ml" => value,
-            "l" => value * 1000m,
-            
-            // Peso - base: g
-            "g" => value,
-            "kg" => value * 1000m,
-            "mg" => value / 1000m,
-            
-            // Longitud - base: mm
-            "mm" => value,
-            "cm" => value * 10m,
-            "m" => value * 1000m,
-            "in" => value * 25.4m,
-            
-            // Cantidad - base: unidad
-            "unit" => value,
-            
-            _ => value
-        };
-    }
+            var weight = idf.TryGetValue(token, out var idfValue) ? MapIdfToWeight(idfValue) : 0.10;
+            return $"\"{token}*\" WEIGHT({weight.ToString(CultureInfo.InvariantCulture)})";
+        });
 
-    private static double CalculateCombinedScore(
-        double jaccardSimilarity,
-        double ftRank,
-        double levenshteinSimilarity,
-        ProductSimilarityMode mode = ProductSimilarityMode.DuplicateDetection)
-    {
-        var (jaccardWeight, ftWeight, levenshteinWeight) = mode switch
-        {
-            ProductSimilarityMode.DuplicateDetection => (0.70, 0.10, 0.20),
-            ProductSimilarityMode.RelatedProducts => (0.50, 0.35, 0.15),
-            ProductSimilarityMode.Balanced => (0.65, 0.15, 0.20),
-            _ => (0.65, 0.15, 0.20)
-        };
-
-        var ftRankNormalized = Math.Clamp(ftRank / 1000.0, 0.0, 1.0);
-
-        return (jaccardSimilarity * jaccardWeight) +
-               (ftRankNormalized * ftWeight) +
-               (levenshteinSimilarity * levenshteinWeight);
-    }
-
-    private static HashSet<string> ExtractTokens(string input)
-    {
-        var tokens = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        if (string.IsNullOrWhiteSpace(input)) return tokens;
-
-        var matches = _tokenRegex.Matches(input);
-
-        foreach (Match match in matches)
-        {
-            var token = match.Value.Trim();
-            if (!IsStopWord(token) && token.Length >= 2)
-                tokens.Add(token);
-        }
-
-        return tokens;
-    }
-
-    private static string BuildFtsQuery(IEnumerable<string> tokens)
-    {
-        var safeTokens = tokens
-            .Select(t => Regex.Replace(t, @"[^\p{L}\p{N}]", ""))
-            .Where(t => t.Length >= 2)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .Select(t => $"\"{t}*\"");
-
-        return string.Join(" OR ", safeTokens);
-    }
-
-    private static double CalculateJaccardSimilarity(HashSet<string> tokensA, HashSet<string> tokensB)
-    {
-        if (tokensA.Count == 0 || tokensB.Count == 0) return 0.0;
-
-        var intersection = tokensA.Intersect(tokensB, StringComparer.OrdinalIgnoreCase).Count();
-        var union = tokensA.Union(tokensB, StringComparer.OrdinalIgnoreCase).Count();
-
-        return union > 0 ? (double)intersection / union : 0.0;
-    }
-
-    private static double NormalizedLevenshtein(string s1, string s2)
-    {
-        var distance = LevenshteinDistance(s1, s2);
-        var maxLength = Math.Max(s1.Length, s2.Length);
-        return maxLength == 0 ? 1.0 : 1.0 - ((double)distance / maxLength);
-    }
-
-    private static int LevenshteinDistance(string s, string t)
-    {
-        if (string.IsNullOrEmpty(s)) return t.Length;
-        if (string.IsNullOrEmpty(t)) return s.Length;
-
-        var d = new int[s.Length + 1, t.Length + 1];
-
-        for (int i = 0; i <= s.Length; i++) d[i, 0] = i;
-        for (int j = 0; j <= t.Length; j++) d[0, j] = j;
-
-        for (int i = 1; i <= s.Length; i++)
-        {
-            for (int j = 1; j <= t.Length; j++)
-            {
-                int cost = s[i - 1] == t[j - 1] ? 0 : 1;
-
-                d[i, j] = Math.Min(
-                    Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
-                    d[i - 1, j - 1] + cost);
-            }
-        }
-
-        return d[s.Length, t.Length];
-    }
-
-    private static bool IsStopWord(string word)
-    {
-        return _stopWords.Contains(word);
-    }
-}
-
-// Clase para almacenar información de medidas
-public class MeasurementInfo
-{
-    public decimal Value { get; set; }
-    public decimal? SecondaryValue { get; set; } // Para casos como "10 x 5 cm"
-    public string Unit { get; set; } = string.Empty;
-    public string OriginalText { get; set; } = string.Empty;
-    
-    public override string ToString()
-    {
-        return SecondaryValue.HasValue 
-            ? $"{Value}x{SecondaryValue}{Unit}" 
-            : $"{Value}{Unit}";
+        return $"ISABOUT({string.Join(", ", parts)})";
     }
 }

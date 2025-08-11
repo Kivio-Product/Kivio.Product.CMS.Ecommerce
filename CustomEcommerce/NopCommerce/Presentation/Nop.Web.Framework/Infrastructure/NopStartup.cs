@@ -238,6 +238,7 @@ public partial class NopStartup : INopStartup
         // custom services
         services.AddScoped<IProductSimilarityService, ProductSimilarityService>();
         services.AddScoped<IProductDeduplicationService, ProductDeduplicationService>();
+        services.AddScoped<IProductTokenizationService, ProductTokenizationService>();
 
         //attribute services
         services.AddScoped(typeof(IAttributeService<,>), typeof(AttributeService<,>));
