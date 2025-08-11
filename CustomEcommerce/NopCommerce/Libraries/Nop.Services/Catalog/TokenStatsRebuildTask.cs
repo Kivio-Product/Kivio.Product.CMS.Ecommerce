@@ -11,11 +11,11 @@ namespace Nop.Services.Catalog;
 /// Reconstruye estadísticas de tokens (DF/IDF) para búsquedas y deduplicación
 /// </summary>
 public class TokenStatsRebuildTask(
-    ILogger<TokenStatsRebuildTask> logger,
+    ILogger logger,
     INopDataProvider dataProvider,
     IProductTokenizationService tokenizationService) : IScheduleTask
 {
-    private readonly ILogger<TokenStatsRebuildTask> _logger = logger;
+    private readonly ILogger _logger = logger;
     private readonly INopDataProvider _data = dataProvider;
     private readonly IProductTokenizationService _tokenizer = tokenizationService;
 

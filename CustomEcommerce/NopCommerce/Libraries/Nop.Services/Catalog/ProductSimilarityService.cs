@@ -22,25 +22,19 @@ public partial class ProductSimilarityService(
 
     private sealed record TokenIdfRow(string Token, double Idf);
 
-    
-    public Task<IList<ProductMatch>> FindSimilarForSearchAsync(string productName, decimal? originalPrice = null, int maxResults = 10)
+
+    public Task<IList<ProductMatch>> FindSimilarForSearchAsync(string productName, decimal? originalPrice = null, int maxResults = 10, double minCombinedScore = 0.0)
     {
-        return FindAsync(productName, originalPrice, maxResults, strict: false);
+        return FindAsync(productName, originalPrice, maxResults, strict: false, minCombinedScore: minCombinedScore);
     }
 
-    public Task<IList<ProductMatch>> FindDuplicatesStrictAsync(string productName, decimal? originalPrice = null, int maxResults = 10)
+    public Task<IList<ProductMatch>> FindDuplicatesStrictAsync(string productName, decimal? originalPrice = null, int maxResults = 10, double minCombinedScore = 0.0)
     {
-        return FindAsync(productName, originalPrice, maxResults, strict: true);
+        return FindAsync(productName, originalPrice, maxResults, strict: true, minCombinedScore: minCombinedScore);
     }
 
-    public Task<IList<ProductMatch>> FindSimilarByNameAsync(string productName, decimal? originalPrice = null, int maxResults = 10,
-        double minJaccardScore = 0.3, int maxDbCandidates = 200, double? maxPriceDifferencePercent = null, bool strictMeasurementMatching = true)
-    {
-        return FindDuplicatesStrictAsync(productName, originalPrice, maxResults);
-    }
 
-    
-    private async Task<IList<ProductMatch>> FindAsync(string name, decimal? originalPrice, int maxResults, bool strict)
+    private async Task<IList<ProductMatch>> FindAsync(string name, decimal? originalPrice, int maxResults, bool strict, double minCombinedScore = 0.0)
     {
         if (string.IsNullOrWhiteSpace(name))
             return new List<ProductMatch>();
@@ -59,9 +53,6 @@ public partial class ProductSimilarityService(
             : BuildSimpleOrQuery(qTokens);
 
         double pricePct = strict ? MaxPriceDiffStrictPct : MaxPriceDiffSoftPct;
-
-        Console.WriteLine($"FTS Query: {ftsQuery}");
-        Console.WriteLine($"Query tokens: [{string.Join(", ", qTokens)}]");
 
         var parameters = new List<DataParameter>
         {
@@ -88,23 +79,23 @@ public partial class ProductSimilarityService(
             double score = 0.70 * jw + 0.10 * ft + 0.20 * (1.0 - lev);
 
             double thr = strict ? JaccardStrict : JaccardSoft;
-            if (jw >= thr || score >= (strict ? 0.60 : 0.45))
-                list.Add(new ProductMatch
+            if ((jw >= thr || score >= (strict ? 0.60 : 0.45)) && score >= minCombinedScore)
+            list.Add(new ProductMatch
+            {
+                Product = new ProductCandidate
                 {
-                    Product = new ProductCandidate
-                    {
-                        Id = r.Id,
-                        Name = r.Name,
-                        Sku = r.Sku ?? string.Empty,
-                        Price = r.Price,
-                        ShortDescription = r.ShortDescription ?? string.Empty,
-                        FtRank = r.FtRank
-                    },
-                    JaccardSimilarity = jw,
-                    LevenshteinSimilarity = lev,
-                    MeasurementMatch = true,
-                    CombinedScore = score
-                });
+                Id = r.Id,
+                Name = r.Name,
+                Sku = r.Sku ?? string.Empty,
+                Price = r.Price,
+                ShortDescription = r.ShortDescription ?? string.Empty,
+                FtRank = r.FtRank
+                },
+                JaccardSimilarity = jw,
+                LevenshteinSimilarity = lev,
+                MeasurementMatch = true,
+                CombinedScore = score
+            });
         }
 
         return list
@@ -168,8 +159,6 @@ public partial class ProductSimilarityService(
         var rows = await _data.QueryAsync<TokenIdfRow>(
             "SELECT Token, Idf FROM dbo.TokenStats WITH (NOLOCK)");
         var dictionary = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
-
-        Console.WriteLine($"Loaded {rows.Count} IDF rows");
 
         foreach (var row in rows)
             dictionary[row.Token] = row.Idf;

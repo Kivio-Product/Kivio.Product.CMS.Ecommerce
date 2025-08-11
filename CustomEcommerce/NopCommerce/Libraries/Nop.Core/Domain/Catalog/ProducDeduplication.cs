@@ -27,18 +27,12 @@ public class DeduplicationResult
     public TimeSpan Duration { get; set; }
     public bool CompletedSuccessfully { get; set; }
     public DeduplicationOptions Options { get; set; }
-
-    // Estadísticas
     public int InitialProductCount { get; set; }
     public int FinalProductCount { get; set; }
     public int ProductsAnalyzed { get; set; }
     public int ProductsUnpublished { get; set; }
-
-    // Detalles
     public List<DuplicateGroup> DuplicateGroups { get; set; } = new();
     public List<string> Errors { get; set; } = new();
-
-    // Propiedades calculadas
     public int DuplicateGroupsFound => DuplicateGroups.Count;
     public double DeduplicationRate => InitialProductCount > 0 ?
         (double)ProductsUnpublished / InitialProductCount * 100 : 0;
@@ -46,8 +40,16 @@ public class DeduplicationResult
 
 public class DuplicateGroup
 {
-    public Product WinnerProduct { get; set; }
-    public List<Product> UnpublishedProducts { get; set; } = new();
+    public ProductResultDto WinnerProduct { get; set; }
+    public List<ProductResultDto> UnpublishedProducts { get; set; } = new();
     public string Reason { get; set; }
     public Dictionary<int, double> SimilarityScores { get; set; } = new();
+}
+
+public class ProductResultDto
+{
+    public string Name { get; set; }
+    public decimal Price { get; set; }
+    public string Sku { get; set; }
+    public int Id { get; set; }
 }

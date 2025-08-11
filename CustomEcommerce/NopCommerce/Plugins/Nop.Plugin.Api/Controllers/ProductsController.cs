@@ -29,53 +29,93 @@ using System.Net;
 
 namespace Nop.Plugin.Api.Controllers
 {
-    public class ProductsController : BaseApiController
+    public class ProductsController(
+        IProductDeduplicationService productDeduplicationService,
+        IProductSimilarityService productSimilarityService,
+        IProductApiService productApiService,
+        ISettingService settingService,
+        IJsonFieldsSerializer jsonFieldsSerializer,
+        IProductService productService,
+        IUrlRecordService urlRecordService,
+        ICustomerActivityService customerActivityService,
+        ILocalizationService localizationService,
+        IFactory<Product> factory,
+        IAclService aclService,
+        IStoreMappingService storeMappingService,
+        IStoreService storeService,
+        ICustomerService customerService,
+        IDiscountService discountService,
+        IPictureService pictureService,
+        IManufacturerService manufacturerService,
+        IProductTagService productTagService,
+        IProductAttributeService productAttributeService,
+        IDTOHelper dtoHelper, ICopyProductService copyProductService) : BaseApiController(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService,
+                                     customerActivityService, localizationService, pictureService)
     {
-        private readonly IDTOHelper _dtoHelper;
-        private readonly IFactory<Product> _factory;
-        private readonly IManufacturerService _manufacturerService;
-        private readonly IProductApiService _productApiService;
-        private readonly IProductAttributeService _productAttributeService;
-        private readonly IProductService _productService;
-        private readonly ICopyProductService _copyProductService;
-        private readonly IProductTagService _productTagService;
-        private readonly IUrlRecordService _urlRecordService;
-        protected readonly ILocalizationService _localizationService;
-        private readonly ISettingService _settingService;
+        private readonly IDTOHelper _dtoHelper = dtoHelper;
+        private readonly IFactory<Product> _factory = factory;
+        private readonly IManufacturerService _manufacturerService = manufacturerService;
+        private readonly IProductApiService _productApiService = productApiService;
+        private readonly IProductAttributeService _productAttributeService = productAttributeService;
+        private readonly IProductService _productService = productService;
+        private readonly ICopyProductService _copyProductService = copyProductService;
+        private readonly IProductTagService _productTagService = productTagService;
+        private readonly IUrlRecordService _urlRecordService = urlRecordService;
+        protected readonly ILocalizationService _localizationService = localizationService;
+        private readonly ISettingService _settingService = settingService;
+        private readonly IProductSimilarityService _productSimilarityService = productSimilarityService;
+        private readonly IProductDeduplicationService _productDeduplicationService = productDeduplicationService;
 
-        public ProductsController(
-            IProductApiService productApiService,
-            ISettingService settingService,
-            IJsonFieldsSerializer jsonFieldsSerializer,
-            IProductService productService,
-            IUrlRecordService urlRecordService,
-            ICustomerActivityService customerActivityService,
-            ILocalizationService localizationService,
-            IFactory<Product> factory,
-            IAclService aclService,
-            IStoreMappingService storeMappingService,
-            IStoreService storeService,
-            ICustomerService customerService,
-            IDiscountService discountService,
-            IPictureService pictureService,
-            IManufacturerService manufacturerService,
-            IProductTagService productTagService,
-            IProductAttributeService productAttributeService,
-            IDTOHelper dtoHelper, ICopyProductService copyProductService) : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService,
-                                         customerActivityService, localizationService, pictureService)
+        [HttpPost]
+        [Route("/api/products/deduplicate-category", Name = "DeduplicateCategory")]
+        [AuthorizePermission(StandardPermission.Catalog.PRODUCTS_CREATE_EDIT_DELETE)]
+        [ProducesResponseType(typeof(DeduplicationResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> DeduplicateCategory([FromBody] DeduplicationRequest request)
         {
-            _productApiService = productApiService;
-            _factory = factory;
-            _manufacturerService = manufacturerService;
-            _productTagService = productTagService;
-            _urlRecordService = urlRecordService;
-            _productService = productService;
-            _productAttributeService = productAttributeService;
-            _dtoHelper = dtoHelper;
-            _copyProductService = copyProductService;
-            _localizationService = localizationService;
-            _settingService = settingService;
+            if (request == null || request.CategoryId <= 0)
+                return BadRequest("CategoryId is required and must be greater than 0.");
+
+            var options = new DeduplicationOptions
+            {
+                WinnerSelectionStrategy = request.WinnerSelectionStrategy ?? WinnerSelectionStrategy.LowestPrice,
+            };
+
+            var result = await _productDeduplicationService.DeduplicateCategoryAsync(request.CategoryId, options);
+
+            return Ok(result);
         }
+
+
+        [HttpPost]
+        [Route("/api/products/similar-by-name", Name = "GetSimilarProductsByName")]
+        [AuthorizePermission(StandardPermission.Catalog.PRODUCTS_CREATE_EDIT_DELETE)]
+        [ProducesResponseType(typeof(IList<ProductMatchDto>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> FindSimilarProductsByName([FromBody] SimilarProductRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request?.ProductName))
+                return BadRequest("Product name is required.");
+
+            var matches = await _productSimilarityService.FindSimilarForSearchAsync(
+                request.ProductName,
+                request.OriginalPrice
+            );
+
+            var result = matches.Select(m => new ProductMatchDto
+            {
+                Id = m.Product.Id,
+                Name = m.Product.Name,
+                Sku = m.Product.Sku,
+                Price = m.Product.Price,
+                MatchPercentage = m.CombinedPercentage,
+                MatchQuality = m.MatchQuality,
+                JaccardPercentage = m.JaccardPercentage
+            }).ToList();
+
+            return Ok(result);
+        }
+
 
         /// <summary>
         ///     Receive a list of all products
@@ -257,7 +297,7 @@ namespace Nop.Plugin.Api.Controllers
                     var message = string.Format(await _localizationService.GetResourceAsync("Admin.Catalog.Products.Fields.Sku.Reserved"), productBySku.Name);
                     return Error(HttpStatusCode.UnprocessableEntity, "sku", message);
                 }
-                else if (productBySku != null && isRenewalEnabled && ( IsProductDiscountValid(productDelta, discountPercentage) || productBySku.Published ))
+                else if (productBySku != null && isRenewalEnabled && (IsProductDiscountValid(productDelta, discountPercentage) || productBySku.Published))
                 {
                     return await RenewProductAsync(product, productBySku, productDelta.Dto.ExtraCategoryId);
                 }
@@ -267,7 +307,7 @@ namespace Nop.Plugin.Api.Controllers
                     return Error(HttpStatusCode.UnprocessableEntity, "sku", "The product is not published and the discount is not valid, so we need to remove it.");
                 }
             }
-            
+
             if (!IsProductDiscountValid(productDelta, discountPercentage) && isRenewalEnabled)
             {
                 return Error(HttpStatusCode.UnprocessableEntity, "product", "The discount percentage is below the minimum required value.");
@@ -420,13 +460,13 @@ namespace Nop.Plugin.Api.Controllers
             var renewalResult = await _productApiService.RenewProductAsync(newProduct, existingProduct, extraCategoryId);
 
             Console.WriteLine($"Renewal Result: Success = {renewalResult.Success}, ErrorMessage = {renewalResult.ErrorMessage}");
-            
+
             if (!renewalResult.Success)
             {
-                HttpStatusCode statusCode = renewalResult.ErrorMessage.Contains("null") 
-                    ? HttpStatusCode.BadRequest 
+                HttpStatusCode statusCode = renewalResult.ErrorMessage.Contains("null")
+                    ? HttpStatusCode.BadRequest
                     : HttpStatusCode.UnprocessableEntity;
-                    
+
                 return Error(statusCode, "product", renewalResult.ErrorMessage);
             }
 
@@ -435,7 +475,7 @@ namespace Nop.Plugin.Api.Controllers
                 var productDto = await _dtoHelper.PrepareProductDTOAsync(renewalResult.RenewedProduct);
                 var productsRootObject = new ProductsRootObjectDto();
                 productsRootObject.Products.Add(productDto);
-                
+
                 var json = JsonFieldsSerializer.Serialize(productsRootObject, string.Empty);
                 return new RawJsonActionResult(json);
             }
@@ -772,7 +812,7 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (discountPercentage == 0) return true;
 
-            if (productDelta.Dto.Price.HasValue && productDelta.Dto.Price.Value > 0  && productDelta.Dto.OldPrice.HasValue && productDelta.Dto.OldPrice.Value > 0)
+            if (productDelta.Dto.Price.HasValue && productDelta.Dto.Price.Value > 0 && productDelta.Dto.OldPrice.HasValue && productDelta.Dto.OldPrice.Value > 0)
             {
                 var discountAmount = productDelta.Dto.OldPrice.Value - productDelta.Dto.Price.Value;
                 var discountPercentageCalculated = (discountAmount / productDelta.Dto.OldPrice.Value) * 100;
@@ -784,4 +824,32 @@ namespace Nop.Plugin.Api.Controllers
 
         #endregion
     }
+
+    public class SimilarProductRequest
+    {
+        public string ProductName { get; set; } = string.Empty;
+        public decimal OriginalPrice { get; set; }
+    }
+
+    public class ProductMatchDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = default!;
+        public string Sku { get; set; } = default!;
+        public decimal Price { get; set; }
+        public int JaccardPercentage { get; set; }
+        public int MatchPercentage { get; set; }
+        public string MatchQuality { get; set; } = default!;
+    }
+
+    public class DeduplicationRequest
+    {
+        public int CategoryId { get; set; }
+        public WinnerSelectionStrategy? WinnerSelectionStrategy { get; set; }
+    }
+
 }
+
+
+
+
