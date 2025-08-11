@@ -1,3 +1,7 @@
+@model Nop.Plugin.Misc.PushNotifications.Models.PublicInfoModel
+<script>
+    var vapidPublicKey = '@Model.VapidPublicKey';
+</script>
 @{
     NopHtml.AppendScriptParts(ResourceLocation.Footer, "~/Plugins/Misc.PushNotifications/wwwroot/js/push-notifications.js");
 }

@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         // New subscription
                         swReg.pushManager.subscribe({
                             userVisibleOnly: true,
-                            applicationServerKey: urlBase64ToUint8Array('BMXkfTDF3hSL6Asxe5oGQ0sp__xKqRSb_oj7buZtGVLUEs70eabanSdHFTliFL9Gow4pgCF8GE3uZpDBRkdiB1M') 
+                            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) 
                         }).then(function (newSubscription) {
                             saveSubscription(newSubscription);
                         });

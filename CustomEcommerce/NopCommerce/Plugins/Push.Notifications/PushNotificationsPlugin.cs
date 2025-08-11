@@ -61,6 +61,8 @@ namespace Nop.Plugin.Misc.PushNotifications
                 ["Plugins.Misc.PushNotifications.FriendlyName"] = "Push Notifications",
                 ["Plugins.Misc.PushNotifications.Settings.FirebaseCredentials"] = "Firebase Credentials (JSON)",
                 ["Plugins.Misc.PushNotifications.Settings.FirebaseCredentials.Hint"] = "Paste the JSON content of your Firebase service account credentials file here.",
+                ["Plugins.Misc.PushNotifications.Settings.VapidPublicKey"] = "VAPID Public Key",
+                ["Plugins.Misc.PushNotifications.Settings.VapidPublicKey.Hint"] = "Enter your VAPID public key.",
                 ["Plugins.Misc.PushNotifications.Settings.SendTestNotification"] = "Send Test Notification",
                 ["Plugins.Misc.PushNotifications.Settings.SendTestNotification.Hint"] = "Send a test notification to all subscribed devices.",
                 ["Plugins.Misc.PushNotifications.Settings.TestNotificationTitle"] = "Test Title",

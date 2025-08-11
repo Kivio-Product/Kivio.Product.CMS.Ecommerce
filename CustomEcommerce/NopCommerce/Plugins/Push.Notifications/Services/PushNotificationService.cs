@@ -42,6 +42,12 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
                     CreatedOnUtc = System.DateTime.UtcNow
                 });
             }
+            else
+            {
+                subscription.CreatedOnUtc = System.DateTime.UtcNow;
+                subscription.Token = token;
+                await _subscriptionRepository.UpdateAsync(subscription);
+            }
         }
 
         public async Task SendNotificationToAllAsync(string title, string body)

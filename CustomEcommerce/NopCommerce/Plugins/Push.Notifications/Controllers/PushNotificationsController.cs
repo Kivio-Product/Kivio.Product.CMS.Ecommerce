@@ -40,7 +40,8 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
             var settings = await _settingService.LoadSettingAsync<PushNotificationsSettings>();
             var model = new ConfigurationModel
             {
-                FirebaseCredentials = settings.FirebaseCredentials
+                FirebaseCredentials = settings.FirebaseCredentials,
+                VapidPublicKey = settings.VapidPublicKey
             };
             return View("~/Plugins/Misc.PushNotifications/Views/Configure.cshtml", model);
         }
@@ -50,6 +51,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
         {
             var settings = await _settingService.LoadSettingAsync<PushNotificationsSettings>();
             settings.FirebaseCredentials = model.FirebaseCredentials;
+            settings.VapidPublicKey = model.VapidPublicKey;
             await _settingService.SaveSettingAsync(settings);
             _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
             return await Configure();
