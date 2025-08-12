@@ -61,10 +61,16 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
 
             if (tokens.Any())
             {
-                foreach (var token in tokens)
+                var tokensBatch = tokens.Take(500).ToList();
+                var batchResponse = await FirebaseMessaging.DefaultInstance.SendAllAsync(tokensBatch.Select(token => new Message
                 {
-                    await SendUniqueNotification(title, body, token);
-                }
+                    Token = token,
+                    Notification = new Notification
+                    {
+                        Title = title,
+                        Body = body
+                    }
+                }).ToList());
                 _logger.InsertLog(LogLevel.Information, "Push Notification Sent", $"Successfully sent notification to {tokens.Count} devices.");
             }
         }
@@ -82,7 +88,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
             };
             var response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
 
-            if (response == null)
+            if (response != null)
             {
                 _logger.InsertLog(LogLevel.Information, "Push Notification Sent", $"Notification sent to token: {token}");
             }
