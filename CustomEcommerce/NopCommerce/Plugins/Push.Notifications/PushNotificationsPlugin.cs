@@ -52,7 +52,8 @@ namespace Nop.Plugin.Misc.PushNotifications
         {
             var settings = new PushNotificationsSettings
             {
-                FirebaseCredentials = ""
+                FirebaseCredentials = "",
+                FirebaseConfig = ""
             };
             await _settingService.SaveSettingAsync(settings);
 
@@ -63,6 +64,8 @@ namespace Nop.Plugin.Misc.PushNotifications
                 ["Plugins.Misc.PushNotifications.Settings.FirebaseCredentials.Hint"] = "Paste the JSON content of your Firebase service account credentials file here.",
                 ["Plugins.Misc.PushNotifications.Settings.VapidPublicKey"] = "VAPID Public Key",
                 ["Plugins.Misc.PushNotifications.Settings.VapidPublicKey.Hint"] = "Enter your VAPID public key.",
+                ["Plugins.Misc.PushNotifications.Settings.FirebaseConfig"] = "Firebase Config (JSON)",
+                ["Plugins.Misc.PushNotifications.Settings.FirebaseConfig.Hint"] = "Paste the JSON content of your Firebase config for web.",
                 ["Plugins.Misc.PushNotifications.Settings.SendTestNotification"] = "Send Test Notification",
                 ["Plugins.Misc.PushNotifications.Settings.SendTestNotification.Hint"] = "Send a test notification to all subscribed devices.",
                 ["Plugins.Misc.PushNotifications.Settings.TestNotificationTitle"] = "Test Title",

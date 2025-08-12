@@ -33,6 +33,15 @@
                             </div>
                         </div>
                         <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="FirebaseConfig" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-textarea asp-for="FirebaseConfig" rows="10" />
+                                <span asp-validation-for="FirebaseConfig"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <div class="col-md-9 offset-md-3">
                                 <button type="submit" class="btn btn-primary">@T("Admin.Common.Save")</button>
                             </div>

@@ -1,11 +1,10 @@
 @model Nop.Plugin.Misc.PushNotifications.Models.PublicInfoModel
 <script>
     var vapidPublicKey = '@Model.VapidPublicKey';
+    var firebaseConfig = @Html.Raw(string.IsNullOrEmpty(Model.FirebaseConfig) ? "{}" : Model.FirebaseConfig);
 </script>
 @{
-    // Firebase configuration
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, "~/Plugins/Misc.PushNotifications/wwwroot/js/firebase-config.js");
-    // NopHtml.AppendScriptParts(ResourceLocation.Footer, "~/Plugins/Misc.PushNotifications/wwwroot/js/push-notifications.js", excludeFromBundle: true);
+    // Firebase configuration is rendered directly in the view
 }
 
 <script type="module" src="~/Plugins/Misc.PushNotifications/wwwroot/js/push-notifications.js" asp-location="None"></script>

@@ -16,5 +16,8 @@ namespace Nop.Plugin.Misc.PushNotifications.Models
 
         [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.TestNotificationMessage")]
         public string TestNotificationMessage { get; set; }
+
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.FirebaseConfig")]
+        public string FirebaseConfig { get; set; }
     }
 }
