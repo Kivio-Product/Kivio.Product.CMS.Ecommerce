@@ -1,9 +1,11 @@
 using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
+using Nop.Core.Domain.Logging;
 using Nop.Data;
 using Nop.Plugin.Misc.PushNotifications.Domain;
 using Nop.Services.Configuration;
+using Nop.Services.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,11 +16,13 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
     {
         private readonly IRepository<PushSubscription> _subscriptionRepository;
         private readonly PushNotificationsSettings _settings;
+        private readonly ILogger _logger;
 
-        public PushNotificationService(IRepository<PushSubscription> subscriptionRepository, ISettingService settingService)
+        public PushNotificationService(IRepository<PushSubscription> subscriptionRepository, ISettingService settingService, ILogger logger)
         {
             _subscriptionRepository = subscriptionRepository;
             _settings = settingService.LoadSetting<PushNotificationsSettings>();
+            _logger = logger;
 
             if (FirebaseApp.DefaultInstance == null && !string.IsNullOrEmpty(_settings.FirebaseCredentials))
             {
@@ -57,17 +61,30 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
 
             if (tokens.Any())
             {
-                var message = new MulticastMessage()
+                foreach (var token in tokens)
                 {
-                    Tokens = tokens,
-                    Notification = new Notification
-                    {
-                        Title = title,
-                        Body = body
-                    }
-                };
+                    await SendUniqueNotification(title, body, token);
+                }
+                _logger.InsertLog(LogLevel.Information, "Push Notification Sent", $"Successfully sent notification to {tokens.Count} devices.");
+            }
+        }
 
-                await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message);
+        public async Task SendUniqueNotification(string title, string body, string token)
+        {
+            var message = new Message()
+            {
+                Token = token,
+                Notification = new Notification
+                {
+                    Title = title,
+                    Body = body
+                }
+            };
+            var response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
+
+            if (response == null)
+            {
+                _logger.InsertLog(LogLevel.Information, "Push Notification Sent", $"Notification sent to token: {token}");
             }
         }
     }
