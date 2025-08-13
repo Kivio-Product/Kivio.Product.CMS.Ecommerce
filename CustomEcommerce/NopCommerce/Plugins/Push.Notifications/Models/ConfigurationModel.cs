@@ -22,5 +22,20 @@ namespace Nop.Plugin.Misc.PushNotifications.Models
 
         [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.GeminiApiKey")]
         public string GeminiApiKey { get; set; }
+
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.EnableNewProductStrategy")]
+        public bool EnableNewProductStrategy { get; set; }
+
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.EnableCategoryStrategy")]
+        public bool EnableCategoryStrategy { get; set; }
+
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.EnableCustomStrategy")]
+        public bool EnableCustomStrategy { get; set; }
+
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.AIPromptBase")]
+        public string AIPromptBase { get; set; }
+
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.CustomStrategyPrompt")]
+        public string CustomStrategyPrompt { get; set; }
     }
 }

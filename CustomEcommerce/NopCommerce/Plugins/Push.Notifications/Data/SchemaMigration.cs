@@ -11,6 +11,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Data
         public override void Up()
         {
             Create.TableFor<PushSubscription>();
+            Create.TableFor<PushNotificationLog>();
         }
     }
 }

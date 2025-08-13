@@ -15,12 +15,17 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
     public class PushNotificationService : IPushNotificationService
     {
         private readonly IRepository<PushSubscription> _subscriptionRepository;
+        private readonly IRepository<PushNotificationLog> _logRepository;
         private readonly PushNotificationsSettings _settings;
         private readonly ILogger _logger;
 
-        public PushNotificationService(IRepository<PushSubscription> subscriptionRepository, ISettingService settingService, ILogger logger)
+        public PushNotificationService(IRepository<PushSubscription> subscriptionRepository, 
+            IRepository<PushNotificationLog> logRepository,
+            ISettingService settingService, 
+            ILogger logger)
         {
             _subscriptionRepository = subscriptionRepository;
+            _logRepository = logRepository;
             _settings = settingService.LoadSetting<PushNotificationsSettings>();
             _logger = logger;
 
@@ -92,6 +97,16 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
             {
                 _logger.InsertLog(LogLevel.Information, "Push Notification Sent", $"Notification sent to token: {token}");
             }
+        }
+
+        public async Task LogNotificationAsync(PushNotificationLog log)
+        {
+            await _logRepository.InsertAsync(log);
+        }
+
+        public async Task<IList<PushNotificationLog>> GetLogsByStrategyTypeAsync(string strategyType)
+        {
+            return await _logRepository.Table.Where(l => l.StrategyType == strategyType).ToListAsync();
         }
     }
 }

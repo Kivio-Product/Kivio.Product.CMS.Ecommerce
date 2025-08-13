@@ -43,7 +43,12 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
                 FirebaseCredentials = settings.FirebaseCredentials,
                 VapidPublicKey = settings.VapidPublicKey,
                 FirebaseConfig = settings.FirebaseConfig,
-                GeminiApiKey = settings.GeminiApiKey
+                GeminiApiKey = settings.GeminiApiKey,
+                EnableNewProductStrategy = settings.EnableNewProductStrategy,
+                EnableCategoryStrategy = settings.EnableCategoryStrategy,
+                EnableCustomStrategy = settings.EnableCustomStrategy,
+                AIPromptBase = settings.AIPromptBase,
+                CustomStrategyPrompt = settings.CustomStrategyPrompt
             };
             return View("~/Plugins/Misc.PushNotifications/Views/Configure.cshtml", model);
         }
@@ -56,6 +61,11 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
             settings.VapidPublicKey = model.VapidPublicKey;
             settings.FirebaseConfig = model.FirebaseConfig;
             settings.GeminiApiKey = model.GeminiApiKey;
+            settings.EnableNewProductStrategy = model.EnableNewProductStrategy;
+            settings.EnableCategoryStrategy = model.EnableCategoryStrategy;
+            settings.EnableCustomStrategy = model.EnableCustomStrategy;
+            settings.AIPromptBase = model.AIPromptBase;
+            settings.CustomStrategyPrompt = model.CustomStrategyPrompt;
             await _settingService.SaveSettingAsync(settings);
             _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
             return await Configure();

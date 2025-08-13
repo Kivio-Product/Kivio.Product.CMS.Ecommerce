@@ -7,15 +7,23 @@ namespace Nop.Plugin.Misc.PushNotifications.Tasks
     public class SendPushNotificationsTask : IScheduleTask
     {
         private readonly IPushNotificationService _pushNotificationService;
+        private readonly INotificationStrategyExecutor _strategyExecutor;
 
-        public SendPushNotificationsTask(IPushNotificationService pushNotificationService)
+        public SendPushNotificationsTask(IPushNotificationService pushNotificationService,
+            INotificationStrategyExecutor strategyExecutor)
         {
             _pushNotificationService = pushNotificationService;
+            _strategyExecutor = strategyExecutor;
         }
 
         public async Task ExecuteAsync()
         {
-            await _pushNotificationService.SendNotificationToAllAsync("New Products!", "Check out our latest products.");
+            var (title, body) = await _strategyExecutor.ExecuteRandomStrategyAsync();
+            
+            if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(body))
+            {
+                await _pushNotificationService.SendNotificationToAllAsync(title, body);
+            }
         }
     }
 }

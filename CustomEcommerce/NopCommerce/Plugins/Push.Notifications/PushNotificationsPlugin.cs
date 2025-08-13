@@ -54,7 +54,12 @@ namespace Nop.Plugin.Misc.PushNotifications
             {
                 FirebaseCredentials = "",
                 FirebaseConfig = "",
-                GeminiApiKey = "Your-Gemini-API-Key-Here"
+                GeminiApiKey = "Your-Gemini-API-Key-Here",
+                EnableNewProductStrategy = true,
+                EnableCategoryStrategy = true,
+                EnableCustomStrategy = false,
+                AIPromptBase = "You are a marketing expert. Create an engaging push notification with a catchy title and compelling body text. Format your response as: Title on first line, Body on second line.",
+                CustomStrategyPrompt = "Create a push notification to encourage users to visit our ecommerce store. Make it exciting and compelling."
             };
             await _settingService.SaveSettingAsync(settings);
 
@@ -71,6 +76,17 @@ namespace Nop.Plugin.Misc.PushNotifications
                 ["Plugins.Misc.PushNotifications.Settings.FirebaseConfig.Hint"] = "Paste the JSON content of your Firebase config for web.",
                 ["Plugins.Misc.PushNotifications.Settings.GeminiApiKey"] = "Gemini API Key (Required restart application)",
                 ["Plugins.Misc.PushNotifications.Settings.GeminiApiKey.Hint"] = "Enter your API key for the Gemini service.",
+                ["Plugins.Misc.PushNotifications.Settings.StrategyConfiguration"] = "Strategy Configuration",
+                ["Plugins.Misc.PushNotifications.Settings.EnableNewProductStrategy"] = "Enable New Product Strategy",
+                ["Plugins.Misc.PushNotifications.Settings.EnableNewProductStrategy.Hint"] = "Enable automatic notifications for new products with discounts.",
+                ["Plugins.Misc.PushNotifications.Settings.EnableCategoryStrategy"] = "Enable Category Strategy",
+                ["Plugins.Misc.PushNotifications.Settings.EnableCategoryStrategy.Hint"] = "Enable automatic notifications for product categories.",
+                ["Plugins.Misc.PushNotifications.Settings.EnableCustomStrategy"] = "Enable Custom Strategy",
+                ["Plugins.Misc.PushNotifications.Settings.EnableCustomStrategy.Hint"] = "Enable custom notifications based on AI prompts.",
+                ["Plugins.Misc.PushNotifications.Settings.AIPromptBase"] = "Base AI Prompt",
+                ["Plugins.Misc.PushNotifications.Settings.AIPromptBase.Hint"] = "Base prompt that will be used by AI to generate notifications for products and categories.",
+                ["Plugins.Misc.PushNotifications.Settings.CustomStrategyPrompt"] = "Custom Strategy Prompt",
+                ["Plugins.Misc.PushNotifications.Settings.CustomStrategyPrompt.Hint"] = "Specific prompt for the custom strategy notifications.",
                 ["Plugins.Misc.PushNotifications.Settings.SendTestNotification"] = "Send Test Notification",
                 ["Plugins.Misc.PushNotifications.Settings.SendTestNotification.Hint"] = "Send a test notification to all subscribed devices.",
                 ["Plugins.Misc.PushNotifications.Settings.TestNotificationTitle"] = "Test Title",
