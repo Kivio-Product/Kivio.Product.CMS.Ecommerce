@@ -8,5 +8,6 @@ namespace Nop.Plugin.Misc.PushNotifications
         public string VapidPublicKey { get; set; }
         public string FirebaseConfig { get; set; }
         public string ProductDataSynchronizationTask { get; set; }
+        public string GeminiApiKey { get; set; }
     }
 }

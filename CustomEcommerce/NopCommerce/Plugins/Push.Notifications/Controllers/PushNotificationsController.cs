@@ -42,7 +42,8 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
             {
                 FirebaseCredentials = settings.FirebaseCredentials,
                 VapidPublicKey = settings.VapidPublicKey,
-                FirebaseConfig = settings.FirebaseConfig
+                FirebaseConfig = settings.FirebaseConfig,
+                GeminiApiKey = settings.GeminiApiKey
             };
             return View("~/Plugins/Misc.PushNotifications/Views/Configure.cshtml", model);
         }
@@ -54,6 +55,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
             settings.FirebaseCredentials = model.FirebaseCredentials;
             settings.VapidPublicKey = model.VapidPublicKey;
             settings.FirebaseConfig = model.FirebaseConfig;
+            settings.GeminiApiKey = model.GeminiApiKey;
             await _settingService.SaveSettingAsync(settings);
             _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
             return await Configure();

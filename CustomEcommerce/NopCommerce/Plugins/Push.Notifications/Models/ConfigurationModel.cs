@@ -19,5 +19,8 @@ namespace Nop.Plugin.Misc.PushNotifications.Models
 
         [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.FirebaseConfig")]
         public string FirebaseConfig { get; set; }
+
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.GeminiApiKey")]
+        public string GeminiApiKey { get; set; }
     }
 }

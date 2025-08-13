@@ -12,7 +12,11 @@
     <section class="content">
         <div class="container-fluid">
             <div class="cards-group">
+                <!-- Firebase Configuration Section -->
                 <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Misc.PushNotifications.Settings.FirebaseConfiguration")
+                    </div>
                     <div class="card-body">
                         <div class="form-group row">
                             <div class="col-md-3">
@@ -41,11 +45,31 @@
                                 <span asp-validation-for="FirebaseConfig"></span>
                             </div>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Gemini AI Configuration Section -->
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Misc.PushNotifications.Settings.GeminiConfiguration")
+                    </div>
+                    <div class="card-body">
                         <div class="form-group row">
-                            <div class="col-md-9 offset-md-3">
-                                <button type="submit" class="btn btn-primary">@T("Admin.Common.Save")</button>
+                            <div class="col-md-3">
+                                <nop-label asp-for="GeminiApiKey" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="GeminiApiKey" />
+                                <span asp-validation-for="GeminiApiKey"></span>
+                                <small class="form-text text-muted">@T("Plugins.Misc.PushNotifications.Settings.GeminiApiKey.Hint")</small>
                             </div>
                         </div>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-md-9 offset-md-3">
+                        <button type="submit" class="btn btn-primary">@T("Admin.Common.Save")</button>
                     </div>
                 </div>
             </div>
