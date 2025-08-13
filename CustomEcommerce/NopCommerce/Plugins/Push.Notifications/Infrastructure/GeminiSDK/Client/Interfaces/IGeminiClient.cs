@@ -78,5 +78,12 @@ namespace DotnetGeminiSDK.Client.Interfaces
         Task<GeminiBatchRootEmbeddingResponse?> BatchEmbeddedContentsPrompt(List<string> message, string model = "models/embedding-001");
         
         Task<GeminiBatchRootEmbeddingResponse?> BatchEmbeddedContentsPrompt(List<Content> message, string model = "models/embedding-001");
+
+        Task<GeminiMessageResponse?> StructuredOutputPrompt(
+            string message,
+            ResponseSchema responseSchema,
+            GenerationConfig? generationConfig = null,
+            SafetySetting? safetySetting = null
+        );
     }
 }

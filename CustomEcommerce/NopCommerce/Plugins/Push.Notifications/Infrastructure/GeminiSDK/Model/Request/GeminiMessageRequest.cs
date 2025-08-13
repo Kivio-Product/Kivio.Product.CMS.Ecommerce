@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using Newtonsoft.Json;
 
 namespace DotnetGeminiSDK.Model.Request
@@ -32,17 +33,29 @@ namespace DotnetGeminiSDK.Model.Request
 
     public class GenerationConfig
     {
-        [JsonProperty("stopSequences")] public List<string> StopSequences { get; set; }
+        [JsonProperty("stopSequences", NullValueHandling = NullValueHandling.Ignore)] 
+        public List<string> StopSequences { get; set; }
 
-        [JsonProperty("temperature")] public double Temperature { get; set; }
+        [JsonProperty("temperature", NullValueHandling = NullValueHandling.Ignore)] 
+        public double? Temperature { get; set; }
 
-        [JsonProperty("maxOutputTokens")] public int MaxOutputTokens { get; set; }
+        [JsonProperty("maxOutputTokens", NullValueHandling = NullValueHandling.Ignore)] 
+        public int? MaxOutputTokens { get; set; }
 
-        [JsonProperty("topP")] public double TopP { get; set; }
+        [JsonProperty("topP", NullValueHandling = NullValueHandling.Ignore)] 
+        public double? TopP { get; set; }
 
-        [JsonProperty("topK")] public int TopK { get; set; }
+        [JsonProperty("topK", NullValueHandling = NullValueHandling.Ignore)] 
+        public int? TopK { get; set; }
 
-        [JsonProperty("responseModalities")] public List<string> ResponseModalities { get; set; }
+        [JsonProperty("responseModalities", NullValueHandling = NullValueHandling.Ignore)] 
+        public List<string> ResponseModalities { get; set; }
+
+        [JsonProperty("responseMimeType", NullValueHandling = NullValueHandling.Ignore)]
+        public string ResponseMimeType { get; set; }
+
+        [JsonProperty("responseSchema", NullValueHandling = NullValueHandling.Ignore)]
+        public ResponseSchema ResponseSchema { get; set; }
     }
 
     public class SafetySetting
@@ -57,5 +70,39 @@ namespace DotnetGeminiSDK.Model.Request
         [JsonProperty("mime_type")] public string MimeType { get; set; }
 
         [JsonProperty("data")] public string Data { get; set; }
+    }
+
+    public class ResponseSchema
+    {
+        [JsonProperty("type")] public string Type { get; set; }
+
+        [JsonProperty("properties", NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, SchemaProperty> Properties { get; set; }
+
+        [JsonProperty("items", NullValueHandling = NullValueHandling.Ignore)]
+        public ResponseSchema Items { get; set; }
+
+        [JsonProperty("required", NullValueHandling = NullValueHandling.Ignore)]
+        public List<string> Required { get; set; }
+
+        [JsonProperty("propertyOrdering", NullValueHandling = NullValueHandling.Ignore)]
+        public List<string> PropertyOrdering { get; set; }
+    }
+
+    public class SchemaProperty
+    {
+        [JsonProperty("type")] public string Type { get; set; }
+
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        public string Description { get; set; }
+
+        [JsonProperty("items", NullValueHandling = NullValueHandling.Ignore)]
+        public SchemaProperty Items { get; set; }
+
+        [JsonProperty("properties", NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, SchemaProperty> Properties { get; set; }
+
+        [JsonProperty("required", NullValueHandling = NullValueHandling.Ignore)]
+        public List<string> Required { get; set; }
     }
 }

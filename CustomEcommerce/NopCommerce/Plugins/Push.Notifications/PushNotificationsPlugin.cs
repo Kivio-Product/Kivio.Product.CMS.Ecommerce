@@ -58,7 +58,7 @@ namespace Nop.Plugin.Misc.PushNotifications
                 EnableNewProductStrategy = true,
                 EnableCategoryStrategy = true,
                 EnableCustomStrategy = false,
-                AIPromptBase = "You are a marketing expert. Create an engaging push notification with a catchy title and compelling body text. Format your response as: Title on first line, Body on second line.",
+                AIPromptBase = "You are a marketing expert. Create an engaging push notification with a catchy title and compelling body text",
                 CustomStrategyPrompt = "Create a push notification to encourage users to visit our ecommerce store. Make it exciting and compelling."
             };
             await _settingService.SaveSettingAsync(settings);

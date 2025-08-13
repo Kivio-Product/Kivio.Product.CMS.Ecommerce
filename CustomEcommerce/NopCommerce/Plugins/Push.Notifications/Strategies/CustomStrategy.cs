@@ -3,7 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Nop.Plugin.Misc.PushNotifications.Domain;
 using Nop.Plugin.Misc.PushNotifications.Services;
+using Nop.Plugin.Misc.PushNotifications.Helpers;
 using DotnetGeminiSDK.Client.Interfaces;
+using Newtonsoft.Json;
+using Nop.Services.Logging;
 
 namespace Nop.Plugin.Misc.PushNotifications.Strategies
 {
@@ -12,16 +15,19 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
         private readonly IPushNotificationService _pushNotificationService;
         private readonly IGeminiClient _geminiClient;
         private readonly PushNotificationsSettings _pushNotificationsSettings;
+        private readonly ILogger _logger;
 
         public string StrategyType => "Custom";
 
         public CustomStrategy(IPushNotificationService pushNotificationService,
             IGeminiClient geminiClient,
-            PushNotificationsSettings pushNotificationsSettings)
+            PushNotificationsSettings pushNotificationsSettings,
+            ILogger logger)
         {
             _pushNotificationService = pushNotificationService;
             _geminiClient = geminiClient;
             _pushNotificationsSettings = pushNotificationsSettings;
+            _logger = logger;
         }
 
         public Task<bool> CanExecuteAsync()
@@ -32,47 +38,40 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
         public async Task<(string Title, string Body)> GenerateNotificationAsync()
         {
             var prompt = _pushNotificationsSettings.CustomStrategyPrompt;
-            
+
             try
             {
-                var aiResponse = await _geminiClient.TextPrompt(prompt);
-                var lines = aiResponse?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text?.Split('\n');
-                
-                var title = lines?.FirstOrDefault()?.Trim() ?? "Special Offer!";
-                var body = lines?.Skip(1).FirstOrDefault()?.Trim() ?? "Visit our store for amazing deals.";
-                
-                // Clean up any markdown formatting
-                title = title.Replace("**", "").Replace("#", "").Trim();
-                body = body.Replace("**", "").Replace("#", "").Trim();
+                var schema = NotificationSchemaHelper.CreatePushNotificationSchema();
+                var aiResponse = await _geminiClient.StructuredOutputPrompt(prompt, schema);
+                var responseText = aiResponse?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
 
-                await _pushNotificationService.LogNotificationAsync(new PushNotificationLog
+                if (!string.IsNullOrEmpty(responseText))
                 {
-                    StrategyType = StrategyType,
-                    EntityId = 0, // No specific entity for this strategy
-                    Title = title,
-                    Body = body,
-                    SentDateUtc = DateTime.UtcNow
-                });
+                    var notificationData = JsonConvert.DeserializeObject<dynamic>(responseText);
+                    var title = notificationData?.title?.ToString();
+                    var body = notificationData?.body?.ToString();
 
-                return (title, body);
+                    if (title == null || body == null)
+                        throw new Exception("Invalid AI response format." + responseText);
+
+                    await _pushNotificationService.LogNotificationAsync(new PushNotificationLog
+                    {
+                        StrategyType = StrategyType,
+                        EntityId = 0, 
+                        Title = title,
+                        Body = body,
+                        SentDateUtc = DateTime.UtcNow
+                    });
+
+                    return (title, body);
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                // Fallback to default notification if AI fails
-                var title = "Special Offer!";
-                var body = "Visit our store for amazing deals.";
-
-                await _pushNotificationService.LogNotificationAsync(new PushNotificationLog
-                {
-                    StrategyType = StrategyType,
-                    EntityId = 0, // No specific entity for this strategy
-                    Title = title,
-                    Body = body,
-                    SentDateUtc = DateTime.UtcNow
-                });
-
-                return (title, body);
+                _logger?.ErrorAsync($"Error generating custom strategy notification: {ex.Message}");
             }
+
+            return (null, null);
         }
     }
 }

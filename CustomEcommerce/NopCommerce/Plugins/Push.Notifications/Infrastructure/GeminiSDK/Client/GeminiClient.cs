@@ -653,6 +653,56 @@ namespace DotnetGeminiSDK.Client
             }
         }
 
+        /// <summary>
+        /// Send a message to be processed using Google Gemini API with structured output (JSON schema),
+        /// the method returns a GeminiMessageResponse with structured JSON response
+        /// 
+        /// REF: https://ai.google.dev/gemini-api/docs/structured-output
+        /// </summary>
+        /// <param name="message">The message to be processed</param>
+        /// <param name="responseSchema">The JSON schema for structured output</param>
+        /// <param name="generationConfig">Optional generation config</param>
+        /// <param name="safetySetting">Optional safety setting</param>
+        /// <returns>GeminiMessageResponse with structured output</returns>
+        public async Task<GeminiMessageResponse?> StructuredOutputPrompt(
+            string message,
+            ResponseSchema responseSchema,
+            GenerationConfig? generationConfig = null,
+            SafetySetting? safetySetting = null)
+        {
+            try
+            {
+                var promptUrl = $"{_config.TextBaseUrl}:generateContent?key={_config.ApiKey}";
+
+                // Set up generation config with structured output
+                var config = generationConfig ?? new GenerationConfig();
+                config.ResponseMimeType = "application/json";
+                config.ResponseSchema = responseSchema;
+
+                var request = new GeminiMessageRequest
+                {
+                    Contents = new List<Content>
+                    {
+                        new Content
+                        {
+                            Parts = new List<Part>
+                            {
+                                new Part { Text = message }
+                            }
+                        }
+                    },
+                    GenerationConfig = config,
+                    SafetySetting = safetySetting
+                };
+
+                return await _apiRequester.PostAsync<GeminiMessageResponse>(promptUrl, request);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Unexpected error occurred during structured output request.", e);
+            }
+        }
+
 
         /// <summary>
         /// Get the mime type string from the enum

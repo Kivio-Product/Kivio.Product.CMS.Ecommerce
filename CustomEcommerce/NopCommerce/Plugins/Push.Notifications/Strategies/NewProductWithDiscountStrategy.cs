@@ -1,12 +1,15 @@
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Misc.PushNotifications.Domain;
 using Nop.Plugin.Misc.PushNotifications.Services;
+using Nop.Plugin.Misc.PushNotifications.Helpers;
 using Nop.Services.Catalog;
 using Nop.Services.Discounts;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using DotnetGeminiSDK.Client.Interfaces;
+using Newtonsoft.Json;
+using Nop.Services.Logging;
 
 namespace Nop.Plugin.Misc.PushNotifications.Strategies
 {
@@ -17,6 +20,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
         private readonly IDiscountService _discountService;
         private readonly IGeminiClient _geminiClient;
         private readonly PushNotificationsSettings _pushNotificationsSettings;
+        private readonly ILogger _logger;
 
         public string StrategyType => "NewProductWithDiscount";
 
@@ -24,12 +28,15 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
             IPushNotificationService pushNotificationService,
             IDiscountService discountService,
             IGeminiClient geminiClient,
-            PushNotificationsSettings pushNotificationsSettings)
+            PushNotificationsSettings pushNotificationsSettings,
+            ILogger logger)
         {
             _productService = productService;
             _pushNotificationService = pushNotificationService;
             _discountService = discountService;
             _geminiClient = geminiClient;
+            _pushNotificationsSettings = pushNotificationsSettings;
+            _logger = logger;
             _pushNotificationsSettings = pushNotificationsSettings;
         }
 
@@ -57,48 +64,46 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
             var discount = discounts.FirstOrDefault();
             var discountText = discount != null ? $" with a {discount.Name} discount!" : "";
 
-            var prompt = $"{_pushNotificationsSettings.AIPromptBase} Generate a push notification for a new product: {product.Name}{discountText}.";
+            var prompt = $"{_pushNotificationsSettings.AIPromptBase} Generate a push notification for a new product: {product.Name}{discountText}. Make it engaging and persuasive.";
             
             try
             {
-                var aiResponse = await _geminiClient.TextPrompt(prompt);
-                var lines = aiResponse?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text?.Split('\n');
+                var schema = NotificationSchemaHelper.CreateProductNotificationSchema();
+                var aiResponse = await _geminiClient.StructuredOutputPrompt(prompt, schema);
+                var responseText = aiResponse?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
                 
-                var title = lines?.FirstOrDefault()?.Trim() ?? $"New Product: {product.Name}";
-                var body = lines?.Skip(1).FirstOrDefault()?.Trim() ?? $"Check out our new product: {product.Name}{discountText}";
-                
-                // Clean up any markdown formatting
-                title = title.Replace("**", "").Replace("#", "").Trim();
-                body = body.Replace("**", "").Replace("#", "").Trim();
-                
-                await _pushNotificationService.LogNotificationAsync(new PushNotificationLog
+                if (!string.IsNullOrEmpty(responseText))
                 {
-                    StrategyType = StrategyType,
-                    EntityId = product.Id,
-                    Title = title,
-                    Body = body,
-                    SentDateUtc = DateTime.UtcNow
-                });
+                    var notificationData = JsonConvert.DeserializeObject<dynamic>(responseText);
+                    var title = notificationData?.title?.ToString();
+                    var body = notificationData?.body?.ToString();
+                    var emoji = notificationData?.emoji?.ToString();
+                    
+                    if (title == null || body == null)
+                        throw new Exception("Invalid AI response format." + responseText);
 
-                return (title, body);
+                    // Add emoji to title if available
+                    if (!string.IsNullOrEmpty(emoji))
+                        title = $"{emoji} {title}";
+
+                    await _pushNotificationService.LogNotificationAsync(new PushNotificationLog
+                    {
+                        StrategyType = StrategyType,
+                        EntityId = product.Id,
+                        Title = title,
+                        Body = body,
+                        SentDateUtc = DateTime.UtcNow
+                    });
+
+                    return (title, body);
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                // Fallback to default notification if AI fails
-                var title = $"New Product: {product.Name}";
-                var body = $"Check out our new product: {product.Name}{discountText}";
-
-                await _pushNotificationService.LogNotificationAsync(new PushNotificationLog
-                {
-                    StrategyType = StrategyType,
-                    EntityId = product.Id,
-                    Title = title,
-                    Body = body,
-                    SentDateUtc = DateTime.UtcNow
-                });
-
-                return (title, body);
+                _logger?.ErrorAsync($"Error generating new product notification: {ex.Message}");
             }
+
+            return (null, null);
         }
     }
 }
