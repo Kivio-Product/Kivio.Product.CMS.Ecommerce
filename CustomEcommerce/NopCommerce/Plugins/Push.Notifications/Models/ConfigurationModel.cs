@@ -38,15 +38,18 @@ namespace Nop.Plugin.Misc.PushNotifications.Models
         [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.CustomStrategyPrompt")]
         public string CustomStrategyPrompt { get; set; }
 
-    // Scheduling
-    [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.AllowedDays")] 
-    public string AllowedDays { get; set; }
-    [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.AllowedHours")] 
-    public string AllowedHours { get; set; }
-    [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.UseUtcTime")] 
-    public bool UseUtcTime { get; set; }
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.NotificationIconUrl")]
+        public string NotificationIconUrl { get; set; }
 
-    [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.MinHoursBetweenNotifications")] 
-    public int MinHoursBetweenNotifications { get; set; }
+    // Scheduling
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.AllowedDays")] 
+        public string AllowedDays { get; set; }
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.AllowedHours")] 
+        public string AllowedHours { get; set; }
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.UseUtcTime")] 
+        public bool UseUtcTime { get; set; }
+
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.MinHoursBetweenNotifications")] 
+        public int MinHoursBetweenNotifications { get; set; }
     }
 }

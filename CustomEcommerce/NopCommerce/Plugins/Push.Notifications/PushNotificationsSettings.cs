@@ -14,11 +14,12 @@ namespace Nop.Plugin.Misc.PushNotifications
         public bool EnableCustomStrategy { get; set; }
         public string AIPromptBase { get; set; }
         public string CustomStrategyPrompt { get; set; }
-    // Scheduling
-    public string AllowedDays { get; set; }
-    public string AllowedHours { get; set; }
-    public bool UseUtcTime { get; set; }
-    // Minimum number of hours to wait before sending another notification (0 disables)
-    public int MinHoursBetweenNotifications { get; set; }
+        public string NotificationIconUrl { get; set; }
+        // Scheduling
+        public string AllowedDays { get; set; }
+        public string AllowedHours { get; set; }
+        public bool UseUtcTime { get; set; }
+        // Minimum number of hours to wait before sending another notification (0 disables)
+        public int MinHoursBetweenNotifications { get; set; }
     }
 }
