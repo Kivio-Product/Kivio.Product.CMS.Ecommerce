@@ -59,7 +59,10 @@ namespace Nop.Plugin.Misc.PushNotifications
                 EnableCategoryStrategy = true,
                 EnableCustomStrategy = false,
                 AIPromptBase = "You are a marketing expert. Create an engaging push notification with a catchy title and compelling body text",
-                CustomStrategyPrompt = "Create a push notification to encourage users to visit our ecommerce store. Make it exciting and compelling."
+                CustomStrategyPrompt = "Create a push notification to encourage users to visit our ecommerce store. Make it exciting and compelling.",
+                AllowedDays = "Mon-Fri",
+                AllowedHours = "09:00-21:00",
+                UseUtcTime = false
             };
             await _settingService.SaveSettingAsync(settings);
 
@@ -87,6 +90,13 @@ namespace Nop.Plugin.Misc.PushNotifications
                 ["Plugins.Misc.PushNotifications.Settings.AIPromptBase.Hint"] = "Base prompt that will be used by AI to generate notifications for products and categories.",
                 ["Plugins.Misc.PushNotifications.Settings.CustomStrategyPrompt"] = "Custom Strategy Prompt",
                 ["Plugins.Misc.PushNotifications.Settings.CustomStrategyPrompt.Hint"] = "Specific prompt for the custom strategy notifications.",
+                ["Plugins.Misc.PushNotifications.Settings.Scheduling"] = "Scheduling",
+                ["Plugins.Misc.PushNotifications.Settings.AllowedDays"] = "Allowed Days",
+                ["Plugins.Misc.PushNotifications.Settings.AllowedDays.Hint"] = "Days when notifications can be sent. Examples: 'Mon-Fri', 'Sat,Sun', 'Mon,Wed,Fri'",
+                ["Plugins.Misc.PushNotifications.Settings.AllowedHours"] = "Allowed Hours",
+                ["Plugins.Misc.PushNotifications.Settings.AllowedHours.Hint"] = "One or more time ranges in 24h format, comma-separated. Example: '09:00-12:00, 18:00-21:00'",
+                ["Plugins.Misc.PushNotifications.Settings.UseUtcTime"] = "Use UTC Time",
+                ["Plugins.Misc.PushNotifications.Settings.UseUtcTime.Hint"] = "If enabled, the schedule is evaluated using UTC; otherwise, server local time is used.",
                 ["Plugins.Misc.PushNotifications.Settings.SendTestNotification"] = "Send Test Notification",
                 ["Plugins.Misc.PushNotifications.Settings.SendTestNotification.Hint"] = "Send a test notification to all subscribed devices.",
                 ["Plugins.Misc.PushNotifications.Settings.TestNotificationTitle"] = "Test Title",

@@ -48,7 +48,11 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
                 EnableCategoryStrategy = settings.EnableCategoryStrategy,
                 EnableCustomStrategy = settings.EnableCustomStrategy,
                 AIPromptBase = settings.AIPromptBase,
-                CustomStrategyPrompt = settings.CustomStrategyPrompt
+                CustomStrategyPrompt = settings.CustomStrategyPrompt,
+                AllowedDays = settings.AllowedDays,
+                AllowedHours = settings.AllowedHours,
+                UseUtcTime = settings.UseUtcTime,
+                MinHoursBetweenNotifications = settings.MinHoursBetweenNotifications
             };
             return View("~/Plugins/Misc.PushNotifications/Views/Configure.cshtml", model);
         }
@@ -66,6 +70,10 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
             settings.EnableCustomStrategy = model.EnableCustomStrategy;
             settings.AIPromptBase = model.AIPromptBase;
             settings.CustomStrategyPrompt = model.CustomStrategyPrompt;
+            settings.AllowedDays = model.AllowedDays;
+            settings.AllowedHours = model.AllowedHours;
+            settings.UseUtcTime = model.UseUtcTime;
+            settings.MinHoursBetweenNotifications = model.MinHoursBetweenNotifications;
             await _settingService.SaveSettingAsync(settings);
             _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
             return await Configure();
