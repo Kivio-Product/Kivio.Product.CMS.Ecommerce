@@ -84,7 +84,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
         {
             try
             {
-                await _pushNotificationService.SendNotificationToAllAsync(model.TestNotificationTitle, model.TestNotificationMessage);
+                await _pushNotificationService.SendNotificationToAllAsync(model.TestNotificationTitle, model.TestNotificationMessage, "/");
                 _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Plugins.Misc.PushNotifications.TestNotificationSent"));
             }
             catch

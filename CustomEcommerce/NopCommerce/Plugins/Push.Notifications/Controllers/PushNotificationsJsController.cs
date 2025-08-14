@@ -37,7 +37,8 @@ messaging.onBackgroundMessage(function(payload) {{
   const notificationTitle = payload.notification.title;
   const notificationOptions = {{
     body: payload.notification.body,
-    icon: '/Plugins/Misc.PushNotifications/logo.jpg'
+  icon: '/Plugins/Misc.PushNotifications/logo.jpg',
+  data: {{ urlToOpen: payload?.data?.urlToOpen || '/' }}
   }};
 
   self.registration.showNotification(notificationTitle, notificationOptions);
@@ -48,7 +49,7 @@ self.addEventListener('notificationclick', function(event) {{
   console.log('User clicked on notification', event);
 
   event.notification.close();
-  const urlToOpen = event.notification.data?.urlToOpen || '/';
+  const urlToOpen = event.notification?.data?.urlToOpen || '/';
 
   event.waitUntil(
     clients.openWindow(urlToOpen)

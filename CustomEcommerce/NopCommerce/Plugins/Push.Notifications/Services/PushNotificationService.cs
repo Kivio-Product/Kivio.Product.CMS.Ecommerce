@@ -59,7 +59,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
             }
         }
 
-        public async Task SendNotificationToAllAsync(string title, string body)
+        public async Task SendNotificationToAllAsync(string title, string body, string url = "/")
         {
             var subscriptions = _subscriptionRepository.Table.ToList();
             var tokens = subscriptions.Select(s => s.Token).ToList();
@@ -74,13 +74,17 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
                     {
                         Title = title,
                         Body = body
+                    },
+                    Data = new Dictionary<string, string>
+                    {
+                        { "urlToOpen", string.IsNullOrWhiteSpace(url) ? "/" : url }
                     }
                 });
                 _logger.InsertLog(LogLevel.Information, "Push Notification Sent", $"Successfully sent notification to {tokens.Count} devices.");
             }
         }
 
-        public async Task SendUniqueNotification(string title, string body, string token)
+        public async Task SendUniqueNotification(string title, string body, string token, string url = "/")
         {
             var message = new Message()
             {
@@ -89,6 +93,10 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
                 {
                     Title = title,
                     Body = body
+                },
+                Data = new Dictionary<string, string>
+                {
+                    { "urlToOpen", string.IsNullOrWhiteSpace(url) ? "/" : url }
                 }
             };
             var response = await FirebaseMessaging.DefaultInstance.SendAsync(message);

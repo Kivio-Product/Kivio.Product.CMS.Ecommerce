@@ -97,6 +97,8 @@ namespace Nop.Plugin.Misc.PushNotifications
                 ["Plugins.Misc.PushNotifications.Settings.AllowedHours.Hint"] = "One or more time ranges in 24h format, comma-separated. Example: '09:00-12:00, 18:00-21:00'",
                 ["Plugins.Misc.PushNotifications.Settings.UseUtcTime"] = "Use UTC Time",
                 ["Plugins.Misc.PushNotifications.Settings.UseUtcTime.Hint"] = "If enabled, the schedule is evaluated using UTC; otherwise, server local time is used.",
+                ["Plugins.Misc.PushNotifications.Settings.MinHoursBetweenNotifications"] = "Minimum Hours Between Notifications",
+                ["Plugins.Misc.PushNotifications.Settings.MinHoursBetweenNotifications.Hint"] = "Minimum hours that must pass between consecutive notifications. 0 means no limit.",
                 ["Plugins.Misc.PushNotifications.Settings.SendTestNotification"] = "Send Test Notification",
                 ["Plugins.Misc.PushNotifications.Settings.SendTestNotification.Hint"] = "Send a test notification to all subscribed devices.",
                 ["Plugins.Misc.PushNotifications.Settings.TestNotificationTitle"] = "Test Title",

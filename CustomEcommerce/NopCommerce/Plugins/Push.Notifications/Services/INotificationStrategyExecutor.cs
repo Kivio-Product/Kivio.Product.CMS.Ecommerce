@@ -8,7 +8,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
 {
     public interface INotificationStrategyExecutor
     {
-        Task<(string Title, string Body)> ExecuteRandomStrategyAsync();
+        Task<(string Title, string Body, string Url)> ExecuteRandomStrategyAsync();
     }
 
     public class NotificationStrategyExecutor : INotificationStrategyExecutor
@@ -22,7 +22,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
             _random = new Random();
         }
 
-        public async Task<(string Title, string Body)> ExecuteRandomStrategyAsync()
+    public async Task<(string Title, string Body, string Url)> ExecuteRandomStrategyAsync()
         {
             var availableStrategies = new List<INotificationStrategy>();
 
@@ -35,7 +35,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
             }
 
             if (!availableStrategies.Any())
-                return (null, null);
+                return (null, null, null);
 
             var selectedStrategy = availableStrategies[_random.Next(availableStrategies.Count)];
             return await selectedStrategy.GenerateNotificationAsync();

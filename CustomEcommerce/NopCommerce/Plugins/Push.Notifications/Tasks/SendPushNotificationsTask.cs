@@ -56,11 +56,11 @@ namespace Nop.Plugin.Misc.PushNotifications.Tasks
                 }
             }
 
-            var (title, body) = await _strategyExecutor.ExecuteRandomStrategyAsync();
+            var (title, body, url) = await _strategyExecutor.ExecuteRandomStrategyAsync();
             
             if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(body))
             {
-                await _pushNotificationService.SendNotificationToAllAsync(title, body);
+                await _pushNotificationService.SendNotificationToAllAsync(title, body, url);
                 var nowSent = settings.UseUtcTime ? DateTime.UtcNow : DateTime.Now;
                 await _staticCacheManager.SetAsync(LastSentCacheKey, nowSent);
             }
