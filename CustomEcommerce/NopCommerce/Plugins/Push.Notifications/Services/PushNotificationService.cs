@@ -66,18 +66,19 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
             if (tokens.Any())
             {
                 var tokensBatch = tokens.Take(500).ToList();
+                var dataPayload = new Dictionary<string, string>
+                {
+                    { "title", title ?? string.Empty },
+                    { "body", body ?? string.Empty },
+                    { "icon", string.IsNullOrWhiteSpace(_settings.NotificationIconUrl) ? "/Plugins/Misc.PushNotifications/logo.jpg" : _settings.NotificationIconUrl },
+                    { "urlToOpen", string.IsNullOrWhiteSpace(url) ? "/" : url }
+                };
+
                 var batchResponse = await FirebaseMessaging.DefaultInstance.SendEachForMulticastAsync(new MulticastMessage
                 {
                     Tokens = tokensBatch,
-                    Notification = new Notification
-                    {
-                        Title = title,
-                        Body = body
-                    },
-                    Data = new Dictionary<string, string>
-                    {
-                        { "urlToOpen", string.IsNullOrWhiteSpace(url) ? "/" : url }
-                    }
+                    // Use data-only messages to avoid auto-displayed duplicate notifications on web
+                    Data = dataPayload
                 });
                 _logger.InsertLog(LogLevel.Information, "Push Notification Sent", $"Successfully sent notification to {tokens.Count} devices.");
             }
@@ -85,18 +86,18 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
 
         public async Task SendUniqueNotification(string title, string body, string token, string url = "/")
         {
+            var dataPayload = new Dictionary<string, string>
+            {
+                { "title", title ?? string.Empty },
+                { "body", body ?? string.Empty },
+                { "icon", string.IsNullOrWhiteSpace(_settings.NotificationIconUrl) ? "/Plugins/Misc.PushNotifications/logo.jpg" : _settings.NotificationIconUrl },
+                { "urlToOpen", string.IsNullOrWhiteSpace(url) ? "/" : url }
+            };
             var message = new Message()
             {
                 Token = token,
-                Notification = new Notification
-                {
-                    Title = title,
-                    Body = body
-                },
-                Data = new Dictionary<string, string>
-                {
-                    { "urlToOpen", string.IsNullOrWhiteSpace(url) ? "/" : url }
-                }
+                // Use data-only messages to avoid auto-displayed duplicate notifications on web
+                Data = dataPayload
             };
             var response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
 

@@ -34,15 +34,27 @@ const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function(payload) {{
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  // Customize notification here
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {{
-    body: payload.notification.body,
-  icon: '{iconUrl}',
-  data: {{ urlToOpen: payload?.data?.urlToOpen || '/' }}
-  }};
+  // Avoid duplicate notifications:
+  // If the message contains a 'notification' payload, the FCM SDK will display it automatically.
+  // Only manually display when we have a data-only message.
+  if (payload && payload.notification) {{
+    return;
+  }}
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  // Build from data-only payload
+  const titleFromData = payload?.data?.title || '';
+  const bodyFromData = payload?.data?.body || '';
+  const iconFromData = payload?.data?.icon || '{iconUrl}';
+
+  if (titleFromData || bodyFromData) {{
+    const notificationOptions = {{
+      body: bodyFromData,
+      icon: iconFromData,
+      data: {{ urlToOpen: payload?.data?.urlToOpen || '/' }}
+    }};
+
+    self.registration.showNotification(titleFromData || 'Notification', notificationOptions);
+  }}
 }});
 
 
