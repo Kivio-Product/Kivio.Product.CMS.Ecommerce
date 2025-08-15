@@ -54,7 +54,6 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
             else
             {
                 subscription.CreatedOnUtc = System.DateTime.UtcNow;
-                subscription.Token = token;
                 await _subscriptionRepository.UpdateAsync(subscription);
             }
         }
@@ -62,7 +61,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
         public async Task SendNotificationToAllAsync(string title, string body, string url = "/")
         {
             var subscriptions = _subscriptionRepository.Table.ToList();
-            var tokens = subscriptions.Select(s => s.Token).ToList();
+            var tokens = subscriptions.Select(s => s.Token).Distinct().ToList();
 
             if (tokens.Any())
             {
