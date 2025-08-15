@@ -67,6 +67,25 @@
                     </div>
                 </div>
                 
+                <!-- Notification Configuration Section -->
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Misc.PushNotifications.Settings.NotificationConfiguration")
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="NotificationIconUrl" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="NotificationIconUrl" />
+                                <span asp-validation-for="NotificationIconUrl"></span>
+                                <small class="form-text text-muted">@T("Plugins.Misc.PushNotifications.Settings.NotificationIconUrl.Hint")</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Strategy Configuration Section -->
                 <div class="card card-default">
                     <div class="card-header">

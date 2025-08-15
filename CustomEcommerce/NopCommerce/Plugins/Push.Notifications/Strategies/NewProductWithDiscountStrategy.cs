@@ -3,13 +3,14 @@ using Nop.Plugin.Misc.PushNotifications.Domain;
 using Nop.Plugin.Misc.PushNotifications.Services;
 using Nop.Plugin.Misc.PushNotifications.Helpers;
 using Nop.Services.Catalog;
-using Nop.Services.Discounts;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using DotnetGeminiSDK.Client.Interfaces;
 using Newtonsoft.Json;
 using Nop.Services.Logging;
+using Nop.Services.Seo;
+using Nop.Web.Framework.Mvc.Routing;
 
 namespace Nop.Plugin.Misc.PushNotifications.Strategies
 {
@@ -17,27 +18,30 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
     {
         private readonly IProductService _productService;
         private readonly IPushNotificationService _pushNotificationService;
-        private readonly IDiscountService _discountService;
         private readonly IGeminiClient _geminiClient;
         private readonly PushNotificationsSettings _pushNotificationsSettings;
         private readonly ILogger _logger;
+        private readonly IUrlRecordService _urlRecordService;
+        private readonly INopUrlHelper _nopUrlHelper;
 
         public string StrategyType => "NewProductWithDiscount";
 
         public NewProductWithDiscountStrategy(IProductService productService,
             IPushNotificationService pushNotificationService,
-            IDiscountService discountService,
             IGeminiClient geminiClient,
             PushNotificationsSettings pushNotificationsSettings,
-            ILogger logger)
+            ILogger logger,
+            IUrlRecordService urlRecordService,
+            INopUrlHelper nopUrlHelper)
         {
             _productService = productService;
             _pushNotificationService = pushNotificationService;
-            _discountService = discountService;
             _geminiClient = geminiClient;
             _pushNotificationsSettings = pushNotificationsSettings;
             _logger = logger;
             _pushNotificationsSettings = pushNotificationsSettings;
+            _urlRecordService = urlRecordService;
+            _nopUrlHelper = nopUrlHelper;
         }
 
         public async Task<bool> CanExecuteAsync()
@@ -51,18 +55,23 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
             return newProducts.Any(p => !notifiedProductIds.Contains(p.Id));
         }
 
-        public async Task<(string Title, string Body)> GenerateNotificationAsync()
+        public async Task<(string Title, string Body, string Url)> GenerateNotificationAsync()
         {
             var newProducts = await _productService.GetProductsMarkedAsNewAsync();
             var notifiedProductIds = (await _pushNotificationService.GetLogsByStrategyTypeAsync(StrategyType)).Select(l => l.EntityId);
 
             var product = newProducts.FirstOrDefault(p => !notifiedProductIds.Contains(p.Id));
             if (product == null)
-                return (null, null);
+                return (null, null, null);
 
-            var discounts = await _discountService.GetAppliedDiscountsAsync(product);
-            var discount = discounts.FirstOrDefault();
-            var discountText = discount != null ? $" with a {discount.Name} discount!" : "";
+            // Calculate discount from OldPrice vs Price
+            var discountText = "";
+            if (product.OldPrice > 0 && product.Price > 0 && product.OldPrice > product.Price)
+            {
+                var discountAmount = product.OldPrice - product.Price;
+                var discountPercentage = Math.Round(discountAmount / product.OldPrice * 100, 0);
+                discountText = $" with a {discountPercentage}% discount!";
+            }
 
             var prompt = $"{_pushNotificationsSettings.AIPromptBase} Generate a push notification for a new product: {product.Name}{discountText}. Make it engaging and persuasive.";
             
@@ -95,7 +104,9 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
                         SentDateUtc = DateTime.UtcNow
                     });
 
-                    return (title, body);
+                    var seName = await _urlRecordService.GetSeNameAsync(product);
+                    var url = await _nopUrlHelper.RouteGenericUrlAsync<Product>(new { SeName = seName });
+                    return (title, body, url);
                 }
             }
             catch (Exception ex)
@@ -103,7 +114,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
                 _logger?.ErrorAsync($"Error generating new product notification: {ex.Message}");
             }
 
-            return (null, null);
+            return (null, null, null);
         }
     }
 }

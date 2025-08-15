@@ -35,7 +35,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
             return Task.FromResult(_pushNotificationsSettings.EnableCustomStrategy);
         }
 
-        public async Task<(string Title, string Body)> GenerateNotificationAsync()
+        public async Task<(string Title, string Body, string Url)> GenerateNotificationAsync()
         {
             var prompt = _pushNotificationsSettings.CustomStrategyPrompt;
 
@@ -63,7 +63,8 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
                         SentDateUtc = DateTime.UtcNow
                     });
 
-                    return (title, body);
+                    // For custom strategy, open home page
+                    return (title, body, "/");
                 }
             }
             catch (Exception ex)
@@ -71,7 +72,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
                 _logger?.ErrorAsync($"Error generating custom strategy notification: {ex.Message}");
             }
 
-            return (null, null);
+            return (null, null, null);
         }
     }
 }

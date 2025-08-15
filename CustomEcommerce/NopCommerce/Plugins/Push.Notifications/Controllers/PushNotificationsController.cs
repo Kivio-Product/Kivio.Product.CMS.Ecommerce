@@ -49,6 +49,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
                 EnableCustomStrategy = settings.EnableCustomStrategy,
                 AIPromptBase = settings.AIPromptBase,
                 CustomStrategyPrompt = settings.CustomStrategyPrompt,
+                NotificationIconUrl = settings.NotificationIconUrl,
                 AllowedDays = settings.AllowedDays,
                 AllowedHours = settings.AllowedHours,
                 UseUtcTime = settings.UseUtcTime,
@@ -70,6 +71,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
             settings.EnableCustomStrategy = model.EnableCustomStrategy;
             settings.AIPromptBase = model.AIPromptBase;
             settings.CustomStrategyPrompt = model.CustomStrategyPrompt;
+            settings.NotificationIconUrl = model.NotificationIconUrl;
             settings.AllowedDays = model.AllowedDays;
             settings.AllowedHours = model.AllowedHours;
             settings.UseUtcTime = model.UseUtcTime;
@@ -84,7 +86,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
         {
             try
             {
-                await _pushNotificationService.SendNotificationToAllAsync(model.TestNotificationTitle, model.TestNotificationMessage);
+                await _pushNotificationService.SendNotificationToAllAsync(model.TestNotificationTitle, model.TestNotificationMessage, "/");
                 _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Plugins.Misc.PushNotifications.TestNotificationSent"));
             }
             catch

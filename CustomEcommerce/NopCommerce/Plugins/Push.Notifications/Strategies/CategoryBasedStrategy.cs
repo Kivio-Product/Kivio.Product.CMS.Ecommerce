@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using DotnetGeminiSDK.Client.Interfaces;
 using Newtonsoft.Json;
 using Nop.Services.Logging;
+using Nop.Services.Seo;
+using Nop.Web.Framework.Mvc.Routing;
 
 
 namespace Nop.Plugin.Misc.PushNotifications.Strategies
@@ -20,6 +22,8 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
         private readonly IGeminiClient _geminiClient;
         private readonly PushNotificationsSettings _pushNotificationsSettings;
         private readonly ILogger _logger;
+        private readonly IUrlRecordService _urlRecordService;
+        private readonly INopUrlHelper _nopUrlHelper;
 
         public string StrategyType => "CategoryBased";
 
@@ -27,13 +31,17 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
             IPushNotificationService pushNotificationService,
             IGeminiClient geminiClient,
             PushNotificationsSettings pushNotificationsSettings,
-            ILogger logger)
+            ILogger logger,
+            IUrlRecordService urlRecordService,
+            INopUrlHelper nopUrlHelper)
         {
             _categoryService = categoryService;
             _pushNotificationService = pushNotificationService;
             _geminiClient = geminiClient;
             _pushNotificationsSettings = pushNotificationsSettings;
             _logger = logger;
+            _urlRecordService = urlRecordService;
+            _nopUrlHelper = nopUrlHelper;
         }
 
         public async Task<bool> CanExecuteAsync()
@@ -42,19 +50,20 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
                 return false;
 
             var categories = await _categoryService.GetAllCategoriesAsync();
-            var notifiedCategoryIds = (await _pushNotificationService.GetLogsByStrategyTypeAsync(StrategyType)).Select(l => l.EntityId);
-
-            return categories.Any(c => !notifiedCategoryIds.Contains(c.Id));
+            return categories.Any(c => c.Published);
         }
 
-        public async Task<(string Title, string Body)> GenerateNotificationAsync()
+        public async Task<(string Title, string Body, string Url)> GenerateNotificationAsync()
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
-            var notifiedCategoryIds = (await _pushNotificationService.GetLogsByStrategyTypeAsync(StrategyType)).Select(l => l.EntityId);
+            var publishedCategories = categories.Where(c => c.Published).ToList();
 
-            var category = categories.FirstOrDefault(c => !notifiedCategoryIds.Contains(c.Id));
-            if (category == null)
-                return (null, null);
+            if (!publishedCategories.Any())
+                return (null, null, null);
+
+            // Select a random published category
+            var random = new Random();
+            var category = publishedCategories[random.Next(publishedCategories.Count)];
 
             var prompt = $"{_pushNotificationsSettings.AIPromptBase} Generate a push notification for the category: {category.Name}. Make it compelling and encourage exploration.";
             
@@ -87,15 +96,17 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
                         SentDateUtc = DateTime.UtcNow
                     });
 
-                    return (title, body);
+                    var seName = await _urlRecordService.GetSeNameAsync(category);
+                    var url = await _nopUrlHelper.RouteGenericUrlAsync<Category>(new { SeName = seName });
+                    return (title, body, url);
                 }
             }
             catch (Exception ex)
             {
                 _logger?.ErrorAsync($"Error generating category-based notification: {ex.Message}");
             }
-            
-            return (null, null);
+
+            return (null, null, null);
         }
     }
 }

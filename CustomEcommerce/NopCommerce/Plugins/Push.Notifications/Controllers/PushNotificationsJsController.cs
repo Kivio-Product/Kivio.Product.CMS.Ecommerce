@@ -19,6 +19,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
         {
             var settings = await _settingService.LoadSettingAsync<PushNotificationsSettings>();
             var firebaseConfig = settings.FirebaseConfig ?? "{}";
+            var iconUrl = settings.NotificationIconUrl ?? "/Plugins/Misc.PushNotifications/logo.jpg";
 
             var script = $@"
 // Import and configure the Firebase SDK
@@ -37,7 +38,8 @@ messaging.onBackgroundMessage(function(payload) {{
   const notificationTitle = payload.notification.title;
   const notificationOptions = {{
     body: payload.notification.body,
-    icon: '/Plugins/Misc.PushNotifications/logo.jpg'
+  icon: '{iconUrl}',
+  data: {{ urlToOpen: payload?.data?.urlToOpen || '/' }}
   }};
 
   self.registration.showNotification(notificationTitle, notificationOptions);
@@ -48,7 +50,7 @@ self.addEventListener('notificationclick', function(event) {{
   console.log('User clicked on notification', event);
 
   event.notification.close();
-  const urlToOpen = event.notification.data?.urlToOpen || '/';
+  const urlToOpen = event.notification?.data?.urlToOpen || '/';
 
   event.waitUntil(
     clients.openWindow(urlToOpen)
