@@ -543,6 +543,39 @@ public partial class ProductService : IProductService
     #region Products
 
     /// <summary>
+    /// Gets the same category products by discount
+    /// </summary>
+    /// <param name="productId"></param>
+    /// <param name="maxResults"></param>
+    /// <returns></returns>
+ public virtual async Task<IList<Product>> GetSameCategoryProductsByDiscountAsync(int productId, int maxResults = 12)
+{
+    var query = from pc in _productCategoryRepository.Table
+                join p in _productRepository.Table on pc.ProductId equals p.Id
+                join c in _categoryRepository.Table on pc.CategoryId equals c.Id
+                where pc.CategoryId == (from pc2 in _productCategoryRepository.Table 
+                                      join c2 in _categoryRepository.Table on pc2.CategoryId equals c2.Id
+                                      where pc2.ProductId == productId && 
+                                            !c2.Deleted && 
+                                            c2.Published
+                                      select pc2.CategoryId).FirstOrDefault() &&
+                      p.Id != productId &&
+                      !p.Deleted &&
+                      p.Published &&
+                      !c.Deleted &&
+                      c.Published
+                orderby p.OldPrice > 0 && p.Price > 0 && p.OldPrice > p.Price 
+                       ? (p.OldPrice - p.Price) / p.OldPrice 
+                       : 0 descending,
+                       p.Id
+                select p;
+
+    var products = await _staticCacheManager.GetAsync(_staticCacheManager.PrepareKeyForDefaultCache(NopCatalogDefaults.SameCategoryProductsCacheKey, productId, maxResults), async () => await query.Take(maxResults).ToListAsync());
+
+    return products;
+}
+
+    /// <summary>
     /// Delete a product
     /// </summary>
     /// <param name="product">Product</param>

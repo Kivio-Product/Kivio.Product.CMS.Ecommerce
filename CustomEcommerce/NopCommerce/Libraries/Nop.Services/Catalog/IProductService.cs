@@ -16,6 +16,14 @@ public partial interface IProductService
     #region Products
 
     /// <summary>
+    /// Gets products from the same category ordered by discount
+    /// </summary>
+    /// <param name="productId"></param>
+    /// <param name="maxResults"></param>
+    /// <returns></returns>
+    Task<IList<Product>> GetSameCategoryProductsByDiscountAsync(int productId, int maxResults = 12);
+
+    /// <summary>
     /// Delete a product
     /// </summary>
     /// <param name="product">Product</param>
