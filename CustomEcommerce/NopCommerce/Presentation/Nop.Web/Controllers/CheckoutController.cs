@@ -1522,6 +1522,14 @@ public partial class CheckoutController : BasePublicController
             return Challenge();
 
         var model = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
+
+        if (TempData.TryGetValue("DiscountMessages", out var discountMessages) && TempData.TryGetValue("DiscountIsApplied", out var appliedValue))
+        {
+            model.DiscountBox.Messages.Clear();
+            model.DiscountBox.Messages.AddRange(discountMessages as string[]);
+            model.DiscountBox.IsApplied = Convert.ToBoolean(appliedValue);
+        }
+
         return View(model);
     }
 
@@ -2279,7 +2287,9 @@ public partial class CheckoutController : BasePublicController
         var store = await _storeContext.GetCurrentStoreAsync();
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
-        var model = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
+        var discountMessages = new List<string>();
+        var discountIsApplied = false;
+
         if (!string.IsNullOrWhiteSpace(discountcouponcode))
         {
             //we find even hidden records here. this way we can display a user-friendly message if it's expired
@@ -2301,28 +2311,36 @@ public partial class CheckoutController : BasePublicController
                 {
                     //valid
                     await _customerService.ApplyDiscountCouponCodeAsync(customer, discountcouponcode);
-                    model.DiscountBox.Messages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.Applied"));
-                    model.DiscountBox.IsApplied = true;
+                    discountMessages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.Applied"));
+                    discountIsApplied = true;
                 }
                 else
                 {
                     if (userErrors.Any())
                         //some user errors
-                        model.DiscountBox.Messages = userErrors;
+                        discountMessages = userErrors;
                     else
                         //general error text
-                        model.DiscountBox.Messages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.WrongDiscount"));
+                        discountMessages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.WrongDiscount"));
                 }
             }
             else
                 //discount cannot be found
-                model.DiscountBox.Messages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.CannotBeFound"));
+                discountMessages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.CannotBeFound"));
         }
         else
+        {
             //empty coupon code
-            model.DiscountBox.Messages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.Empty"));
+            discountMessages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.Empty"));
+        }
 
-        return View("OnePageCheckout", model);
+        if (discountMessages.Count != 0)
+        {
+            TempData["DiscountMessages"] = discountMessages;
+            TempData["DiscountIsApplied"] = discountIsApplied;
+        }
+
+        return View("OnePageCheckout");
     }
 
     [HttpPost, ActionName("RemoveDiscountCoupon")]
