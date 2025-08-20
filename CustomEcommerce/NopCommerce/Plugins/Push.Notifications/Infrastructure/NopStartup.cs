@@ -20,6 +20,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Infrastructure
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IPushNotificationService, PushNotificationService>();
+            services.AddScoped<IWebPushService, WebPushService>();
             
             // Register settings
             services.AddScoped(provider =>

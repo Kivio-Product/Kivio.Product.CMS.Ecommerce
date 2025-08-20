@@ -11,6 +11,9 @@ namespace Nop.Plugin.Misc.PushNotifications.Models
         [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.VapidPublicKey")]
         public string VapidPublicKey { get; set; }
 
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.VapidPrivateKey")]
+        public string VapidPrivateKey { get; set; }
+
         [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.TestNotificationTitle")]
         public string TestNotificationTitle { get; set; }
 
@@ -41,7 +44,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Models
         [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.NotificationIconUrl")]
         public string NotificationIconUrl { get; set; }
 
-    // Scheduling
+        // Scheduling
         [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.AllowedDays")] 
         public string AllowedDays { get; set; }
         [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.AllowedHours")] 
@@ -51,5 +54,12 @@ namespace Nop.Plugin.Misc.PushNotifications.Models
 
         [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.MinHoursBetweenNotifications")] 
         public int MinHoursBetweenNotifications { get; set; }
+
+        // Web Push settings
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.WebPushSubject")]
+        public string WebPushSubject { get; set; }
+
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.ForceWebPushForIOS")]
+        public bool ForceWebPushForIOS { get; set; }
     }
 }
