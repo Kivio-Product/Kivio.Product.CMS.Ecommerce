@@ -161,6 +161,7 @@
                 @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsEssentialBottom, additionalData = Model })
             </div>
         </form>
+        @await Component.InvokeAsync(typeof(SimilarProductsViewComponent), new { productId = Model.Id })
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsBottom, additionalData = Model })
         <!--product reviews-->
         @if (Model.ProductReviewOverview.AllowCustomerReviews)

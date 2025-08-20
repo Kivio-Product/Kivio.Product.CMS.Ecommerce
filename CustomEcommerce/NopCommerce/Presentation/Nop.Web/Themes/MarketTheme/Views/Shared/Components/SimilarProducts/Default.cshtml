@@ -1,0 +1,19 @@
+@model IList<ProductOverviewModel>
+
+@if (Model.Any())
+{
+    <div class="similar-products">
+        <h1 style="text-align: center; margin-bottom: 20px;">@T("Products.SimilarProducts")</h1>
+        <div class="similar-product-row">
+            <div class="item-grid">
+                @foreach (var product in Model)
+                {
+                    <div class="item-box">
+                        @await Html.PartialAsync("_ProductBox", product)
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+}
