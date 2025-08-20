@@ -70,7 +70,7 @@ function getTokenFCM() {
             console.log('Token FCM obtenido:', currentToken);
             saveTokenToServer({
                 token: currentToken,
-                type: 0, // FCM
+                type: "FCM", // FCM
                 userAgent: navigator.userAgent
             });
         } else {
@@ -99,7 +99,7 @@ function setupWebPush() {
         const subscriptionObject = subscription.toJSON();
         saveTokenToServer({
             token: subscription.endpoint,
-            type: 1, // WebPush
+            type: "WebPush", // WebPush
             userAgent: navigator.userAgent,
             endpoint: subscription.endpoint,
             p256dh: subscriptionObject.keys.p256dh,

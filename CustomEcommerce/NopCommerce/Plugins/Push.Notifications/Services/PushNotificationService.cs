@@ -6,6 +6,7 @@ using Nop.Data;
 using Nop.Plugin.Misc.PushNotifications.Domain;
 using Nop.Plugin.Misc.PushNotifications.Models;
 using Nop.Plugin.Misc.PushNotifications.Helpers;
+using Nop.Plugin.Misc.PushNotifications.Constants;
 using Nop.Services.Configuration;
 using Nop.Services.Logging;
 using System.Collections.Generic;
@@ -48,18 +49,18 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
         {
             PushSubscription subscription = null;
             
-            if (subscriptionModel.Type == NotificationType.FCM)
+            if (subscriptionModel.Type == NotificationTypes.FCM)
             {
                 subscription = _subscriptionRepository.Table.FirstOrDefault(s => 
                     s.CustomerId == customerId && 
-                    s.Type == NotificationType.FCM &&
+                    s.Type == NotificationTypes.FCM &&
                     s.Token == subscriptionModel.Token);
             }
-            else if (subscriptionModel.Type == NotificationType.WebPush)
+            else if (subscriptionModel.Type == NotificationTypes.WebPush)
             {
                 subscription = _subscriptionRepository.Table.FirstOrDefault(s => 
                     s.CustomerId == customerId && 
-                    s.Type == NotificationType.WebPush &&
+                    s.Type == NotificationTypes.WebPush &&
                     s.Endpoint == subscriptionModel.Endpoint);
             }
             
@@ -99,7 +100,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
                 {
                     CustomerId = customerId,
                     Token = token,
-                    Type = NotificationType.FCM,
+                    Type = NotificationTypes.FCM,
                     CreatedOnUtc = System.DateTime.UtcNow
                 });
             }
@@ -115,8 +116,8 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
             var subscriptions = _subscriptionRepository.Table.ToList();
             
             // Separate FCM and Web Push subscriptions
-            var fcmSubscriptions = subscriptions.Where(s => s.Type == NotificationType.FCM).ToList();
-            var webPushSubscriptions = subscriptions.Where(s => s.Type == NotificationType.WebPush).ToList();
+            var fcmSubscriptions = subscriptions.Where(s => s.Type == NotificationTypes.FCM).ToList();
+            var webPushSubscriptions = subscriptions.Where(s => s.Type == NotificationTypes.WebPush).ToList();
 
             // Send FCM notifications
             if (fcmSubscriptions.Any())
@@ -135,13 +136,13 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
         {
             // First try to find by token (FCM)
             var subscription = _subscriptionRepository.Table.FirstOrDefault(s => 
-                s.Type == NotificationType.FCM && s.Token == token);
+                s.Type == NotificationTypes.FCM && s.Token == token);
             
             // If not found, try to find by endpoint (WebPush)
             if (subscription == null)
             {
                 subscription = _subscriptionRepository.Table.FirstOrDefault(s => 
-                    s.Type == NotificationType.WebPush && s.Endpoint == token);
+                    s.Type == NotificationTypes.WebPush && s.Endpoint == token);
             }
             
             if (subscription == null)
@@ -150,7 +151,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Services
                 return;
             }
 
-            if (subscription.Type == NotificationType.FCM)
+            if (subscription.Type == NotificationTypes.FCM)
             {
                 await SendFCMUniqueNotification(subscription, title, body, url);
             }

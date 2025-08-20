@@ -3,7 +3,6 @@ using Nop.Core;
 using Nop.Plugin.Misc.PushNotifications.Models;
 using Nop.Plugin.Misc.PushNotifications.Services;
 using Nop.Plugin.Misc.PushNotifications.Helpers;
-using Nop.Plugin.Misc.PushNotifications.Domain;
 using System.Threading.Tasks;
 
 namespace Nop.Plugin.Misc.PushNotifications.Controllers
@@ -26,7 +25,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
             var userAgent = Request.Headers["User-Agent"].ToString();
             
             // Auto-detect notification type if not specified
-            if (model.Type == default(NotificationType))
+            if (string.IsNullOrEmpty(model.Type))
             {
                 model.Type = PlatformDetectionHelper.DetectNotificationType(userAgent);
             }
@@ -34,7 +33,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
             model.UserAgent = userAgent;
             
             await _pushNotificationService.RegisterDeviceAsync(customer.Id, model);
-            return Json(new { success = true, type = model.Type.ToString() });
+            return Json(new { success = true, type = model.Type });
         }
 
         [HttpPost]
@@ -52,7 +51,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
             };
             
             await _pushNotificationService.RegisterDeviceAsync(customer.Id, model);
-            return Json(new { success = true, type = model.Type.ToString() });
+            return Json(new { success = true, type = model.Type });
         }
     }
 }

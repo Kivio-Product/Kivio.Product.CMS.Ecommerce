@@ -1,13 +1,13 @@
-using Nop.Plugin.Misc.PushNotifications.Domain;
+using Nop.Plugin.Misc.PushNotifications.Constants;
 
 namespace Nop.Plugin.Misc.PushNotifications.Helpers
 {
     public static class PlatformDetectionHelper
     {
-        public static NotificationType DetectNotificationType(string userAgent)
+        public static string DetectNotificationType(string userAgent)
         {
             if (string.IsNullOrEmpty(userAgent))
-                return NotificationType.FCM;
+                return NotificationTypes.FCM;
 
             var lowerUserAgent = userAgent.ToLower();
             
@@ -17,17 +17,17 @@ namespace Nop.Plugin.Misc.PushNotifications.Helpers
                 lowerUserAgent.Contains("ipod") ||
                 lowerUserAgent.Contains("ios"))
             {
-                return NotificationType.WebPush;
+                return NotificationTypes.WebPush;
             }
 
             // Para Safari en macOS también usar Web Push
             if (lowerUserAgent.Contains("safari") && lowerUserAgent.Contains("macintosh"))
             {
-                return NotificationType.WebPush;
+                return NotificationTypes.WebPush;
             }
 
             // Para otros navegadores usar FCM por defecto
-            return NotificationType.FCM;
+            return NotificationTypes.FCM;
         }
 
         public static bool IsIOSDevice(string userAgent)
