@@ -5,8 +5,14 @@ namespace Nop.Plugin.Misc.PushNotifications
     public class PushNotificationsSettings : ISettings
     {
         public string FirebaseCredentials { get; set; }
-        public string VapidPublicKey { get; set; }
-        public string VapidPrivateKey { get; set; }
+        
+        // Firebase VAPID Keys
+        public string FirebaseVapidPublicKey { get; set; }
+        
+        // Web Push VAPID Keys
+        public string WebPushVapidPublicKey { get; set; }
+        public string WebPushVapidPrivateKey { get; set; }
+        
         public string FirebaseConfig { get; set; }
         public string ProductDataSynchronizationTask { get; set; }
         public string GeminiApiKey { get; set; }

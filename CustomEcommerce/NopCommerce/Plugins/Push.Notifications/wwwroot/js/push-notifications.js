@@ -64,7 +64,7 @@ function getTokenFCM() {
         return;
     }
     
-    getToken(messaging, { vapidKey: vapidPublicKey })
+    getToken(messaging, { vapidKey: firebaseVapidPublicKey })
     .then((currentToken) => {
         if (currentToken) {
             console.log('Token FCM obtenido:', currentToken);
@@ -91,7 +91,7 @@ function setupWebPush() {
     navigator.serviceWorker.ready.then(registration => {
         return registration.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+            applicationServerKey: urlBase64ToUint8Array(webPushVapidPublicKey)
         });
     }).then(subscription => {
         console.log('Web Push subscription:', subscription);

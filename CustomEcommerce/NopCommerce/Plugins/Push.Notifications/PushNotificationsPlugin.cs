@@ -54,8 +54,9 @@ namespace Nop.Plugin.Misc.PushNotifications
             {
                 FirebaseCredentials = "",
                 FirebaseConfig = "",
-                VapidPublicKey = "",
-                VapidPrivateKey = "",
+                FirebaseVapidPublicKey = "",
+                WebPushVapidPublicKey = "",
+                WebPushVapidPrivateKey = "",
                 GeminiApiKey = "Your-Gemini-API-Key-Here",
                 EnableNewProductStrategy = true,
                 EnableCategoryStrategy = true,
@@ -85,14 +86,16 @@ namespace Nop.Plugin.Misc.PushNotifications
                 // Firebase Settings
                 ["Plugins.Misc.PushNotifications.Settings.FirebaseCredentials"] = "Firebase Credentials (JSON)",
                 ["Plugins.Misc.PushNotifications.Settings.FirebaseCredentials.Hint"] = "Paste the JSON content of your Firebase service account credentials file here.",
-                ["Plugins.Misc.PushNotifications.Settings.VapidPublicKey"] = "VAPID Public Key",
-                ["Plugins.Misc.PushNotifications.Settings.VapidPublicKey.Hint"] = "Enter your VAPID public key for both Firebase and Web Push.",
+                ["Plugins.Misc.PushNotifications.Settings.FirebaseVapidPublicKey"] = "Firebase VAPID Public Key",
+                ["Plugins.Misc.PushNotifications.Settings.FirebaseVapidPublicKey.Hint"] = "Enter your Firebase VAPID public key for FCM notifications.",
                 ["Plugins.Misc.PushNotifications.Settings.FirebaseConfig"] = "Firebase Config (JSON)",
                 ["Plugins.Misc.PushNotifications.Settings.FirebaseConfig.Hint"] = "Paste the JSON content of your Firebase config for web.",
                 
                 // Web Push Settings
-                ["Plugins.Misc.PushNotifications.Settings.VapidPrivateKey"] = "VAPID Private Key",
-                ["Plugins.Misc.PushNotifications.Settings.VapidPrivateKey.Hint"] = "Enter your VAPID private key for Web Push authentication. Keep this secure!",
+                ["Plugins.Misc.PushNotifications.Settings.WebPushVapidPublicKey"] = "Web Push VAPID Public Key",
+                ["Plugins.Misc.PushNotifications.Settings.WebPushVapidPublicKey.Hint"] = "Enter your Web Push VAPID public key for native Web Push notifications.",
+                ["Plugins.Misc.PushNotifications.Settings.WebPushVapidPrivateKey"] = "Web Push VAPID Private Key",
+                ["Plugins.Misc.PushNotifications.Settings.WebPushVapidPrivateKey.Hint"] = "Enter your Web Push VAPID private key for Web Push authentication. Keep this secure!",
                 ["Plugins.Misc.PushNotifications.Settings.WebPushSubject"] = "Web Push Subject",
                 ["Plugins.Misc.PushNotifications.Settings.WebPushSubject.Hint"] = "Subject for VAPID headers. Use mailto:email@domain.com or https://yourdomain.com format.",
                 ["Plugins.Misc.PushNotifications.Settings.ForceWebPushForIOS"] = "Force Web Push for iOS",
@@ -151,6 +154,13 @@ namespace Nop.Plugin.Misc.PushNotifications
                 ["Plugins.Misc.PushNotifications.Error.VapidKeysRequired"] = "VAPID keys are required for Web Push notifications",
                 ["Plugins.Misc.PushNotifications.Error.FirebaseCredentialsRequired"] = "Firebase credentials are required for FCM notifications",
                 ["Plugins.Misc.PushNotifications.Error.InvalidVapidSubject"] = "Invalid VAPID subject format. Use mailto:email@domain.com or https://yourdomain.com",
+                ["Plugins.Misc.PushNotifications.Error.FirebaseVapidKeyRequired"] = "Firebase VAPID public key is required for FCM notifications",
+                ["Plugins.Misc.PushNotifications.Error.WebPushVapidKeysRequired"] = "Web Push VAPID keys are required for native Web Push notifications",
+                
+                // Help Messages
+                ["Plugins.Misc.PushNotifications.Help.Title"] = "Configuration Help",
+                ["Plugins.Misc.PushNotifications.Help.VapidKeyGeneration"] = "To generate VAPID keys, use: npm install -g web-push && web-push generate-vapid-keys",
+                ["Plugins.Misc.PushNotifications.Help.FirebaseVsWebPush"] = "Firebase keys are for FCM (Android/Chrome). Web Push keys are for native browser notifications (iOS Safari, Firefox, etc.)",
                 
                 // Dashboard Statistics (for future use)
                 ["Plugins.Misc.PushNotifications.Stats.TotalSubscriptions"] = "Total Subscriptions",

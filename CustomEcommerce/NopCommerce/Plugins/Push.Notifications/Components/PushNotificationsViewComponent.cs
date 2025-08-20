@@ -20,7 +20,8 @@ namespace Nop.Plugin.Misc.PushNotifications.Components
             var settings = _settingService.LoadSetting<PushNotificationsSettings>();
             var model = new PublicInfoModel
             {
-                VapidPublicKey = settings.VapidPublicKey,
+                FirebaseVapidPublicKey = settings.FirebaseVapidPublicKey,
+                WebPushVapidPublicKey = settings.WebPushVapidPublicKey,
                 FirebaseConfig = settings.FirebaseConfig
             };
             return View("~/Plugins/Misc.PushNotifications/Views/Public.cshtml", model);

@@ -8,11 +8,16 @@ namespace Nop.Plugin.Misc.PushNotifications.Models
         [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.FirebaseCredentials")]
         public string FirebaseCredentials { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.VapidPublicKey")]
-        public string VapidPublicKey { get; set; }
+        // Firebase VAPID Keys
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.FirebaseVapidPublicKey")]
+        public string FirebaseVapidPublicKey { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.VapidPrivateKey")]
-        public string VapidPrivateKey { get; set; }
+        // Web Push VAPID Keys
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.WebPushVapidPublicKey")]
+        public string WebPushVapidPublicKey { get; set; }
+
+        [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.WebPushVapidPrivateKey")]
+        public string WebPushVapidPrivateKey { get; set; }
 
         [NopResourceDisplayName("Plugins.Misc.PushNotifications.Settings.TestNotificationTitle")]
         public string TestNotificationTitle { get; set; }

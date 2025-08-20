@@ -12,6 +12,11 @@ namespace Nop.Plugin.Misc.PushNotifications.Infrastructure
                 "Plugin.Misc.PushNotifications.FirebaseMessagingSw",
                 "firebase-messaging-sw.js",
                 new { controller = "PushNotificationsJs", action = "FirebaseMessagingSw" });
+
+            endpointRouteBuilder.MapControllerRoute(
+                "Plugin.Misc.PushNotifications.WebPushSw",
+                "webpush-sw.js",
+                new { controller = "PushNotificationsJs", action = "WebPushSw" });
         }
 
         public int Priority => 0;

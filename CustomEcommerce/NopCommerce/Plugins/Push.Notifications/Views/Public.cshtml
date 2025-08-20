@@ -1,6 +1,7 @@
 @model Nop.Plugin.Misc.PushNotifications.Models.PublicInfoModel
 <script>
-    var vapidPublicKey = '@Model.VapidPublicKey';
+    var firebaseVapidPublicKey = '@Model.FirebaseVapidPublicKey';
+    var webPushVapidPublicKey = '@Model.WebPushVapidPublicKey';
     var firebaseConfig = @Html.Raw(string.IsNullOrEmpty(Model.FirebaseConfig) ? "{}" : Model.FirebaseConfig);
 </script>
 @{

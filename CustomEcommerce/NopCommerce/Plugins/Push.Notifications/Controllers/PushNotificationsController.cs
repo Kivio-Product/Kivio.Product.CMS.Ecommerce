@@ -41,8 +41,9 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
             var model = new ConfigurationModel
             {
                 FirebaseCredentials = settings.FirebaseCredentials,
-                VapidPublicKey = settings.VapidPublicKey,
-                VapidPrivateKey = settings.VapidPrivateKey,
+                FirebaseVapidPublicKey = settings.FirebaseVapidPublicKey,
+                WebPushVapidPublicKey = settings.WebPushVapidPublicKey,
+                WebPushVapidPrivateKey = settings.WebPushVapidPrivateKey,
                 FirebaseConfig = settings.FirebaseConfig,
                 GeminiApiKey = settings.GeminiApiKey,
                 EnableNewProductStrategy = settings.EnableNewProductStrategy,
@@ -66,8 +67,9 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
         {
             var settings = await _settingService.LoadSettingAsync<PushNotificationsSettings>();
             settings.FirebaseCredentials = model.FirebaseCredentials;
-            settings.VapidPublicKey = model.VapidPublicKey;
-            settings.VapidPrivateKey = model.VapidPrivateKey;
+            settings.FirebaseVapidPublicKey = model.FirebaseVapidPublicKey;
+            settings.WebPushVapidPublicKey = model.WebPushVapidPublicKey;
+            settings.WebPushVapidPrivateKey = model.WebPushVapidPrivateKey;
             settings.FirebaseConfig = model.FirebaseConfig;
             settings.GeminiApiKey = model.GeminiApiKey;
             settings.EnableNewProductStrategy = model.EnableNewProductStrategy;
