@@ -6,6 +6,7 @@ namespace Nop.Plugin.Misc.PushNotifications
     {
         public string FirebaseCredentials { get; set; }
         public string VapidPublicKey { get; set; }
+        public string VapidPrivateKey { get; set; }
         public string FirebaseConfig { get; set; }
         public string ProductDataSynchronizationTask { get; set; }
         public string GeminiApiKey { get; set; }
@@ -21,5 +22,8 @@ namespace Nop.Plugin.Misc.PushNotifications
         public bool UseUtcTime { get; set; }
         // Minimum number of hours to wait before sending another notification (0 disables)
         public int MinHoursBetweenNotifications { get; set; }
+        // Web Push settings
+        public string WebPushSubject { get; set; }
+        public bool ForceWebPushForIOS { get; set; }
     }
 }

@@ -54,6 +54,8 @@ namespace Nop.Plugin.Misc.PushNotifications
             {
                 FirebaseCredentials = "",
                 FirebaseConfig = "",
+                VapidPublicKey = "",
+                VapidPrivateKey = "",
                 GeminiApiKey = "Your-Gemini-API-Key-Here",
                 EnableNewProductStrategy = true,
                 EnableCategoryStrategy = true,
@@ -62,24 +64,49 @@ namespace Nop.Plugin.Misc.PushNotifications
                 CustomStrategyPrompt = "Create a push notification to encourage users to visit our ecommerce store. Make it exciting and compelling.",
                 AllowedDays = "Mon-Fri",
                 AllowedHours = "09:00-21:00",
-                UseUtcTime = false
+                UseUtcTime = false,
+                WebPushSubject = "mailto:admin@example.com",
+                ForceWebPushForIOS = true
             };
             await _settingService.SaveSettingAsync(settings);
 
             await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
             {
                 ["Plugins.Misc.PushNotifications.FriendlyName"] = "Push Notifications",
+                
+                // Configuration Sections
                 ["Plugins.Misc.PushNotifications.Settings.FirebaseConfiguration"] = "Firebase Configuration",
+                ["Plugins.Misc.PushNotifications.Settings.WebPushConfiguration"] = "Web Push Configuration", 
                 ["Plugins.Misc.PushNotifications.Settings.GeminiConfiguration"] = "Gemini AI Configuration",
+                ["Plugins.Misc.PushNotifications.Settings.NotificationConfiguration"] = "Notification Configuration",
+                ["Plugins.Misc.PushNotifications.Settings.StrategyConfiguration"] = "Strategy Configuration",
+                ["Plugins.Misc.PushNotifications.Settings.Scheduling"] = "Scheduling",
+                
+                // Firebase Settings
                 ["Plugins.Misc.PushNotifications.Settings.FirebaseCredentials"] = "Firebase Credentials (JSON)",
                 ["Plugins.Misc.PushNotifications.Settings.FirebaseCredentials.Hint"] = "Paste the JSON content of your Firebase service account credentials file here.",
                 ["Plugins.Misc.PushNotifications.Settings.VapidPublicKey"] = "VAPID Public Key",
-                ["Plugins.Misc.PushNotifications.Settings.VapidPublicKey.Hint"] = "Enter your VAPID public key.",
+                ["Plugins.Misc.PushNotifications.Settings.VapidPublicKey.Hint"] = "Enter your VAPID public key for both Firebase and Web Push.",
                 ["Plugins.Misc.PushNotifications.Settings.FirebaseConfig"] = "Firebase Config (JSON)",
                 ["Plugins.Misc.PushNotifications.Settings.FirebaseConfig.Hint"] = "Paste the JSON content of your Firebase config for web.",
+                
+                // Web Push Settings
+                ["Plugins.Misc.PushNotifications.Settings.VapidPrivateKey"] = "VAPID Private Key",
+                ["Plugins.Misc.PushNotifications.Settings.VapidPrivateKey.Hint"] = "Enter your VAPID private key for Web Push authentication. Keep this secure!",
+                ["Plugins.Misc.PushNotifications.Settings.WebPushSubject"] = "Web Push Subject",
+                ["Plugins.Misc.PushNotifications.Settings.WebPushSubject.Hint"] = "Subject for VAPID headers. Use mailto:email@domain.com or https://yourdomain.com format.",
+                ["Plugins.Misc.PushNotifications.Settings.ForceWebPushForIOS"] = "Force Web Push for iOS",
+                ["Plugins.Misc.PushNotifications.Settings.ForceWebPushForIOS.Hint"] = "Force iOS devices to use Web Push instead of FCM (recommended for iOS Safari compatibility).",
+                
+                // Gemini Settings
                 ["Plugins.Misc.PushNotifications.Settings.GeminiApiKey"] = "Gemini API Key (Required restart application)",
                 ["Plugins.Misc.PushNotifications.Settings.GeminiApiKey.Hint"] = "Enter your API key for the Gemini service.",
-                ["Plugins.Misc.PushNotifications.Settings.StrategyConfiguration"] = "Strategy Configuration",
+                
+                // Notification Settings
+                ["Plugins.Misc.PushNotifications.Settings.NotificationIconUrl"] = "Notification Icon URL",
+                ["Plugins.Misc.PushNotifications.Settings.NotificationIconUrl.Hint"] = "URL of the icon to be displayed in push notifications.",
+                
+                // Strategy Settings
                 ["Plugins.Misc.PushNotifications.Settings.EnableNewProductStrategy"] = "Enable New Product Strategy",
                 ["Plugins.Misc.PushNotifications.Settings.EnableNewProductStrategy.Hint"] = "Enable automatic notifications for new products with discounts.",
                 ["Plugins.Misc.PushNotifications.Settings.EnableCategoryStrategy"] = "Enable Category Strategy",
@@ -90,26 +117,48 @@ namespace Nop.Plugin.Misc.PushNotifications
                 ["Plugins.Misc.PushNotifications.Settings.AIPromptBase.Hint"] = "Base prompt that will be used by AI to generate notifications for products and categories.",
                 ["Plugins.Misc.PushNotifications.Settings.CustomStrategyPrompt"] = "Custom Strategy Prompt",
                 ["Plugins.Misc.PushNotifications.Settings.CustomStrategyPrompt.Hint"] = "Specific prompt for the custom strategy notifications.",
-                ["Plugins.Misc.PushNotifications.Settings.Scheduling"] = "Scheduling",
+                
+                // Scheduling Settings
                 ["Plugins.Misc.PushNotifications.Settings.AllowedDays"] = "Allowed Days",
                 ["Plugins.Misc.PushNotifications.Settings.AllowedDays.Hint"] = "Days when notifications can be sent. Examples: 'Mon-Fri', 'Sat,Sun', 'Mon,Wed,Fri'",
                 ["Plugins.Misc.PushNotifications.Settings.AllowedHours"] = "Allowed Hours",
                 ["Plugins.Misc.PushNotifications.Settings.AllowedHours.Hint"] = "One or more time ranges in 24h format, comma-separated. Example: '09:00-12:00, 18:00-21:00'",
                 ["Plugins.Misc.PushNotifications.Settings.UseUtcTime"] = "Use UTC Time",
                 ["Plugins.Misc.PushNotifications.Settings.UseUtcTime.Hint"] = "If enabled, the schedule is evaluated using UTC; otherwise, server local time is used.",
-                ["Plugins.Misc.PushNotifications.Settings.NotificationIconUrl"] = "Notification Icon URL",
-                ["Plugins.Misc.PushNotifications.Settings.NotificationIconUrl.Hint"] = "URL of the icon to be displayed in push notifications.",
                 ["Plugins.Misc.PushNotifications.Settings.MinHoursBetweenNotifications"] = "Minimum Hours Between Notifications",
                 ["Plugins.Misc.PushNotifications.Settings.MinHoursBetweenNotifications.Hint"] = "Minimum hours that must pass between consecutive notifications. 0 means no limit.",
+                
+                // Test Notification Settings
                 ["Plugins.Misc.PushNotifications.Settings.SendTestNotification"] = "Send Test Notification",
                 ["Plugins.Misc.PushNotifications.Settings.SendTestNotification.Hint"] = "Send a test notification to all subscribed devices.",
                 ["Plugins.Misc.PushNotifications.Settings.TestNotificationTitle"] = "Test Title",
                 ["Plugins.Misc.PushNotifications.Settings.TestNotificationMessage"] = "Test Message",
+                
+                // Actions and Messages
                 ["Plugins.Misc.PushNotifications.Send"] = "Send",
                 ["Plugins.Misc.PushNotifications.Success"] = "Success",
                 ["Plugins.Misc.PushNotifications.Error"] = "Error",
                 ["Plugins.Misc.PushNotifications.TestNotificationSent"] = "Test notification sent successfully.",
-                ["Plugins.Misc.PushNotifications.TestNotificationFailed"] = "Failed to send test notification."
+                ["Plugins.Misc.PushNotifications.TestNotificationFailed"] = "Failed to send test notification.",
+                
+                // Platform Detection Messages
+                ["Plugins.Misc.PushNotifications.Platform.FCM"] = "FCM (Firebase Cloud Messaging)",
+                ["Plugins.Misc.PushNotifications.Platform.WebPush"] = "Web Push (Native)",
+                ["Plugins.Misc.PushNotifications.Platform.iOS.Detected"] = "iOS device detected - using Web Push",
+                ["Plugins.Misc.PushNotifications.Platform.Safari.Detected"] = "Safari browser detected - using Web Push",
+                
+                // Error Messages  
+                ["Plugins.Misc.PushNotifications.Error.VapidKeysRequired"] = "VAPID keys are required for Web Push notifications",
+                ["Plugins.Misc.PushNotifications.Error.FirebaseCredentialsRequired"] = "Firebase credentials are required for FCM notifications",
+                ["Plugins.Misc.PushNotifications.Error.InvalidVapidSubject"] = "Invalid VAPID subject format. Use mailto:email@domain.com or https://yourdomain.com",
+                
+                // Dashboard Statistics (for future use)
+                ["Plugins.Misc.PushNotifications.Stats.TotalSubscriptions"] = "Total Subscriptions",
+                ["Plugins.Misc.PushNotifications.Stats.FCMSubscriptions"] = "FCM Subscriptions", 
+                ["Plugins.Misc.PushNotifications.Stats.WebPushSubscriptions"] = "Web Push Subscriptions",
+                ["Plugins.Misc.PushNotifications.Stats.iOSDevices"] = "iOS Devices",
+                ["Plugins.Misc.PushNotifications.Stats.AndroidDevices"] = "Android Devices",
+                ["Plugins.Misc.PushNotifications.Stats.DesktopDevices"] = "Desktop Devices"
             });
 
             var tasks = new List<ScheduleTask>

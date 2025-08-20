@@ -42,6 +42,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
             {
                 FirebaseCredentials = settings.FirebaseCredentials,
                 VapidPublicKey = settings.VapidPublicKey,
+                VapidPrivateKey = settings.VapidPrivateKey,
                 FirebaseConfig = settings.FirebaseConfig,
                 GeminiApiKey = settings.GeminiApiKey,
                 EnableNewProductStrategy = settings.EnableNewProductStrategy,
@@ -53,7 +54,9 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
                 AllowedDays = settings.AllowedDays,
                 AllowedHours = settings.AllowedHours,
                 UseUtcTime = settings.UseUtcTime,
-                MinHoursBetweenNotifications = settings.MinHoursBetweenNotifications
+                MinHoursBetweenNotifications = settings.MinHoursBetweenNotifications,
+                WebPushSubject = settings.WebPushSubject,
+                ForceWebPushForIOS = settings.ForceWebPushForIOS
             };
             return View("~/Plugins/Misc.PushNotifications/Views/Configure.cshtml", model);
         }
@@ -64,6 +67,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
             var settings = await _settingService.LoadSettingAsync<PushNotificationsSettings>();
             settings.FirebaseCredentials = model.FirebaseCredentials;
             settings.VapidPublicKey = model.VapidPublicKey;
+            settings.VapidPrivateKey = model.VapidPrivateKey;
             settings.FirebaseConfig = model.FirebaseConfig;
             settings.GeminiApiKey = model.GeminiApiKey;
             settings.EnableNewProductStrategy = model.EnableNewProductStrategy;
@@ -76,6 +80,8 @@ namespace Nop.Plugin.Misc.PushNotifications.Controllers
             settings.AllowedHours = model.AllowedHours;
             settings.UseUtcTime = model.UseUtcTime;
             settings.MinHoursBetweenNotifications = model.MinHoursBetweenNotifications;
+            settings.WebPushSubject = model.WebPushSubject;
+            settings.ForceWebPushForIOS = model.ForceWebPushForIOS;
             await _settingService.SaveSettingAsync(settings);
             _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
             return await Configure();
