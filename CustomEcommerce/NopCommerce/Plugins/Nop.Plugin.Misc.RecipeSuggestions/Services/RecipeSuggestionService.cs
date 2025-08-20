@@ -111,8 +111,11 @@ namespace Nop.Plugin.Misc.RecipeSuggestions.Services
                 visibleIndividuallyOnly: true,
                 orderBy: ProductSortingEnum.NameAsc);
 
+            // Get 50 random products
+            var randomProducts = availableStoreProducts.OrderBy(x => Guid.NewGuid()).Take(50).ToList();
+
             // Call AIRecipeService to get recipe
-            var (recipeTitle, aiIngredients, instructions) = await _aiRecipeService.GetRecipeFromAIAsync(product, availableStoreProducts.ToList());
+            var (recipeTitle, aiIngredients, instructions) = await _aiRecipeService.GetRecipeFromAIAsync(product, randomProducts);
 
             if (string.IsNullOrWhiteSpace(recipeTitle) || !aiIngredients.Any())
             {
