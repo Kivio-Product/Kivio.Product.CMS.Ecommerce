@@ -548,32 +548,32 @@ public partial class ProductService : IProductService
     /// <param name="productId"></param>
     /// <param name="maxResults"></param>
     /// <returns></returns>
- public virtual async Task<IList<Product>> GetSameCategoryProductsByDiscountAsync(int productId, int maxResults = 12)
-{
-    var query = from pc in _productCategoryRepository.Table
-                join p in _productRepository.Table on pc.ProductId equals p.Id
-                join c in _categoryRepository.Table on pc.CategoryId equals c.Id
-                where pc.CategoryId == (from pc2 in _productCategoryRepository.Table 
-                                      join c2 in _categoryRepository.Table on pc2.CategoryId equals c2.Id
-                                      where pc2.ProductId == productId && 
-                                            !c2.Deleted && 
-                                            c2.Published
-                                      select pc2.CategoryId).FirstOrDefault() &&
-                      p.Id != productId &&
-                      !p.Deleted &&
-                      p.Published &&
-                      !c.Deleted &&
-                      c.Published
-                orderby p.OldPrice > 0 && p.Price > 0 && p.OldPrice > p.Price 
-                       ? (p.OldPrice - p.Price) / p.OldPrice 
-                       : 0 descending,
-                       p.Id
-                select p;
+    public virtual async Task<IList<Product>> GetSameCategoryProductsByDiscountAsync(int productId, int maxResults = 12)
+    {
+        var query = from pc in _productCategoryRepository.Table
+                    join p in _productRepository.Table on pc.ProductId equals p.Id
+                    join c in _categoryRepository.Table on pc.CategoryId equals c.Id
+                    where pc.CategoryId == (from pc2 in _productCategoryRepository.Table
+                                            join c2 in _categoryRepository.Table on pc2.CategoryId equals c2.Id
+                                            where pc2.ProductId == productId &&
+                                                  !c2.Deleted &&
+                                                  c2.Published
+                                            select pc2.CategoryId).FirstOrDefault() &&
+                          p.Id != productId &&
+                          !p.Deleted &&
+                          p.Published &&
+                          !c.Deleted &&
+                          c.Published
+                    orderby p.OldPrice > 0 && p.Price > 0 && p.OldPrice > p.Price
+                           ? (p.OldPrice - p.Price) / p.OldPrice
+                           : 0 descending,
+                           p.Id
+                    select p;
 
-    var products = await _staticCacheManager.GetAsync(_staticCacheManager.PrepareKeyForDefaultCache(NopCatalogDefaults.SameCategoryProductsCacheKey, productId, maxResults), async () => await query.Take(maxResults).ToListAsync());
+        var products = await _staticCacheManager.GetAsync(_staticCacheManager.PrepareKeyForDefaultCache(NopCatalogDefaults.SameCategoryProductsCacheKey, productId, maxResults), async () => await query.Take(maxResults).ToListAsync());
 
-    return products;
-}
+        return products;
+    }
 
     /// <summary>
     /// Delete a product
@@ -582,6 +582,7 @@ public partial class ProductService : IProductService
     /// <returns>A task that represents the asynchronous operation</returns>
     public virtual async Task DeleteProductAsync(Product product)
     {
+        product.UpdatedOnUtc = DateTime.UtcNow;
         await _productRepository.DeleteAsync(product);
     }
 
@@ -592,6 +593,9 @@ public partial class ProductService : IProductService
     /// <returns>A task that represents the asynchronous operation</returns>
     public virtual async Task DeleteProductsAsync(IList<Product> products)
     {
+        foreach (var product in products)
+            product.UpdatedOnUtc = DateTime.UtcNow;
+
         await _productRepository.DeleteAsync(products);
     }
 
@@ -607,8 +611,8 @@ public partial class ProductService : IProductService
         var products = await _productRepository.GetAllAsync(query =>
         {
             return from p in query
-                   orderby p.OldPrice > 0 && p.Price > 0 && p.OldPrice > p.Price 
-                       ? (p.OldPrice - p.Price) / p.OldPrice 
+                   orderby p.OldPrice > 0 && p.Price > 0 && p.OldPrice > p.Price
+                       ? (p.OldPrice - p.Price) / p.OldPrice
                        : 0 descending,
                    p.DisplayOrder, p.Id
                    where p.Published &&
@@ -798,10 +802,10 @@ public partial class ProductService : IProductService
 
         if (minimumDiscountPercentage.HasValue && minimumDiscountPercentage.Value > 0)
         {
-            query = query.Where(p => 
-                p.OldPrice > 0 && 
-                p.Price > 0 && 
-                p.OldPrice > p.Price && 
+            query = query.Where(p =>
+                p.OldPrice > 0 &&
+                p.Price > 0 &&
+                p.OldPrice > p.Price &&
                 ((p.OldPrice - p.Price) / p.OldPrice) >= minimumDiscountPercentage.Value
             );
         }
@@ -967,11 +971,11 @@ public partial class ProductService : IProductService
             select p;
 
         if (minimumDiscountPercentage.HasValue && minimumDiscountPercentage.Value > 0)
-        {            
-            productsQuery = productsQuery.Where(p => 
-                p.OldPrice > 0 && 
-                p.Price > 0 && 
-                p.OldPrice > p.Price && 
+        {
+            productsQuery = productsQuery.Where(p =>
+                p.OldPrice > 0 &&
+                p.Price > 0 &&
+                p.OldPrice > p.Price &&
                 ((p.OldPrice - p.Price) / p.OldPrice) >= minimumDiscountPercentage.Value
             );
         }
@@ -1225,9 +1229,9 @@ public partial class ProductService : IProductService
         // Aplicar ordenamiento por descuento si está habilitado
         if (sortByDiscount)
         {
-            productsQuery = productsQuery.OrderByDescending(p => 
-                p.OldPrice > 0 && p.Price > 0 && p.OldPrice > p.Price 
-                    ? (p.OldPrice - p.Price) / p.OldPrice 
+            productsQuery = productsQuery.OrderByDescending(p =>
+                p.OldPrice > 0 && p.Price > 0 && p.OldPrice > p.Price
+                    ? (p.OldPrice - p.Price) / p.OldPrice
                     : 0)
                 .ThenBy(p => p.Name);
         }

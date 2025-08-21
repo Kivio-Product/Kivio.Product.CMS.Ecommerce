@@ -26,6 +26,8 @@ using Nop.Web.Models.Checkout;
 using Nop.Web.Models.Common;
 using Nop.Services.Discounts;
 using ILogger = Nop.Services.Logging.ILogger;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+
 
 namespace Nop.Web.Controllers;
 
@@ -1523,11 +1525,14 @@ public partial class CheckoutController : BasePublicController
 
         var model = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
 
-        if (TempData.TryGetValue("DiscountMessages", out var discountMessages) && TempData.TryGetValue("DiscountIsApplied", out var appliedValue))
+        var discountMessages = TempData.GetStringList("DiscountMessages");
+        var isApplied = TempData.GetBoolean("DiscountIsApplied");
+
+        if (discountMessages.Any())
         {
             model.DiscountBox.Messages.Clear();
-            model.DiscountBox.Messages.AddRange(discountMessages as string[]);
-            model.DiscountBox.IsApplied = Convert.ToBoolean(appliedValue);
+            model.DiscountBox.Messages.AddRange(discountMessages);
+            model.DiscountBox.IsApplied = isApplied;
         }
 
         return View(model);
@@ -2340,7 +2345,12 @@ public partial class CheckoutController : BasePublicController
             TempData["DiscountIsApplied"] = discountIsApplied;
         }
 
-        return View("OnePageCheckout");
+        var model = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
+        model.DiscountBox.Messages = new List<string>();
+        model.DiscountBox.Messages.AddRange(discountMessages);
+        model.DiscountBox.IsApplied = discountIsApplied;
+
+        return View("OnePageCheckout", model);
     }
 
     [HttpPost, ActionName("RemoveDiscountCoupon")]
@@ -2386,4 +2396,35 @@ public partial class CheckoutController : BasePublicController
     }
 
     #endregion
+}
+
+public static class TempDataExtensions
+{
+    public static List<string> GetStringList(this ITempDataDictionary tempData, string key)
+    {
+        if (!tempData.TryGetValue(key, out var value))
+            return new List<string>();
+
+        return value switch
+        {
+            List<string> list => list,
+            string[] array => array.ToList(),
+            string single => new List<string> { single },
+            _ => new List<string>()
+        };
+    }
+
+    public static bool GetBoolean(this ITempDataDictionary tempData, string key, bool defaultValue = false)
+    {
+        if (!tempData.TryGetValue(key, out var value))
+            return defaultValue;
+
+        if (value is bool boolValue)
+            return boolValue;
+
+        if (bool.TryParse(value?.ToString(), out var parsedValue))
+            return parsedValue;
+
+        return defaultValue;
+    }
 }
