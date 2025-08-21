@@ -42,6 +42,7 @@ function checkNotificationPermission() {
     
     if (Notification.permission === 'granted') {
         console.log('Notification permission already granted');
+        hideNotificationButton();
         if (shouldUseWebPush) {
             setupWebPush();
         } else {
@@ -51,58 +52,44 @@ function checkNotificationPermission() {
         if (detectIOSOrSafari()) {
             showNotificationButton();
         } else {
+            hideNotificationButton();
             requestPermissionAndToken();
         }
     } else {
         console.log('Notification permission denied');
+        hideNotificationButton();
     }
 }
 
 function showNotificationButton() {
-    // Check if button already exists
-    if (document.getElementById('enable-notifications-btn')) {
-        return;
+    // Show the button that's already in the HTML
+    const container = document.getElementById('notification-button-container');
+    const button = document.getElementById('enable-notifications-btn');
+    
+    if (container && button) {
+        // Double check: only show for iOS/Safari and when permission is not granted
+        if (!detectIOSOrSafari() || Notification.permission === 'granted') {
+            return;
+        }
+        
+        container.style.display = 'block';
+        
+        // Add click event listener if not already added
+        if (!button.hasAttribute('data-listener-added')) {
+            button.addEventListener('click', function() {
+                requestPermissionAndToken();
+                hideNotificationButton();
+            });
+            button.setAttribute('data-listener-added', 'true');
+        }
     }
-    
-    // Double check: only show for iOS and when permission is not granted
-    if (!detectIOSOrSafari() || Notification.permission === 'granted') {
-        return;
+}
+
+function hideNotificationButton() {
+    const container = document.getElementById('notification-button-container');
+    if (container) {
+        container.style.display = 'none';
     }
-    
-    const button = document.createElement('button');
-    button.id = 'enable-notifications-btn';
-    button.textContent = 'Activar Notificaciones';
-    button.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        padding: 12px 20px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        transition: background-color 0.3s ease;
-    `;
-    
-    // Add hover effect
-    button.addEventListener('mouseenter', function() {
-        this.style.backgroundColor = '#0056b3';
-    });
-    
-    button.addEventListener('mouseleave', function() {
-        this.style.backgroundColor = '#007bff';
-    });
-    
-    button.addEventListener('click', function() {
-        requestPermissionAndToken();
-        this.remove(); // Remove button after click
-    });
-    
-    document.body.appendChild(button);
 }
 
 function detectIOSOrSafari() {
