@@ -12,19 +12,98 @@ if (!shouldUseWebPush && typeof firebaseConfig !== 'undefined') {
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
+    // Check if basic APIs are available before proceeding
+    if (!('Notification' in window) && !shouldUseWebPush) {
+        console.log('Notifications not supported in this browser');
+        return;
+    }
+    
+    // Register service worker first without requesting permission
     if ('serviceWorker' in navigator) {
         const swPath = shouldUseWebPush ? '/webpush-sw.js' : '/firebase-messaging-sw.js';
         navigator.serviceWorker.register(swPath)
             .then((registration) => {
                 console.log('Service Worker registered for:', shouldUseWebPush ? 'Web Push' : 'Firebase');
-                requestPermissionAndToken();
+                checkNotificationPermission();
             }).catch((err) => {
                 console.error('Service Worker registration failed:', err);
+                checkNotificationPermission();
             });
     } else {
-        requestPermissionAndToken();
+        checkNotificationPermission();
     }
 });
+
+function checkNotificationPermission() {
+    if (!('Notification' in window)) {
+        console.log('Notifications not supported in this browser');
+        return;
+    }
+    
+    if (Notification.permission === 'granted') {
+        console.log('Notification permission already granted');
+        if (shouldUseWebPush) {
+            setupWebPush();
+        } else {
+            getTokenFCM();
+        }
+    } else if (Notification.permission === 'default') {
+        if (detectIOSOrSafari()) {
+            showNotificationButton();
+        } else {
+            requestPermissionAndToken();
+        }
+    } else {
+        console.log('Notification permission denied');
+    }
+}
+
+function showNotificationButton() {
+    // Check if button already exists
+    if (document.getElementById('enable-notifications-btn')) {
+        return;
+    }
+    
+    // Double check: only show for iOS and when permission is not granted
+    if (!detectIOSOrSafari() || Notification.permission === 'granted') {
+        return;
+    }
+    
+    const button = document.createElement('button');
+    button.id = 'enable-notifications-btn';
+    button.textContent = 'Activar Notificaciones';
+    button.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        padding: 12px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        transition: background-color 0.3s ease;
+    `;
+    
+    // Add hover effect
+    button.addEventListener('mouseenter', function() {
+        this.style.backgroundColor = '#0056b3';
+    });
+    
+    button.addEventListener('mouseleave', function() {
+        this.style.backgroundColor = '#007bff';
+    });
+    
+    button.addEventListener('click', function() {
+        requestPermissionAndToken();
+        this.remove(); // Remove button after click
+    });
+    
+    document.body.appendChild(button);
+}
 
 function detectIOSOrSafari() {
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -34,8 +113,17 @@ function detectIOSOrSafari() {
         return true;
     }
     
-    // Detect Safari on macOS
-    if (/^((?!chrome|android).)*safari/i.test(userAgent) && /macintosh/i.test(userAgent)) {
+    // Detect Safari on macOS (more specific check)
+    if (/Safari/.test(userAgent) && /Apple Computer/.test(navigator.vendor)) {
+        // Make sure it's not Chrome or other Chromium-based browsers
+        if (!/Chrome|Chromium|Edge|Opera|Firefox/.test(userAgent)) {
+            return true;
+        }
+    }
+    
+    // Additional check for iOS Safari that might not have been caught
+    if (/iPhone|iPad|iPod|iOS/.test(userAgent) || 
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
         return true;
     }
     
@@ -44,18 +132,37 @@ function detectIOSOrSafari() {
 
 function requestPermissionAndToken() {
     console.log('Requesting permission...');
-    Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-            console.log('Notification permission granted.');
-            if (shouldUseWebPush) {
-                setupWebPush();
-            } else {
-                getTokenFCM();
-            }
+    
+    // Check if Notification API is available
+    if (!('Notification' in window)) {
+        console.log('This browser does not support desktop notifications.');
+        return;
+    }
+    
+    // For older browsers that don't support promises
+    if (Notification.requestPermission.length === 0) {
+        Notification.requestPermission().then((permission) => {
+            handlePermissionResult(permission);
+        });
+    } else {
+        // Legacy callback-based approach for older Safari
+        Notification.requestPermission((permission) => {
+            handlePermissionResult(permission);
+        });
+    }
+}
+
+function handlePermissionResult(permission) {
+    if (permission === 'granted') {
+        console.log('Notification permission granted.');
+        if (shouldUseWebPush) {
+            setupWebPush();
         } else {
-            console.log('Unable to get permission to notify.');
+            getTokenFCM();
         }
-    });
+    } else {
+        console.log('Unable to get permission to notify.');
+    }
 }
 
 function getTokenFCM() {
@@ -70,7 +177,7 @@ function getTokenFCM() {
             console.log('Token FCM obtenido:', currentToken);
             saveTokenToServer({
                 token: currentToken,
-                type: "FCM", // FCM
+                type: "FCM",
                 userAgent: navigator.userAgent
             });
         } else {
@@ -153,6 +260,12 @@ if (messaging) {
 }
 
 function showNotification(title, body, icon, url) {
+    // Check if Notification API is available
+    if (!('Notification' in window)) {
+        console.log('This browser does not support desktop notifications.');
+        return;
+    }
+    
     if ('serviceWorker' in navigator && 'showNotification' in ServiceWorkerRegistration.prototype) {
         navigator.serviceWorker.ready.then(registration => {
             registration.showNotification(title, {
@@ -164,9 +277,11 @@ function showNotification(title, body, icon, url) {
         });
     } else {
         // Fallback for browsers that don't support service worker notifications
-        new Notification(title, {
-            body: body,
-            icon: icon
-        });
+        if (Notification.permission === 'granted') {
+            new Notification(title, {
+                body: body,
+                icon: icon
+            });
+        }
     }
 }
