@@ -299,7 +299,7 @@ namespace Nop.Plugin.Api.Controllers
                 }
                 else if (productBySku != null && isRenewalEnabled && (IsProductDiscountValid(productDelta, discountPercentage) || productBySku.Published))
                 {
-                    return await RenewProductAsync(product, productBySku, productDelta.Dto.ExtraCategoryId);
+                    return await RenewProductAsync(product, productBySku, productDelta.Dto.ExtraCategoryId, productDelta.Dto.Images);
                 }
                 else if (productBySku != null && isRenewalEnabled && !IsProductDiscountValid(productDelta, discountPercentage) && !productBySku.Published)
                 {
@@ -455,9 +455,14 @@ namespace Nop.Plugin.Api.Controllers
 
         #region Private methods
 
-        private async Task<IActionResult> RenewProductAsync(Product newProduct, Product existingProduct, int? extraCategoryId = null)
+        private async Task<IActionResult> RenewProductAsync(Product newProduct, Product existingProduct, int? extraCategoryId = null, List<ImageMappingDto> images = null)
         {
             var renewalResult = await _productApiService.RenewProductAsync(newProduct, existingProduct, extraCategoryId);
+
+            if (!existingProduct.Published)
+            {
+                await UpdateProductPicturesAsync(existingProduct, images, true);
+            }
 
             Console.WriteLine($"Renewal Result: Success = {renewalResult.Success}, ErrorMessage = {renewalResult.ErrorMessage}");
 
@@ -485,7 +490,7 @@ namespace Nop.Plugin.Api.Controllers
             }
         }
 
-        private async Task UpdateProductPicturesAsync(Product entityToUpdate, List<ImageMappingDto> setPictures)
+        private async Task UpdateProductPicturesAsync(Product entityToUpdate, List<ImageMappingDto> setPictures, bool replaceAllImages = false)
         {
             // If no pictures are specified means we don't have to update anything
             if (setPictures == null)
@@ -495,7 +500,9 @@ namespace Nop.Plugin.Api.Controllers
 
             // delete unused product pictures
             var productPictures = await _productService.GetProductPicturesByProductIdAsync(entityToUpdate.Id);
-            var unusedProductPictures = productPictures.Where(x => setPictures.All(y => y.Id != x.Id)).ToList();
+            var unusedProductPictures = replaceAllImages 
+                ? productPictures.ToList() 
+                : productPictures.Where(x => setPictures.All(y => y.Id != x.Id)).ToList();
             foreach (var unusedProductPicture in unusedProductPictures)
             {
                 var picture = await PictureService.GetPictureByIdAsync(unusedProductPicture.PictureId);
