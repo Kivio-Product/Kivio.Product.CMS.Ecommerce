@@ -1,0 +1,86 @@
+@model Nop.Plugin.Misc.PushNotifications.Models.PublicInfoModel
+<script>
+    var firebaseVapidPublicKey = '@Model.FirebaseVapidPublicKey';
+    var webPushVapidPublicKey = '@Model.WebPushVapidPublicKey';
+    var firebaseConfig = @Html.Raw(string.IsNullOrEmpty(Model.FirebaseConfig) ? "{}" : Model.FirebaseConfig);
+</script>
+
+<!-- Notification Button -->
+<div id="notification-button-container" style="display: none;">
+    <button id="enable-notifications-btn" class="notification-bell-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+        </svg>
+    </button>
+</div>
+
+<style>
+    .notification-bell-btn {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+        z-index: 9999;
+        transition: all 0.3s ease;
+        animation: bellPulse 2s infinite;
+    }
+
+    .notification-bell-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3);
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+
+    .notification-bell-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .notification-bell-btn svg {
+        transition: transform 0.3s ease;
+    }
+
+    .notification-bell-btn:hover svg {
+        transform: scale(1.1) rotate(15deg);
+    }
+
+    @@keyframes bellPulse {
+        0%, 100% {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(102, 126, 234, 0.7);
+        }
+        50% {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 0 10px rgba(102, 126, 234, 0);
+        }
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .notification-bell-btn {
+            width: 48px;
+            height: 48px;
+            bottom: 15px;
+            left: 15px;
+        }
+        
+        .notification-bell-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+    }
+</style>
+
+@{
+    // Firebase configuration is rendered directly in the view
+}
+
+<script type="module" src="~/Plugins/Misc.PushNotifications/wwwroot/js/push-notifications.js" asp-location="None"></script>

@@ -1,0 +1,298 @@
+@using Nop.Web.Framework.Extensions
+@using Nop.Plugin.Misc.PushNotifications.Models
+
+@model ConfigurationModel
+
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+@await Component.InvokeAsync("StoreScopeConfiguration")
+
+<!-- Help Section -->
+<div class="alert alert-info">
+    <h5><i class="fas fa-info-circle"></i> @T("Plugins.Misc.PushNotifications.Help.Title")</h5>
+    <p>@T("Plugins.Misc.PushNotifications.Help.FirebaseVsWebPush")</p>
+    <p><strong>@T("Plugins.Misc.PushNotifications.Help.VapidKeyGeneration")</strong></p>
+</div>
+
+<form asp-controller="PushNotifications" asp-action="Configure" method="post">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="cards-group">
+                <!-- Firebase Configuration Section -->
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Misc.PushNotifications.Settings.FirebaseConfiguration")
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="FirebaseCredentials" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-textarea asp-for="FirebaseCredentials" />
+                                <span asp-validation-for="FirebaseCredentials"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="FirebaseVapidPublicKey" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="FirebaseVapidPublicKey" />
+                                <span asp-validation-for="FirebaseVapidPublicKey"></span>
+                                <small class="form-text text-muted">@T("Plugins.Misc.PushNotifications.Settings.FirebaseVapidPublicKey.Hint")</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="FirebaseConfig" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-textarea asp-for="FirebaseConfig" rows="10" />
+                                <span asp-validation-for="FirebaseConfig"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Web Push Configuration Section -->
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Misc.PushNotifications.Settings.WebPushConfiguration")
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="WebPushVapidPublicKey" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="WebPushVapidPublicKey" />
+                                <span asp-validation-for="WebPushVapidPublicKey"></span>
+                                <small class="form-text text-muted">@T("Plugins.Misc.PushNotifications.Settings.WebPushVapidPublicKey.Hint")</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="WebPushVapidPrivateKey" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="WebPushVapidPrivateKey" asp-template="Password" />
+                                <span asp-validation-for="WebPushVapidPrivateKey"></span>
+                                <small class="form-text text-muted">@T("Plugins.Misc.PushNotifications.Settings.WebPushVapidPrivateKey.Hint")</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="WebPushSubject" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="WebPushSubject" />
+                                <span asp-validation-for="WebPushSubject"></span>
+                                <small class="form-text text-muted">@T("Plugins.Misc.PushNotifications.Settings.WebPushSubject.Hint")</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="ForceWebPushForIOS" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="ForceWebPushForIOS" />
+                                <span asp-validation-for="ForceWebPushForIOS"></span>
+                                <small class="form-text text-muted">@T("Plugins.Misc.PushNotifications.Settings.ForceWebPushForIOS.Hint")</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gemini AI Configuration Section -->
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Misc.PushNotifications.Settings.GeminiConfiguration")
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="GeminiApiKey" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="GeminiApiKey" />
+                                <span asp-validation-for="GeminiApiKey"></span>
+                                <small class="form-text text-muted">@T("Plugins.Misc.PushNotifications.Settings.GeminiApiKey.Hint")</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notification Configuration Section -->
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Misc.PushNotifications.Settings.NotificationConfiguration")
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="NotificationIconUrl" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="NotificationIconUrl" />
+                                <span asp-validation-for="NotificationIconUrl"></span>
+                                <small class="form-text text-muted">@T("Plugins.Misc.PushNotifications.Settings.NotificationIconUrl.Hint")</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Strategy Configuration Section -->
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Misc.PushNotifications.Settings.StrategyConfiguration")
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="EnableNewProductStrategy" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="EnableNewProductStrategy" />
+                                <span asp-validation-for="EnableNewProductStrategy"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="EnableCategoryStrategy" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="EnableCategoryStrategy" />
+                                <span asp-validation-for="EnableCategoryStrategy"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="EnableCustomStrategy" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="EnableCustomStrategy" />
+                                <span asp-validation-for="EnableCustomStrategy"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="AIPromptBase" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-textarea asp-for="AIPromptBase" />
+                                <span asp-validation-for="AIPromptBase"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="CustomStrategyPrompt" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-textarea asp-for="CustomStrategyPrompt" />
+                                <span asp-validation-for="CustomStrategyPrompt"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Scheduling Section -->
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Misc.PushNotifications.Settings.Scheduling")
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="AllowedDays" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="AllowedDays" />
+                                <span class="form-text text-muted">@T("Plugins.Misc.PushNotifications.Settings.AllowedDays.Hint")</span>
+                                <span asp-validation-for="AllowedDays"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="AllowedHours" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="AllowedHours" />
+                                <span class="form-text text-muted">@T("Plugins.Misc.PushNotifications.Settings.AllowedHours.Hint")</span>
+                                <span asp-validation-for="AllowedHours"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="UseUtcTime" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="UseUtcTime" />
+                                <span class="form-text text-muted">@T("Plugins.Misc.PushNotifications.Settings.UseUtcTime.Hint")</span>
+                                <span asp-validation-for="UseUtcTime"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="MinHoursBetweenNotifications" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="MinHoursBetweenNotifications" />
+                                <span class="form-text text-muted">@T("Plugins.Misc.PushNotifications.Settings.MinHoursBetweenNotifications.Hint")</span>
+                                <span asp-validation-for="MinHoursBetweenNotifications"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-md-9 offset-md-3">
+                        <button type="submit" class="btn btn-primary">@T("Admin.Common.Save")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+
+<form asp-controller="PushNotifications" asp-action="SendTestNotification" method="post">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="cards-group">
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Misc.PushNotifications.Settings.SendTestNotification")
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="TestNotificationTitle" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="TestNotificationTitle" />
+                                <span asp-validation-for="TestNotificationTitle"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="TestNotificationMessage" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="TestNotificationMessage" />
+                                <span asp-validation-for="TestNotificationMessage"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-9 offset-md-3">
+                                <button type="submit" class="btn btn-primary">@T("Plugins.Misc.PushNotifications.Send")</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
