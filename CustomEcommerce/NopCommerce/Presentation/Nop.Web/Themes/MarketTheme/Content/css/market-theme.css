@@ -1936,9 +1936,8 @@ button.add-to-wishlist-button.selected {
 }
 
 .super-deals-section .section-header {
-  padding: 0 15px;
+  padding: 20px 0;
   display: flex;
-  padding-top: 40px;
   flex-direction: row;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -1953,7 +1952,6 @@ button.add-to-wishlist-button.selected {
 .super-deals-section .category-filters {
   display: flex;
   gap: 5px;
-  margin-bottom: 25px;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
