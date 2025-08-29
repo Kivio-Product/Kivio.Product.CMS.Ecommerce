@@ -2065,7 +2065,8 @@ public partial class ShoppingCartController : BasePublicController
                         oldPrice = c.OldPrice,
                         newPrice = c.NewPrice,
                         message = c.Message
-                    })
+                    }),
+                    isJobCompleted = result.IsJobCompleted
                 });
             }
             catch (Exception ex)

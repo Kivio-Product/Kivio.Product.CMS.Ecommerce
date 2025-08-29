@@ -34,11 +34,14 @@ public class ProductValidationService : IProductValidationService
     {
         try
         {
+            // Limpiar caché anterior antes de crear nuevo snapshot
+            await ClearProductSnapshotAsync(customerId);
+
             // Obtener productos únicos del carrito
             var productIds = cartItems.Select(x => x.ProductId).Distinct().ToList();
             var products = await _productService.GetProductsByIdsAsync(productIds.ToArray());
 
-            // Crear snapshot y guardarlo en caché ANTES de enviar la validación
+            // Crear snapshot y guardarlo en caché
             var snapshot = products.Select(p => new ProductSnapshot
             {
                 ProductId = p.Id,
@@ -109,71 +112,94 @@ public class ProductValidationService : IProductValidationService
             if (snapshots == null || !snapshots.Any())
             {
                 _logger.Warning($"No se encontró snapshot en caché para cliente {customerId}");
-                return new ProductChangeResult { HasChanges = false, Changes = new List<ProductChange>(), CheckedAt = DateTime.UtcNow, IsJobCompleted = false };
+                return new ProductChangeResult { HasChanges = false, Changes = new List<ProductChange>(), CheckedAt = DateTime.UtcNow, IsJobCompleted = true };
             }
 
-            // Obtener productos actuales de la base de datos
-            var productIds = snapshots.Select(s => s.ProductId).ToArray();
-            var currentProducts = await _productService.GetProductsByIdsAsync(productIds);
-            var changes = new List<ProductChange>();
-
-            foreach (var snapshot in snapshots)
+            // Verificar si el snapshot es muy antiguo (más de 30 minutos)
+            var oldestSnapshot = snapshots.Min(s => s.SnapshotDate);
+            if (DateTime.UtcNow.Subtract(oldestSnapshot).TotalMinutes > 30)
             {
-                var currentProduct = currentProducts.FirstOrDefault(p => p.Id == snapshot.ProductId);
-
-                // Producto eliminado o despublicado
-                if (currentProduct == null || !currentProduct.Published)
-                {
-                    changes.Add(new ProductChange
-                    {
-                        ProductId = snapshot.ProductId,
-                        ProductName = snapshot.ProductName,
-                        ChangeType = currentProduct == null ? "deleted" : "unpublished",
-                        OldPrice = snapshot.Price,
-                        NewPrice = currentProduct?.Price ?? 0,
-                        Message = currentProduct == null ? "Producto eliminado del catálogo" : "Producto ya no está disponible"
-                    });
-                    continue;
-                }
-
-                // Verificar cambio de precio (tolerancia de 1 centavo)
-                if (Math.Abs(snapshot.Price - currentProduct.Price) > 0.01m)
-                {
-                    changes.Add(new ProductChange
-                    {
-                        ProductId = snapshot.ProductId,
-                        ProductName = currentProduct.Name,
-                        ChangeType = "price_changed",
-                        OldPrice = snapshot.Price,
-                        NewPrice = currentProduct.Price,
-                        Message = $"El precio cambió de ${snapshot.Price:F2} a ${currentProduct.Price:F2}"
-                    });
-                }
+                _logger.Information($"Snapshot muy antiguo para cliente {customerId}, limpiando caché");
+                await ClearProductSnapshotAsync(customerId);
+                return new ProductChangeResult { HasChanges = false, Changes = new List<ProductChange>(), CheckedAt = DateTime.UtcNow, IsJobCompleted = true };
             }
 
-            _logger.Information($"Verificación completada para cliente {customerId}. Cambios encontrados: {changes.Count}");
-
+            // Primero verificar estado del job
             var jobCacheKey = _cacheManager.PrepareKey(JobCacheDefaults.JobModelKey, customerId);
-            var jobId = (await _cacheManager.GetAsync<ValidationJobData>(jobCacheKey)).JobId;
+            var jobData = await _cacheManager.GetAsync<ValidationJobData>(jobCacheKey);
             ValidationJobStatusResult? jobStatus = null;
+            bool isJobCompleted = true; // Por defecto true si no hay job
 
-            if (jobId > 0)
+            if (jobData?.JobId > 0)
             {
-                jobStatus = await GetJobStatusAsync(jobId);
+                jobStatus = await GetJobStatusAsync(jobData.JobId);
+                isJobCompleted = jobStatus?.Data?.IsCompleted ?? false;
+            }
+
+            // Solo calcular cambios si el job está completo
+            var changes = new List<ProductChange>();
+            bool hasChanges = false;
+
+            if (isJobCompleted)
+            {
+                // Obtener productos actuales de la base de datos
+                var productIds = snapshots.Select(s => s.ProductId).ToArray();
+                var currentProducts = await _productService.GetProductsByIdsAsync(productIds);
+
+                foreach (var snapshot in snapshots)
+                {
+                    var currentProduct = currentProducts.FirstOrDefault(p => p.Id == snapshot.ProductId);
+
+                    // Producto eliminado o despublicado
+                    if (currentProduct == null || !currentProduct.Published)
+                    {
+                        changes.Add(new ProductChange
+                        {
+                            ProductId = snapshot.ProductId,
+                            ProductName = snapshot.ProductName,
+                            ChangeType = currentProduct == null ? "deleted" : "unpublished",
+                            OldPrice = snapshot.Price,
+                            NewPrice = currentProduct?.Price ?? 0,
+                            Message = currentProduct == null ? "Producto eliminado del catálogo" : "Producto ya no está disponible"
+                        });
+                        continue;
+                    }
+
+                    // Verificar cambio de precio (tolerancia de 1 centavo)
+                    if (Math.Abs(snapshot.Price - currentProduct.Price) > 0.01m)
+                    {
+                        changes.Add(new ProductChange
+                        {
+                            ProductId = snapshot.ProductId,
+                            ProductName = currentProduct.Name,
+                            ChangeType = "price_changed",
+                            OldPrice = snapshot.Price,
+                            NewPrice = currentProduct.Price,
+                            Message = $"El precio cambió de ${snapshot.Price:F2} a ${currentProduct.Price:F2}"
+                        });
+                    }
+                }
+
+                hasChanges = changes.Any();
+                _logger.Information($"Job completado - Verificación final para cliente {customerId}. Cambios encontrados: {changes.Count}");
+            }
+            else
+            {
+                _logger.Information($"Job aún en progreso para cliente {customerId}. No calculando cambios aún.");
             }
 
             return new ProductChangeResult
             {
-                HasChanges = changes.Any(),
+                HasChanges = hasChanges,
                 Changes = changes,
                 CheckedAt = DateTime.UtcNow,
-                IsJobCompleted = jobStatus?.Data.IsCompleted ?? false
+                IsJobCompleted = isJobCompleted
             };
         }
         catch (Exception ex)
         {
             _logger.Error($"Error verificando cambios de productos para cliente {customerId}", ex);
-            return new ProductChangeResult { HasChanges = false, Changes = new List<ProductChange>() };
+            return new ProductChangeResult { HasChanges = false, Changes = new List<ProductChange>(), IsJobCompleted = true };
         }
     }
 
@@ -229,24 +255,59 @@ public class ProductValidationService : IProductValidationService
         }
     }
 
-    public async Task<CheckoutValidation> ValidateForCheckoutAsync(int customerId){
+    public async Task<CheckoutValidation> ValidateForCheckoutAsync(int customerId)
+    {
         try
         {
-            var currentProductsStatus = await CheckProductChangesAsync(customerId);
-
             var jobCacheKey = _cacheManager.PrepareKey(JobCacheDefaults.JobModelKey, customerId);
-            var jobId = (await _cacheManager.GetAsync<ValidationJobData>(jobCacheKey)).JobId;
+            var jobData = await _cacheManager.GetAsync<ValidationJobData>(jobCacheKey);
 
-            var jobStatus = await GetJobStatusAsync(jobId);
-
-            return new CheckoutValidation
+            if (jobData?.JobId > 0)
             {
-                CanProceed = jobStatus.Success && jobStatus.Data.IsCompleted,
-                Message = jobStatus.Message,
-                ShouldRedirectHome = !jobStatus.Success || !jobStatus.Data.IsCompleted || jobStatus.Data.Progress.FailedProducts > 0,
-                HasProductChanges = currentProductsStatus.HasChanges,
-                ProductChanges = currentProductsStatus.Changes
-            };
+                var jobStatus = await GetJobStatusAsync(jobData.JobId);
+
+                // Si el job no está completo, no calcular cambios aún
+                if (!jobStatus.Data?.IsCompleted == true)
+                {
+                    return new CheckoutValidation
+                    {
+                        CanProceed = false,
+                        Message = "Validación en progreso...",
+                        ShouldRedirectHome = false,
+                        HasProductChanges = false,
+                        ProductChanges = new List<ProductChange>(),
+                        IsJobCompleted = false
+                    };
+                }
+
+                // Job completo: obtener cambios finales
+                var currentProductsStatus = await CheckProductChangesAsync(customerId);
+
+                return new CheckoutValidation
+                {
+                    CanProceed = jobStatus.Success && jobStatus.Data.IsCompleted && (jobStatus.Data.Progress?.FailedProducts == 0),
+                    Message = jobStatus.Message,
+                    ShouldRedirectHome = !jobStatus.Success || !jobStatus.Data.IsCompleted || (jobStatus.Data.Progress?.FailedProducts > 0),
+                    HasProductChanges = currentProductsStatus.HasChanges,
+                    ProductChanges = currentProductsStatus.Changes,
+                    IsJobCompleted = true
+                };
+            }
+            else
+            {
+                // Si no hay job, verificar cambios directamente (job ya completado previamente o no iniciado)
+                var currentProductsStatus = await CheckProductChangesAsync(customerId);
+                
+                return new CheckoutValidation
+                {
+                    CanProceed = true,
+                    Message = "Validación completada",
+                    ShouldRedirectHome = false,
+                    HasProductChanges = currentProductsStatus.HasChanges,
+                    ProductChanges = currentProductsStatus.Changes,
+                    IsJobCompleted = true
+                };
+            }
         }
         catch (Exception ex)
         {
@@ -257,7 +318,8 @@ public class ProductValidationService : IProductValidationService
                 Message = "Error interno del servidor",
                 ShouldRedirectHome = true,
                 HasProductChanges = false,
-                ProductChanges = new List<ProductChange>()
+                ProductChanges = new List<ProductChange>(),
+                IsJobCompleted = true
             };
         }
     }
@@ -268,7 +330,7 @@ public class ProductValidationService : IProductValidationService
 
         public static string SnapshotProductsPrefix = "nop.productvalidation.snapshot";
 
-        public static int CacheTime { get; set; } = 20;
+        public static int CacheTime { get; set; } = 30; // Aumentado a 30 minutos
     }
 
     private static class JobCacheDefaults
@@ -277,6 +339,6 @@ public class ProductValidationService : IProductValidationService
 
         public static string JobPrefix = "nop.productvalidation.job";
 
-        public static int CacheTime { get; set; } = 20;
+        public static int CacheTime { get; set; } = 30; // Aumentado a 30 minutos
     }
 }

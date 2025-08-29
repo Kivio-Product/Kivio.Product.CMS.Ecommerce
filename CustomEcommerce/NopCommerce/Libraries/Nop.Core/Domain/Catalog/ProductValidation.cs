@@ -92,4 +92,5 @@ public class CheckoutValidation
     public bool ShouldRedirectHome { get; set; }
     public bool HasProductChanges { get; set; }
     public IList<ProductChange> ProductChanges { get; set; } = new List<ProductChange>();
+    public bool IsJobCompleted { get; set; }
 }
