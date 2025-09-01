@@ -5,6 +5,7 @@ using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Orders;
 using Nop.Services.Logging;
+using System.Globalization;
 
 namespace Nop.Services.Catalog;
 
@@ -107,6 +108,8 @@ public class ProductValidationService : IProductValidationService
     {
         try
         {
+            var co = CultureInfo.GetCultureInfo("es-CO");
+
             // Obtener snapshot del caché
             var snapshotCacheKey = _cacheManager.PrepareKey(SnapshotProductsCacheDefaults.SnapshotProductsModelKey, customerId);
             var snapshots = await _cacheManager.GetAsync<List<ProductSnapshot>>(snapshotCacheKey);
@@ -177,7 +180,7 @@ public class ProductValidationService : IProductValidationService
                             ChangeType = "price_changed",
                             OldPrice = snapshot.Price,
                             NewPrice = currentProduct.Price,
-                            Message = $"El precio cambió de ${snapshot.Price:F2} a ${currentProduct.Price:F2}"
+                            Message = $"El precio cambió de ${snapshot.Price.ToString("N0", co)} a ${currentProduct.Price.ToString("N0", co)}"
                         });
                     }
                 }
@@ -299,7 +302,7 @@ public class ProductValidationService : IProductValidationService
             {
                 // Si no hay job, verificar cambios directamente (job ya completado previamente o no iniciado)
                 var currentProductsStatus = await CheckProductChangesAsync(customerId);
-                
+
                 return new CheckoutValidation
                 {
                     CanProceed = true,

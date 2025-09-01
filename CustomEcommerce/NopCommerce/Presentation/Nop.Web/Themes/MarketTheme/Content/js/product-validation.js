@@ -359,7 +359,7 @@ var ProductValidation = {
     var modalHtml = `
       <div id="product-changes-modal" class="validation-modal">
         <div class="modal-content">
-          <div class="modal-header"><h3>🔄 Productos Actualizados</h3></div>
+          <div class="modal-header"><h3>🔄 Ops, algunos de nuestros productos han sido actualizados</h3></div>
           <div class="modal-body">
             <p>Algunos productos en tu carrito han sido actualizados:</p>
             <div class="changes-list">${changesHtml}</div>

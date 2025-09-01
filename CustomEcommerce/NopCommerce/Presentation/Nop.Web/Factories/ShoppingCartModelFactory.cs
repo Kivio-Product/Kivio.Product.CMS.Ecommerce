@@ -921,9 +921,13 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
         foreach (var sci in cart)
         {
             var cartItemModel = await PrepareShoppingCartItemModelAsync(cart, sci);
-             if (cartItemModel.Warnings.Count == 0)
+            if (cartItemModel.Warnings.Count == 0)
             {
                 model.Items.Add(cartItemModel);
+            }
+            else
+            {
+                await _shoppingCartService.DeleteShoppingCartItemAsync(sci);
             }
         }
 
