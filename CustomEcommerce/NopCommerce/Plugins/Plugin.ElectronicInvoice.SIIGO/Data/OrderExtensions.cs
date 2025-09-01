@@ -4,7 +4,7 @@ using Nop.Services.Common;
 namespace Plugin.ElectronicInvoice.SIIGO.Data
 {
     /// <summary>
-    /// Extensiones para la entidad Order para almacenar información de facturación SIIGO
+    /// Extensions for Order entity to store SIIGO billing information
     /// </summary>
     public static class OrderExtensions
     {
@@ -14,7 +14,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Data
         private const string SIIGO_INVOICE_STATUS_KEY = "SiigoInvoiceStatus";
 
         /// <summary>
-        /// Obtiene el ID de la factura SIIGO
+        /// Gets the SIIGO invoice ID
         /// </summary>
         public static async Task<string> GetSiigoInvoiceIdAsync(this Order order, IGenericAttributeService genericAttributeService)
         {
@@ -22,7 +22,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Data
         }
 
         /// <summary>
-        /// Establece el ID de la factura SIIGO
+        /// Sets the SIIGO invoice ID
         /// </summary>
         public static async Task SetSiigoInvoiceIdAsync(this Order order, IGenericAttributeService genericAttributeService, string invoiceId)
         {
@@ -30,7 +30,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Data
         }
 
         /// <summary>
-        /// Obtiene el número de la factura SIIGO
+        /// Gets the SIIGO invoice number
         /// </summary>
         public static async Task<string> GetSiigoInvoiceNumberAsync(this Order order, IGenericAttributeService genericAttributeService)
         {
@@ -38,7 +38,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Data
         }
 
         /// <summary>
-        /// Establece el número de la factura SIIGO
+        /// Sets the SIIGO invoice number
         /// </summary>
         public static async Task SetSiigoInvoiceNumberAsync(this Order order, IGenericAttributeService genericAttributeService, string invoiceNumber)
         {
@@ -46,7 +46,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Data
         }
 
         /// <summary>
-        /// Obtiene la fecha de la factura SIIGO
+        /// Gets the SIIGO invoice date
         /// </summary>
         public static async Task<DateTime?> GetSiigoInvoiceDateAsync(this Order order, IGenericAttributeService genericAttributeService)
         {
@@ -55,7 +55,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Data
         }
 
         /// <summary>
-        /// Establece la fecha de la factura SIIGO
+        /// Sets the SIIGO invoice date
         /// </summary>
         public static async Task SetSiigoInvoiceDateAsync(this Order order, IGenericAttributeService genericAttributeService, DateTime invoiceDate)
         {
@@ -63,7 +63,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Data
         }
 
         /// <summary>
-        /// Obtiene el estado de la factura SIIGO
+        /// Gets the SIIGO invoice status
         /// </summary>
         public static async Task<string> GetSiigoInvoiceStatusAsync(this Order order, IGenericAttributeService genericAttributeService)
         {
@@ -71,7 +71,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Data
         }
 
         /// <summary>
-        /// Establece el estado de la factura SIIGO
+        /// Sets the SIIGO invoice status
         /// </summary>
         public static async Task SetSiigoInvoiceStatusAsync(this Order order, IGenericAttributeService genericAttributeService, string status)
         {
@@ -79,7 +79,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Data
         }
 
         /// <summary>
-        /// Verifica si la orden ya tiene una factura SIIGO asociada
+        /// Checks if the order already has an associated SIIGO invoice
         /// </summary>
         public static async Task<bool> HasSiigoInvoiceAsync(this Order order, IGenericAttributeService genericAttributeService)
         {

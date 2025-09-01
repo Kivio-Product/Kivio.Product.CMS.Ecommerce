@@ -9,7 +9,9 @@ using Nop.Services.Configuration;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
 using Nop.Services.Orders;
+using Nop.Services.Common;
 using Plugin.ElectronicInvoice.SIIGO.Models;
+using Plugin.ElectronicInvoice.SIIGO.Data;
 using System.Text;
 
 namespace Plugin.ElectronicInvoice.SIIGO.Services
@@ -23,6 +25,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
         private readonly ICountryService _countryService;
         private readonly IStateProvinceService _stateProvinceService;
         private readonly IWebHelper _webHelper;
+        private readonly IGenericAttributeService _genericAttributeService;
         private readonly HttpClient _httpClient;
         private List<CountryData> _countryData;
 
@@ -34,6 +37,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             ICountryService countryService,
             IStateProvinceService stateProvinceService,
             IWebHelper webHelper,
+            IGenericAttributeService genericAttributeService,
             HttpClient httpClient)
         {
             _settingService = settingService;
@@ -43,6 +47,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             _countryService = countryService;
             _stateProvinceService = stateProvinceService;
             _webHelper = webHelper;
+            _genericAttributeService = genericAttributeService;
             _httpClient = httpClient;
             
             LoadCountryData();
@@ -52,6 +57,18 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
         {
             try
             {
+                // Check if the order already has a SIIGO invoice
+                if (await order.HasSiigoInvoiceAsync(_genericAttributeService))
+                {
+                    var existingInvoiceId = await order.GetSiigoInvoiceIdAsync(_genericAttributeService);
+                    var existingInvoiceNumber = await order.GetSiigoInvoiceNumberAsync(_genericAttributeService);
+                    var existingStatus = await order.GetSiigoInvoiceStatusAsync(_genericAttributeService);
+                    
+                    await _logger.InformationAsync($"Order {order.Id} already has a SIIGO invoice. ID: {existingInvoiceId}, Number: {existingInvoiceNumber}, Status: {existingStatus}");
+                    
+                    return null;
+                }
+
                 var siigoSettings = await _settingService.LoadSettingAsync<SiigoSettings>();
                 
                 if (!ValidateConfiguration(siigoSettings))
@@ -59,18 +76,30 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                     throw new Exception("Invalid SIIGO configuration");
                 }
 
+                // Set invoice status to "Processing" before creating
+                await order.SetSiigoInvoiceStatusAsync(_genericAttributeService, "Processing");
+
                 var invoiceRequest = await BuildInvoiceRequestAsync(order, siigoSettings);
                 var response = await SendInvoiceToSiigoAsync(invoiceRequest, siigoSettings);
 
+                // Persist SIIGO invoice data using OrderExtensions
+                await order.SetSiigoInvoiceIdAsync(_genericAttributeService, response.Id);
+                await order.SetSiigoInvoiceNumberAsync(_genericAttributeService, response.Number);
+                await order.SetSiigoInvoiceDateAsync(_genericAttributeService, DateTime.Now);
+                await order.SetSiigoInvoiceStatusAsync(_genericAttributeService, response.Status ?? "Created");
+
                 if (siigoSettings.LogEnabled)
                 {
-                    await _logger.InformationAsync($"SIIGO invoice created successfully for order {order.Id}. SIIGO ID: {response.Id}");
+                    await _logger.InformationAsync($"SIIGO invoice created successfully for order {order.Id}. SIIGO ID: {response.Id}, Number: {response.Number}");
                 }
 
                 return response;
             }
             catch (Exception ex)
             {
+                // Set error status if creation failed
+                await order.SetSiigoInvoiceStatusAsync(_genericAttributeService, $"Error: {ex.Message}");
+                
                 await _logger.ErrorAsync($"Error creating SIIGO invoice for order {order.Id}: {ex.Message}", ex);
                 throw;
             }
@@ -80,6 +109,30 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
         {
             var siigoSettings = _settingService.LoadSetting<SiigoSettings>();
             return ValidateConfiguration(siigoSettings);
+        }
+
+        public async Task<(bool hasInvoice, string invoiceId, string invoiceNumber, DateTime? invoiceDate, string status)> GetOrderInvoiceInfoAsync(Order order)
+        {
+            try
+            {
+                var hasInvoice = await order.HasSiigoInvoiceAsync(_genericAttributeService);
+                if (!hasInvoice)
+                {
+                    return (false, null, null, null, null);
+                }
+
+                var invoiceId = await order.GetSiigoInvoiceIdAsync(_genericAttributeService);
+                var invoiceNumber = await order.GetSiigoInvoiceNumberAsync(_genericAttributeService);
+                var invoiceDate = await order.GetSiigoInvoiceDateAsync(_genericAttributeService);
+                var status = await order.GetSiigoInvoiceStatusAsync(_genericAttributeService);
+
+                return (true, invoiceId, invoiceNumber, invoiceDate, status);
+            }
+            catch (Exception ex)
+            {
+                await _logger.ErrorAsync($"Error getting SIIGO invoice info for order {order.Id}: {ex.Message}", ex);
+                return (false, null, null, null, null);
+            }
         }
 
         private bool ValidateConfiguration(SiigoSettings siigoSettings)

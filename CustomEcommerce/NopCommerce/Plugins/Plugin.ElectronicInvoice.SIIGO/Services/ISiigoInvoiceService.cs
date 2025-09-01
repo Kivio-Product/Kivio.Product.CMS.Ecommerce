@@ -8,5 +8,6 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
         Task<SiigoInvoiceResponse> CreateInvoiceAsync(Order order);
         bool ValidateConfiguration();
         Task<(string stateCode, string cityCode)> GetLocationCodesAsync(string stateProvinceName, string cityName);
+        Task<(bool hasInvoice, string invoiceId, string invoiceNumber, DateTime? invoiceDate, string status)> GetOrderInvoiceInfoAsync(Order order);
     }
 }
