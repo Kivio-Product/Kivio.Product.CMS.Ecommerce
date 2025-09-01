@@ -62,6 +62,21 @@ public partial class RouteProvider : BaseRouteProvider, IRouteProvider
             defaults: new { controller = "ShoppingCart", action = "Cart" });
 
         endpointRouteBuilder.MapControllerRoute(
+            name: "ShoppingCart",
+            pattern: $"/shopping-cart/check-cart-changes",
+            defaults: new { controller = "ShoppingCart", action = "CheckCartChanges" });
+
+        endpointRouteBuilder.MapControllerRoute(
+            name: "ShoppingCart",
+            pattern: $"/shopping-cart/validate-cart-for-checkout",
+            defaults: new { controller = "ShoppingCart", action = "ValidateCartForCheckout" });
+
+        endpointRouteBuilder.MapControllerRoute(
+            name: "ShoppingCart",
+            pattern: $"/shopping-cart/clear-cart-snapshot",
+            defaults: new { controller = "ShoppingCart", action = "ClearCartSnapshot" });
+
+        endpointRouteBuilder.MapControllerRoute(
             name: "UpdateMiniCartItem",
             pattern: "shopping-cart/update-mini-item",
             defaults: new { controller = "ShoppingCart", action = "UpdateMiniCartItem" }

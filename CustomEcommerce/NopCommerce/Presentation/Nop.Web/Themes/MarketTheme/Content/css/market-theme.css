@@ -2170,6 +2170,158 @@ button.add-to-wishlist-button.selected {
   font-style: italic;
 }
 
+
+.validation-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.validation-modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  padding: 0;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-20px);
+  transition: transform 0.3s ease;
+}
+
+.validation-modal.show .modal-content {
+  transform: translateY(0);
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  background: #f8f9fa;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.changes-list {
+  margin: 15px 0;
+}
+
+.product-change-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border-left: 4px solid #7a37f0;
+}
+
+.product-change-item.price-change {
+  background: #fff3cd;
+  border-left-color: #ffc107;
+}
+
+.product-change-item.product-unavailable {
+  background: #f8d7da;
+  border-left-color: #dc3545;
+}
+
+.product-change-item.product-deleted {
+  background: #f8d7da;
+  border-left-color: #dc3545;
+}
+
+.change-icon {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.change-details {
+  flex: 1;
+}
+
+.change-message {
+  color: #666;
+  font-size: 14px;
+}
+
+.modal-note {
+  margin-top: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+.modal-actions {
+  padding: 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.modal-actions .btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: #7a37f0;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #545b62;
+}
+
+.btn-outline {
+  background: transparent;
+  color: #7a37f0;
+  border: 1px solid #7a37f0;
+}
+
+.btn-outline:hover {
+  background: #7a37f0;
+  color: white;
+}
+
 @media all and (max-width: 1000px) {
   .flyout-cart {
     position: fixed;
@@ -2833,6 +2985,15 @@ button.add-to-wishlist-button.selected {
 
   .checkout-guest-options {
     gap: 6px;
+  }
+
+   .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions .btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 
