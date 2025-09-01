@@ -65,6 +65,7 @@ public class ProductSnapshot
     public decimal Price { get; set; }
     public bool Published { get; set; }
     public DateTime SnapshotDate { get; set; }
+    public int StockQuantity { get; set; }
 }
 
 public class ProductChangeResult

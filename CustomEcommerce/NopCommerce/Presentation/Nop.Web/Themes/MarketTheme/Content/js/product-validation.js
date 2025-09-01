@@ -302,7 +302,7 @@ var ProductValidation = {
         if (resp && resp.success) {
           if (n.isJobCompleted && n.hasChanges && n.changes.length > 0) {
             console.log('Intermediate step: changes detected, showing modal');
-            self.showChangesModal(n.changes, triggerElement, true);
+            self.showChangesModal(n.changes, triggerElement, false);
             self.markValidationCompleted();
           } else {
             console.log('Intermediate step: no changes, continue');
