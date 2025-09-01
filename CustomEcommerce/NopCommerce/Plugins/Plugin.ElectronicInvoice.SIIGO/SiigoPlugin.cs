@@ -28,7 +28,7 @@ namespace Plugin.ElectronicInvoice.SIIGO
 
         public override string GetConfigurationPageUrl()
         {
-            return _webHelper.GetStoreLocation() + "Admin/Siigo/Configure";
+            return $"{_webHelper.GetStoreLocation()}Admin/Siigo/Configure";
         }
 
         public override async Task InstallAsync()

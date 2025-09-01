@@ -48,20 +48,35 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
 
             var model = new ConfigurationModel
             {
+                ActiveStoreScopeConfiguration = storeId,
                 ApiBaseUrl = siigoSettings.ApiBaseUrl,
+                ApiBaseUrl_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.ApiBaseUrl, storeId),
                 PartnerId = siigoSettings.PartnerId,
+                PartnerId_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.PartnerId, storeId),
                 BearerToken = siigoSettings.BearerToken,
+                BearerToken_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.BearerToken, storeId),
                 DocumentId = siigoSettings.DocumentId,
+                DocumentId_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.DocumentId, storeId),
                 DefaultItemCode = siigoSettings.DefaultItemCode,
+                DefaultItemCode_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.DefaultItemCode, storeId),
                 SellerId = siigoSettings.SellerId,
+                SellerId_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.SellerId, storeId),
                 PaymentMethodId = siigoSettings.PaymentMethodId,
+                PaymentMethodId_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.PaymentMethodId, storeId),
                 TaxIdWithTax = siigoSettings.TaxIdWithTax,
+                TaxIdWithTax_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.TaxIdWithTax, storeId),
                 TaxIdWithoutTax = siigoSettings.TaxIdWithoutTax,
+                TaxIdWithoutTax_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.TaxIdWithoutTax, storeId),
                 SendByEmail = siigoSettings.SendByEmail,
+                SendByEmail_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.SendByEmail, storeId),
                 SendStamp = siigoSettings.SendStamp,
+                SendStamp_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.SendStamp, storeId),
                 IsEnabled = siigoSettings.IsEnabled,
+                IsEnabled_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.IsEnabled, storeId),
                 TestMode = siigoSettings.TestMode,
-                LogEnabled = siigoSettings.LogEnabled
+                TestMode_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.TestMode, storeId),
+                LogEnabled = siigoSettings.LogEnabled,
+                LogEnabled_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.LogEnabled, storeId)
             };
 
             return View("~/Plugins/ElectronicInvoice.SIIGO/Views/Configure.cshtml", model);
@@ -92,7 +107,21 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             siigoSettings.TestMode = model.TestMode;
             siigoSettings.LogEnabled = model.LogEnabled;
 
-            await _settingService.SaveSettingAsync(siigoSettings, storeId);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.ApiBaseUrl, model.ApiBaseUrl_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.PartnerId, model.PartnerId_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.BearerToken, model.BearerToken_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.DocumentId, model.DocumentId_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.DefaultItemCode, model.DefaultItemCode_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SellerId, model.SellerId_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.PaymentMethodId, model.PaymentMethodId_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.TaxIdWithTax, model.TaxIdWithTax_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.TaxIdWithoutTax, model.TaxIdWithoutTax_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SendByEmail, model.SendByEmail_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SendStamp, model.SendStamp_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.IsEnabled, model.IsEnabled_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.TestMode, model.TestMode_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.LogEnabled, model.LogEnabled_OverrideForStore, storeId, false);
+
             await _settingService.ClearCacheAsync();
 
             _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));

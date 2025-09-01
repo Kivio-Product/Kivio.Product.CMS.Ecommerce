@@ -121,4 +121,4 @@ Plugin is designed to be easily customizable:
 For technical support, contact Kivio development team.
 
 ## License
-Copyright © Kivio 2025. All rights reserved.
+Copyright © Kivio SAS 2025. All rights reserved.
