@@ -132,9 +132,11 @@ namespace Nop.Plugin.Payments.PayU.Services
 
             // Formatear valores para PayU
             var tax = orderTaxAmount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
-            var taxReturnBase = orderTaxAmount == 0 ? 
-                "0.00" : 
-                orderSubtotalWithoutTax.ToString("F2", System.Globalization.CultureInfo.InvariantCulture); // Base gravable
+            decimal orderDiscount = order.OrderSubTotalDiscountExclTax; // Descuento aplicado
+            
+            var taxReturnBase = orderTaxAmount == 0 ?
+                "0.00" :
+                (orderSubtotalWithoutTax - orderDiscount).ToString("F2", System.Globalization.CultureInfo.InvariantCulture); // Base gravable
 
             var currentCustomer = await _workContext.GetCurrentCustomerAsync();
 
