@@ -40,15 +40,17 @@ public class ProductValidationService : IProductValidationService
             // Obtener productos únicos del carrito
             var productIds = cartItems.Select(x => x.ProductId).Distinct().ToList();
             var products = await _productService.GetProductsByIdsAsync(productIds.ToArray());
+            var scrapedProducts = products.Where(p => p.Sku != null && p.Sku.ToUpper().Contains("SCRAPED")).ToList();
 
             // Crear snapshot y guardarlo en caché
-            var snapshot = products.Select(p => new ProductSnapshot
+            var snapshot = scrapedProducts.Select(p => new ProductSnapshot
             {
                 ProductId = p.Id,
                 ProductName = p.Name,
                 Price = p.Price,
                 Published = p.Published,
-                SnapshotDate = DateTime.UtcNow
+                SnapshotDate = DateTime.UtcNow,
+                StockQuantity = p.StockQuantity
             }).ToList();
 
             // Guardar snapshot en caché
@@ -58,7 +60,7 @@ public class ProductValidationService : IProductValidationService
             // Preparar request para API externa
             var validationRequest = new
             {
-                products = products.Select(p => new
+                products = scrapedProducts.Select(p => new
                 {
                     name = p.Name,
                     externalId = p.Id.ToString()
@@ -151,7 +153,7 @@ public class ProductValidationService : IProductValidationService
                     var currentProduct = currentProducts.FirstOrDefault(p => p.Id == snapshot.ProductId);
 
                     // Producto eliminado o despublicado
-                    if (currentProduct == null || !currentProduct.Published)
+                    if (currentProduct == null || !currentProduct.Published || currentProduct.StockQuantity == 0)
                     {
                         changes.Add(new ProductChange
                         {
@@ -285,9 +287,9 @@ public class ProductValidationService : IProductValidationService
 
                 return new CheckoutValidation
                 {
-                    CanProceed = jobStatus.Success && jobStatus.Data.IsCompleted && (jobStatus.Data.Progress?.FailedProducts == 0),
+                    CanProceed = jobStatus.Success && jobStatus.Data.IsCompleted,
                     Message = jobStatus.Message,
-                    ShouldRedirectHome = !jobStatus.Success || !jobStatus.Data.IsCompleted || (jobStatus.Data.Progress?.FailedProducts > 0),
+                    ShouldRedirectHome = !jobStatus.Success || !jobStatus.Data.IsCompleted,
                     HasProductChanges = currentProductsStatus.HasChanges,
                     ProductChanges = currentProductsStatus.Changes,
                     IsJobCompleted = true
