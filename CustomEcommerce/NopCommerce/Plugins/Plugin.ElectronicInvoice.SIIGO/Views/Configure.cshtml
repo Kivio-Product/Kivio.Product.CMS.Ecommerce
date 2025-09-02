@@ -61,15 +61,28 @@
                                 <span asp-validation-for="PartnerId"></span>
                             </div>
                         </div>
-                        <!-- BearerToken -->
+                        <!-- Username -->
                         <div class="form-group row">
                             <div class="col-md-3">
-                                <nop-override-store-checkbox asp-for="BearerToken_OverrideForStore" asp-input="BearerToken" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                                <nop-label asp-for="BearerToken" />
+                                <nop-override-store-checkbox asp-for="Username_OverrideForStore" asp-input="Username" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="Username" />
                             </div>
                             <div class="col-md-9">
-                                <nop-editor asp-for="BearerToken" asp-template="Password" />
-                                <span asp-validation-for="BearerToken"></span>
+                                <nop-editor asp-for="Username" />
+                                <span asp-validation-for="Username"></span>
+                                <small class="form-text text-muted">SIIGO username for authentication</small>
+                            </div>
+                        </div>
+                        <!-- AccessKey -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="AccessKey_OverrideForStore" asp-input="AccessKey" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="AccessKey" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="AccessKey" />
+                                <span asp-validation-for="AccessKey"></span>
+                                <small class="form-text text-muted">SIIGO access key for authentication (will generate bearer tokens automatically)</small>
                             </div>
                         </div>
                         <!-- DocumentId -->

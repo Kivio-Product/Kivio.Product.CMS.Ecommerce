@@ -12,7 +12,9 @@ namespace Plugin.ElectronicInvoice.SIIGO.Infrastructure
         {
             services.AddScoped<ISiigoInvoiceService, SiigoInvoiceService>();
             services.AddScoped<ISiigoNotificationService, SiigoNotificationService>();
+            services.AddScoped<ISiigoAuthService, SiigoAuthService>();
             services.AddHttpClient<SiigoInvoiceService>();
+            services.AddHttpClient<SiigoAuthService>();
         }
 
         public void Configure(IApplicationBuilder application)

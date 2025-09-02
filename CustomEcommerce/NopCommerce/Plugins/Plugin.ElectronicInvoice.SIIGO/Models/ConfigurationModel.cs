@@ -23,9 +23,13 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
         public string PartnerId { get; set; }
         public bool PartnerId_OverrideForStore { get; set; }
 
-        [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.BearerToken")]
-        public string BearerToken { get; set; }
-        public bool BearerToken_OverrideForStore { get; set; }
+        [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.Username")]
+        public string Username { get; set; }
+        public bool Username_OverrideForStore { get; set; }
+
+        [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.AccessKey")]
+        public string AccessKey { get; set; }
+        public bool AccessKey_OverrideForStore { get; set; }
 
         [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.DocumentId")]
         public int DocumentId { get; set; }

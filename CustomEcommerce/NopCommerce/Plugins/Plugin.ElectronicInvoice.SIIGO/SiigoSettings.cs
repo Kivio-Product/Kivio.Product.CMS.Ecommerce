@@ -6,7 +6,8 @@ namespace Plugin.ElectronicInvoice.SIIGO
     {
         public string ApiBaseUrl { get; set; }
         public string PartnerId { get; set; }
-        public string BearerToken { get; set; }
+        public string Username { get; set; }
+        public string AccessKey { get; set; }
         public int DocumentId { get; set; }
         public string DefaultItemCode { get; set; }
         public int SellerId { get; set; }

@@ -23,6 +23,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
         private readonly INotificationService _notificationService;
         private readonly IPermissionService _permissionService;
         private readonly ISiigoInvoiceService _siigoInvoiceService;
+        private readonly ISiigoAuthService _siigoAuthService;
 
         public SiigoController(
             IStoreContext storeContext,
@@ -30,7 +31,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             ILocalizationService localizationService,
             INotificationService notificationService,
             IPermissionService permissionService,
-            ISiigoInvoiceService siigoInvoiceService)
+            ISiigoInvoiceService siigoInvoiceService,
+            ISiigoAuthService siigoAuthService)
         {
             _storeContext = storeContext;
             _settingService = settingService;
@@ -38,6 +40,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             _notificationService = notificationService;
             _permissionService = permissionService;
             _siigoInvoiceService = siigoInvoiceService;
+            _siigoAuthService = siigoAuthService;
         }
 
         [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
@@ -53,8 +56,10 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
                 ApiBaseUrl_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.ApiBaseUrl, storeId),
                 PartnerId = siigoSettings.PartnerId,
                 PartnerId_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.PartnerId, storeId),
-                BearerToken = siigoSettings.BearerToken,
-                BearerToken_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.BearerToken, storeId),
+                Username = siigoSettings.Username,
+                Username_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.Username, storeId),
+                AccessKey = siigoSettings.AccessKey,
+                AccessKey_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.AccessKey, storeId),
                 DocumentId = siigoSettings.DocumentId,
                 DocumentId_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.DocumentId, storeId),
                 DefaultItemCode = siigoSettings.DefaultItemCode,
@@ -94,7 +99,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
 
             siigoSettings.ApiBaseUrl = model.ApiBaseUrl;
             siigoSettings.PartnerId = model.PartnerId;
-            siigoSettings.BearerToken = model.BearerToken;
+            siigoSettings.Username = model.Username;
+            siigoSettings.AccessKey = model.AccessKey;
             siigoSettings.DocumentId = model.DocumentId;
             siigoSettings.DefaultItemCode = model.DefaultItemCode;
             siigoSettings.SellerId = model.SellerId;
@@ -109,7 +115,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
 
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.ApiBaseUrl, model.ApiBaseUrl_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.PartnerId, model.PartnerId_OverrideForStore, storeId, false);
-            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.BearerToken, model.BearerToken_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.Username, model.Username_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.AccessKey, model.AccessKey_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.DocumentId, model.DocumentId_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.DefaultItemCode, model.DefaultItemCode_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SellerId, model.SellerId_OverrideForStore, storeId, false);
@@ -137,13 +144,22 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             {
                 var isValid = _siigoInvoiceService.ValidateConfiguration();
                 
-                if (isValid)
+                if (!isValid)
                 {
-                    _notificationService.SuccessNotification("Valid configuration. SIIGO connection successful.");
+                    _notificationService.ErrorNotification("Invalid configuration. Please verify connection parameters.");
+                    return await Configure();
+                }
+
+                // Test authentication with SIIGO API
+                var token = await _siigoAuthService.GetValidTokenAsync();
+                
+                if (!string.IsNullOrEmpty(token))
+                {
+                    _notificationService.SuccessNotification("Valid configuration. SIIGO authentication successful.");
                 }
                 else
                 {
-                    _notificationService.ErrorNotification("Invalid configuration. Please verify connection parameters.");
+                    _notificationService.ErrorNotification("Authentication failed. Please verify your credentials.");
                 }
             }
             catch (Exception ex)

@@ -26,6 +26,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
         private readonly IStateProvinceService _stateProvinceService;
         private readonly IWebHelper _webHelper;
         private readonly IGenericAttributeService _genericAttributeService;
+        private readonly ISiigoAuthService _siigoAuthService;
         private readonly HttpClient _httpClient;
         private List<CountryData> _countryData;
 
@@ -38,6 +39,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             IStateProvinceService stateProvinceService,
             IWebHelper webHelper,
             IGenericAttributeService genericAttributeService,
+            ISiigoAuthService siigoAuthService,
             HttpClient httpClient)
         {
             _settingService = settingService;
@@ -48,6 +50,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             _stateProvinceService = stateProvinceService;
             _webHelper = webHelper;
             _genericAttributeService = genericAttributeService;
+            _siigoAuthService = siigoAuthService;
             _httpClient = httpClient;
             
             LoadCountryData();
@@ -137,7 +140,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
 
         private bool ValidateConfiguration(SiigoSettings siigoSettings)
         {
-            return !string.IsNullOrEmpty(siigoSettings.BearerToken) &&
+            return !string.IsNullOrEmpty(siigoSettings.Username) &&
+                   !string.IsNullOrEmpty(siigoSettings.AccessKey) &&
                    !string.IsNullOrEmpty(siigoSettings.PartnerId) &&
                    !string.IsNullOrEmpty(siigoSettings.ApiBaseUrl) &&
                    siigoSettings.DocumentId > 0;
@@ -276,9 +280,12 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             var json = JsonConvert.SerializeObject(invoiceRequest, Formatting.None);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
+            // Get valid token from auth service
+            var bearerToken = await _siigoAuthService.GetValidTokenAsync();
+
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("Partner-Id", siigoSettings.PartnerId);
-            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {siigoSettings.BearerToken}");
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {bearerToken}");
 
             var response = await _httpClient.PostAsync($"{siigoSettings.ApiBaseUrl}/v1/invoices", content);
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -287,6 +294,34 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             {
                 await _logger.InformationAsync($"SIIGO API Request: {json}");
                 await _logger.InformationAsync($"SIIGO API Response: {responseContent}");
+            }
+
+            // If we get an unauthorized response, try refreshing the token once
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                await _logger.WarningAsync("SIIGO API returned 401 Unauthorized, attempting token refresh");
+                
+                try
+                {
+                    bearerToken = await _siigoAuthService.RefreshTokenAsync();
+                    
+                    _httpClient.DefaultRequestHeaders.Clear();
+                    _httpClient.DefaultRequestHeaders.Add("Partner-Id", siigoSettings.PartnerId);
+                    _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {bearerToken}");
+                    
+                    response = await _httpClient.PostAsync($"{siigoSettings.ApiBaseUrl}/v1/invoices", content);
+                    responseContent = await response.Content.ReadAsStringAsync();
+                    
+                    if (siigoSettings.LogEnabled)
+                    {
+                        await _logger.InformationAsync($"SIIGO API Retry Response: {responseContent}");
+                    }
+                }
+                catch (Exception tokenEx)
+                {
+                    await _logger.ErrorAsync($"Failed to refresh SIIGO token: {tokenEx.Message}", tokenEx);
+                    throw new Exception($"Authentication failed with SIIGO API: {tokenEx.Message}");
+                }
             }
 
             if (!response.IsSuccessStatusCode)
