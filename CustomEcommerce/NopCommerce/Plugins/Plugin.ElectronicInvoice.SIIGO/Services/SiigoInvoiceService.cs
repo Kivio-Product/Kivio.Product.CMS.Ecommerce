@@ -206,7 +206,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                     PersonType = "Person",
                     IdType = "13", // National ID
                     Identification = customer.Id.ToString(),
-                    Name = new List<string> { $"{customer.FirstName} {customer.LastName}".Trim() },
+                    Name = new List<string> { customer.FirstName ?? "", customer.LastName ?? "" },
                     Address = new SiigoAddress
                     {
                         Address = billingAddress?.Address1 ?? "Not specified",
@@ -247,10 +247,13 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                         Code = siigoSettings.DefaultItemCode,
                         Description = $"Order #{order.Id} - Various products",
                         Quantity = 1,
-                        Price = order.OrderSubtotalInclTax,
-                        Taxes = new List<SiigoTax>
+                        Price = Math.Round(order.OrderSubtotalInclTax, 1),
+                        Taxes = order.OrderTax > 0 ? new List<SiigoTax>
                         {
-                            new SiigoTax { Id = order.OrderTax > 0 ? siigoSettings.TaxIdWithTax : siigoSettings.TaxIdWithoutTax }
+                            new SiigoTax { Id = siigoSettings.TaxIdWithTax }
+                        } : new List<SiigoTax>
+                        {
+                            new SiigoTax { Id = siigoSettings.TaxIdWithoutTax }
                         }
                     }
                 },
@@ -259,7 +262,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                     new SiigoPayment
                     {
                         Id = siigoSettings.PaymentMethodId,
-                        Value = order.OrderTotal,
+                        Value = Math.Round(order.OrderTotal, 1),
                         DueDate = DateTime.Now.ToString("yyyy-MM-dd")
                     }
                 },
