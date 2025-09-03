@@ -104,23 +104,35 @@ namespace Nop.Plugin.Api.Services
                     ErrorMessage = "Product or existing product is null"
                 };
             }
-            
-            // var daysLimitToRenew = await _settingService.GetSettingByKeyAsync<int>("ApiSettings.ProductRenewalDaysLimit");
-            
+
+            var storesToUpdatePublishedStateRaw = await _settingService.GetSettingByKeyAsync<string>("ApiSettings.StoresToUpdatePublishedState", "");
+
+            var storesToUpdatePublishedState = storesToUpdatePublishedStateRaw
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(s => s.ToUpperInvariant())
+                .ToList();
+
             try
-            {        
+            {
+
+                if (storesToUpdatePublishedState.Count > 0 && 
+                    storesToUpdatePublishedState.Any(store => 
+                        existingProduct.Sku?.Contains(store, StringComparison.OrdinalIgnoreCase) == true))
+                {
+                    existingProduct.Published = newProduct.Published;
+                }
+
                 existingProduct.StockQuantity = newProduct.StockQuantity;
                 existingProduct.OrderMaximumQuantity = newProduct.OrderMaximumQuantity;
                 existingProduct.ManageInventoryMethodId = newProduct.ManageInventoryMethodId;
-                // existingProduct.Published = newProduct.Published;
                 existingProduct.Price = newProduct.Price;
                 existingProduct.OldPrice = newProduct.OldPrice;
-                
-                existingProduct.UpdatedOnUtc = DateTime.UtcNow; 
-                
+
+                existingProduct.UpdatedOnUtc = DateTime.UtcNow;
+
                 await _productService.UpdateProductAsync(existingProduct);
 
-                if(extraCategoryId.HasValue && extraCategoryId.Value > 0)
+                if (extraCategoryId.HasValue && extraCategoryId.Value > 0)
                 {
                     // Verificar si ya existe el mapping
                     var existingMapping = await _productCategoryMappingRepository.Table
@@ -140,7 +152,7 @@ namespace Nop.Plugin.Api.Services
 
                 await _customerActivityService.InsertActivityAsync("RenewProduct",
                     await _localizationService.GetResourceAsync("ActivityLog.RenewProduct"), existingProduct);
-                
+
                 return new ProductRenewalResult
                 {
                     Success = true,
