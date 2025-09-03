@@ -187,6 +187,30 @@
                                 <small class="form-text text-muted">Email address to receive a copy of all electronic invoices. Leave empty to not send copies.</small>
                             </div>
                         </div>
+                        <!-- CurrencyCode -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="CurrencyCode_OverrideForStore" asp-input="CurrencyCode" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="CurrencyCode" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="CurrencyCode" />
+                                <span asp-validation-for="CurrencyCode"></span>
+                                <small class="form-text text-muted">Currency code for invoices (e.g., COP, USD, EUR). Default is COP.</small>
+                            </div>
+                        </div>
+                        <!-- ExchangeRate -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="ExchangeRate_OverrideForStore" asp-input="ExchangeRate" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="ExchangeRate" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="ExchangeRate" />
+                                <span asp-validation-for="ExchangeRate"></span>
+                                <small class="form-text text-muted">Exchange rate for currency conversion. Use "1" for local currency. Format: decimal number (e.g., 1, 0.85, 4500).</small>
+                            </div>
+                        </div>
                         <!-- LogEnabled -->
                         <div class="form-group row">
                             <div class="col-md-3">

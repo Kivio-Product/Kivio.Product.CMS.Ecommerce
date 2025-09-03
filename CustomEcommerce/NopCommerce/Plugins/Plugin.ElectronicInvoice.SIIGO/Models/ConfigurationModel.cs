@@ -67,6 +67,14 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
         public string CopyToEmail { get; set; }
         public bool CopyToEmail_OverrideForStore { get; set; }
 
+        [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.CurrencyCode")]
+        public string CurrencyCode { get; set; }
+        public bool CurrencyCode_OverrideForStore { get; set; }
+
+        [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.ExchangeRate")]
+        public string ExchangeRate { get; set; }
+        public bool ExchangeRate_OverrideForStore { get; set; }
+
         [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.LogEnabled")]
         public bool LogEnabled { get; set; }
         public bool LogEnabled_OverrideForStore { get; set; }

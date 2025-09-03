@@ -78,6 +78,10 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
                 SendStamp_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.SendStamp, storeId),
                 CopyToEmail = siigoSettings.CopyToEmail,
                 CopyToEmail_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.CopyToEmail, storeId),
+                CurrencyCode = siigoSettings.CurrencyCode,
+                CurrencyCode_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.CurrencyCode, storeId),
+                ExchangeRate = siigoSettings.ExchangeRate,
+                ExchangeRate_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.ExchangeRate, storeId),
                 IsEnabled = siigoSettings.IsEnabled,
                 IsEnabled_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.IsEnabled, storeId),
                 TestMode = siigoSettings.TestMode,
@@ -112,6 +116,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             siigoSettings.SendByEmail = model.SendByEmail;
             siigoSettings.SendStamp = model.SendStamp;
             siigoSettings.CopyToEmail = model.CopyToEmail;
+            siigoSettings.CurrencyCode = model.CurrencyCode;
+            siigoSettings.ExchangeRate = model.ExchangeRate;
             siigoSettings.IsEnabled = model.IsEnabled;
             siigoSettings.TestMode = model.TestMode;
             siigoSettings.LogEnabled = model.LogEnabled;
@@ -129,6 +135,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SendByEmail, model.SendByEmail_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SendStamp, model.SendStamp_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.CopyToEmail, model.CopyToEmail_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.CurrencyCode, model.CurrencyCode_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.ExchangeRate, model.ExchangeRate_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.IsEnabled, model.IsEnabled_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.TestMode, model.TestMode_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.LogEnabled, model.LogEnabled_OverrideForStore, storeId, false);

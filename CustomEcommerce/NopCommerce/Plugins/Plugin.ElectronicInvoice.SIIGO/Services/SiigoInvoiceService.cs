@@ -259,8 +259,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                 },
                 Currency = new SiigoCurrency
                 {
-                    Code = "COP", // Colombian peso
-                    ExchangeRate = "1"
+                    Code = !string.IsNullOrEmpty(siigoSettings.CurrencyCode) ? siigoSettings.CurrencyCode : "COP",
+                    ExchangeRate = !string.IsNullOrEmpty(siigoSettings.ExchangeRate) ? siigoSettings.ExchangeRate : "1"
                 },
                 Seller = siigoSettings.SellerId,
                 Stamp = new SiigoStamp { Send = siigoSettings.SendStamp },

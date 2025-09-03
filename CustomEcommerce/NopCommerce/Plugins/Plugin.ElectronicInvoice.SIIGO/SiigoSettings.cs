@@ -17,6 +17,8 @@ namespace Plugin.ElectronicInvoice.SIIGO
         public bool SendByEmail { get; set; }
         public bool SendStamp { get; set; }
         public string CopyToEmail { get; set; }
+        public string CurrencyCode { get; set; }
+        public string ExchangeRate { get; set; }
         public bool IsEnabled { get; set; }
         public bool TestMode { get; set; }
         public bool LogEnabled { get; set; }
