@@ -1,4 +1,5 @@
 @using Nop.Web.Framework.Extensions
+@using Nop.Web.Framework
 @using Plugin.ElectronicInvoice.SIIGO.Models
 
 @model ConfigurationModel
@@ -222,6 +223,88 @@
                                 <span asp-validation-for="LogEnabled"></span>
                             </div>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Invoiced Orders -->
+                <div class="card card-default">
+                    <div class="card-header">
+                        Recent Orders with SIIGO Invoices
+                    </div>
+                    <div class="card-body">
+                        @if (Model.RecentInvoicedOrders != null && Model.RecentInvoicedOrders.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover table-striped">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Order Date</th>
+                                            <th>Customer Email</th>
+                                            <th>Order Total</th>
+                                            <th>SIIGO Invoice ID</th>
+                                            <th>SIIGO Invoice Number</th>
+                                            <th>Invoice Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var order in Model.RecentInvoicedOrders)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <a href="@Url.Action("Edit", "Order", new { id = order.OrderId, area = AreaNames.ADMIN })" target="_blank">
+                                                        #@order.OrderId
+                                                    </a>
+                                                </td>
+                                                <td>@order.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                                <td>@order.CustomerEmail</td>
+                                                <td>@order.OrderTotal.ToString("C")</td>
+                                                <td>
+                                                    <span class="text-monospace">@order.SiigoInvoiceId</span>
+                                                </td>
+                                                <td>@order.SiigoInvoiceNumber</td>
+                                                <td>
+                                                    @if (order.SiigoInvoiceDate.HasValue)
+                                                    {
+                                                        @order.SiigoInvoiceDate.Value.ToString("yyyy-MM-dd HH:mm")
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">N/A</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (order.SiigoInvoiceStatus?.Contains("Error") == true)
+                                                    {
+                                                        <span class="badge badge-danger">@order.SiigoInvoiceStatus</span>
+                                                    }
+                                                    else if (order.SiigoInvoiceStatus == "Processing")
+                                                    {
+                                                        <span class="badge badge-warning">@order.SiigoInvoiceStatus</span>
+                                                    }
+                                                    else if (order.SiigoInvoiceStatus == "Created")
+                                                    {
+                                                        <span class="badge badge-success">@order.SiigoInvoiceStatus</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-secondary">@order.SiigoInvoiceStatus</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                No orders with SIIGO invoices found. Orders will appear here after electronic invoices are generated.
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

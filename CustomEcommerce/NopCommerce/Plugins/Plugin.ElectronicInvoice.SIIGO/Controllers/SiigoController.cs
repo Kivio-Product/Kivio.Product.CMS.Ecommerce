@@ -4,11 +4,15 @@ using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Messages;
 using Nop.Services.Security;
+using Nop.Services.Orders;
+using Nop.Services.Customers;
+using Nop.Services.Common;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
 using Plugin.ElectronicInvoice.SIIGO.Models;
 using Plugin.ElectronicInvoice.SIIGO.Services;
+using Plugin.ElectronicInvoice.SIIGO.Data;
 
 namespace Plugin.ElectronicInvoice.SIIGO.Controllers
 {
@@ -24,6 +28,9 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
         private readonly IPermissionService _permissionService;
         private readonly ISiigoInvoiceService _siigoInvoiceService;
         private readonly ISiigoAuthService _siigoAuthService;
+        private readonly IOrderService _orderService;
+        private readonly ICustomerService _customerService;
+        private readonly IGenericAttributeService _genericAttributeService;
 
         public SiigoController(
             IStoreContext storeContext,
@@ -32,7 +39,10 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             INotificationService notificationService,
             IPermissionService permissionService,
             ISiigoInvoiceService siigoInvoiceService,
-            ISiigoAuthService siigoAuthService)
+            ISiigoAuthService siigoAuthService,
+            IOrderService orderService,
+            ICustomerService customerService,
+            IGenericAttributeService genericAttributeService)
         {
             _storeContext = storeContext;
             _settingService = settingService;
@@ -41,6 +51,9 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             _permissionService = permissionService;
             _siigoInvoiceService = siigoInvoiceService;
             _siigoAuthService = siigoAuthService;
+            _orderService = orderService;
+            _customerService = customerService;
+            _genericAttributeService = genericAttributeService;
         }
 
         [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
@@ -87,7 +100,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
                 TestMode = siigoSettings.TestMode,
                 TestMode_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.TestMode, storeId),
                 LogEnabled = siigoSettings.LogEnabled,
-                LogEnabled_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.LogEnabled, storeId)
+                LogEnabled_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.LogEnabled, storeId),
+                RecentInvoicedOrders = await LoadRecentInvoicedOrdersAsync()
             };
 
             return View("~/Plugins/ElectronicInvoice.SIIGO/Views/Configure.cshtml", model);
@@ -180,6 +194,48 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             }
 
             return await Configure();
+        }
+
+        private async Task<List<InvoicedOrderModel>> LoadRecentInvoicedOrdersAsync()
+        {
+            try
+            {
+                var invoicedOrders = new List<InvoicedOrderModel>();
+                
+                // Get recent orders (last 50 orders to check)
+                var orders = await _orderService.SearchOrdersAsync(pageSize: 50);
+                
+                foreach (var order in orders)
+                {
+                    // Check if order has SIIGO invoice
+                    if (await order.HasSiigoInvoiceAsync(_genericAttributeService))
+                    {
+                        var customer = await _customerService.GetCustomerByIdAsync(order.CustomerId);
+                        var invoiceInfo = await _siigoInvoiceService.GetOrderInvoiceInfoAsync(order);
+                        
+                        invoicedOrders.Add(new InvoicedOrderModel
+                        {
+                            OrderId = order.Id,
+                            OrderGuid = order.OrderGuid.ToString(),
+                            OrderDate = order.CreatedOnUtc,
+                            CustomerEmail = customer?.Email ?? "N/A",
+                            OrderTotal = order.OrderTotal,
+                            SiigoInvoiceId = invoiceInfo.invoiceId ?? "N/A",
+                            SiigoInvoiceNumber = invoiceInfo.invoiceNumber,
+                            SiigoInvoiceDate = invoiceInfo.invoiceDate,
+                            SiigoInvoiceStatus = invoiceInfo.status ?? "Unknown"
+                        });
+                    }
+                }
+                
+                // Return most recent first (limit to 20 for display)
+                return invoicedOrders.OrderByDescending(x => x.OrderDate).Take(20).ToList();
+            }
+            catch (Exception)
+            {
+                // Return empty list on error
+                return new List<InvoicedOrderModel>();
+            }
         }
     }
 }

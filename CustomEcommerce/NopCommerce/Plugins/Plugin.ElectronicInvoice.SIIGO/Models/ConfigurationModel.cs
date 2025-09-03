@@ -5,6 +5,11 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
 {
     public record ConfigurationModel : BaseNopModel
     {
+        public ConfigurationModel()
+        {
+            RecentInvoicedOrders = new List<InvoicedOrderModel>();
+        }
+
         public int ActiveStoreScopeConfiguration { get; set; }
 
         [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.IsEnabled")]
@@ -78,5 +83,20 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
         [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.LogEnabled")]
         public bool LogEnabled { get; set; }
         public bool LogEnabled_OverrideForStore { get; set; }
+
+        public List<InvoicedOrderModel> RecentInvoicedOrders { get; set; }
+    }
+
+    public record InvoicedOrderModel : BaseNopModel
+    {
+        public int OrderId { get; set; }
+        public string OrderGuid { get; set; }
+        public DateTime OrderDate { get; set; }
+        public string CustomerEmail { get; set; }
+        public decimal OrderTotal { get; set; }
+        public string SiigoInvoiceId { get; set; }
+        public long SiigoInvoiceNumber { get; set; }
+        public DateTime? SiigoInvoiceDate { get; set; }
+        public string SiigoInvoiceStatus { get; set; }
     }
 }
