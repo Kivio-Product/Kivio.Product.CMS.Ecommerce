@@ -51,10 +51,6 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
         public int TaxIdWithTax { get; set; }
         public bool TaxIdWithTax_OverrideForStore { get; set; }
 
-        [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.TaxIdWithoutTax")]
-        public int TaxIdWithoutTax { get; set; }
-        public bool TaxIdWithoutTax_OverrideForStore { get; set; }
-
         [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.SendByEmail")]
         public bool SendByEmail { get; set; }
         public bool SendByEmail_OverrideForStore { get; set; }

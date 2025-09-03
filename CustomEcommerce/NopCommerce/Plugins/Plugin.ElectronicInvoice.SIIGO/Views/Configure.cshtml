@@ -138,17 +138,7 @@
                             <div class="col-md-9">
                                 <nop-editor asp-for="TaxIdWithTax" />
                                 <span asp-validation-for="TaxIdWithTax"></span>
-                            </div>
-                        </div>
-                        <!-- TaxIdWithoutTax -->
-                        <div class="form-group row">
-                            <div class="col-md-3">
-                                <nop-override-store-checkbox asp-for="TaxIdWithoutTax_OverrideForStore" asp-input="TaxIdWithoutTax" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                                <nop-label asp-for="TaxIdWithoutTax" />
-                            </div>
-                            <div class="col-md-9">
-                                <nop-editor asp-for="TaxIdWithoutTax" />
-                                <span asp-validation-for="TaxIdWithoutTax"></span>
+                                <small class="form-text text-muted">Tax ID to use when order has taxes. When order has no taxes, no tax information will be sent.</small>
                             </div>
                         </div>
                         <!-- SendByEmail -->

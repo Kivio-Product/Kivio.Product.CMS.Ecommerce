@@ -251,10 +251,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                         Taxes = order.OrderTax > 0 ? new List<SiigoTax>
                         {
                             new SiigoTax { Id = siigoSettings.TaxIdWithTax }
-                        } : new List<SiigoTax>
-                        {
-                            new SiigoTax { Id = siigoSettings.TaxIdWithoutTax }
-                        }
+                        } : null
                     }
                 },
                 Payments = new List<SiigoPayment>

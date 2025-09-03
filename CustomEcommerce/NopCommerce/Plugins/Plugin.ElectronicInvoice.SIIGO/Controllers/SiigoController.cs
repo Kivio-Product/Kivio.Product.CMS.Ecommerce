@@ -70,8 +70,6 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
                 PaymentMethodId_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.PaymentMethodId, storeId),
                 TaxIdWithTax = siigoSettings.TaxIdWithTax,
                 TaxIdWithTax_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.TaxIdWithTax, storeId),
-                TaxIdWithoutTax = siigoSettings.TaxIdWithoutTax,
-                TaxIdWithoutTax_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.TaxIdWithoutTax, storeId),
                 SendByEmail = siigoSettings.SendByEmail,
                 SendByEmail_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.SendByEmail, storeId),
                 SendStamp = siigoSettings.SendStamp,
@@ -106,7 +104,6 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             siigoSettings.SellerId = model.SellerId;
             siigoSettings.PaymentMethodId = model.PaymentMethodId;
             siigoSettings.TaxIdWithTax = model.TaxIdWithTax;
-            siigoSettings.TaxIdWithoutTax = model.TaxIdWithoutTax;
             siigoSettings.SendByEmail = model.SendByEmail;
             siigoSettings.SendStamp = model.SendStamp;
             siigoSettings.IsEnabled = model.IsEnabled;
@@ -122,7 +119,6 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SellerId, model.SellerId_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.PaymentMethodId, model.PaymentMethodId_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.TaxIdWithTax, model.TaxIdWithTax_OverrideForStore, storeId, false);
-            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.TaxIdWithoutTax, model.TaxIdWithoutTax_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SendByEmail, model.SendByEmail_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SendStamp, model.SendStamp_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.IsEnabled, model.IsEnabled_OverrideForStore, storeId, false);
