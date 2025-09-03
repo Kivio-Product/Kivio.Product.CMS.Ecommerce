@@ -377,7 +377,7 @@ namespace Nop.Plugin.Api.Controllers
                 return Error(HttpStatusCode.NotFound, "product", "not found");
             }
 
-            var priceUpdateConditionEnabled = await _settingService.GetSettingByKeyAsync<bool>("ApiSettings.PriceUpdateConditionEnabled", true);
+            var priceUpdateConditionEnabled = await _settingService.GetSettingByKeyAsync<bool>("ApiSettings.PriceUpdateConditionEnabled", false);
 
             if (priceUpdateConditionEnabled && productDelta.Dto.Price.HasValue && productDelta.Dto.Price > 0 && productDelta.Dto.Price < product.Price)
             {
