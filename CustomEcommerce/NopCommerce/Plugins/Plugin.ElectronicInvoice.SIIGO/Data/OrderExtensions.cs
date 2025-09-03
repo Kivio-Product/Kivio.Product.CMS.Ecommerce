@@ -32,15 +32,15 @@ namespace Plugin.ElectronicInvoice.SIIGO.Data
         /// <summary>
         /// Gets the SIIGO invoice number
         /// </summary>
-        public static async Task<string> GetSiigoInvoiceNumberAsync(this Order order, IGenericAttributeService genericAttributeService)
+        public static async Task<long> GetSiigoInvoiceNumberAsync(this Order order, IGenericAttributeService genericAttributeService)
         {
-            return await genericAttributeService.GetAttributeAsync<string>(order, SIIGO_INVOICE_NUMBER_KEY);
+            return await genericAttributeService.GetAttributeAsync<long>(order, SIIGO_INVOICE_NUMBER_KEY);
         }
 
         /// <summary>
         /// Sets the SIIGO invoice number
         /// </summary>
-        public static async Task SetSiigoInvoiceNumberAsync(this Order order, IGenericAttributeService genericAttributeService, string invoiceNumber)
+        public static async Task SetSiigoInvoiceNumberAsync(this Order order, IGenericAttributeService genericAttributeService, long invoiceNumber)
         {
             await genericAttributeService.SaveAttributeAsync(order, SIIGO_INVOICE_NUMBER_KEY, invoiceNumber);
         }

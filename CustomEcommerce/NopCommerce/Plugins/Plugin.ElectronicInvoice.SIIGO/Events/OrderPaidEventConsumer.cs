@@ -9,18 +9,15 @@ namespace Plugin.ElectronicInvoice.SIIGO.Events
     public class OrderPaidEventConsumer : IConsumer<OrderPaidEvent>
     {
         private readonly ISiigoInvoiceService _siigoInvoiceService;
-        private readonly ISiigoNotificationService _notificationService;
         private readonly ISettingService _settingService;
         private readonly ILogger _logger;
 
         public OrderPaidEventConsumer(
             ISiigoInvoiceService siigoInvoiceService,
-            ISiigoNotificationService notificationService,
             ISettingService settingService,
             ILogger logger)
         {
             _siigoInvoiceService = siigoInvoiceService;
-            _notificationService = notificationService;
             _settingService = settingService;
             _logger = logger;
         }
@@ -57,8 +54,6 @@ namespace Plugin.ElectronicInvoice.SIIGO.Events
 
                 if (siigoResponse != null && !string.IsNullOrEmpty(siigoResponse.Id))
                 {
-                    await _notificationService.SendInvoiceNotificationAsync(order, siigoResponse);
-
                     var orderNote = $"SIIGO electronic invoice created - ID: {siigoResponse.Id}, Number: {siigoResponse.Number}";
 
                     if (siigoSettings.LogEnabled)
@@ -71,11 +66,6 @@ namespace Plugin.ElectronicInvoice.SIIGO.Events
             {
                 var errorMessage = $"Error processing electronic invoicing for order {eventMessage?.Order?.Id}: {ex.Message}";
                 await _logger.ErrorAsync(errorMessage, ex);
-
-                if (eventMessage?.Order != null)
-                {
-                    await _notificationService.SendErrorNotificationAsync(eventMessage.Order, ex.Message);
-                }
             }
         }
     }

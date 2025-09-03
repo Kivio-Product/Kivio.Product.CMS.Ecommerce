@@ -70,10 +70,14 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
                 PaymentMethodId_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.PaymentMethodId, storeId),
                 TaxIdWithTax = siigoSettings.TaxIdWithTax,
                 TaxIdWithTax_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.TaxIdWithTax, storeId),
+                AccountGroup = siigoSettings.AccountGroup,
+                AccountGroup_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.AccountGroup, storeId),
                 SendByEmail = siigoSettings.SendByEmail,
                 SendByEmail_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.SendByEmail, storeId),
                 SendStamp = siigoSettings.SendStamp,
                 SendStamp_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.SendStamp, storeId),
+                CopyToEmail = siigoSettings.CopyToEmail,
+                CopyToEmail_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.CopyToEmail, storeId),
                 IsEnabled = siigoSettings.IsEnabled,
                 IsEnabled_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.IsEnabled, storeId),
                 TestMode = siigoSettings.TestMode,
@@ -104,8 +108,10 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             siigoSettings.SellerId = model.SellerId;
             siigoSettings.PaymentMethodId = model.PaymentMethodId;
             siigoSettings.TaxIdWithTax = model.TaxIdWithTax;
+            siigoSettings.AccountGroup = model.AccountGroup;
             siigoSettings.SendByEmail = model.SendByEmail;
             siigoSettings.SendStamp = model.SendStamp;
+            siigoSettings.CopyToEmail = model.CopyToEmail;
             siigoSettings.IsEnabled = model.IsEnabled;
             siigoSettings.TestMode = model.TestMode;
             siigoSettings.LogEnabled = model.LogEnabled;
@@ -119,8 +125,10 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SellerId, model.SellerId_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.PaymentMethodId, model.PaymentMethodId_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.TaxIdWithTax, model.TaxIdWithTax_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.AccountGroup, model.AccountGroup_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SendByEmail, model.SendByEmail_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SendStamp, model.SendStamp_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.CopyToEmail, model.CopyToEmail_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.IsEnabled, model.IsEnabled_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.TestMode, model.TestMode_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.LogEnabled, model.LogEnabled_OverrideForStore, storeId, false);

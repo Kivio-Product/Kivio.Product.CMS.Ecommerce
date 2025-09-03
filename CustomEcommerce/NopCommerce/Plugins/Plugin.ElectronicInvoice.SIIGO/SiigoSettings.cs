@@ -13,8 +13,10 @@ namespace Plugin.ElectronicInvoice.SIIGO
         public int SellerId { get; set; }
         public int PaymentMethodId { get; set; }
         public int TaxIdWithTax { get; set; }
+        public int AccountGroup { get; set; }
         public bool SendByEmail { get; set; }
         public bool SendStamp { get; set; }
+        public string CopyToEmail { get; set; }
         public bool IsEnabled { get; set; }
         public bool TestMode { get; set; }
         public bool LogEnabled { get; set; }

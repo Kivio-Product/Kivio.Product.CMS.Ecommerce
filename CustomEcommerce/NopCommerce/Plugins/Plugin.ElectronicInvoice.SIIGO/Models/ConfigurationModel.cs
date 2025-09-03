@@ -51,6 +51,10 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
         public int TaxIdWithTax { get; set; }
         public bool TaxIdWithTax_OverrideForStore { get; set; }
 
+        [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.AccountGroup")]
+        public int AccountGroup { get; set; }
+        public bool AccountGroup_OverrideForStore { get; set; }
+
         [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.SendByEmail")]
         public bool SendByEmail { get; set; }
         public bool SendByEmail_OverrideForStore { get; set; }
@@ -58,6 +62,10 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
         [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.SendStamp")]
         public bool SendStamp { get; set; }
         public bool SendStamp_OverrideForStore { get; set; }
+
+        [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.CopyToEmail")]
+        public string CopyToEmail { get; set; }
+        public bool CopyToEmail_OverrideForStore { get; set; }
 
         [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.LogEnabled")]
         public bool LogEnabled { get; set; }
