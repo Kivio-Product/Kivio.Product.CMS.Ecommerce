@@ -922,7 +922,8 @@ public partial class ProductService : IProductService
         bool showHidden = false,
         bool? overridePublished = null,
         bool sortByDiscount = true,
-        decimal? minimumDiscountPercentage = null)
+        decimal? minimumDiscountPercentage = null,
+        bool onlyNonStock = false)
     {
         //some databases don't support int.MaxValue
         if (pageSize == int.MaxValue)
@@ -978,6 +979,11 @@ public partial class ProductService : IProductService
                 p.OldPrice > p.Price &&
                 ((p.OldPrice - p.Price) / p.OldPrice) >= minimumDiscountPercentage.Value
             );
+        }
+
+        if (onlyNonStock)
+        {
+            productsQuery = productsQuery.Where(p => p.StockQuantity <= 0);
         }
 
         var activeSearchProvider = await _searchPluginManager.LoadPrimaryPluginAsync(customer, storeId);
