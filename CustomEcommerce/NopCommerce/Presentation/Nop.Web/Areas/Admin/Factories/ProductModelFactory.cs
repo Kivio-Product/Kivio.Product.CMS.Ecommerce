@@ -371,9 +371,9 @@ public partial class ProductModelFactory : IProductModelFactory
                                     await _productAttributeParser.ParseProductAttributeValuesAsync(productAttributeMapping
                                         .ConditionAttributeXml);
                                 foreach (var attributeValue in selectedValues)
-                                foreach (var item in attributeModel.Values)
-                                    if (attributeValue.Id == item.Id)
-                                        item.IsPreSelected = true;
+                                    foreach (var item in attributeModel.Values)
+                                        if (attributeValue.Id == item.Id)
+                                            item.IsPreSelected = true;
                             }
 
                             break;
@@ -742,7 +742,8 @@ public partial class ProductModelFactory : IProductModelFactory
             productType: searchModel.SearchProductTypeId > 0 ? (ProductType?)searchModel.SearchProductTypeId : null,
             keywords: searchModel.SearchProductName,
             pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize,
-            overridePublished: overridePublished);
+            overridePublished: overridePublished,
+            onlyNonStock: searchModel.SearchNonStockOnly);
 
         var primaryStoreCurrency = await _currencyService.GetCurrencyByIdAsync(_currencySettings.PrimaryStoreCurrencyId);
 
@@ -962,7 +963,7 @@ public partial class ProductModelFactory : IProductModelFactory
             vendorId: currentVendor?.Id ?? 0);
 
         await _discountSupportedModelFactory.PrepareModelDiscountsAsync(model, product, availableDiscounts, excludeProperties);
-        
+
         //prepare model stores
         await _storeMappingSupportedModelFactory.PrepareModelStoresAsync(model, product, excludeProperties);
 
@@ -1570,7 +1571,7 @@ public partial class ProductModelFactory : IProductModelFactory
             };
         }
 
-        var attribute = await _specificationAttributeService.GetProductSpecificationAttributeByIdAsync(specificationId.Value) 
+        var attribute = await _specificationAttributeService.GetProductSpecificationAttributeByIdAsync(specificationId.Value)
                         ?? throw new ArgumentException("No specification attribute found with the specified id");
 
         //a vendor should have access only to his products
@@ -2301,7 +2302,7 @@ public partial class ProductModelFactory : IProductModelFactory
 
                 var combinationPicture = (await _productAttributeService.GetProductAttributeCombinationPicturesAsync(combination.Id)).FirstOrDefault();
                 var pictureThumbnailUrl = await _pictureService.GetPictureUrlAsync(combinationPicture?.PictureId ?? 0, 75, false);
-                    
+
                 //little hack here. Grid is rendered wrong way with <img> without "src" attribute
                 if (string.IsNullOrEmpty(pictureThumbnailUrl))
                     pictureThumbnailUrl = await _pictureService.GetDefaultPictureUrlAsync(targetSize: 1);
