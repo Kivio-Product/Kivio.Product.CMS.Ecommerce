@@ -7,12 +7,14 @@ using Nop.Services.Security;
 using Nop.Services.Orders;
 using Nop.Services.Customers;
 using Nop.Services.Common;
+using Nop.Services.Tax;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
 using Plugin.ElectronicInvoice.SIIGO.Models;
 using Plugin.ElectronicInvoice.SIIGO.Services;
 using Plugin.ElectronicInvoice.SIIGO.Data;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Plugin.ElectronicInvoice.SIIGO.Controllers
 {
@@ -31,6 +33,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
         private readonly IOrderService _orderService;
         private readonly ICustomerService _customerService;
         private readonly IGenericAttributeService _genericAttributeService;
+        private readonly ITaxCategoryService _taxCategoryService;
 
         public SiigoController(
             IStoreContext storeContext,
@@ -42,7 +45,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             ISiigoAuthService siigoAuthService,
             IOrderService orderService,
             ICustomerService customerService,
-            IGenericAttributeService genericAttributeService)
+            IGenericAttributeService genericAttributeService,
+            ITaxCategoryService taxCategoryService)
         {
             _storeContext = storeContext;
             _settingService = settingService;
@@ -54,6 +58,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             _orderService = orderService;
             _customerService = customerService;
             _genericAttributeService = genericAttributeService;
+            _taxCategoryService = taxCategoryService;
         }
 
         [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
@@ -81,8 +86,6 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
                 SellerId_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.SellerId, storeId),
                 PaymentMethodId = siigoSettings.PaymentMethodId,
                 PaymentMethodId_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.PaymentMethodId, storeId),
-                TaxIdWithTax = siigoSettings.TaxIdWithTax,
-                TaxIdWithTax_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.TaxIdWithTax, storeId),
                 AccountGroup = siigoSettings.AccountGroup,
                 AccountGroup_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.AccountGroup, storeId),
                 SendByEmail = siigoSettings.SendByEmail,
@@ -101,7 +104,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
                 TestMode_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.TestMode, storeId),
                 LogEnabled = siigoSettings.LogEnabled,
                 LogEnabled_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.LogEnabled, storeId),
-                RecentInvoicedOrders = await LoadRecentInvoicedOrdersAsync()
+                RecentInvoicedOrders = await LoadRecentInvoicedOrdersAsync(),
+                TaxCategoryMappings = await LoadTaxCategoryMappingsAsync(storeId)
             };
 
             return View("~/Plugins/ElectronicInvoice.SIIGO/Views/Configure.cshtml", model);
@@ -125,7 +129,6 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             siigoSettings.DefaultItemCode = model.DefaultItemCode;
             siigoSettings.SellerId = model.SellerId;
             siigoSettings.PaymentMethodId = model.PaymentMethodId;
-            siigoSettings.TaxIdWithTax = model.TaxIdWithTax;
             siigoSettings.AccountGroup = model.AccountGroup;
             siigoSettings.SendByEmail = model.SendByEmail;
             siigoSettings.SendStamp = model.SendStamp;
@@ -144,7 +147,6 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.DefaultItemCode, model.DefaultItemCode_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SellerId, model.SellerId_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.PaymentMethodId, model.PaymentMethodId_OverrideForStore, storeId, false);
-            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.TaxIdWithTax, model.TaxIdWithTax_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.AccountGroup, model.AccountGroup_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SendByEmail, model.SendByEmail_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.SendStamp, model.SendStamp_OverrideForStore, storeId, false);
@@ -194,6 +196,149 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             }
 
             return await Configure();
+        }
+
+        [HttpPost]
+        [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
+        public async Task<IActionResult> AddTaxCategoryMapping(ConfigurationModel model)
+        {
+            try
+            {
+                if (model.TaxCategoryMappings.NewTaxCategoryId <= 0)
+                {
+                    _notificationService.ErrorNotification("Please select a valid tax category.");
+                    return await Configure();
+                }
+
+                if (model.TaxCategoryMappings.NewSiigoTaxCode <= 0)
+                {
+                    _notificationService.ErrorNotification("Please enter a valid SIIGO tax code.");
+                    return await Configure();
+                }
+
+                var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+                var mappingSettings = await _settingService.LoadSettingAsync<SiigoTaxCategoryMappingSettings>(storeId);
+
+                // Log current state for debugging
+                var currentCount = mappingSettings.TaxCategoryMappings.Count;
+                
+                // Check if mapping already exists
+                var existingMapping = mappingSettings.TaxCategoryMappings
+                    .FirstOrDefault(m => m.TaxCategoryId == model.TaxCategoryMappings.NewTaxCategoryId);
+
+                // Add or update mapping using the helper method
+                mappingSettings.AddOrUpdateMapping(
+                    model.TaxCategoryMappings.NewTaxCategoryId,
+                    model.TaxCategoryMappings.NewSiigoTaxCode,
+                    model.TaxCategoryMappings.NewIsEnabled);
+
+                // Verify the change was applied
+                var newCount = mappingSettings.TaxCategoryMappings.Count;
+                var jsonData = mappingSettings.TaxCategoryMappingsJson;
+
+                await _settingService.SaveSettingAsync(mappingSettings, storeId);
+
+                if (existingMapping != null)
+                {
+                    _notificationService.SuccessNotification($"Tax category mapping updated successfully. (Total mappings: {newCount})");
+                }
+                else
+                {
+                    _notificationService.SuccessNotification($"Tax category mapping added successfully. (Was {currentCount}, now {newCount})");
+                }
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ErrorNotification($"Error saving tax category mapping: {ex.Message}");
+            }
+
+            return await Configure();
+        }
+
+        [HttpPost]
+        [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
+        public async Task<IActionResult> DeleteTaxCategoryMapping(int deleteTaxCategoryMapping)
+        {
+            try
+            {
+                var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+                var mappingSettings = await _settingService.LoadSettingAsync<SiigoTaxCategoryMappingSettings>(storeId);
+
+                // Remove mapping using the helper method
+                var removed = mappingSettings.RemoveMapping(deleteTaxCategoryMapping);
+
+                if (removed)
+                {
+                    await _settingService.SaveSettingAsync(mappingSettings, storeId);
+                    _notificationService.SuccessNotification("Tax category mapping deleted successfully.");
+                }
+                else
+                {
+                    _notificationService.ErrorNotification("Tax category mapping not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ErrorNotification($"Error deleting tax category mapping: {ex.Message}");
+            }
+
+            return await Configure();
+        }
+
+        private async Task<TaxCategoryMappingConfigurationModel> LoadTaxCategoryMappingsAsync(int storeId)
+        {
+            var model = new TaxCategoryMappingConfigurationModel();
+            
+            try
+            {
+                // Load tax category mappings
+                var mappingSettings = await _settingService.LoadSettingAsync<SiigoTaxCategoryMappingSettings>(storeId);
+                
+                // Load all tax categories
+                var allTaxCategories = await _taxCategoryService.GetAllTaxCategoriesAsync();
+                
+                // Create mapping models
+                foreach (var mapping in mappingSettings.TaxCategoryMappings)
+                {
+                    var taxCategory = allTaxCategories.FirstOrDefault(tc => tc.Id == mapping.TaxCategoryId);
+                    if (taxCategory != null)
+                    {
+                        model.TaxCategoryMappings.Add(new SiigoTaxCategoryMappingModel
+                        {
+                            Id = mapping.TaxCategoryId, // Using TaxCategoryId as the model ID
+                            TaxCategoryId = mapping.TaxCategoryId,
+                            TaxCategoryName = taxCategory.Name,
+                            SiigoTaxCode = mapping.SiigoTaxCode,
+                            IsEnabled = mapping.IsEnabled
+                        });
+                    }
+                }
+
+                // Populate available tax categories (those not yet mapped)
+                var mappedTaxCategoryIds = mappingSettings.TaxCategoryMappings.Select(m => m.TaxCategoryId).ToList();
+                var unmappedTaxCategories = allTaxCategories.Where(tc => !mappedTaxCategoryIds.Contains(tc.Id));
+                
+                model.AvailableTaxCategories = unmappedTaxCategories
+                    .Select(tc => new SelectListItem
+                    {
+                        Value = tc.Id.ToString(),
+                        Text = tc.Name
+                    }).ToList();
+
+                // Add default option
+                model.AvailableTaxCategories.Insert(0, new SelectListItem
+                {
+                    Value = "0",
+                    Text = "Select a tax category..."
+                });
+            }
+            catch (Exception)
+            {
+                // Log error but don't throw - return empty model
+                await _localizationService.GetResourceAsync("Admin.Common.Alert.Save.Error");
+            }
+
+            return model;
         }
 
         private async Task<List<InvoicedOrderModel>> LoadRecentInvoicedOrdersAsync()

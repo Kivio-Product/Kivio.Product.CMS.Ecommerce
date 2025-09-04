@@ -11,9 +11,11 @@ using Nop.Services.Directory;
 using Nop.Services.Orders;
 using Nop.Services.Common;
 using Nop.Services.Catalog;
+using Nop.Services.Stores;
 using Plugin.ElectronicInvoice.SIIGO.Models;
 using Plugin.ElectronicInvoice.SIIGO.Data;
 using System.Text;
+using Nop.Core.Domain.Logging;
 
 namespace Plugin.ElectronicInvoice.SIIGO.Services
 {
@@ -29,6 +31,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly ISiigoAuthService _siigoAuthService;
         private readonly IProductService _productService;
+        private readonly IStoreContext _storeContext;
         private readonly HttpClient _httpClient;
         private List<CountryData> _countryData;
 
@@ -43,6 +46,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             IGenericAttributeService genericAttributeService,
             ISiigoAuthService siigoAuthService,
             IProductService productService,
+            IStoreContext storeContext,
             HttpClient httpClient)
         {
             _settingService = settingService;
@@ -55,6 +59,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             _genericAttributeService = genericAttributeService;
             _siigoAuthService = siigoAuthService;
             _productService = productService;
+            _storeContext = storeContext;
             _httpClient = httpClient;
             
             LoadCountryData();
@@ -296,6 +301,10 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             var siigoItems = new List<SiigoItem>();
             var orderItems = await _orderService.GetOrderItemsAsync(order.Id);
 
+            // Load tax category mappings
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var taxMappingSettings = await _settingService.LoadSettingAsync<SiigoTaxCategoryMappingSettings>(storeId);
+
             foreach (var orderItem in orderItems)
             {
                 try
@@ -307,17 +316,45 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                         continue;
                     }
 
-                    // Use product SKU as the SIIGO product code
-                    var productSku = product.Sku;
-                    if (string.IsNullOrEmpty(productSku))
+                    // Generate SIIGO-compatible product SKU
+                    var productSku = await GenerateSiigoProductSkuAsync(product);
+                    
+                    if (siigoSettings.LogEnabled && productSku != product.Sku)
                     {
-                        // Fallback to product ID if SKU is not available
-                        productSku = $"PROD_{product.Id}";
-                        await _logger.WarningAsync($"Product {product.Id} has no SKU, using fallback: {productSku}");
+                        var reason = string.IsNullOrEmpty(product.Sku) ? "no original SKU" : "original SKU too long or invalid";
+                        await _logger.InformationAsync($"Product {product.Id} ({reason}), using generated SKU: {productSku}");
                     }
 
                     // Ensure the product exists in SIIGO
                     var siigoProduct = await EnsureSiigoProductExistsAsync(productSku, product.Name, siigoSettings);
+
+                    // Determine tax information based on product's tax category and our mappings
+                    List<SiigoTax> taxes = null;
+                    
+                    // Only add taxes if the item has tax applied AND we have a valid mapping
+                    if (orderItem.UnitPriceInclTax > orderItem.UnitPriceExclTax && product.TaxCategoryId > 0)
+                    {
+                        var siigoTaxCode = taxMappingSettings.GetSiigoTaxCode(product.TaxCategoryId);
+                        if (siigoTaxCode.HasValue)
+                        {
+                            taxes = new List<SiigoTax>
+                            {
+                                new SiigoTax { Id = siigoTaxCode.Value }
+                            };
+
+                            if (siigoSettings.LogEnabled)
+                            {
+                                await _logger.InformationAsync($"Applied SIIGO tax code {siigoTaxCode.Value} for product {product.Name} (Tax Category ID: {product.TaxCategoryId})");
+                            }
+                        }
+                        else
+                        {
+                            if (siigoSettings.LogEnabled)
+                            {
+                                await _logger.WarningAsync($"Product {product.Name} has tax category {product.TaxCategoryId} but no SIIGO tax code mapping found. No tax will be applied to this item.");
+                            }
+                        }
+                    }
 
                     // Create the SIIGO item
                     var siigoItem = new SiigoItem
@@ -325,18 +362,16 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                         Code = productSku,
                         Description = product.Name,
                         Quantity = orderItem.Quantity,
-                        Price = Math.Round(orderItem.UnitPriceInclTax, 1),
-                        Taxes = orderItem.UnitPriceInclTax > orderItem.UnitPriceExclTax ? new List<SiigoTax>
-                        {
-                            new SiigoTax { Id = siigoSettings.TaxIdWithTax }
-                        } : null
+                        Price = Math.Round(orderItem.UnitPriceExclTax, 1),
+                        Taxes = taxes // Will be null if no tax should be applied
                     };
 
                     siigoItems.Add(siigoItem);
 
                     if (siigoSettings.LogEnabled)
                     {
-                        await _logger.InformationAsync($"Created SIIGO item for product {product.Name} (SKU: {productSku}) - Qty: {orderItem.Quantity}, Price: {orderItem.UnitPriceInclTax}");
+                        var taxInfo = taxes != null ? $"with tax code {taxes.First().Id}" : "without tax";
+                        await _logger.InformationAsync($"Created SIIGO item for product {product.Name} (SKU: {productSku}) - Qty: {orderItem.Quantity}, Price: {orderItem.UnitPriceInclTax} {taxInfo}");
                     }
                 }
                 catch (Exception ex)
@@ -350,10 +385,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                         Description = $"Order item #{orderItem.Id} - Product unavailable",
                         Quantity = orderItem.Quantity,
                         Price = Math.Round(orderItem.UnitPriceInclTax, 1),
-                        Taxes = orderItem.UnitPriceInclTax > orderItem.UnitPriceExclTax ? new List<SiigoTax>
-                        {
-                            new SiigoTax { Id = siigoSettings.TaxIdWithTax }
-                        } : null
+                        Taxes = null // No tax mapping available for fallback items
                     };
                     
                     siigoItems.Add(fallbackItem);
@@ -371,10 +403,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                     Description = $"Order #{order.Id} - Various products",
                     Quantity = 1,
                     Price = Math.Round(order.OrderSubtotalInclTax, 1),
-                    Taxes = order.OrderTax > 0 ? new List<SiigoTax>
-                    {
-                        new SiigoTax { Id = siigoSettings.TaxIdWithTax }
-                    } : null
+                    Taxes = null // No tax mapping available for consolidated items
                 });
             }
 
@@ -392,14 +421,14 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("Partner-Id", siigoSettings.PartnerId);
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {bearerToken}");
-
+            
             var response = await _httpClient.PostAsync($"{siigoSettings.ApiBaseUrl}/v1/invoices", content);
             var responseContent = await response.Content.ReadAsStringAsync();
 
             if (siigoSettings.LogEnabled)
             {
-                await _logger.InformationAsync($"SIIGO API Request: {json}");
-                await _logger.InformationAsync($"SIIGO API Response: {responseContent}");
+                await _logger.InsertLogAsync(LogLevel.Information,$"SIIGO INVOICE API Request:",json);
+                await _logger.InsertLogAsync(LogLevel.Information,$"SIIGO INVOICE API Response:",responseContent);
             }
 
             // If we get an unauthorized response, try refreshing the token once
@@ -441,6 +470,44 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
         }
 
         /// <summary>
+        /// Generates a SIIGO-compatible product SKU with proper length constraints
+        /// </summary>
+        /// <param name="product">The product</param>
+        /// <param name="storeName">Store name (optional, will be fetched if not provided)</param>
+        /// <returns>A SKU that is guaranteed to be 30 characters or less</returns>
+        private async Task<string> GenerateSiigoProductSkuAsync(Nop.Core.Domain.Catalog.Product product, string storeName = null)
+        {
+            // Use existing SKU if it's valid and within length limit
+            if (!string.IsNullOrEmpty(product.Sku) && product.Sku.Length <= 30)
+            {
+                return product.Sku;
+            }
+
+            // Get store name if not provided
+            if (string.IsNullOrEmpty(storeName))
+            {
+                var store = await _storeContext.GetCurrentStoreAsync();
+                storeName = store?.Name?.Replace(" ", "").ToUpper() ?? "STORE";
+            }
+
+            // Ensure store name is not too long (max 15 chars to leave room for prefix and ID)
+            if (storeName.Length > 15)
+                storeName = storeName.Substring(0, 15);
+
+            // Generate custom SKU: PROD_{STORE_NAME}_{PRODUCT_ID}
+            var generatedSku = $"PROD_{storeName}_{product.Id}";
+
+            // Ensure final SKU is within 30 character limit
+            if (generatedSku.Length > 30)
+            {
+                // Fallback to shorter format if still too long
+                generatedSku = $"P_{product.Id}";
+            }
+
+            return generatedSku;
+        }
+
+        /// <summary>
         /// Validates if a product exists in SIIGO by its SKU
         /// </summary>
         private async Task<SiigoProductResponse> GetSiigoProductBySkuAsync(string sku, SiigoSettings siigoSettings)
@@ -458,7 +525,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
 
                 if (siigoSettings.LogEnabled)
                 {
-                    await _logger.InformationAsync($"SIIGO Get Product API Response: {responseContent}");
+                    await _logger.InsertLogAsync(LogLevel.Information,"SIIGO Get Product API Response", $"SIIGO Get Product API Response: {responseContent}");
                 }
 
                 if (response.IsSuccessStatusCode)

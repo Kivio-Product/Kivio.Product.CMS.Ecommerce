@@ -12,7 +12,6 @@ namespace Plugin.ElectronicInvoice.SIIGO
         public string DefaultItemCode { get; set; }
         public int SellerId { get; set; }
         public int PaymentMethodId { get; set; }
-        public int TaxIdWithTax { get; set; }
         public int AccountGroup { get; set; }
         public bool SendByEmail { get; set; }
         public bool SendStamp { get; set; }

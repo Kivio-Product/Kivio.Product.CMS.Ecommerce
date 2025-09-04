@@ -8,6 +8,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
         public ConfigurationModel()
         {
             RecentInvoicedOrders = new List<InvoicedOrderModel>();
+            TaxCategoryMappings = new TaxCategoryMappingConfigurationModel();
         }
 
         public int ActiveStoreScopeConfiguration { get; set; }
@@ -52,10 +53,6 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
         public int PaymentMethodId { get; set; }
         public bool PaymentMethodId_OverrideForStore { get; set; }
 
-        [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.TaxIdWithTax")]
-        public int TaxIdWithTax { get; set; }
-        public bool TaxIdWithTax_OverrideForStore { get; set; }
-
         [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.AccountGroup")]
         public int AccountGroup { get; set; }
         public bool AccountGroup_OverrideForStore { get; set; }
@@ -83,6 +80,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
         [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.LogEnabled")]
         public bool LogEnabled { get; set; }
         public bool LogEnabled_OverrideForStore { get; set; }
+
+        public TaxCategoryMappingConfigurationModel TaxCategoryMappings { get; set; }
 
         public List<InvoicedOrderModel> RecentInvoicedOrders { get; set; }
     }

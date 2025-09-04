@@ -130,18 +130,6 @@
                                 <span asp-validation-for="PaymentMethodId"></span>
                             </div>
                         </div>
-                        <!-- TaxIdWithTax -->
-                        <div class="form-group row">
-                            <div class="col-md-3">
-                                <nop-override-store-checkbox asp-for="TaxIdWithTax_OverrideForStore" asp-input="TaxIdWithTax" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                                <nop-label asp-for="TaxIdWithTax" />
-                            </div>
-                            <div class="col-md-9">
-                                <nop-editor asp-for="TaxIdWithTax" />
-                                <span asp-validation-for="TaxIdWithTax"></span>
-                                <small class="form-text text-muted">Tax ID to use when order has taxes. When order has no taxes, no tax information will be sent.</small>
-                            </div>
-                        </div>
                         <!-- AccountGroup -->
                         <div class="form-group row">
                             <div class="col-md-3">
@@ -221,6 +209,122 @@
                             <div class="col-md-9">
                                 <nop-editor asp-for="LogEnabled" />
                                 <span asp-validation-for="LogEnabled"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tax Category Mappings -->
+                <div class="card card-default">
+                    <div class="card-header">
+                        Tax Category Mappings to SIIGO Tax Codes
+                    </div>
+                    <div class="card-body">
+                        <div class="form-text text-muted mb-3">
+                            Configure how NopCommerce tax categories map to SIIGO tax codes. Only products assigned to mapped tax categories will include tax information in the invoice.
+                        </div>
+                        
+                        <!-- Existing Mappings -->
+                        @if (Model.TaxCategoryMappings.TaxCategoryMappings.Any())
+                        {
+                            <div class="table-responsive mb-4">
+                                <table class="table table-bordered table-hover">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Tax Category</th>
+                                            <th>SIIGO Tax Code</th>
+                                            <th>Enabled</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var mapping in Model.TaxCategoryMappings.TaxCategoryMappings)
+                                        {
+                                            <tr>
+                                                <td>@mapping.TaxCategoryName</td>
+                                                <td>@mapping.SiigoTaxCode</td>
+                                                <td>
+                                                    @if (mapping.IsEnabled)
+                                                    {
+                                                        <span class="badge badge-success">Enabled</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-secondary">Disabled</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <button type="submit" name="deleteTaxCategoryMapping" value="@mapping.TaxCategoryId" 
+                                                            formaction="@Url.Action("DeleteTaxCategoryMapping", "Siigo")" 
+                                                            class="btn btn-danger btn-sm" 
+                                                            onclick="return confirm('Are you sure you want to delete this mapping?')">
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                No tax category mappings configured. Add mappings below to enable tax information in SIIGO invoices.
+                            </div>
+                        }
+
+                        <!-- Add New Mapping -->
+                        <div class="card card-outline card-primary">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Add New Tax Category Mapping</h5>
+                            </div>
+                            <div class="card-body">
+                                @if (Model.TaxCategoryMappings.AvailableTaxCategories.Count > 1)
+                                {
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Tax Category</label>
+                                                <select asp-for="TaxCategoryMappings.NewTaxCategoryId" class="form-control">
+                                                    @foreach (var taxCategory in Model.TaxCategoryMappings.AvailableTaxCategories)
+                                                    {
+                                                        <option value="@taxCategory.Value">@taxCategory.Text</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label>SIIGO Tax Code</label>
+                                                <input asp-for="TaxCategoryMappings.NewSiigoTaxCode" class="form-control" placeholder="e.g., 1270" required />
+                                                <small class="form-text text-muted">Enter the numeric tax code from SIIGO</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label>&nbsp;</label>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input asp-for="TaxCategoryMappings.NewIsEnabled" class="custom-control-input" />
+                                                    <label asp-for="TaxCategoryMappings.NewIsEnabled" class="custom-control-label">Enabled</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label>&nbsp;</label>
+                                                <button type="submit" name="addTaxCategoryMapping" formaction="@Url.Action("AddTaxCategoryMapping", "Siigo")" class="btn btn-primary btn-block">Add Mapping</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-warning">
+                                        All available tax categories have been mapped. You can edit existing mappings or create new tax categories in the tax configuration section.
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>

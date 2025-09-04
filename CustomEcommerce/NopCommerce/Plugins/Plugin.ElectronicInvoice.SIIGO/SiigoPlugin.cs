@@ -41,19 +41,22 @@ namespace Plugin.ElectronicInvoice.SIIGO
                 DefaultItemCode = "1",
                 SellerId = 876,
                 PaymentMethodId = 10948,
-                TaxIdWithTax = 1270,
                 AccountGroup = 1528,
                 SendByEmail = true,
                 SendStamp = false,
                 CopyToEmail = "",
-                CurrencyCode = "COP",
-                ExchangeRate = "1",
+                CurrencyCode = "USD",
+                ExchangeRate = "4000",
                 IsEnabled = false,
                 TestMode = true,
                 LogEnabled = true
             };
 
             await _settingService.SaveSettingAsync(settings);
+            
+            var mappingSettings = new SiigoTaxCategoryMappingSettings();
+            await _settingService.SaveSettingAsync(mappingSettings);
+            
             await InstallLocalizationResourcesAsync();
             await base.InstallAsync();
         }
@@ -61,6 +64,7 @@ namespace Plugin.ElectronicInvoice.SIIGO
         public override async Task UninstallAsync()
         {
             await _settingService.DeleteSettingAsync<SiigoSettings>();
+            await _settingService.DeleteSettingAsync<SiigoTaxCategoryMappingSettings>();
             await DeleteLocalizationResourcesAsync();
             await base.UninstallAsync();
         }
@@ -85,8 +89,6 @@ namespace Plugin.ElectronicInvoice.SIIGO
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.SellerId.Hint"] = "Seller ID in SIIGO",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.PaymentMethodId"] = "Payment Method ID",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.PaymentMethodId.Hint"] = "Payment method ID in SIIGO",
-                ["Plugins.ElectronicInvoice.SIIGO.Fields.TaxIdWithTax"] = "Tax ID (With Tax)",
-                ["Plugins.ElectronicInvoice.SIIGO.Fields.TaxIdWithTax.Hint"] = "Tax ID when tax applies",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.AccountGroup"] = "Account Group",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.AccountGroup.Hint"] = "Account group ID for products created in SIIGO",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.TaxIdWithoutTax"] = "Tax ID (Without Tax)",
@@ -106,7 +108,13 @@ namespace Plugin.ElectronicInvoice.SIIGO
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.TestMode"] = "Test Mode",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.TestMode.Hint"] = "Run in test mode",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.LogEnabled"] = "Logging Enabled",
-                ["Plugins.ElectronicInvoice.SIIGO.Fields.LogEnabled.Hint"] = "Enable logging for debugging"
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.LogEnabled.Hint"] = "Enable logging for debugging",
+                
+                // Tax Category Mapping Resources
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.TaxCategoryId"] = "Tax Category",
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.TaxCategoryName"] = "Tax Category Name",
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.SiigoTaxCode"] = "SIIGO Tax Code",
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.SiigoTaxCode.Hint"] = "Tax code ID from SIIGO system"
             });
 
             await base.InstallAsync();
