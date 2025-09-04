@@ -1,0 +1,11 @@
+{
+  "Group": "Payment methods",
+  "FriendlyName": "SIIGO Electronic Invoice",
+  "SystemName": "ElectronicInvoice.SIIGO",
+  "Version": "1.0.0",
+  "SupportedVersions": ["4.80"],
+  "Author": "Kivio",
+  "DisplayOrder": 1,
+  "FileName": "ElectronicInvoice.SIIGO.dll",
+  "Description": "This plugin integrates with the SIIGO API for electronic invoicing in Colombia."
+}
