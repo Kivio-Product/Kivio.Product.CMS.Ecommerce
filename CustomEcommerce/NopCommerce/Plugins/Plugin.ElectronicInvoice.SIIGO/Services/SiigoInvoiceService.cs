@@ -449,7 +449,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                     
                     if (siigoSettings.LogEnabled)
                     {
-                        await _logger.InformationAsync($"SIIGO API Retry Response: {responseContent}");
+                        await _logger.InsertLogAsync(LogLevel.Information,"SIIGO INVOICE API Retry Response", responseContent);
                     }
                 }
                 catch (Exception tokenEx)
@@ -571,8 +571,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
 
                 if (siigoSettings.LogEnabled)
                 {
-                    await _logger.InformationAsync($"SIIGO Create Product API Request: {json}");
-                    await _logger.InformationAsync($"SIIGO Create Product API Response: {responseContent}");
+                    await _logger.InsertLogAsync(LogLevel.Information,"SIIGO Create Product API Request", json);
+                    await _logger.InsertLogAsync(LogLevel.Information,"SIIGO Create Product API Response", responseContent);
                 }
 
                 // If we get an unauthorized response, try refreshing the token once
@@ -593,7 +593,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                         
                         if (siigoSettings.LogEnabled)
                         {
-                            await _logger.InformationAsync($"SIIGO Create Product API Retry Response: {responseContent}");
+                            await _logger.InsertLogAsync(LogLevel.Information,"SIIGO Create Product API Retry Response", responseContent);
                         }
                     }
                     catch (Exception tokenEx)
@@ -684,8 +684,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
 
                 if (siigoSettings.LogEnabled)
                 {
-                    await _logger.InformationAsync($"SIIGO Email API Request: {json}");
-                    await _logger.InformationAsync($"SIIGO Email API Response: {responseContent}");
+                    await _logger.InsertLogAsync(LogLevel.Information,"SIIGO Email API Request", json);
+                    await _logger.InsertLogAsync(LogLevel.Information,"SIIGO Email API Response", responseContent);
                 }
 
                 // If we get an unauthorized response, try refreshing the token once
@@ -706,7 +706,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                         
                         if (siigoSettings.LogEnabled)
                         {
-                            await _logger.InformationAsync($"SIIGO Email API Retry Response: {responseContent}");
+                            await _logger.InsertLogAsync(LogLevel.Information,"SIIGO Email API Retry Response", responseContent);
                         }
                     }
                     catch (Exception tokenEx)
