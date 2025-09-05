@@ -2170,7 +2170,6 @@ button.add-to-wishlist-button.selected {
   font-style: italic;
 }
 
-
 .validation-modal {
   position: fixed;
   top: 0;
@@ -2320,6 +2319,12 @@ button.add-to-wishlist-button.selected {
 .btn-outline:hover {
   background: #7a37f0;
   color: white;
+}
+
+#applydiscountcouponcode:disabled,
+#applygiftcardcouponcode:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 @media all and (max-width: 1000px) {
@@ -2987,7 +2992,7 @@ button.add-to-wishlist-button.selected {
     gap: 6px;
   }
 
-   .modal-actions {
+  .modal-actions {
     flex-direction: column;
   }
 
