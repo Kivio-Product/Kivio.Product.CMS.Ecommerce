@@ -443,6 +443,9 @@ public partial class CatalogController : BasePublicController
     {
         var store = await _storeContext.GetCurrentStoreAsync();
 
+        model.advs = true;
+        model.sid = true;
+
         //'Continue shopping' URL
         await _genericAttributeService.SaveAttributeAsync(await _workContext.GetCurrentCustomerAsync(),
             NopCustomerDefaults.LastContinueShoppingPageAttribute,
