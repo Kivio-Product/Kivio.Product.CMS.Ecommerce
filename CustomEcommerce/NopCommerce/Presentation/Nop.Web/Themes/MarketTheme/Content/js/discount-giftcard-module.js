@@ -41,21 +41,32 @@ var DiscountGiftCard = {
     return $("input[name=__RequestVerificationToken]").val();
   },
 
-  showLoadingAnimation: function () {
-    Swal.fire({
-      title: "",
-      allowEscapeKey: false,
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
+  showLoadingAnimation: function (buttonId) {
+    if (buttonId) {
+      const button = $(buttonId);
+      button.prop("disabled", true);
+      button.data("original-text", button.text());
+      button.text("Aplicando...");
+    }
+  },
+
+  hideLoadingAnimation: function (buttonId) {
+    if (buttonId) {
+      const button = $(buttonId);
+      button.prop("disabled", false);
+      button.text(
+        button.data("original-text") ||
+          button.text().replace("Aplicando...", "Aplicar")
+      );
+    }
   },
 
   applyDiscount: function () {
     var discountCode = $("#discountcouponcode").val();
     if (discountCode) {
-      this.showLoadingAnimation();
+      $("#applydiscountcouponcode").prop("disabled", true);
+
+      $("#applydiscountcouponcode").text("Aplicando...");
 
       $.ajax({
         cache: false,
@@ -97,9 +108,8 @@ var DiscountGiftCard = {
           });
         },
         complete: function () {
-          if (Swal.isVisible()) {
-            Swal.close();
-          }
+          $("#applydiscountcouponcode").prop("disabled", false);
+          $("#applydiscountcouponcode").text("Aplicar cupón");
         },
       });
     }
@@ -109,7 +119,8 @@ var DiscountGiftCard = {
   applyGiftCard: function () {
     var giftCardCode = $("#giftcardcouponcode").val();
     if (giftCardCode) {
-      this.showLoadingAnimation();
+      $("#applygiftcardcouponcode").prop("disabled", true);
+      $("#applygiftcardcouponcode").text("Aplicando...");
 
       $.ajax({
         cache: false,
@@ -153,9 +164,8 @@ var DiscountGiftCard = {
           });
         },
         complete: function () {
-          if (Swal.isVisible()) {
-            Swal.close();
-          }
+          $("#applygiftcardcouponcode").prop("disabled", false);
+          $("#applygiftcardcouponcode").text("Aplicar tarjeta");
         },
       });
     }
@@ -163,7 +173,7 @@ var DiscountGiftCard = {
   },
 
   removeDiscount: function (buttonName) {
-    this.showLoadingAnimation();
+    $(".remove-discount").prop("disabled", true);
 
     $.ajax({
       cache: false,
@@ -210,14 +220,14 @@ var DiscountGiftCard = {
         });
       },
       complete: function () {
-        Swal.close();
+        $(".remove-discount").prop("disabled", false);
       },
     });
     return false;
   },
 
   removeGiftCard: function (buttonName) {
-    this.showLoadingAnimation();
+    $(".remove-gift-card-button").prop("disabled", true);
 
     $.ajax({
       cache: false,
@@ -266,7 +276,7 @@ var DiscountGiftCard = {
         });
       },
       complete: function () {
-        Swal.close();
+        $(".remove-gift-card-button").prop("disabled", false);
       },
     });
     return false;
