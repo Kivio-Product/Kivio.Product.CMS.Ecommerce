@@ -50,6 +50,7 @@ public partial class CatalogController : BasePublicController
     protected readonly MediaSettings _mediaSettings;
     protected readonly VendorSettings _vendorSettings;
     private readonly ISettingService _settingService;
+    private readonly IProductSuggestionsService _productSuggestionsService;
 
 
     #endregion
@@ -77,7 +78,8 @@ public partial class CatalogController : BasePublicController
         IWorkContext workContext,
         MediaSettings mediaSettings,
         VendorSettings vendorSettings,
-        ISettingService settingService)
+        ISettingService settingService,
+        IProductSuggestionsService productSuggestionsService)
     {
         _catalogSettings = catalogSettings;
         _aclService = aclService;
@@ -101,6 +103,7 @@ public partial class CatalogController : BasePublicController
         _mediaSettings = mediaSettings;
         _vendorSettings = vendorSettings;
         _settingService = settingService;
+        _productSuggestionsService = productSuggestionsService;
     }
 
     #endregion
@@ -480,15 +483,12 @@ public partial class CatalogController : BasePublicController
         if (categoryId > 0)
             categoryIds.AddRange([categoryId, .. await _categoryService.GetChildCategoryIdsAsync(categoryId, store.Id)]);
 
-        var products = await _productService.SearchProductsAsync(0,
-            categoryIds: categoryIds,
-            storeId: store.Id,
-            keywords: term,
-            languageId: (await _workContext.GetWorkingLanguageAsync()).Id,
-            visibleIndividuallyOnly: true,
-            pageSize: productNumber);
+        var suggestions = await _productSuggestionsService.GetSuggestionsAsync(term);
+        var productIds = suggestions.Select(s => s.Id).Take(productNumber).ToList().ToArray();
 
-        var showLinkToResultSearch = _catalogSettings.ShowLinkToAllResultInSearchAutoComplete && (products.TotalCount > productNumber);
+        var products = await _productService.GetProductsByIdsAsync(productIds);
+
+        var showLinkToResultSearch = _catalogSettings.ShowLinkToAllResultInSearchAutoComplete && (products.Count > productNumber);
 
         var models = (await _productModelFactory.PrepareProductOverviewModelsAsync(products, false, _catalogSettings.ShowProductImagesInSearchAutoComplete, _mediaSettings.AutoCompleteSearchThumbPictureSize)).ToList();
         var result = (from p in models
