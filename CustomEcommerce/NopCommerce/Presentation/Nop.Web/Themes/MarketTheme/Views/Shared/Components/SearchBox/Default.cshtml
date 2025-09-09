@@ -1,78 +1,289 @@
 ﻿@model SearchBoxModel
-
+@using Nop.Core.Domain.Orders
 @using Nop.Core.Domain.Media
-
 @inject MediaSettings mediaSettings
 
-<form asp-route="ProductSearch" method="get" id="small-search-box-form">
+@{
+    var shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart;
+}
+
+<form asp-route="ProductSearch" method="get" id="small-search-box-form" class="search-form-container">
     @if (Model.ShowSearchBox)
     {
-        <button type="submit" class="search-box-button">
-            <span class="pi-search"></span>
-        </button>
+        <div class="search-box-wrapper">
+            <button type="submit" class="search-box-button">
+                <span class="pi-search"></span>
+            </button>
 
-        <input type="text" class="search-box-text" id="small-searchterms" autocomplete="off" name="q" placeholder="@T("search.searchbox.tooltip")" aria-label="@T("Theme.Phoenix.Search.SearchBox.Text.Label")" />
-        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.SearchBoxBeforeSearchButton, additionalData = Model })
+            <input type="text" class="search-box-text" id="small-searchterms" autocomplete="off" name="q"
+                placeholder="@T("search.searchbox.tooltip")" aria-label="@T("Theme.Phoenix.Search.SearchBox.Text.Label")" />
 
-        @if (Model.SearchTermMinimumLength > 0)
-        {
-            <script asp-location="Footer">
-                $("#small-search-box-form").on("submit", function(event) {
-                    if ($("#small-searchterms").val() == "") {
-                        Swal.fire({
-                            title: '<strong>@Html.Raw(JavaScriptEncoder.Default.Encode(T("Search.EnterSearchTerms").Text))</strong>',
-                            icon: 'error',
-                            customClass: {
-                                confirmButton: 'primary-btn',
-                            }
-                        })
+            <!-- Contenedor de resultados mejorado -->
+            <div id="search-results-container" class="search-results-container" style="display: none;">
+                <div id="search-suggestions" class="search-section">
+                    <!-- Sugerencias de términos aparecerán aquí -->
+                </div>
+                <div id="search-products" class="search-section">
+                    <!-- Productos aparecerán aquí -->
+                </div>
+                <div id="search-footer" class="search-footer" style="display: none;">
+                    <!-- Link "Ver todos los resultados" aparecerá aquí -->
+                </div>
+            </div>
+        </div>
 
-                        $("#small-searchterms").focus();
-                        event.preventDefault();
-                    }
-                });
-            </script>
-        }
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone =
+        PublicWidgetZones.SearchBoxBeforeSearchButton, additionalData = Model })
 
-        @if (Model.AutoCompleteEnabled)
-        {
-            <script asp-location="Footer">
-                $(function () {
-                    var showLinkToResultSearch;
-                    var searchText;
-                    $('#small-searchterms').autocomplete({
-                        delay: 500,
-                        minLength: @(Model.SearchTermMinimumLength.ToString()),
-                        source: '@(Url.RouteUrl("ProductSearchAutoComplete"))',
-                        appendTo: '.search-box',
-                        select: function(event, ui) {
-                            $("#small-searchterms").val(ui.item.label);
-                            setLocation(ui.item.producturl);
-                            return false;
-                        },
-                        //append link to the end of list
-                        open: function(event, ui) {
-                            //display link to search page
-                            if (showLinkToResultSearch) {
-                                searchText = document.getElementById("small-searchterms").value;
-                                $(".ui-autocomplete").append("<li class=\"ui-menu-item\" role=\"presentation\"><a href=\"/search?q=" + searchText + "\">@T("Search.SearchBox.SearchPageLink")</a></li>");
-                            }
+    @if (Model.SearchTermMinimumLength > 0)
+    {
+        <script asp-location="Footer">
+            $("#small-search-box-form").on("submit", function (event) {
+                if ($("#small-searchterms").val() == "") {
+                    Swal.fire({
+                        title: '<strong>@Html.Raw(JavaScriptEncoder.Default.Encode(T("Search.EnterSearchTerms").Text))</strong>',
+                        icon: 'error',
+                        customClass: {
+                            confirmButton: 'primary-btn',
                         }
                     })
-                        .data("ui-autocomplete")._renderItem = function(ul, item) {
-                            var t = item.label;
-                            showLinkToResultSearch = item.showlinktoresultsearch;
-                            //html encode
-                            t = htmlEncode(t);
-                            imageWidth = '@(mediaSettings.AutoCompleteSearchThumbPictureSize)';
-                            return $("<li></li>")
-                                .data("item.autocomplete", item)
-                                .append("<a>@(Model.ShowProductImagesInSearchAutoComplete ? Html.Raw("<img src='\" + item.productpictureurl + \"' width='\" + imageWidth + \"'>") : null)<span>" + t + "</span></a>")
-                                .appendTo(ul);
-                        };
-                });
-            </script>
-        }
-        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.SearchBox, additionalData = Model })
+                    $("#small-searchterms").focus();
+                    event.preventDefault();
+                }
+            });
+        </script>
     }
+
+    @if (Model.AutoCompleteEnabled)
+    {
+        <script asp-location="Footer">
+            $(function () {
+                let searchTimeout;
+                let currentRequest;
+                let isUpdating = false;
+
+                function showResults() {
+                    $('#search-results-container').slideDown(200);
+                }
+
+                function hideResults() {
+                    $('#search-results-container').slideUp(200);
+                }
+
+                function updateQuantity(productId, change) {
+                    const input = $(`#search-qty-${productId}`);
+                    let currentValue = parseInt(input.val()) || 1;
+                    const minQty = parseInt(input.attr('data-min')) || 1;
+                    const maxQty = parseInt(input.attr('data-max')) || 999;
+
+                    let newValue = Math.max(minQty, currentValue + change);
+                    newValue = Math.min(newValue, maxQty);
+
+                    input.val(newValue);
+                }
+
+                function setQuantityControlsDisabled(productId, disabled) {
+                    const quantityControls = $(`.search-product-${productId} .quantity-controls button, .search-product-${productId} .add-to-cart-btn`);
+                    if (disabled) {
+                        quantityControls.addClass('disabled').prop('disabled', true);
+                    } else {
+                        quantityControls.removeClass('disabled').prop('disabled', false);
+                    }
+                }
+
+                function addToCart(productId) {
+                    if (isUpdating) return;
+
+                    const quantity = parseInt($(`#search-qty-${productId}`).val()) || 1;
+                    const addButton = $(`#search-add-btn-${productId}`);
+
+                    isUpdating = true;
+                    setQuantityControlsDisabled(productId, true);
+
+                    // Cambiar texto del botón
+                    addButton.html('<i class="pi-loading pi-spin"></i> Agregando...');
+
+                    // Construir la URL correcta (fíjate en el formato)
+                    const addtocartlink = `/addproducttocart/catalog/${productId}/@shoppingCartTypeId/${quantity}`;
+
+                    // Usar AjaxCart.addproducttocart_catalog SIN callback
+                    AjaxCart.addproducttocart_catalog(addtocartlink);
+
+                    // Restaurar botón después de un delay (ya que no tenemos callback)
+                    setTimeout(function () {
+                        addButton.html('<i class="pi-shopping-cart"></i> Agregar');
+                        setQuantityControlsDisabled(productId, false);
+                        isUpdating = false;
+
+                        // Limpiar búsqueda y ocultar resultados
+                        hideResults();
+                        $('#small-searchterms').val('');
+                    }, 2000); // 2 segundos de delay
+                }
+
+                function performSearch(term) {
+                    if (term.length < @(Model.SearchTermMinimumLength.ToString())) {
+                        hideResults();
+                        return;
+                    }
+
+                    // Cancelar request anterior
+                    if (currentRequest) {
+                        currentRequest.abort();
+                    }
+
+                    currentRequest = $.ajax({
+                        url: '@(Url.RouteUrl("ProductSearchAutoComplete"))',
+                        method: 'GET',
+                        data: { term: term },
+                        success: function (data) {
+                            if (!data.hasResults) {
+                                hideResults();
+                                return;
+                            }
+
+                            // Renderizar sugerencias de términos
+                            let suggestionsHtml = '';
+                            if (data.suggestions && data.suggestions.length > 0) {
+                                suggestionsHtml = '<div class="section-header">Búsquedas relacionadas</div>';
+                                data.suggestions.forEach(function (suggestion) {
+                                    suggestionsHtml += `
+                                                        <div class="suggestion-item" data-term="${suggestion.text}">
+                                                            <i class="pi-search"></i>
+                                                            <span class="suggestion-text">${suggestion.text}</span>
+                                                        </div>
+                                                    `;
+                                });
+                            }
+                            $('#search-suggestions').html(suggestionsHtml);
+
+                            // Renderizar productos (máximo 3)
+                            let productsHtml = '';
+                            if (data.products && data.products.length > 0) {
+                                productsHtml = '<div class="section-header">Productos destacados</div>';
+                                data.products.forEach(function (product) {
+                                    const imageUrl = product.imageUrl || '/images/thumbs/default-image_100.png';
+                                    const stockClass = product.isInStock ? 'in-stock' : 'out-of-stock';
+                                    const stockText = product.isInStock ? 'En stock' : 'Agotado';
+                                    const maxQty = product.maxOrderQuantity > 0 ? product.maxOrderQuantity : 999;
+                                    const minQty = product.minOrderQuantity || 1;
+
+                                    const quantityControls = product.isInStock ?
+                                        `<div class="quantity-wrapper">
+                                                            <div class="quantity-controls">
+                                                                <button type="button" class="qty-btn qty-minus" onclick="updateQuantity(${product.id}, -1)">−</button>
+                                                                <input type="number" id="search-qty-${product.id}" class="qty-input" value="${minQty}" 
+                                                                       min="${minQty}" max="${maxQty}" 
+                                                                       data-min="${minQty}" data-max="${maxQty}" readonly>
+                                                                <button type="button" class="qty-btn qty-plus" onclick="updateQuantity(${product.id}, 1)">+</button>
+                                                            </div>
+                                                            <button type="button" id="search-add-btn-${product.id}" class="add-to-cart-btn" onclick="addToCart(${product.id})">
+                                                                <i class="pi-shopping-cart"></i> Agregar
+                                                            </button>
+                                                         </div>` :
+                                        `<div class="quantity-wrapper">
+                                                            <button type="button" class="add-to-cart-btn disabled" disabled>
+                                                                <i class="pi-times"></i> Agotado
+                                                            </button>
+                                                         </div>`;
+
+                                    productsHtml += `
+                                                        <div class="product-item search-product-${product.id}">
+                                                            <div class="product-image">
+                                                                <a href="${product.productUrl}">
+                                                                    <img src="${imageUrl}" alt="${product.name}" loading="lazy">
+                                                                </a>
+                                                            </div>
+                                                            <div class="product-info">
+                                                                <div class="product-name">
+                                                                    <a href="${product.productUrl}">${product.name}</a>
+                                                                </div>
+                                                                <div class="product-price">${product.price}</div>
+                                                                <span class="stock-indicator ${stockClass}">${stockText}</span>
+                                                            </div>
+                                                            ${quantityControls}
+                                                        </div>
+                                                    `;
+                                });
+                            }
+                            $('#search-products').html(productsHtml);
+
+                            // Footer con link a resultados completos
+                            if (data.showLinkToResultSearch) {
+                                $('#search-footer').html(`
+                                                    <a href="/search?q=${encodeURIComponent(data.searchTerm)}" class="view-all-results">
+                                                        <i class="pi-search"></i> Ver todos los resultados para "${data.searchTerm}"
+                                                    </a>
+                                                `).show();
+                            } else {
+                                $('#search-footer').hide();
+                            }
+
+                            showResults();
+                        },
+                        error: function (xhr) {
+                            if (xhr.statusText !== 'abort') {
+                                hideResults();
+                            }
+                        }
+                    });
+                }
+
+                // Event handlers
+                $('#small-searchterms').on('input', function () {
+                    const term = $(this).val().trim();
+
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(function () {
+                        performSearch(term);
+                    }, 300);
+                });
+
+                $('#small-searchterms').on('focus', function () {
+                    const term = $(this).val().trim();
+                    if (term.length >= @(Model.SearchTermMinimumLength.ToString())) {
+                        performSearch(term);
+                    }
+                });
+
+                // Click en sugerencia de término
+                $(document).on('click', '.suggestion-item', function () {
+                    const term = $(this).data('term');
+                    $('#small-searchterms').val(term);
+                    $('#small-search-box-form').submit();
+                });
+
+                // Event handlers para controles de cantidad
+                $(document).on('click', '.search-results-container .qty-btn', function () {
+                    if (isUpdating || $(this).hasClass('disabled')) return;
+
+                    const productId = $(this).data('productid');
+                    const change = parseInt($(this).data('change'));
+                    updateQuantity(productId, change);
+                });
+
+                // Event handler para agregar al carrito
+                $(document).on('click', '.search-results-container .add-to-cart-btn:not(.disabled)', function () {
+                    if (isUpdating) return;
+
+                    const productId = $(this).data('productid');
+                    addToCart(productId);
+                });
+
+                // Click fuera para ocultar resultados
+                $(document).on('click', function (e) {
+                    if (!$(e.target).closest('.search-form-container').length) {
+                        hideResults();
+                    }
+                });
+
+                // Exponer funciones globalmente para compatibilidad (ya no necesario pero por si acaso)
+                window.updateQuantity = updateQuantity;
+                window.addToCart = addToCart;
+            });
+        </script>
+    }
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.SearchBox,
+    additionalData = Model })
+        }
 </form>

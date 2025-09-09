@@ -7,46 +7,28 @@ using Nop.Services.Logging;
 
 namespace Nop.Services.Catalog;
 
-public class ProductSuggestionsService : IProductSuggestionsService
+public class ProductSuggestionsService(
+    INopDataProvider dataProvider,
+    IStaticCacheManager cacheManager,
+    ILogger logger) : IProductSuggestionsService
 {
-    private readonly INopDataProvider _data;
-    private readonly IStaticCacheManager _cacheManager;
-    private readonly ILogger _logger;
+    private readonly INopDataProvider _data = dataProvider;
+    private readonly IStaticCacheManager _cacheManager = cacheManager;
+    private readonly ILogger _logger = logger;
 
     private const int MAX_SUGGESTIONS = 10;
-    private const int MIN_QUERY_LENGTH = 3;
-
-    public ProductSuggestionsService(
-        INopDataProvider dataProvider,
-        IStaticCacheManager cacheManager,
-        ILogger logger)
-    {
-        _data = dataProvider;
-        _cacheManager = cacheManager;
-        _logger = logger;
-    }
+    private const int MIN_QUERY_LENGTH = 2;
 
     public async Task<IList<ProductSuggestion>> GetSuggestionsAsync(string query)
     {
         try
         {
-            // Validación básica
-            if (string.IsNullOrWhiteSpace(query) || query.Length < MIN_QUERY_LENGTH)
+            if (string.IsNullOrWhiteSpace(query) || query.Trim().Length < MIN_QUERY_LENGTH)
                 return new List<ProductSuggestion>();
 
-            var normalizedQuery = query.Trim().ToLower();
+            var normalizedQuery = query.Trim();
 
-            // var cacheKey = _cacheManager.PrepareKey(SuggestionsCacheDefaults.SuggestionsModelKey, normalizedQuery);
-
-            // var cachedResults = await _cacheManager.GetAsync<List<ProductSuggestion>>(cacheKey);
-            // if (cachedResults != null)
-            // {
-            //     return cachedResults;
-            // }
-
-            var suggestions = await GetFtsSuggestionsAsync(normalizedQuery);
-
-            // await _cacheManager.SetAsync(cacheKey, suggestions);
+            var suggestions = await GetContainsSuggestionsAsync(normalizedQuery);
 
             return suggestions;
         }
@@ -57,25 +39,22 @@ public class ProductSuggestionsService : IProductSuggestionsService
         }
     }
 
-    private async Task<IList<ProductSuggestion>> GetFtsSuggestionsAsync(string query)
+    private async Task<IList<ProductSuggestion>> GetContainsSuggestionsAsync(string query)
     {
         try
         {
-            // Construir query FTS
-            var ftsQuery = BuildSimpleFtsQuery(query);
+            var containsQuery = BuildContainsQuery(query);
 
             var parameters = new List<DataParameter>
-            {
-                new("@FtsQuery", ftsQuery),
-                new("@MaxResults", MAX_SUGGESTIONS * 2)
-            };
+                {
+                    new("@ContainsQuery", containsQuery),
+                    new("@MaxResults", MAX_SUGGESTIONS)
+                };
 
             var results = await _data.QueryProcAsync<ProductSuggestionDb>(
                 "dbo.GetProductSuggestions", parameters.ToArray());
 
             return results
-                .Where(r => r.FtRank > 20)
-                .Take(MAX_SUGGESTIONS)
                 .Select(r => new ProductSuggestion
                 {
                     Id = r.Id,
@@ -86,46 +65,18 @@ public class ProductSuggestionsService : IProductSuggestionsService
         }
         catch (Exception ex)
         {
-            _logger.Error($"Error ejecutando consulta FTS para query: '{query}'", ex);
+            _logger.Error($"Error ejecutando consulta CONTAINS para query: '{query}'", ex);
             return new List<ProductSuggestion>();
         }
     }
 
-    public async Task ClearSuggestionsCache()
+    private static string BuildContainsQuery(string query)
     {
-        try
-        {
-            await _cacheManager.RemoveByPrefixAsync(SuggestionsCacheDefaults.SuggestionsPrefix);
-            _logger.Information("Cache de sugerencias limpiado");
-        }
-        catch (Exception ex)
-        {
-            _logger.Error("Error limpiando cache de sugerencias", ex);
-        }
-    }
-
-    // Query FTS
-    private static string BuildSimpleFtsQuery(string query)
-    {
-        var words = query.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-            .Where(w => w.Length >= 2)
-            .Select(w => $"\"{w}*\"")
-            .ToArray();
-
-        return words.Length > 0 ? string.Join(" OR ", words) : query;
+        // Escape básico y agregar wildcard para autocompletado
+        var escaped = query.Replace("\"", "\"\"").Replace("'", "''");
+        return $"\"{escaped}*\"";
     }
 
     private static double NormalizeRank(int ftRank)
-    {
-        return Math.Max(0, Math.Min(1, ftRank / 1000.0));
-    }
-
-    private static class SuggestionsCacheDefaults
-    {
-        public static CacheKey SuggestionsModelKey => new("nop.product.suggestions.{0}", SuggestionsPrefix);
-
-        public static string SuggestionsPrefix = "nop.product.suggestions";
-
-        public static int CacheTime { get; set; } = 15;
-    }
+        => Math.Max(0, Math.Min(1, ftRank / 1000.0));
 }
