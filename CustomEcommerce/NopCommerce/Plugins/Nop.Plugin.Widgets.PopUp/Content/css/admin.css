@@ -1,0 +1,35 @@
+/* PopUp Widget Admin Styles */
+.form-check-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-check-group .form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.form-check-group .form-check input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.form-check-group .form-check-label {
+    margin-bottom: 0;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+@media (min-width: 768px) {
+    .form-check-group {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .form-check-group .form-check {
+        flex: 0 0 auto;
+        min-width: 120px;
+    }
+}

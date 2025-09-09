@@ -50,6 +50,10 @@
     {
       "SystemName": "ElectronicInvoice.SIIGO",
       "Version": "1.0.0"
+    },
+    {
+      "SystemName": "Widgets.PopUp",
+      "Version": "1.0"
     }
   ],
   "PluginNamesToUninstall": [],

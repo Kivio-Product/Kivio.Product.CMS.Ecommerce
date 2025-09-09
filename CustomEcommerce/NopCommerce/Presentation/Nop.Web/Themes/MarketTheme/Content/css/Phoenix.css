@@ -2192,8 +2192,6 @@ input[type="radio"] {
   position: sticky;
   top: 0;
   background: #fff;
-  /* box-shadow: 0px 0px 18px 1px rgba(0,0,0,0.1); */
-  z-index: 999;
 }
 .px_header-slide {
   width: 100%;

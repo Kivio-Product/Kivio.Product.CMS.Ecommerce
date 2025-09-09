@@ -832,7 +832,7 @@ label, label + * {
 }
 .header {
   position: relative;
-  z-index: 10;
+  z-index: 2;
   width: 95%;
   margin: auto;
   text-align: center;  
@@ -843,7 +843,6 @@ label, label + * {
 }
 .header-upper {
   position: relative;
-  z-index: 1;
   padding: 0 70px;
   border: none;
   min-height: 40px;

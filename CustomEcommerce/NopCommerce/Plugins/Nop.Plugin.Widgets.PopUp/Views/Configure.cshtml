@@ -1,0 +1,184 @@
+@using Nop.Plugin.Widgets.PopUp.Models;
+@using Nop.Web.Framework.Extensions;
+@using Nop.Plugin.Widgets.PopUp.Components;
+@using Nop.Web.Framework.Infrastructure
+@{
+    Layout = "_ConfigurePlugin";
+}
+@model ConfigurationModel
+
+<style>
+    .form-check-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-check-group .form-check {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0;
+    }
+
+    .form-check-group .form-check input[type="checkbox"] {
+        margin-right: 8px;
+    }
+
+    .form-check-group .form-check-label {
+        margin-bottom: 0;
+        font-weight: normal;
+        cursor: pointer;
+    }
+
+    @@media (min-width: 768px) {
+        .form-check-group {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .form-check-group .form-check {
+            flex: 0 0 auto;
+            min-width: 120px;
+        }
+    }
+</style>
+
+<form asp-controller="WidgetPopUp" asp-action="Configure" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Plugins.Widgets.PopUp.Configure")
+        </h1>
+        <div class="float-right">
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="fa fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal">
+                <div class="cards-group">
+                    <div class="card card-default">
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="IsEnabled" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="IsEnabled" />
+                                    <span asp-validation-for="IsEnabled"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="PictureId" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="PictureId" />
+                                    <span asp-validation-for="PictureId"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="TitleText" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="TitleText" />
+                                    <span asp-validation-for="TitleText"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="LinkUrl" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="LinkUrl" />
+                                    <span asp-validation-for="LinkUrl"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="AltText" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="AltText" />
+                                    <span asp-validation-for="AltText"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="DisplayPages" />
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="form-check-group">
+                                        <div class="form-check">
+                                            <nop-editor asp-for="ShowOnAll" />
+                                            <label class="form-check-label" for="ShowOnAll">
+                                                @T("Plugins.Widgets.PopUp.Pages.All")
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <nop-editor asp-for="ShowOnHome" />
+                                            <label class="form-check-label" for="ShowOnHome">
+                                                @T("Plugins.Widgets.PopUp.Pages.Home")
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <nop-editor asp-for="ShowOnCategory" />
+                                            <label class="form-check-label" for="ShowOnCategory">
+                                                @T("Plugins.Widgets.PopUp.Pages.Category")
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <nop-editor asp-for="ShowOnProduct" />
+                                            <label class="form-check-label" for="ShowOnProduct">
+                                                @T("Plugins.Widgets.PopUp.Pages.Product")
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <nop-editor asp-for="ShowOnManufacturer" />
+                                            <label class="form-check-label" for="ShowOnManufacturer">
+                                                @T("Plugins.Widgets.PopUp.Pages.Manufacturer")
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <nop-editor asp-for="ShowOnTopic" />
+                                            <label class="form-check-label" for="ShowOnTopic">
+                                                @T("Plugins.Widgets.PopUp.Pages.Topic")
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <nop-editor asp-for="ShowOnBlog" />
+                                            <label class="form-check-label" for="ShowOnBlog">
+                                                @T("Plugins.Widgets.PopUp.Pages.Blog")
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <nop-editor asp-for="ShowOnNews" />
+                                            <label class="form-check-label" for="ShowOnNews">
+                                                @T("Plugins.Widgets.PopUp.Pages.News")
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="DisplayPages"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="ShowOncePerSession" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="ShowOncePerSession" />
+                                    <span asp-validation-for="ShowOncePerSession"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
