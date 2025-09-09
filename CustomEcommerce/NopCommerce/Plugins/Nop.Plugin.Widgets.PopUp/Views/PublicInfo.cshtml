@@ -1,0 +1,124 @@
+@using Nop.Plugin.Widgets.PopUp.Models;
+@model PublicInfoModel
+@if (Model.IsEnabled && !string.IsNullOrEmpty(Model.PictureUrl))
+{
+    <div id="popup-overlay" class="popup-overlay">
+        <div class="popup-content">
+            <button class="popup-close" onclick="closePopup()">&times;</button>
+            @if (!string.IsNullOrEmpty(Model.LinkUrl))
+            {
+                <a href="@Model.LinkUrl" target="_blank" rel="noopener">
+                    <img src="@Model.PictureUrl" alt="@Model.AltText" title="@Model.TitleText" class="popup-image" />
+                </a>
+            }
+            else
+            {
+                <img src="@Model.PictureUrl" alt="@Model.AltText" title="@Model.TitleText" class="popup-image" />
+            }
+            @if (!string.IsNullOrEmpty(Model.TitleText))
+            {
+                <div class="popup-title">@Model.TitleText</div>
+            }
+        </div>
+    </div>
+
+    <style>
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .popup-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 30px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            z-index: 10000;
+        }
+
+        .popup-close:hover {
+            color: #ff0000;
+        }
+
+        .popup-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .popup-title {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        @@media (max-width: 768px) {
+            .popup-content {
+                max-width: 95%;
+                max-height: 95%;
+                padding: 15px;
+            }
+            
+            .popup-title {
+                font-size: 16px;
+            }
+        }
+    </style>
+
+    <script>
+        function closePopup() {
+            document.getElementById('popup-overlay').style.display = 'none';
+        }
+
+        // Close popup when clicking outside the content
+        document.getElementById('popup-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePopup();
+            }
+        });
+
+        // Close popup with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePopup();
+            }
+        });
+
+        // Show popup after page loads
+        window.addEventListener('load', function() {
+            // Check if popup was already shown in this session
+            if (!sessionStorage.getItem('popupShown')) {
+                setTimeout(function() {
+                    document.getElementById('popup-overlay').style.display = 'flex';
+                    sessionStorage.setItem('popupShown', 'true');
+                }, 1000); // Show popup after 1 second
+            }
+        });
+    </script>
+}

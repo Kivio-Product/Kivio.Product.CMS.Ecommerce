@@ -1,0 +1,80 @@
+@using Nop.Plugin.Widgets.PopUp.Models;
+@using Nop.Web.Framework.Extensions;
+@using Nop.Plugin.Widgets.PopUp.Components;
+@using Nop.Web.Framework.Infrastructure
+@{
+    Layout = "_ConfigurePlugin";
+}
+@model ConfigurationModel
+
+<form asp-controller="WidgetPopUp" asp-action="Configure" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Plugins.Widgets.PopUp.Configure")
+        </h1>
+        <div class="float-right">
+            <button type="submit" name="save" class="btn btn-primarsy">
+                <i class="fas fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal">
+                <div class="cards-group">
+                    <div class="card card-default">
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="IsEnabled" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="IsEnabled" />
+                                    <span asp-validation-for="IsEnabled"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="PictureId" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="PictureId" />
+                                    <span asp-validation-for="PictureId"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="TitleText" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="TitleText" />
+                                    <span asp-validation-for="TitleText"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="LinkUrl" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="LinkUrl" />
+                                    <span asp-validation-for="LinkUrl"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="AltText" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="AltText" />
+                                    <span asp-validation-for="AltText"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>

@@ -1,0 +1,11 @@
+{
+  "Group": "Widgets",
+  "FriendlyName": "PopUp Widget",
+  "SystemName": "Widgets.PopUp",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Kivio SAS",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Widgets.PopUp.dll",
+  "Description": "This plugin shows a configurable pop-up with image on the homepage"
+}
