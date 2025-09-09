@@ -48,14 +48,14 @@
             
             // Check if popup should be shown based on session settings
             var shouldShow = true;
-            if (showOncePerSession === 'true') {
+            if (showOncePerSession) {
                 shouldShow = !sessionStorage.getItem(storageKey);
             }
             
             if (shouldShow) {
                 setTimeout(function() {
                     document.getElementById('popup-overlay').style.display = 'flex';
-                    if (showOncePerSession === 'true') {
+                    if (showOncePerSession) {
                         sessionStorage.setItem(storageKey, 'true');
                     }
                 }, 1000); // Show popup after 1 second
