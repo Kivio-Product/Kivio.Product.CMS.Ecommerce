@@ -472,35 +472,73 @@ public partial class CatalogController : BasePublicController
         term = term.Trim();
 
         if (string.IsNullOrWhiteSpace(term) || term.Length < _catalogSettings.ProductSearchTermMinimumLength)
-            return Content("");
+           return Content("");
 
-        //products
-        var productNumber = _catalogSettings.ProductSearchAutoCompleteNumberOfProducts > 0 ?
-            _catalogSettings.ProductSearchAutoCompleteNumberOfProducts : 10;
         var store = await _storeContext.GetCurrentStoreAsync();
+        var customer = await _workContext.GetCurrentCustomerAsync();
+
+        var suggestions = await _productSuggestionsService.GetSuggestionsAsync(term);
+
+        var productNumber = await _settingService.GetSettingByKeyAsync("Catalog.SearchAutoCompleteProductsModelNumber", 3);
 
         var categoryIds = new List<int>();
         if (categoryId > 0)
             categoryIds.AddRange([categoryId, .. await _categoryService.GetChildCategoryIdsAsync(categoryId, store.Id)]);
 
-        var suggestions = await _productSuggestionsService.GetSuggestionsAsync(term);
-        var productIds = suggestions.Select(s => s.Id).Take(productNumber).ToList().ToArray();
-
+        var productIds = suggestions.Select(s => s.Id).Take(productNumber).ToArray();
         var products = await _productService.GetProductsByIdsAsync(productIds);
+        var productModels = await _productModelFactory.PrepareProductOverviewModelsAsync(products, true, true, 100);
 
-        var showLinkToResultSearch = _catalogSettings.ShowLinkToAllResultInSearchAutoComplete && (products.Count > productNumber);
+        var productModelsList = new List<object>();
 
-        var models = (await _productModelFactory.PrepareProductOverviewModelsAsync(products, false, _catalogSettings.ShowProductImagesInSearchAutoComplete, _mediaSettings.AutoCompleteSearchThumbPictureSize)).ToList();
-        var result = (from p in models
-                      select new
-                      {
-                          label = p.Name,
-                          producturl = Url.RouteUrl<Product>(new { SeName = p.SeName }),
-                          productpictureurl = p.PictureModels.FirstOrDefault()?.ImageUrl,
-                          showlinktoresultsearch = showLinkToResultSearch
-                      })
+        foreach (var productM in productModels)
+        {
+            var product = products.FirstOrDefault(p => p.Id == productM.Id);
+            var stockAvailability = product?.StockQuantity ?? 0;
+            var isInStock = stockAvailability > 0;
+            var minOrderQty = product?.OrderMinimumQuantity ?? 1;
+            var maxOrderQty = product?.OrderMaximumQuantity ?? 999;
+
+            productModelsList.Add(new
+            {
+                type = "product",
+                id = productM.Id,
+                name = productM.Name,
+                shortDescription = productM.ShortDescription,
+                price = productM.ProductPrice.Price,
+                originalPrice = productM.ProductPrice.OldPrice,
+                sku = productM.Sku,
+                stockQuantity = stockAvailability,
+                isInStock = isInStock,
+                productUrl = Url.RouteUrl<Product>(new { SeName = productM.SeName }),
+                imageUrl = productM.PictureModels.FirstOrDefault()?.ImageUrl,
+                hasImage = productM.PictureModels.Any(),
+                minOrderQuantity = minOrderQty,
+                maxOrderQuantity = maxOrderQty,
+            });
+        }
+
+        var termSuggestions = suggestions
+            .Skip(productNumber)
+            .Select(s => new
+            {
+                type = "term",
+                text = s.Name,
+                relevance = s.Relevance
+            })
             .ToList();
-        return Json(result);
+
+        var showLinkToResultSearch = _catalogSettings.ShowLinkToAllResultInSearchAutoComplete &&
+                                   (termSuggestions.Count + productModelsList.Count) >= _catalogSettings.ProductSearchAutoCompleteNumberOfProducts;
+
+        return Json(new
+        {
+            suggestions = termSuggestions,
+            products = productModelsList,
+            showLinkToResultSearch = showLinkToResultSearch,
+            searchTerm = term,
+            hasResults = termSuggestions.Count != 0 || productModelsList.Count != 0
+        });
     }
 
     [HttpPost]

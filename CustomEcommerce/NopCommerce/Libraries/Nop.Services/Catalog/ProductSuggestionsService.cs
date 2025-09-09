@@ -36,17 +36,17 @@ public class ProductSuggestionsService : IProductSuggestionsService
 
             var normalizedQuery = query.Trim().ToLower();
 
-            var cacheKey = _cacheManager.PrepareKey(SuggestionsCacheDefaults.SuggestionsModelKey, normalizedQuery);
+            // var cacheKey = _cacheManager.PrepareKey(SuggestionsCacheDefaults.SuggestionsModelKey, normalizedQuery);
 
-            var cachedResults = await _cacheManager.GetAsync<List<ProductSuggestion>>(cacheKey);
-            if (cachedResults != null)
-            {
-                return cachedResults;
-            }
+            // var cachedResults = await _cacheManager.GetAsync<List<ProductSuggestion>>(cacheKey);
+            // if (cachedResults != null)
+            // {
+            //     return cachedResults;
+            // }
 
-            var suggestions = await GetFtsSuggestionsAsync(query);
+            var suggestions = await GetFtsSuggestionsAsync(normalizedQuery);
 
-            await _cacheManager.SetAsync(cacheKey, suggestions);
+            // await _cacheManager.SetAsync(cacheKey, suggestions);
 
             return suggestions;
         }

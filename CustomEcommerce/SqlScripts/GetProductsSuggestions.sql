@@ -30,6 +30,7 @@ BEGIN
       AND p.[Deleted] = 0
       AND p.[VisibleIndividually] = 1
       AND ft.[RANK] > 20
+      AND p.[StockQuantity] > 0
     ORDER BY ft.[RANK] DESC, p.[Id] ASC;
 END
 GO
@@ -37,7 +38,7 @@ GO
 
 -- Índices recomendados para optimizar la consulta
 CREATE NONCLUSTERED INDEX [IX_Product_Search_Optimized] 
-ON [dbo].[Product] ([Published], [Deleted], [VisibleIndividually])
+ON [dbo].[Product] ([Published], [Deleted], [VisibleIndividually], [StockQuantity])
 INCLUDE ([Id], [Name], [ShortDescription], [FullDescription])
 WHERE ([Published] = 1 AND [Deleted] = 0);
 GO
