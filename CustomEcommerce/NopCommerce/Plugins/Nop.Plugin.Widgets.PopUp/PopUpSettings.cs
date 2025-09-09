@@ -31,4 +31,15 @@ public class PopUpSettings : ISettings
     /// Gets or sets a value indicating whether the popup is enabled
     /// </summary>
     public bool IsEnabled { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the pages where the popup should appear (comma-separated list)
+    /// Available options: home, category, product, manufacturer, topic, blog, newsitem, all
+    /// </summary>
+    public string DisplayPages { get; set; } = "home";
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to show popup only once per browser session
+    /// </summary>
+    public bool ShowOncePerSession { get; set; } = true;
 }

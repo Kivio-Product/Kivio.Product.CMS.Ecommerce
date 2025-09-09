@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Nop.Plugin.Widgets.PopUp.Models;
+using Nop.Plugin.Widgets.PopUp.Services;
 using Nop.Services.Configuration;
 using Nop.Services.Media;
 using Nop.Web.Framework.Components;
@@ -15,16 +16,19 @@ public class WidgetPopUpViewComponent : NopViewComponent
 
     private readonly IPictureService _pictureService;
     private readonly ISettingService _settingService;
+    private readonly IPageTypeService _pageTypeService;
 
     #endregion
 
     #region Ctor
 
     public WidgetPopUpViewComponent(IPictureService pictureService,
-        ISettingService settingService)
+        ISettingService settingService,
+        IPageTypeService pageTypeService)
     {
         _pictureService = pictureService;
         _settingService = settingService;
+        _pageTypeService = pageTypeService;
     }
 
     #endregion
@@ -47,6 +51,10 @@ public class WidgetPopUpViewComponent : NopViewComponent
         if (!popUpSettings.IsEnabled || popUpSettings.PictureId == 0)
             return Content("");
 
+        // Check if popup should be displayed on the current page
+        if (!_pageTypeService.ShouldDisplayPopup(HttpContext, popUpSettings.DisplayPages))
+            return Content("");
+
         var picture = await _pictureService.GetPictureByIdAsync(popUpSettings.PictureId);
         if (picture == null)
             return Content("");
@@ -57,7 +65,8 @@ public class WidgetPopUpViewComponent : NopViewComponent
             TitleText = popUpSettings.TitleText,
             LinkUrl = popUpSettings.LinkUrl,
             AltText = popUpSettings.AltText,
-            IsEnabled = popUpSettings.IsEnabled
+            IsEnabled = popUpSettings.IsEnabled,
+            ShowOncePerSession = popUpSettings.ShowOncePerSession
         };
 
         return View("~/Plugins/Widgets.PopUp/Views/PublicInfo.cshtml", model);

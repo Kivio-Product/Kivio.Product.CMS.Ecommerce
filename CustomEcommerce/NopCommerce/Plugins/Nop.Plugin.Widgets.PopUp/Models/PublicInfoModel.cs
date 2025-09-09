@@ -34,5 +34,10 @@ public record PublicInfoModel : BaseNopModel
     /// </summary>
     public bool IsEnabled { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether to show popup only once per browser session
+    /// </summary>
+    public bool ShowOncePerSession { get; set; }
+
     #endregion
 }

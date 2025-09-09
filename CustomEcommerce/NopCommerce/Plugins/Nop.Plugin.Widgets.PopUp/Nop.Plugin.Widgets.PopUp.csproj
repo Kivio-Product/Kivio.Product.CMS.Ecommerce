@@ -35,6 +35,9 @@
     </Content>    
     <Content Include="Content\css\popup.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>  
+    <Content Include="Content\css\admin.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

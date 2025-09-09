@@ -49,7 +49,7 @@ public class PopUpPlugin : BasePlugin, IWidgetPlugin
     /// </returns>
     public Task<IList<string>> GetWidgetZonesAsync()
     {
-        return Task.FromResult<IList<string>>(new List<string> { PublicWidgetZones.HomepageTop });
+        return Task.FromResult<IList<string>>(new List<string> { PublicWidgetZones.BodyStartHtmlTagAfter });
     }
 
     /// <summary>
@@ -83,7 +83,9 @@ public class PopUpPlugin : BasePlugin, IWidgetPlugin
             PictureId = 0,
             TitleText = string.Empty,
             LinkUrl = string.Empty,
-            AltText = string.Empty
+            AltText = string.Empty,
+            DisplayPages = "home",
+            ShowOncePerSession = true
         };
         await _settingService.SaveSettingAsync(settings);
 
@@ -106,7 +108,28 @@ public class PopUpPlugin : BasePlugin, IWidgetPlugin
             ["Plugins.Widgets.PopUp.AltText"] = "Image alternate text",
             ["Plugins.Widgets.PopUp.AltText.Hint"] = "Enter alternate text that will be added to image.",
             ["Plugins.Widgets.PopUp.IsEnabled"] = "Enabled",
-            ["Plugins.Widgets.PopUp.IsEnabled.Hint"] = "Check to enable the popup widget."
+            ["Plugins.Widgets.PopUp.IsEnabled.Hint"] = "Check to enable the popup widget.",
+            ["Plugins.Widgets.PopUp.DisplayPages"] = "Show on pages",
+            ["Plugins.Widgets.PopUp.DisplayPages.Hint"] = "Select the pages where the popup should be displayed",
+            ["Plugins.Widgets.PopUp.ShowOncePerSession"] = "Show once per session",
+            ["Plugins.Widgets.PopUp.ShowOncePerSession.Hint"] = "Check to show the popup only once per browser session (until browser is closed).",
+            ["Plugins.Widgets.PopUp.Pages.Home"] = "Home page",
+            ["Plugins.Widgets.PopUp.Pages.Category"] = "Category pages",
+            ["Plugins.Widgets.PopUp.Pages.Product"] = "Product pages",
+            ["Plugins.Widgets.PopUp.Pages.Manufacturer"] = "Manufacturer pages",
+            ["Plugins.Widgets.PopUp.Pages.Topic"] = "Topic pages",
+            ["Plugins.Widgets.PopUp.Pages.Blog"] = "Blog pages",
+            ["Plugins.Widgets.PopUp.Pages.News"] = "News pages",
+            ["Plugins.Widgets.PopUp.Pages.All"] = "All pages",
+            ["Plugins.Widgets.PopUp.ShowOnHome"] = "Home page",
+            ["Plugins.Widgets.PopUp.ShowOnCategory"] = "Category pages",
+            ["Plugins.Widgets.PopUp.ShowOnProduct"] = "Product pages",
+            ["Plugins.Widgets.PopUp.ShowOnManufacturer"] = "Manufacturer pages",
+            ["Plugins.Widgets.PopUp.ShowOnTopic"] = "Topic pages",
+            ["Plugins.Widgets.PopUp.ShowOnBlog"] = "Blog pages",
+            ["Plugins.Widgets.PopUp.ShowOnNews"] = "News pages",
+            ["Plugins.Widgets.PopUp.ShowOnAll"] = "All pages",
+            ["Plugins.Widgets.PopUp.Configure"] = "Configure"
         });
 
         await base.InstallAsync();
