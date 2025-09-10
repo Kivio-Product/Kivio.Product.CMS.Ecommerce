@@ -73,7 +73,8 @@ BEGIN
     (
         Name LANGUAGE 3082,             -- Español
         Sku  LANGUAGE 3082,             -- SKUs también en español
-        ShortDescription LANGUAGE 3082   -- Descripciones cortas
+        ShortDescription LANGUAGE 3082,  -- Descripciones cortas
+        FullDescription LANGUAGE 3082    -- Descripciones largas
     )
     KEY INDEX PK_Product                -- Usar clave primaria como KEY INDEX
     WITH CHANGE_TRACKING AUTO,          -- Actualización automática del índice
