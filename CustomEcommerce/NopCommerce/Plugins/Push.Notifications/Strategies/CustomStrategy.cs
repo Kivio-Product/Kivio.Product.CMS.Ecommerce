@@ -41,7 +41,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
 
             try
             {
-                var schema = NotificationSchemaHelper.CreatePushNotificationSchema();
+                var schema = NotificationSchemaHelper.CreatePushEmojiNotificationSchema();
                 var aiResponse = await _geminiClient.StructuredOutputPrompt(prompt, schema);
                 var responseText = aiResponse?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
 
@@ -50,9 +50,14 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
                     var notificationData = JsonConvert.DeserializeObject<dynamic>(responseText);
                     var title = notificationData?.title?.ToString();
                     var body = notificationData?.body?.ToString();
+                    var emoji = notificationData?.emoji?.ToString();
 
                     if (title == null || body == null)
                         throw new Exception("Invalid AI response format." + responseText);
+
+                    // Add emoji to title if available
+                    if (!string.IsNullOrEmpty(emoji))
+                        title = $"{emoji} {title}";
 
                     await _pushNotificationService.LogNotificationAsync(new PushNotificationLog
                     {
