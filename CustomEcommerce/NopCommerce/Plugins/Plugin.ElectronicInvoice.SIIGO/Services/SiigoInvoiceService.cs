@@ -16,6 +16,7 @@ using Plugin.ElectronicInvoice.SIIGO.Models;
 using Plugin.ElectronicInvoice.SIIGO.Data;
 using System.Text;
 using Nop.Core.Domain.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Plugin.ElectronicInvoice.SIIGO.Services
 {
@@ -222,8 +223,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                 billingAddress?.City ?? "Bogotá");
 
             // If no codes found, use defaults for Bogotá
-            stateCode ??= "25";
-            cityCode ??= "25001";
+            stateCode ??= "11";
+            cityCode ??= "11001";
 
             // Create items from order items
             var siigoItems = await CreateSiigoItemsFromOrderAsync(order, siigoSettings);
@@ -236,8 +237,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                 {
                     PersonType = "Person",
                     IdType = "13", // National ID
-                    Identification = customer.Id.ToString(),
-                    Name = new List<string> { customer.FirstName ?? "", customer.LastName ?? "" },
+                    Identification = "222222222222",
+                    Name = new List<string> { customer.FirstName ?? "Consumidor", customer.LastName ?? "Final" },
                     Address = new SiigoAddress
                     {
                         Address = billingAddress?.Address1 ?? "Not specified",
@@ -257,7 +258,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                         new SiigoPhone
                         {
                             Indicative = "57",
-                            Number = billingAddress?.PhoneNumber ?? "0000000",
+                            Number = billingAddress?.PhoneNumber ?? "3211111111",
                             Extension = ""
                         }
                     }
@@ -277,14 +278,14 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                     new SiigoPayment
                     {
                         Id = siigoSettings.PaymentMethodId,
-                        Value = Math.Round(order.OrderTotal, 1),
+                        Value = Math.Round(order.OrderSubtotalInclTax, 1),
                         DueDate = DateTime.Now.ToString("yyyy-MM-dd")
                     }
                 },
                 AdditionalFields = new SiigoAdditionalFields
                 {
                     BillingId = order.OrderGuid.ToString(),
-                    CustomerEmail = customer.Email,
+                    CustomerEmail = customer.Email ?? "no-email@gmail.com",
                     GeneratedBy = "NopCommerce SIIGO Plugin",
                     PosId = _webHelper.GetCurrentIpAddress()
                 }
@@ -741,7 +742,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
         {
             try
             {
-                var pluginPath = Path.Combine(AppContext.BaseDirectory, "Plugins", "Plugin.ElectronicInvoice.SIIGO", "Data", "countries.json");
+                var pluginPath = Path.Combine(AppContext.BaseDirectory, "Plugins", "ElectronicInvoice.SIIGO", "countries.json");
                 if (File.Exists(pluginPath))
                 {
                     var json = File.ReadAllText(pluginPath);
