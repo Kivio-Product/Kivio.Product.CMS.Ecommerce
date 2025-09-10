@@ -4036,6 +4036,10 @@ button.email-a-friend-button:hover{
 }
 .cart-total td:first-child {
   text-align: left;
+  font-family: Inter;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
 }
 .cart-total .giftcard-remaining {
   display: block;

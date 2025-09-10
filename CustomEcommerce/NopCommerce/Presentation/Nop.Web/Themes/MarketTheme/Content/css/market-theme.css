@@ -273,6 +273,7 @@
   border-radius: 8px;
   overflow: hidden;
   background-color: #f9f9f9;
+  box-shadow: 0px 4px 4px 0px #00000040;
 }
 
 .discount-input,
@@ -2695,6 +2696,136 @@ button.add-to-wishlist-button.selected {
   text-decoration: underline;
 }
 
+.cart-total tr {
+  border-bottom: 1px solid #e7e7e7;
+}
+
+.cart-total tr:last-child {
+  border-bottom: none;
+}
+
+.cart-icon {
+  margin-right: 8px;
+}
+
+.cart-total-left label {
+  display: flex;
+  align-items: center;
+}
+
+.discount-total .value-summary {
+  color: #7a37f0;
+}
+
+.discount-messages {
+  margin-bottom: 12px;
+}
+
+.discount-messages .message {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.discount-messages .message.success {
+  background-color: #10b981;
+  color: white;
+  border: none;
+}
+
+.discount-messages .message.success::before {
+  content: "%";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  margin-right: 8px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.discount-messages .message.error {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+}
+
+.discount-messages .message.error::before {
+  content: "%";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  margin-right: 8px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.applied-discounts {
+  margin-top: 12px;
+}
+
+.applied-discount {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.discount-code {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.remove-discount {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-discount:hover {
+  background-color: #f3f4f6;
+  color: #ef4444;
+}
+
+.remove-discount:active {
+  background-color: #e5e7eb;
+}
+
+.remove-discount svg {
+  width: 14px;
+  height: 14px;
+}
+
+.discount-messages .message,
+.applied-discount {
+  animation: slideDown 0.3s ease-out;
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -3410,6 +3541,20 @@ button.add-to-wishlist-button.selected {
 }
 
 @media (max-width: 480px) {
+  .discount-input,
+  .discount-button {
+    width: 100%;
+  }
+
+  .applied-discount {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .remove-discount {
+    align-self: flex-end;
+  }
+
   .search-form-container .product-item {
     flex-wrap: wrap;
     gap: 10px;

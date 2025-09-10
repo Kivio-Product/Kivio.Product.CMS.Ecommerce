@@ -4,7 +4,10 @@
         <tbody>
             <tr class="order-subtotal">
                 <td class="cart-total-left">
-                    <label>@T("ShoppingCart.Totals.SubTotal"):</label>
+                    <label>
+                        <img src="@Url.Content("~/Themes/MarketTheme/Content/images/monedas.png")" alt="Subtotal" class="cart-icon" />
+                        @T("ShoppingCart.Totals.SubTotal"):
+                    </label>
                 </td>
                 <td class="cart-total-right">
                     <span class="value-summary">@Model.SubTotal</span>
@@ -14,7 +17,10 @@
             {
                 <tr class="order-subtotal-discount">
                     <td class="cart-total-left">
-                        <label>@T("ShoppingCart.Totals.SubTotalDiscount"):</label>
+                        <label>
+                            <img src="@Url.Content("~/Themes/MarketTheme/Content/images/cupon-de-descuento.png")" alt="Cupón" class="cart-icon" />
+                            @T("ShoppingCart.Totals.SubTotalDiscount"):
+                        </label>
                     </td>
                     <td class="cart-total-right">
                         <span class="value-summary">@Model.SubTotalDiscount</span>
@@ -25,7 +31,10 @@
             {
                 <tr class="shipping-cost">
                     <td class="cart-total-left">
-                        <label>@T("ShoppingCart.Totals.Shipping"):</label>
+                        <label>
+                            <img src="@Url.Content("~/Themes/MarketTheme/Content/images/caja-del-paquete.png")" alt="Envío" class="cart-icon" />
+                            @T("ShoppingCart.Totals.Shipping"):
+                        </label>
                         @if (Model.RequiresShipping && !string.IsNullOrEmpty(Model.SelectedShippingMethod))
                         {
                             <span class="selected-shipping-method">@T("ShoppingCart.Totals.Shipping.Method", Model.SelectedShippingMethod)</span>
@@ -90,7 +99,10 @@
             {
                 <tr class="discount-total">
                     <td class="cart-total-left">
-                        <label>@T("ShoppingCart.Totals.OrderTotalDiscount"):</label>
+                        <label>
+                            <img src="@Url.Content("~/Themes/MarketTheme/Content/images/cupon-de-descuento.png")" alt="Descuento" class="cart-icon" />
+                            @T("ShoppingCart.Totals.OrderTotalDiscount"):
+                        </label>
                     </td>
                     <td class="cart-total-right">
                         <span class="value-summary">@Model.OrderTotalDiscount</span>
