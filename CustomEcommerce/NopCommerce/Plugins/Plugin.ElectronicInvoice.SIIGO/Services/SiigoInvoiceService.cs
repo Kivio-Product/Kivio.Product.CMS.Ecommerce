@@ -22,6 +22,17 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
 {
     public class SiigoInvoiceService : ISiigoInvoiceService
     {
+        #region Constants
+        
+        /// <summary>
+        /// Default fallback identification number when no valid document can be extracted from customer data
+        /// </summary>
+        private const string DEFAULT_FALLBACK_IDENTIFICATION = "222222222222";
+        
+        #endregion
+        
+        #region Fields
+
         private readonly ISettingService _settingService;
         private readonly ILogger _logger;
         private readonly IOrderService _orderService;
@@ -214,7 +225,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             try
             {
                 if (string.IsNullOrEmpty(customAttributes))
-                    return "222222222222"; // Default fallback
+                    return DEFAULT_FALLBACK_IDENTIFICATION;
 
                 // Parse XML custom attributes to find identification document
                 var xmlDoc = new System.Xml.XmlDocument();
@@ -274,7 +285,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                 
                 await _logger.WarningAsync($"No identification found in custom attributes XML. Target ID: {targetAddressAttributeId}. Content: {customAttributes}");
                 
-                return "222222222222"; // Default fallback
+                return DEFAULT_FALLBACK_IDENTIFICATION;
             }
             catch (System.Xml.XmlException xmlEx)
             {
@@ -288,12 +299,12 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                     return fallbackNumbers.Value;
                 }
                 
-                return "222222222222"; // Default fallback
+                return DEFAULT_FALLBACK_IDENTIFICATION;
             }
             catch (Exception ex)
             {
                 await _logger.WarningAsync($"Error extracting identification from custom attributes: {ex.Message}");
-                return "222222222222"; // Default fallback
+                return DEFAULT_FALLBACK_IDENTIFICATION;
             }
         }
 
