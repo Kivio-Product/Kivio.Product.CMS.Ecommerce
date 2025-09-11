@@ -49,7 +49,8 @@ namespace Plugin.ElectronicInvoice.SIIGO
                 ExchangeRate = "4000",
                 IsEnabled = false,
                 TestMode = true,
-                LogEnabled = true
+                LogEnabled = true,
+                IdentificationAddressAttributeId = 1
             };
 
             await _settingService.SaveSettingAsync(settings);
@@ -109,6 +110,8 @@ namespace Plugin.ElectronicInvoice.SIIGO
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.TestMode.Hint"] = "Run in test mode",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.LogEnabled"] = "Logging Enabled",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.LogEnabled.Hint"] = "Enable logging for debugging",
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.IdentificationAddressAttributeId"] = "Identification AddressAttribute ID",
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.IdentificationAddressAttributeId.Hint"] = "ID of the AddressAttribute that contains the customer identification document (cedula/NIT). Default is 1.",
                 
                 // Tax Category Mapping Resources
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.TaxCategoryId"] = "Tax Category",

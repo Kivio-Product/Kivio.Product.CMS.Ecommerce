@@ -81,6 +81,10 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
         public bool LogEnabled { get; set; }
         public bool LogEnabled_OverrideForStore { get; set; }
 
+        [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.IdentificationAddressAttributeId")]
+        public int IdentificationAddressAttributeId { get; set; }
+        public bool IdentificationAddressAttributeId_OverrideForStore { get; set; }
+
         public TaxCategoryMappingConfigurationModel TaxCategoryMappings { get; set; }
 
         public List<InvoicedOrderModel> RecentInvoicedOrders { get; set; }

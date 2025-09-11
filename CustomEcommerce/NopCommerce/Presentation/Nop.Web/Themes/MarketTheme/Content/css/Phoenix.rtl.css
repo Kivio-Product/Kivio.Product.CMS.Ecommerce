@@ -1254,9 +1254,6 @@ ul.login-list li :hover {
   min-height: 150px;
   padding: 20px;
 }
-.checkout-page form .px_register_input .inputs.custom-attributes {
-  width: auto;
-}
 .checkout-page form .px_register_input .inputs.custom-attributes ul li input {
   min-height: auto;
 }

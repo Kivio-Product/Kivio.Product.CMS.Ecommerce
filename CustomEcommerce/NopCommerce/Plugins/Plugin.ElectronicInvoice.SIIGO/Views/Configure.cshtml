@@ -211,6 +211,18 @@
                                 <span asp-validation-for="LogEnabled"></span>
                             </div>
                         </div>
+                        <!-- IdentificationAddressAttributeId -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="IdentificationAddressAttributeId_OverrideForStore" asp-input="IdentificationAddressAttributeId" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="IdentificationAddressAttributeId" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="IdentificationAddressAttributeId" />
+                                <span asp-validation-for="IdentificationAddressAttributeId"></span>
+                                <small class="form-text text-muted">ID of the AddressAttribute that contains the customer identification document (cedula/NIT). Default is 1.</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 

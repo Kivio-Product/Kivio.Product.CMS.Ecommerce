@@ -205,6 +205,125 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             }
         }
 
+        /// <summary>
+        /// Extracts the identification document from billing address custom attributes (XML format)
+        /// Expected structure: <Attributes><AddressAttribute ID="X"><AddressAttributeValue><Value>DOCUMENT</Value></AddressAttributeValue></AddressAttribute></Attributes>
+        /// </summary>
+        private async Task<string> ExtractIdentificationFromCustomAttributesAsync(string customAttributes, int targetAddressAttributeId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(customAttributes))
+                    return "222222222222"; // Default fallback
+
+                // Parse XML custom attributes to find identification document
+                var xmlDoc = new System.Xml.XmlDocument();
+                xmlDoc.LoadXml(customAttributes);
+
+                // First, try to find the specific AddressAttribute by ID
+                var specificAttributeNode = xmlDoc.SelectSingleNode($"//AddressAttribute[@ID='{targetAddressAttributeId}']/AddressAttributeValue/Value");
+                if (specificAttributeNode != null && !string.IsNullOrEmpty(specificAttributeNode.InnerText))
+                {
+                    // Extract only numbers from the value (7-15 digits for Colombian documents)
+                    var numbers = System.Text.RegularExpressions.Regex.Match(specificAttributeNode.InnerText, @"\d{7,15}");
+                    if (numbers.Success)
+                    {
+                        await _logger.InformationAsync($"Found identification '{numbers.Value}' from AddressAttribute ID='{targetAddressAttributeId}' (configured target)");
+                        return numbers.Value;
+                    }
+                    else
+                    {
+                        await _logger.WarningAsync($"AddressAttribute ID='{targetAddressAttributeId}' found but does not contain a valid identification number (7-15 digits). Value: '{specificAttributeNode.InnerText}'");
+                    }
+                }
+                else
+                {
+                    await _logger.WarningAsync($"AddressAttribute ID='{targetAddressAttributeId}' not found in custom attributes. Available attributes: {GetAvailableAddressAttributeIds(xmlDoc)}");
+                }
+
+                // Fallback: Look for any AddressAttribute with a valid identification number
+                var addressAttributeValues = xmlDoc.SelectNodes("//AddressAttribute/AddressAttributeValue/Value");
+                if (addressAttributeValues != null)
+                {
+                    foreach (System.Xml.XmlNode valueNode in addressAttributeValues)
+                    {
+                        if (!string.IsNullOrEmpty(valueNode.InnerText))
+                        {
+                            // Extract only numbers from the value (7-15 digits for Colombian documents)
+                            var numbers = System.Text.RegularExpressions.Regex.Match(valueNode.InnerText, @"\d{7,15}");
+                            if (numbers.Success)
+                            {
+                                // Get the parent AddressAttribute ID for logging
+                                var parentAttribute = valueNode.SelectSingleNode("ancestor::AddressAttribute");
+                                var attributeId = parentAttribute?.Attributes?["ID"]?.Value ?? "unknown";
+                                
+                                await _logger.InformationAsync($"Found identification '{numbers.Value}' from AddressAttribute ID='{attributeId}' (fallback search)");
+                                return numbers.Value;
+                            }
+                        }
+                    }
+                }
+
+                // Final fallback: Extract any sequence of 7-15 digits from the entire XML content
+                var anyNumbers = System.Text.RegularExpressions.Regex.Match(customAttributes, @"\d{7,15}");
+                if (anyNumbers.Success)
+                {
+                    await _logger.InformationAsync($"Found identification '{anyNumbers.Value}' using final fallback regex pattern");
+                    return anyNumbers.Value;
+                }
+                
+                await _logger.WarningAsync($"No identification found in custom attributes XML. Target ID: {targetAddressAttributeId}. Content: {customAttributes}");
+                
+                return "222222222222"; // Default fallback
+            }
+            catch (System.Xml.XmlException xmlEx)
+            {
+                await _logger.WarningAsync($"Invalid XML in custom attributes, trying fallback parsing: {xmlEx.Message}. Content: {customAttributes}");
+                
+                // Fallback to simple string parsing if XML is malformed
+                var fallbackNumbers = System.Text.RegularExpressions.Regex.Match(customAttributes, @"\d{7,15}");
+                if (fallbackNumbers.Success)
+                {
+                    await _logger.InformationAsync($"Found identification '{fallbackNumbers.Value}' using XML fallback regex");
+                    return fallbackNumbers.Value;
+                }
+                
+                return "222222222222"; // Default fallback
+            }
+            catch (Exception ex)
+            {
+                await _logger.WarningAsync($"Error extracting identification from custom attributes: {ex.Message}");
+                return "222222222222"; // Default fallback
+            }
+        }
+
+        /// <summary>
+        /// Helper method to get available AddressAttribute IDs for logging purposes
+        /// </summary>
+        private string GetAvailableAddressAttributeIds(System.Xml.XmlDocument xmlDoc)
+        {
+            try
+            {
+                var attributeNodes = xmlDoc.SelectNodes("//AddressAttribute[@ID]");
+                if (attributeNodes == null || attributeNodes.Count == 0)
+                    return "none";
+
+                var ids = new List<string>();
+                foreach (System.Xml.XmlNode node in attributeNodes)
+                {
+                    var id = node.Attributes?["ID"]?.Value;
+                    if (!string.IsNullOrEmpty(id))
+                        ids.Add(id);
+                }
+
+                return string.Join(", ", ids);
+            }
+            catch
+            {
+                return "error reading IDs";
+            }
+        }
+
         private async Task<SiigoInvoiceRequest> BuildInvoiceRequestAsync(Order order, SiigoSettings siigoSettings)
         {
             var customer = await _customerService.GetCustomerByIdAsync(order.CustomerId);
@@ -229,6 +348,9 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             // Create items from order items
             var siigoItems = await CreateSiigoItemsFromOrderAsync(order, siigoSettings);
 
+            // Extract identification document from billing address custom attributes
+            var identification = await ExtractIdentificationFromCustomAttributesAsync(billingAddress?.CustomAttributes, siigoSettings.IdentificationAddressAttributeId);
+
             var invoiceRequest = new SiigoInvoiceRequest
             {
                 Document = new SiigoDocument { Id = siigoSettings.DocumentId },
@@ -237,8 +359,11 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                 {
                     PersonType = "Person",
                     IdType = "13", // National ID
-                    Identification = "222222222222",
-                    Name = new List<string> { customer.FirstName ?? "Consumidor", customer.LastName ?? "Final" },
+                    Identification = identification,
+                    Name = new List<string> { 
+                        billingAddress?.FirstName ?? customer.FirstName ?? "Consumidor", 
+                        billingAddress?.LastName ?? customer.LastName ?? "Final" 
+                    },
                     Address = new SiigoAddress
                     {
                         Address = billingAddress?.Address1 ?? "Not specified",

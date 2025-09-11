@@ -21,5 +21,6 @@ namespace Plugin.ElectronicInvoice.SIIGO
         public bool IsEnabled { get; set; }
         public bool TestMode { get; set; }
         public bool LogEnabled { get; set; }
+        public int IdentificationAddressAttributeId { get; set; }
     }
 }

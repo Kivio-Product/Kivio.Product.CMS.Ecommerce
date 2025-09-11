@@ -104,6 +104,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
                 TestMode_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.TestMode, storeId),
                 LogEnabled = siigoSettings.LogEnabled,
                 LogEnabled_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.LogEnabled, storeId),
+                IdentificationAddressAttributeId = siigoSettings.IdentificationAddressAttributeId,
+                IdentificationAddressAttributeId_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.IdentificationAddressAttributeId, storeId),
                 RecentInvoicedOrders = await LoadRecentInvoicedOrdersAsync(),
                 TaxCategoryMappings = await LoadTaxCategoryMappingsAsync(storeId)
             };
@@ -138,6 +140,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             siigoSettings.IsEnabled = model.IsEnabled;
             siigoSettings.TestMode = model.TestMode;
             siigoSettings.LogEnabled = model.LogEnabled;
+            siigoSettings.IdentificationAddressAttributeId = model.IdentificationAddressAttributeId;
 
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.ApiBaseUrl, model.ApiBaseUrl_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.PartnerId, model.PartnerId_OverrideForStore, storeId, false);
@@ -156,6 +159,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.IsEnabled, model.IsEnabled_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.TestMode, model.TestMode_OverrideForStore, storeId, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.LogEnabled, model.LogEnabled_OverrideForStore, storeId, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(siigoSettings, x => x.IdentificationAddressAttributeId, model.IdentificationAddressAttributeId_OverrideForStore, storeId, false);
 
             await _settingService.ClearCacheAsync();
 
