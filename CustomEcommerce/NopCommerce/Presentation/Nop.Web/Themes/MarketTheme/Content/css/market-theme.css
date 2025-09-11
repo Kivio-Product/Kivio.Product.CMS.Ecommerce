@@ -139,6 +139,9 @@
 
 .cart-items {
   margin-bottom: 20px;
+  padding: 10px;
+  max-height: 350px;
+  overflow-y: auto;
 }
 
 .cart-item {
