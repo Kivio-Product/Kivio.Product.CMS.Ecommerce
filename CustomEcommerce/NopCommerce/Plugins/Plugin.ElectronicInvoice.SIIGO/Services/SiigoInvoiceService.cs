@@ -22,17 +22,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
 {
     public class SiigoInvoiceService : ISiigoInvoiceService
     {
-        #region Constants
-        
-        /// <summary>
-        /// Default fallback identification number when no valid document can be extracted from customer data
-        /// </summary>
         private const string DEFAULT_FALLBACK_IDENTIFICATION = "222222222222";
-        
-        #endregion
-        
-        #region Fields
-
         private readonly ISettingService _settingService;
         private readonly ILogger _logger;
         private readonly IOrderService _orderService;
