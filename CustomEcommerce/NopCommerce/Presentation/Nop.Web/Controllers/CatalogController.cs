@@ -477,7 +477,7 @@ public partial class CatalogController : BasePublicController
         var store = await _storeContext.GetCurrentStoreAsync();
         var customer = await _workContext.GetCurrentCustomerAsync();
 
-        var suggestions = await _productSuggestionsService.GetSuggestionsAsync(term);
+        var suggestions = await _productSuggestionsService.GetSuggestionsListAsync(term);
 
         var productNumber = await _settingService.GetSettingByKeyAsync("Catalog.SearchAutoCompleteProductsModelNumber", 3);
 
