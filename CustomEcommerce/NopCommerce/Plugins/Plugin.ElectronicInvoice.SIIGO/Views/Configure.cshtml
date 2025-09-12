@@ -1,0 +1,437 @@
+@using Nop.Web.Framework.Extensions
+@using Nop.Web.Framework
+@using Plugin.ElectronicInvoice.SIIGO.Models
+
+@model ConfigurationModel
+
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+@await Component.InvokeAsync("StoreScopeConfiguration")
+<form asp-controller="Siigo" asp-action="Configure" method="post">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="cards-group">
+                <div class="card card-default">
+                    <div class="card-header">
+                        SIIGO Electronic Invoice Configuration
+                    </div>
+                    <div class="card-body">
+                        <!-- IsEnabled -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="IsEnabled_OverrideForStore" asp-input="IsEnabled" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="IsEnabled" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="IsEnabled" />
+                                <span asp-validation-for="IsEnabled"></span>
+                            </div>
+                        </div>
+                        <!-- TestMode -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="TestMode_OverrideForStore" asp-input="TestMode" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="TestMode" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="TestMode" />
+                                <span asp-validation-for="TestMode"></span>
+                            </div>
+                        </div>
+                        <!-- ApiBaseUrl -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="ApiBaseUrl_OverrideForStore" asp-input="ApiBaseUrl" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="ApiBaseUrl" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="ApiBaseUrl" />
+                                <span asp-validation-for="ApiBaseUrl"></span>
+                            </div>
+                        </div>
+                        <!-- PartnerId -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="PartnerId_OverrideForStore" asp-input="PartnerId" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="PartnerId" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="PartnerId" />
+                                <span asp-validation-for="PartnerId"></span>
+                            </div>
+                        </div>
+                        <!-- Username -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="Username_OverrideForStore" asp-input="Username" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="Username" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="Username" />
+                                <span asp-validation-for="Username"></span>
+                                <small class="form-text text-muted">SIIGO username for authentication</small>
+                            </div>
+                        </div>
+                        <!-- AccessKey -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="AccessKey_OverrideForStore" asp-input="AccessKey" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="AccessKey" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="AccessKey" />
+                                <span asp-validation-for="AccessKey"></span>
+                                <small class="form-text text-muted">SIIGO access key for authentication (will generate bearer tokens automatically)</small>
+                            </div>
+                        </div>
+                        <!-- DocumentId -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="DocumentId_OverrideForStore" asp-input="DocumentId" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="DocumentId" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="DocumentId" />
+                                <span asp-validation-for="DocumentId"></span>
+                            </div>
+                        </div>
+                        <!-- DefaultItemCode -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="DefaultItemCode_OverrideForStore" asp-input="DefaultItemCode" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="DefaultItemCode" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="DefaultItemCode" />
+                                <span asp-validation-for="DefaultItemCode"></span>
+                            </div>
+                        </div>
+                        <!-- SellerId -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="SellerId_OverrideForStore" asp-input="SellerId" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="SellerId" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="SellerId" />
+                                <span asp-validation-for="SellerId"></span>
+                            </div>
+                        </div>
+                        <!-- PaymentMethodId -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="PaymentMethodId_OverrideForStore" asp-input="PaymentMethodId" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="PaymentMethodId" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="PaymentMethodId" />
+                                <span asp-validation-for="PaymentMethodId"></span>
+                            </div>
+                        </div>
+                        <!-- AccountGroup -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="AccountGroup_OverrideForStore" asp-input="AccountGroup" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="AccountGroup" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="AccountGroup" />
+                                <span asp-validation-for="AccountGroup"></span>
+                                <small class="form-text text-muted">Account group ID to use when creating products in SIIGO. This is required for product creation.</small>
+                            </div>
+                        </div>
+                        <!-- SendByEmail -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="SendByEmail_OverrideForStore" asp-input="SendByEmail" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="SendByEmail" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="SendByEmail" />
+                                <span asp-validation-for="SendByEmail"></span>
+                            </div>
+                        </div>
+                        <!-- SendStamp -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="SendStamp_OverrideForStore" asp-input="SendStamp" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="SendStamp" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="SendStamp" />
+                                <span asp-validation-for="SendStamp"></span>
+                            </div>
+                        </div>
+                        <!-- CopyToEmail -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="CopyToEmail_OverrideForStore" asp-input="CopyToEmail" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="CopyToEmail" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="CopyToEmail" />
+                                <span asp-validation-for="CopyToEmail"></span>
+                                <small class="form-text text-muted">Email address to receive a copy of all electronic invoices. Leave empty to not send copies.</small>
+                            </div>
+                        </div>
+                        <!-- CurrencyCode -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="CurrencyCode_OverrideForStore" asp-input="CurrencyCode" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="CurrencyCode" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="CurrencyCode" />
+                                <span asp-validation-for="CurrencyCode"></span>
+                                <small class="form-text text-muted">Currency code for invoices (e.g., COP, USD, EUR). Default is COP.</small>
+                            </div>
+                        </div>
+                        <!-- ExchangeRate -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="ExchangeRate_OverrideForStore" asp-input="ExchangeRate" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="ExchangeRate" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="ExchangeRate" />
+                                <span asp-validation-for="ExchangeRate"></span>
+                                <small class="form-text text-muted">Exchange rate for currency conversion. Use "1" for local currency. Format: decimal number (e.g., 1, 0.85, 4500).</small>
+                            </div>
+                        </div>
+                        <!-- LogEnabled -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="LogEnabled_OverrideForStore" asp-input="LogEnabled" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="LogEnabled" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="LogEnabled" />
+                                <span asp-validation-for="LogEnabled"></span>
+                            </div>
+                        </div>
+                        <!-- IdentificationAddressAttributeId -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="IdentificationAddressAttributeId_OverrideForStore" asp-input="IdentificationAddressAttributeId" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="IdentificationAddressAttributeId" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="IdentificationAddressAttributeId" />
+                                <span asp-validation-for="IdentificationAddressAttributeId"></span>
+                                <small class="form-text text-muted">ID of the AddressAttribute that contains the customer identification document (cedula/NIT). Default is 1.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tax Category Mappings -->
+                <div class="card card-default">
+                    <div class="card-header">
+                        Tax Category Mappings to SIIGO Tax Codes
+                    </div>
+                    <div class="card-body">
+                        <div class="form-text text-muted mb-3">
+                            Configure how NopCommerce tax categories map to SIIGO tax codes. Only products assigned to mapped tax categories will include tax information in the invoice.
+                        </div>
+                        
+                        <!-- Existing Mappings -->
+                        @if (Model.TaxCategoryMappings.TaxCategoryMappings.Any())
+                        {
+                            <div class="table-responsive mb-4">
+                                <table class="table table-bordered table-hover">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Tax Category</th>
+                                            <th>SIIGO Tax Code</th>
+                                            <th>Enabled</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var mapping in Model.TaxCategoryMappings.TaxCategoryMappings)
+                                        {
+                                            <tr>
+                                                <td>@mapping.TaxCategoryName</td>
+                                                <td>@mapping.SiigoTaxCode</td>
+                                                <td>
+                                                    @if (mapping.IsEnabled)
+                                                    {
+                                                        <span class="badge badge-success">Enabled</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-secondary">Disabled</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <button type="submit" name="deleteTaxCategoryMapping" value="@mapping.TaxCategoryId" 
+                                                            formaction="@Url.Action("DeleteTaxCategoryMapping", "Siigo")" 
+                                                            class="btn btn-danger btn-sm" 
+                                                            onclick="return confirm('Are you sure you want to delete this mapping?')">
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                No tax category mappings configured. Add mappings below to enable tax information in SIIGO invoices.
+                            </div>
+                        }
+
+                        <!-- Add New Mapping -->
+                        <div class="card card-outline card-primary">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Add New Tax Category Mapping</h5>
+                            </div>
+                            <div class="card-body">
+                                @if (Model.TaxCategoryMappings.AvailableTaxCategories.Count > 1)
+                                {
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Tax Category</label>
+                                                <select asp-for="TaxCategoryMappings.NewTaxCategoryId" class="form-control">
+                                                    @foreach (var taxCategory in Model.TaxCategoryMappings.AvailableTaxCategories)
+                                                    {
+                                                        <option value="@taxCategory.Value">@taxCategory.Text</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label>SIIGO Tax Code</label>
+                                                <input asp-for="TaxCategoryMappings.NewSiigoTaxCode" class="form-control" placeholder="e.g., 1270" required />
+                                                <small class="form-text text-muted">Enter the numeric tax code from SIIGO</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label>&nbsp;</label>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input asp-for="TaxCategoryMappings.NewIsEnabled" class="custom-control-input" />
+                                                    <label asp-for="TaxCategoryMappings.NewIsEnabled" class="custom-control-label">Enabled</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label>&nbsp;</label>
+                                                <button type="submit" name="addTaxCategoryMapping" formaction="@Url.Action("AddTaxCategoryMapping", "Siigo")" class="btn btn-primary btn-block">Add Mapping</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-warning">
+                                        All available tax categories have been mapped. You can edit existing mappings or create new tax categories in the tax configuration section.
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Invoiced Orders -->
+                <div class="card card-default">
+                    <div class="card-header">
+                        Recent Orders with SIIGO Invoices
+                    </div>
+                    <div class="card-body">
+                        @if (Model.RecentInvoicedOrders != null && Model.RecentInvoicedOrders.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover table-striped">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Order Date</th>
+                                            <th>Customer Email</th>
+                                            <th>Order Total</th>
+                                            <th>SIIGO Invoice ID</th>
+                                            <th>SIIGO Invoice Number</th>
+                                            <th>Invoice Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var order in Model.RecentInvoicedOrders)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <a href="@Url.Action("Edit", "Order", new { id = order.OrderId, area = AreaNames.ADMIN })" target="_blank">
+                                                        #@order.OrderId
+                                                    </a>
+                                                </td>
+                                                <td>@order.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                                <td>@order.CustomerEmail</td>
+                                                <td>@order.OrderTotal.ToString("C")</td>
+                                                <td>
+                                                    <span class="text-monospace">@order.SiigoInvoiceId</span>
+                                                </td>
+                                                <td>@order.SiigoInvoiceNumber</td>
+                                                <td>
+                                                    @if (order.SiigoInvoiceDate.HasValue)
+                                                    {
+                                                        @order.SiigoInvoiceDate.Value.ToString("yyyy-MM-dd HH:mm")
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">N/A</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (order.SiigoInvoiceStatus?.Contains("Error") == true)
+                                                    {
+                                                        <span class="badge badge-danger">@order.SiigoInvoiceStatus</span>
+                                                    }
+                                                    else if (order.SiigoInvoiceStatus == "Processing")
+                                                    {
+                                                        <span class="badge badge-warning">@order.SiigoInvoiceStatus</span>
+                                                    }
+                                                    else if (order.SiigoInvoiceStatus == "Created")
+                                                    {
+                                                        <span class="badge badge-success">@order.SiigoInvoiceStatus</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-secondary">@order.SiigoInvoiceStatus</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                No orders with SIIGO invoices found. Orders will appear here after electronic invoices are generated.
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" name="save" class="btn btn-primary">
+                    Save
+                </button>
+                <button type="submit" name="test-connection" formaction="@Url.Action("TestConnection", "Siigo")" class="btn btn-secondary">
+                    Test Connection
+                </button>
+            </div>
+        </div>
+    </section>
+</form>

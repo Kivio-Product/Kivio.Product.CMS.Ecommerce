@@ -77,7 +77,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
             
             try
             {
-                var schema = NotificationSchemaHelper.CreateProductNotificationSchema();
+                var schema = NotificationSchemaHelper.CreatePushEmojiNotificationSchema();
                 var aiResponse = await _geminiClient.StructuredOutputPrompt(prompt, schema);
                 var responseText = aiResponse?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
                 

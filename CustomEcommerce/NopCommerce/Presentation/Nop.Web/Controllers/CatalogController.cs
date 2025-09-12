@@ -50,6 +50,7 @@ public partial class CatalogController : BasePublicController
     protected readonly MediaSettings _mediaSettings;
     protected readonly VendorSettings _vendorSettings;
     private readonly ISettingService _settingService;
+    private readonly IProductSuggestionsService _productSuggestionsService;
 
 
     #endregion
@@ -77,7 +78,8 @@ public partial class CatalogController : BasePublicController
         IWorkContext workContext,
         MediaSettings mediaSettings,
         VendorSettings vendorSettings,
-        ISettingService settingService)
+        ISettingService settingService,
+        IProductSuggestionsService productSuggestionsService)
     {
         _catalogSettings = catalogSettings;
         _aclService = aclService;
@@ -101,6 +103,7 @@ public partial class CatalogController : BasePublicController
         _mediaSettings = mediaSettings;
         _vendorSettings = vendorSettings;
         _settingService = settingService;
+        _productSuggestionsService = productSuggestionsService;
     }
 
     #endregion
@@ -443,6 +446,9 @@ public partial class CatalogController : BasePublicController
     {
         var store = await _storeContext.GetCurrentStoreAsync();
 
+        model.advs = true;
+        model.sid = true;
+
         //'Continue shopping' URL
         await _genericAttributeService.SaveAttributeAsync(await _workContext.GetCurrentCustomerAsync(),
             NopCustomerDefaults.LastContinueShoppingPageAttribute,
@@ -466,38 +472,73 @@ public partial class CatalogController : BasePublicController
         term = term.Trim();
 
         if (string.IsNullOrWhiteSpace(term) || term.Length < _catalogSettings.ProductSearchTermMinimumLength)
-            return Content("");
+           return Content("");
 
-        //products
-        var productNumber = _catalogSettings.ProductSearchAutoCompleteNumberOfProducts > 0 ?
-            _catalogSettings.ProductSearchAutoCompleteNumberOfProducts : 10;
         var store = await _storeContext.GetCurrentStoreAsync();
+        var customer = await _workContext.GetCurrentCustomerAsync();
+
+        var suggestions = await _productSuggestionsService.GetSuggestionsAsync(term);
+
+        var productNumber = await _settingService.GetSettingByKeyAsync("Catalog.SearchAutoCompleteProductsModelNumber", 3);
 
         var categoryIds = new List<int>();
         if (categoryId > 0)
             categoryIds.AddRange([categoryId, .. await _categoryService.GetChildCategoryIdsAsync(categoryId, store.Id)]);
 
-        var products = await _productService.SearchProductsAsync(0,
-            categoryIds: categoryIds,
-            storeId: store.Id,
-            keywords: term,
-            languageId: (await _workContext.GetWorkingLanguageAsync()).Id,
-            visibleIndividuallyOnly: true,
-            pageSize: productNumber);
+        var productIds = suggestions.Select(s => s.Id).Take(productNumber).ToArray();
+        var products = await _productService.GetProductsByIdsAsync(productIds);
+        var productModels = await _productModelFactory.PrepareProductOverviewModelsAsync(products, true, true, 100);
 
-        var showLinkToResultSearch = _catalogSettings.ShowLinkToAllResultInSearchAutoComplete && (products.TotalCount > productNumber);
+        var productModelsList = new List<object>();
 
-        var models = (await _productModelFactory.PrepareProductOverviewModelsAsync(products, false, _catalogSettings.ShowProductImagesInSearchAutoComplete, _mediaSettings.AutoCompleteSearchThumbPictureSize)).ToList();
-        var result = (from p in models
-                      select new
-                      {
-                          label = p.Name,
-                          producturl = Url.RouteUrl<Product>(new { SeName = p.SeName }),
-                          productpictureurl = p.PictureModels.FirstOrDefault()?.ImageUrl,
-                          showlinktoresultsearch = showLinkToResultSearch
-                      })
+        foreach (var productM in productModels)
+        {
+            var product = products.FirstOrDefault(p => p.Id == productM.Id);
+            var stockAvailability = product?.StockQuantity ?? 0;
+            var isInStock = stockAvailability > 0;
+            var minOrderQty = product?.OrderMinimumQuantity ?? 1;
+            var maxOrderQty = product?.OrderMaximumQuantity ?? 999;
+
+            productModelsList.Add(new
+            {
+                type = "product",
+                id = productM.Id,
+                name = productM.Name,
+                shortDescription = productM.ShortDescription,
+                price = productM.ProductPrice.Price,
+                originalPrice = productM.ProductPrice.OldPrice,
+                sku = productM.Sku,
+                stockQuantity = stockAvailability,
+                isInStock = isInStock,
+                productUrl = Url.RouteUrl<Product>(new { SeName = productM.SeName }),
+                imageUrl = productM.PictureModels.FirstOrDefault()?.ImageUrl,
+                hasImage = productM.PictureModels.Any(),
+                minOrderQuantity = minOrderQty,
+                maxOrderQuantity = maxOrderQty,
+            });
+        }
+
+        var termSuggestions = suggestions
+            .Skip(productNumber)
+            .Select(s => new
+            {
+                type = "term",
+                text = s.Name,
+                relevance = s.Relevance
+            })
             .ToList();
-        return Json(result);
+
+        var showLinkToResultSearch = _catalogSettings.ShowLinkToAllResultInSearchAutoComplete &&
+                                   (termSuggestions.Count + productModelsList.Count) >= _catalogSettings.ProductSearchAutoCompleteNumberOfProducts;
+
+        return Json(new
+        {
+            suggestions = termSuggestions,
+            products = productModelsList,
+            showLinkToResultSearch = showLinkToResultSearch,
+            searchTerm = term,
+            hasResults = termSuggestions.Count != 0 || productModelsList.Count != 0
+        });
     }
 
     [HttpPost]

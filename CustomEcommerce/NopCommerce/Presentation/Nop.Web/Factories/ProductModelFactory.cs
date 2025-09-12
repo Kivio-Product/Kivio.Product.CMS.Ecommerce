@@ -1267,7 +1267,8 @@ public partial class ProductModelFactory : IProductModelFactory
     public virtual async Task<IEnumerable<ProductOverviewModel>> PrepareProductOverviewModelsAsync(IEnumerable<Product> products,
          bool preparePriceModel = true, bool preparePictureModel = true,
          int? productThumbPictureSize = null, bool prepareSpecificationAttributes = false,
-         bool forceRedirectionAfterAddingToCart = false)
+         bool forceRedirectionAfterAddingToCart = false,
+         bool ignoreNonStockProducts = true)
     {
         ArgumentNullException.ThrowIfNull(products);
 
@@ -1276,6 +1277,10 @@ public partial class ProductModelFactory : IProductModelFactory
 
         foreach (var product in products)
         {
+
+            if (ignoreNonStockProducts && product.StockQuantity <= 0)
+                continue;
+
             var model = new ProductOverviewModel
             {
                 Id = product.Id,

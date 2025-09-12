@@ -79,9 +79,14 @@ namespace Nop.Plugin.Misc.PushNotifications.Strategies
                     var title = notificationData?.title?.ToString();
                     var body = notificationData?.body?.ToString();
                     var callToAction = notificationData?.callToAction?.ToString();
+                    var emoji = notificationData?.emoji?.ToString();
 
                     if (title == null || body == null)
                         throw new Exception("Invalid AI response format." + responseText);
+                    
+                    // Add emoji to title if available
+                    if (!string.IsNullOrEmpty(emoji))
+                        title = $"{emoji} {title}";
                     
                     // Add call to action to body if available
                     if (!string.IsNullOrEmpty(callToAction))

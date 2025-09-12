@@ -1,0 +1,65 @@
+@using Nop.Plugin.Widgets.PopUp.Models;
+@model PublicInfoModel
+@if (Model.IsEnabled && !string.IsNullOrEmpty(Model.PictureUrl))
+{
+    <link href="~/Plugins/Widgets.PopUp/Content/css/popup.css" rel="stylesheet">
+    <div id="popup-overlay" class="popup-overlay">
+        <div class="popup-content">
+            <button class="popup-close" onclick="closePopup()">&times;</button>
+            @if (!string.IsNullOrEmpty(Model.LinkUrl))
+            {
+                <a href="@Model.LinkUrl" rel="nofollow" target="_blank">
+                    <img src="@Model.PictureUrl" alt="@Model.AltText" title="@Model.TitleText" class="popup-image" />
+                </a>
+            }
+            else
+            {
+                <img src="@Model.PictureUrl" alt="@Model.AltText" title="@Model.TitleText" class="popup-image" />
+            }
+            @if (!string.IsNullOrEmpty(Model.TitleText))
+            {
+                <div class="popup-title">@Model.TitleText</div>
+            }
+        </div>
+    </div>
+    <script>
+        function closePopup() {
+            document.getElementById('popup-overlay').style.display = 'none';
+        }
+
+        // Close popup when clicking outside the content
+        document.getElementById('popup-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePopup();
+            }
+        });
+
+        // Close popup with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePopup();
+            }
+        });
+
+        // Show popup after page loads
+        window.addEventListener('load', function() {
+            var showOncePerSession = @Model.ShowOncePerSession.ToString().ToLowerInvariant();
+            var storageKey = 'nopPopupShown';
+            
+            // Check if popup should be shown based on session settings
+            var shouldShow = true;
+            if (showOncePerSession) {
+                shouldShow = !sessionStorage.getItem(storageKey);
+            }
+            
+            if (shouldShow) {
+                setTimeout(function() {
+                    document.getElementById('popup-overlay').style.display = 'flex';
+                    if (showOncePerSession) {
+                        sessionStorage.setItem(storageKey, 'true');
+                    }
+                }, 1000); // Show popup after 1 second
+            }
+        });
+    </script>
+}

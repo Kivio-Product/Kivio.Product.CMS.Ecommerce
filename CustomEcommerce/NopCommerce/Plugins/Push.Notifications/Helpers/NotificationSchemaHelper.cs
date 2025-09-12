@@ -36,7 +36,7 @@ namespace Nop.Plugin.Misc.PushNotifications.Helpers
         /// Creates a schema for product notification with additional product details
         /// </summary>
         /// <returns>ResponseSchema for product notification</returns>
-        public static ResponseSchema CreateProductNotificationSchema()
+        public static ResponseSchema CreatePushEmojiNotificationSchema()
         {
             return new ResponseSchema
             {
@@ -89,10 +89,15 @@ namespace Nop.Plugin.Misc.PushNotifications.Helpers
                     {
                         Type = "STRING",
                         Description = "A short call-to-action phrase"
+                    },
+                    ["emoji"] = new SchemaProperty
+                    {
+                        Type = "STRING",
+                        Description = "A relevant emoji for the category notification"
                     }
                 },
                 Required = new List<string> { "title", "body" },
-                PropertyOrdering = new List<string> { "title", "body", "callToAction" }
+                PropertyOrdering = new List<string> { "title", "body", "callToAction", "emoji" }
             };
         }
     }

@@ -194,6 +194,14 @@
                                                 </div>
                                             </div>
                                         </div>
+                                         <div class="form-group row">
+                                            <div class="col-md-4">
+                                                <nop-label asp-for="SearchNonStockOnly" />
+                                            </div>
+                                            <div class="col-md-8">
+                                                <nop-editor asp-for="SearchNonStockOnly" />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -224,6 +232,7 @@
                                       new FilterParameter(nameof(Model.SearchProductName)),
                                       new FilterParameter(nameof(Model.SearchCategoryId)),
                                       new FilterParameter(nameof(Model.SearchIncludeSubCategories), typeof(bool)),
+                                      new FilterParameter(nameof(Model.SearchNonStockOnly), typeof(bool)),
                                       new FilterParameter(nameof(Model.SearchManufacturerId)),
                                       new FilterParameter(nameof(Model.SearchStoreId)),
                                       new FilterParameter(nameof(Model.SearchWarehouseId)),
@@ -437,7 +446,8 @@ $(function() {
             SearchWarehouseId: $('#@Html.IdFor(model => model.SearchWarehouseId)').val(),
             SearchVendorId: $('#@Html.IdFor(model => model.SearchVendorId)').val(),
             SearchProductTypeId: $('#@Html.IdFor(model => model.SearchProductTypeId)').val(),
-            SearchPublishedId: $('#@Html.IdFor(model => model.SearchPublishedId)').val()
+            SearchPublishedId: $('#@Html.IdFor(model => model.SearchPublishedId)').val(),
+            SearchNonStockOnly: $('#@Html.IdFor(model => model.SearchNonStockOnly)').prop('checked'),
         };
         
         if (tableInitialized && $('#products-grid').length > 0) {
@@ -472,7 +482,8 @@ $(function() {
         $('#@Html.IdFor(model => model.SearchVendorId)').val(params.SearchVendorId || '');
         $('#@Html.IdFor(model => model.SearchProductTypeId)').val(params.SearchProductTypeId || '');
         $('#@Html.IdFor(model => model.SearchPublishedId)').val(params.SearchPublishedId || '');
-        
+        $('#@Html.IdFor(model => model.SearchNonStockOnly)').prop('checked', params.SearchNonStockOnly || false);
+
         $('#search-products').trigger('click');
         
         if (params.CurrentPage !== undefined || params.PageSize !== undefined) {

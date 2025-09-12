@@ -1254,9 +1254,6 @@ ul.login-list li :hover {
   min-height: 150px;
   padding: 20px;
 }
-.checkout-page form .px_register_input .inputs.custom-attributes {
-  width: auto;
-}
 .checkout-page form .px_register_input .inputs.custom-attributes ul li input {
   min-height: auto;
 }
@@ -2249,8 +2246,6 @@ input[type="radio"] {
   position: sticky;
   top: 0;
   background: #fff;
- /* box-shadow: 0px 0px 18px 1px rgba(0,0,0,0.1);*/
-  z-index: 999;
 }
 .header .search-box ul li a.ui-state-active{
     border: 0 !important;
