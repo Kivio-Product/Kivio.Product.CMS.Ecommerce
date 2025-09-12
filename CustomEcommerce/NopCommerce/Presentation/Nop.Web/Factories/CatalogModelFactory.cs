@@ -70,6 +70,7 @@ public partial class CatalogModelFactory : ICatalogModelFactory
     protected readonly MediaSettings _mediaSettings;
     protected readonly SeoSettings _seoSettings;
     private readonly ISettingService _settingService;
+    private readonly IProductSuggestionsService _productSuggestionsService;
     protected readonly VendorSettings _vendorSettings;
     private static readonly char[] _separator = [',', ' '];
 
@@ -110,6 +111,7 @@ public partial class CatalogModelFactory : ICatalogModelFactory
         MediaSettings mediaSettings,
         SeoSettings seoSettings,
         VendorSettings vendorSettings,
+        IProductSuggestionsService productSuggestionsService,
         ISettingService settingService)
     {
         _blogSettings = blogSettings;
@@ -146,6 +148,7 @@ public partial class CatalogModelFactory : ICatalogModelFactory
         _seoSettings = seoSettings;
         _vendorSettings = vendorSettings;
         _settingService = settingService;
+        _productSuggestionsService = productSuggestionsService;
     }
 
     #endregion
@@ -1879,19 +1882,14 @@ public partial class CatalogModelFactory : ICatalogModelFactory
                     PriceRangeModel availablePriceRange;
                     async Task<decimal?> getProductPriceAsync(ProductSortingEnum orderBy)
                     {
-                        var products = await _productService.SearchProductsAsync(0, 1,
-                            categoryIds: categoryIds,
-                            manufacturerIds: new List<int> { manufacturerId },
-                            storeId: currentStore.Id,
-                            visibleIndividuallyOnly: true,
-                            keywords: searchTerms,
-                            searchDescriptions: searchInDescriptions,
-                            searchProductTags: searchInProductTags,
-                            languageId: workingLanguage.Id,
-                            vendorId: vendorId,
-                            orderBy: orderBy);
-
-                        return products?.FirstOrDefault()?.Price ?? 0;
+                        var productsSuggested = await _productSuggestionsService.GetSuggestionsAsync(searchTerms, 0, 1);
+                        if (productsSuggested.Any())
+                        {
+                            var firstProductId = productsSuggested.First().Id;
+                            var product = await _productService.GetProductByIdAsync(firstProductId);
+                            return product?.Price ?? 0;
+                        }
+                        return 0;
                     }
 
                     if (_catalogSettings.SearchPageManuallyPriceRange)
@@ -1914,22 +1912,41 @@ public partial class CatalogModelFactory : ICatalogModelFactory
                     model.PriceRangeFilter = await PreparePriceRangeFilterAsync(selectedPriceRange, availablePriceRange);
                 }
 
-                //products
-                products = await _productService.SearchProductsAsync(
-                    command.PageNumber - 1,
-                    command.PageSize,
-                    categoryIds: categoryIds,
-                    manufacturerIds: new List<int> { manufacturerId },
-                    storeId: currentStore.Id,
-                    visibleIndividuallyOnly: true,
-                    keywords: searchTerms,
-                    priceMin: selectedPriceRange?.From,
-                    priceMax: selectedPriceRange?.To,
-                    searchDescriptions: searchInDescriptions,
-                    searchProductTags: searchInProductTags,
-                    languageId: workingLanguage.Id,
-                    orderBy: (ProductSortingEnum)command.OrderBy,
-                    vendorId: vendorId);
+                var productsSuggested = await _productSuggestionsService.GetSuggestionsAsync(
+                    searchTerms, 
+                    command.PageNumber - 1, 
+                    command.PageSize);
+                
+                var productsIds = productsSuggested.Select(ps => ps.Id).ToArray();
+
+                if (productsIds.Any())
+                {
+                    var suggestedProducts = await _productService.GetProductsByIdsAsync(productsIds);
+
+                    products = new PagedList<Product>(
+                        suggestedProducts, 
+                        command.PageNumber - 1, 
+                        command.PageSize, 
+                        productsSuggested.TotalCount);
+                }
+                else
+                {
+                    products = await _productService.SearchProductsAsync(
+                        command.PageNumber - 1,
+                        command.PageSize,
+                        categoryIds: categoryIds,
+                        manufacturerIds: new List<int> { manufacturerId },
+                        storeId: currentStore.Id,
+                        visibleIndividuallyOnly: true,
+                        keywords: searchTerms,
+                        priceMin: selectedPriceRange?.From,
+                        priceMax: selectedPriceRange?.To,
+                        searchDescriptions: searchInDescriptions,
+                        searchProductTags: searchInProductTags,
+                        languageId: workingLanguage.Id,
+                        orderBy: (ProductSortingEnum)command.OrderBy,
+                        vendorId: vendorId);
+                }
 
                 //search term statistics
                 if (!string.IsNullOrEmpty(searchTerms))
