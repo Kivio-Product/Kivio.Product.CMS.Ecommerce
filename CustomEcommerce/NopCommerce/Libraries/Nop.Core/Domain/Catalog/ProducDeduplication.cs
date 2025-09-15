@@ -6,7 +6,9 @@ public class DeduplicationOptions
     public double MinJaccardScore { get; set; } = 0.4;
     public double MaxPriceDifferencePercent { get; set; } = 20.0;
     public int MaxDuplicatesPerProduct { get; set; } = 5;
-    public int MaxDbCandidates { get; set; } = 200;
+    public int MaxDbCandidates { get; set; } = 100;
+    public int QueryTimeoutSeconds { get; set; } = 300;
+    public int BatchSize { get; set; } = 50;
 
     public static DeduplicationOptions Default => new();
 }
