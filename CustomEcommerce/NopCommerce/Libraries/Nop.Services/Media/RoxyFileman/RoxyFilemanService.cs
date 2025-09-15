@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Nop.Core;
+using Nop.Core.Caching;
 using Nop.Core.Infrastructure;
 
 namespace Nop.Services.Media.RoxyFileman;
@@ -11,6 +12,7 @@ public partial class RoxyFilemanService : IRoxyFilemanService
 
     protected readonly IRoxyFilemanFileProvider _fileProvider;
     protected readonly IWorkContext _workContext;
+    protected readonly IStaticCacheManager _staticCacheManager;
 
     #endregion
 
@@ -18,10 +20,12 @@ public partial class RoxyFilemanService : IRoxyFilemanService
 
     public RoxyFilemanService(
         IRoxyFilemanFileProvider fileProvider,
-        IWorkContext workContext)
+        IWorkContext workContext,
+        IStaticCacheManager staticCacheManager)
     {
         _fileProvider = fileProvider;
         _workContext = workContext;
+        _staticCacheManager = staticCacheManager;
     }
 
     #endregion
@@ -37,6 +41,30 @@ public partial class RoxyFilemanService : IRoxyFilemanService
     {
         // Convert "/" to empty string for root directory in database operations
         return path == "/" ? "" : path;
+    }
+
+    /// <summary>
+    /// Invalidate image cache for a specific path
+    /// </summary>
+    /// <param name="path">Path to invalidate</param>
+    /// <returns>A task that represents the asynchronous operation</returns>
+    protected virtual async Task InvalidateImageCacheAsync(string path)
+    {
+        var cacheKeyString = $"roxy_image_{path.Replace("/", "_").Replace("\\", "_")}";
+        var cacheKey = new CacheKey(cacheKeyString);
+        await _staticCacheManager.RemoveAsync(cacheKey);
+    }
+
+    /// <summary>
+    /// Invalidate directory cache for all images in a directory
+    /// </summary>
+    /// <param name="directoryPath">Directory path to invalidate</param>
+    /// <returns>A task that represents the asynchronous operation</returns>
+    protected virtual async Task InvalidateDirectoryCacheAsync(string directoryPath)
+    {
+        // Remove all cached images that start with the directory path
+        var cacheKeyPattern = $"roxy_image_{directoryPath.Replace("/", "_").Replace("\\", "_")}";
+        await _staticCacheManager.RemoveByPrefixAsync(cacheKeyPattern);
     }
 
     /// <summary>
@@ -95,6 +123,9 @@ public partial class RoxyFilemanService : IRoxyFilemanService
     public void DeleteDirectory(string path)
     {
         _fileProvider.DeleteDirectory(path);
+        
+        // Invalidate cache for all images in the directory
+        _ = Task.Run(async () => await InvalidateDirectoryCacheAsync(path));
     }
 
     /// <summary>
@@ -247,6 +278,9 @@ public partial class RoxyFilemanService : IRoxyFilemanService
     public void DeleteFile(string path)
     {
         _fileProvider.DeleteFile(path);
+        
+        // Invalidate cache for the deleted file
+        _ = Task.Run(async () => await InvalidateImageCacheAsync(path));
     }
 
     /// <summary>
@@ -264,6 +298,20 @@ public partial class RoxyFilemanService : IRoxyFilemanService
     }
 
     /// <summary>
+    /// Get file information including last modified date for caching
+    /// </summary>
+    /// <param name="path">Path to the file</param>
+    public (Stream stream, string name, DateTimeOffset lastModified) GetFileStreamWithInfo(string path)
+    {
+        var file = _fileProvider.GetFileInfo(path);
+
+        if (!file.Exists)
+            throw new FileNotFoundException();
+
+        return (file.CreateReadStream(), file.Name, file.LastModified);
+    }
+
+    /// <summary>
     /// Move the file
     /// </summary>
     /// <param name="sourcePath">Path to the source file</param>
@@ -274,6 +322,13 @@ public partial class RoxyFilemanService : IRoxyFilemanService
             throw new RoxyFilemanException("E_FileExtensionForbidden");
 
         _fileProvider.FileMove(sourcePath, destinationPath);
+        
+        // Invalidate cache for both source and destination
+        _ = Task.Run(async () => 
+        {
+            await InvalidateImageCacheAsync(sourcePath);
+            await InvalidateImageCacheAsync(destinationPath);
+        });
     }
 
     /// <summary>
@@ -287,6 +342,9 @@ public partial class RoxyFilemanService : IRoxyFilemanService
             throw new RoxyFilemanException("E_FileExtensionForbidden");
 
         _fileProvider.RenameFile(sourcePath, newName);
+        
+        // Invalidate cache for the renamed file
+        _ = Task.Run(async () => await InvalidateImageCacheAsync(sourcePath));
     }        
 
     #endregion
