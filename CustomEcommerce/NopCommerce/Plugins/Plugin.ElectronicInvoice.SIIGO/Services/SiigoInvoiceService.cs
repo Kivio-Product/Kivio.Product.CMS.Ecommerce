@@ -389,11 +389,6 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                         }
                     }
                 },
-                Currency = new SiigoCurrency
-                {
-                    Code = !string.IsNullOrEmpty(siigoSettings.CurrencyCode) ? siigoSettings.CurrencyCode : "COP",
-                    ExchangeRate = !string.IsNullOrEmpty(siigoSettings.ExchangeRate) ? siigoSettings.ExchangeRate : "1"
-                },
                 Seller = siigoSettings.SellerId,
                 Stamp = new SiigoStamp { Send = siigoSettings.SendStamp },
                 Mail = new SiigoMail { Send = siigoSettings.SendByEmail },
@@ -416,6 +411,16 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                     PosId = _webHelper.GetCurrentIpAddress()
                 }
             };
+
+            // If currency is not COP, set currency details
+            if (siigoSettings.CurrencyCode != "COP" && !string.IsNullOrEmpty(siigoSettings.CurrencyCode))
+            {
+                invoiceRequest.Currency = new SiigoCurrency
+                {
+                    Code = siigoSettings.CurrencyCode,
+                    ExchangeRate = siigoSettings.ExchangeRate ?? "1"
+                };
+            }
 
             return invoiceRequest;
         }
