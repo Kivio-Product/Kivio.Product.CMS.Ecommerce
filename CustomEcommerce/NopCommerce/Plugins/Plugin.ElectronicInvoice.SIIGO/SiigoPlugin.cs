@@ -58,6 +58,9 @@ namespace Plugin.ElectronicInvoice.SIIGO
             var mappingSettings = new SiigoTaxCategoryMappingSettings();
             await _settingService.SaveSettingAsync(mappingSettings);
             
+            var paymentMethodMappingSettings = new SiigoPaymentMethodMappingSettings();
+            await _settingService.SaveSettingAsync(paymentMethodMappingSettings);
+            
             await InstallLocalizationResourcesAsync();
             await base.InstallAsync();
         }
@@ -66,6 +69,7 @@ namespace Plugin.ElectronicInvoice.SIIGO
         {
             await _settingService.DeleteSettingAsync<SiigoSettings>();
             await _settingService.DeleteSettingAsync<SiigoTaxCategoryMappingSettings>();
+            await _settingService.DeleteSettingAsync<SiigoPaymentMethodMappingSettings>();
             await DeleteLocalizationResourcesAsync();
             await base.UninstallAsync();
         }
@@ -89,7 +93,7 @@ namespace Plugin.ElectronicInvoice.SIIGO
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.SellerId"] = "Seller ID",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.SellerId.Hint"] = "Seller ID in SIIGO",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.PaymentMethodId"] = "Payment Method ID",
-                ["Plugins.ElectronicInvoice.SIIGO.Fields.PaymentMethodId.Hint"] = "Payment method ID in SIIGO",
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.PaymentMethodId.Hint"] = "Default/fallback payment method ID in SIIGO (used when no dynamic mapping is configured)",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.AccountGroup"] = "Account Group",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.AccountGroup.Hint"] = "Account group ID for products created in SIIGO",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.TaxIdWithoutTax"] = "Tax ID (Without Tax)",
@@ -117,7 +121,13 @@ namespace Plugin.ElectronicInvoice.SIIGO
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.TaxCategoryId"] = "Tax Category",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.TaxCategoryName"] = "Tax Category Name",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.SiigoTaxCode"] = "SIIGO Tax Code",
-                ["Plugins.ElectronicInvoice.SIIGO.Fields.SiigoTaxCode.Hint"] = "Tax code ID from SIIGO system"
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.SiigoTaxCode.Hint"] = "Tax code ID from SIIGO system",
+                
+                // Payment Method Mapping Resources
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.PaymentMethodSystemName"] = "Payment Method System Name",
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.PaymentMethodFriendlyName"] = "Payment Method",
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.SiigoPaymentMethodCode"] = "SIIGO Payment Code",
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.SiigoPaymentMethodCode.Hint"] = "Payment method code ID from SIIGO system"
             });
 
             await base.InstallAsync();

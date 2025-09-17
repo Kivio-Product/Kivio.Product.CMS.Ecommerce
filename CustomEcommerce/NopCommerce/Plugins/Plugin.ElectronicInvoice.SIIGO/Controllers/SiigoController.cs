@@ -8,6 +8,7 @@ using Nop.Services.Orders;
 using Nop.Services.Customers;
 using Nop.Services.Common;
 using Nop.Services.Tax;
+using Nop.Services.Payments;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
@@ -34,6 +35,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
         private readonly ICustomerService _customerService;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly ITaxCategoryService _taxCategoryService;
+        private readonly IPaymentPluginManager _paymentPluginManager;
 
         public SiigoController(
             IStoreContext storeContext,
@@ -46,7 +48,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             IOrderService orderService,
             ICustomerService customerService,
             IGenericAttributeService genericAttributeService,
-            ITaxCategoryService taxCategoryService)
+            ITaxCategoryService taxCategoryService,
+            IPaymentPluginManager paymentPluginManager)
         {
             _storeContext = storeContext;
             _settingService = settingService;
@@ -59,6 +62,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             _customerService = customerService;
             _genericAttributeService = genericAttributeService;
             _taxCategoryService = taxCategoryService;
+            _paymentPluginManager = paymentPluginManager;
         }
 
         [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
@@ -107,7 +111,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
                 IdentificationAddressAttributeId = siigoSettings.IdentificationAddressAttributeId,
                 IdentificationAddressAttributeId_OverrideForStore = await _settingService.SettingExistsAsync(siigoSettings, x => x.IdentificationAddressAttributeId, storeId),
                 RecentInvoicedOrders = await LoadRecentInvoicedOrdersAsync(),
-                TaxCategoryMappings = await LoadTaxCategoryMappingsAsync(storeId)
+                TaxCategoryMappings = await LoadTaxCategoryMappingsAsync(storeId),
+                PaymentMethodMappings = await LoadPaymentMethodMappingsAsync(storeId)
             };
 
             return View("~/Plugins/ElectronicInvoice.SIIGO/Views/Configure.cshtml", model);
@@ -385,6 +390,147 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
                 // Return empty list on error
                 return new List<InvoicedOrderModel>();
             }
+        }
+
+        private async Task<PaymentMethodMappingConfigurationModel> LoadPaymentMethodMappingsAsync(int storeId)
+        {
+            var model = new PaymentMethodMappingConfigurationModel();
+            
+            try
+            {
+                // Load payment method mappings
+                var mappingSettings = await _settingService.LoadSettingAsync<SiigoPaymentMethodMappingSettings>(storeId);
+                
+                // Load all active payment methods
+                var allPaymentMethods = await _paymentPluginManager.LoadActivePluginsAsync();
+                
+                // Create mapping models
+                foreach (var mapping in mappingSettings.PaymentMethodMappings)
+                {
+                    var paymentMethod = allPaymentMethods.FirstOrDefault(pm => pm.PluginDescriptor.SystemName.Equals(mapping.PaymentMethodSystemName, StringComparison.OrdinalIgnoreCase));
+                    var friendlyName = paymentMethod?.PluginDescriptor.FriendlyName ?? mapping.PaymentMethodSystemName;
+                    
+                    model.PaymentMethodMappings.Add(new SiigoPaymentMethodMappingModel
+                    {
+                        Id = model.PaymentMethodMappings.Count + 1, // Simple incrementing ID for the model
+                        PaymentMethodSystemName = mapping.PaymentMethodSystemName,
+                        PaymentMethodFriendlyName = friendlyName,
+                        SiigoPaymentMethodCode = mapping.SiigoPaymentMethodCode,
+                        IsEnabled = mapping.IsEnabled
+                    });
+                }
+
+                // Populate available payment methods (those not yet mapped)
+                var mappedPaymentMethodSystemNames = mappingSettings.PaymentMethodMappings.Select(m => m.PaymentMethodSystemName).ToList();
+                var unmappedPaymentMethods = allPaymentMethods.Where(pm => !mappedPaymentMethodSystemNames.Contains(pm.PluginDescriptor.SystemName, StringComparer.OrdinalIgnoreCase));
+                
+                model.AvailablePaymentMethods = unmappedPaymentMethods
+                    .Select(pm => new SelectListItem
+                    {
+                        Value = pm.PluginDescriptor.SystemName,
+                        Text = pm.PluginDescriptor.FriendlyName
+                    }).ToList();
+
+                // Add default option
+                model.AvailablePaymentMethods.Insert(0, new SelectListItem
+                {
+                    Value = "",
+                    Text = "Select a payment method..."
+                });
+            }
+            catch (Exception)
+            {
+                // Log error but don't throw - return empty model
+                await _localizationService.GetResourceAsync("Admin.Common.Alert.Save.Error");
+            }
+
+            return model;
+        }
+
+        [HttpPost]
+        [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
+        public async Task<IActionResult> AddPaymentMethodMapping(ConfigurationModel model)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(model.PaymentMethodMappings.NewPaymentMethodSystemName))
+                {
+                    _notificationService.ErrorNotification("Please select a valid payment method.");
+                    return await Configure();
+                }
+
+                if (model.PaymentMethodMappings.NewSiigoPaymentMethodCode <= 0)
+                {
+                    _notificationService.ErrorNotification("Please enter a valid SIIGO payment method code.");
+                    return await Configure();
+                }
+
+                var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+                var mappingSettings = await _settingService.LoadSettingAsync<SiigoPaymentMethodMappingSettings>(storeId);
+
+                // Log current state for debugging
+                var currentCount = mappingSettings.PaymentMethodMappings.Count;
+                
+                // Check if mapping already exists
+                var existingMapping = mappingSettings.PaymentMethodMappings
+                    .FirstOrDefault(m => m.PaymentMethodSystemName.Equals(model.PaymentMethodMappings.NewPaymentMethodSystemName, StringComparison.OrdinalIgnoreCase));
+
+                // Add or update mapping using the helper method
+                mappingSettings.AddOrUpdateMapping(
+                    model.PaymentMethodMappings.NewPaymentMethodSystemName,
+                    model.PaymentMethodMappings.NewSiigoPaymentMethodCode,
+                    model.PaymentMethodMappings.NewIsEnabled);
+
+                // Verify the change was applied
+                var newCount = mappingSettings.PaymentMethodMappings.Count;
+
+                await _settingService.SaveSettingAsync(mappingSettings, storeId);
+
+                if (existingMapping != null)
+                {
+                    _notificationService.SuccessNotification($"Payment method mapping updated successfully. (Total mappings: {newCount})");
+                }
+                else
+                {
+                    _notificationService.SuccessNotification($"Payment method mapping added successfully. (Was {currentCount}, now {newCount})");
+                }
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ErrorNotification($"Error saving payment method mapping: {ex.Message}");
+            }
+
+            return await Configure();
+        }
+
+        [HttpPost]
+        [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
+        public async Task<IActionResult> DeletePaymentMethodMapping(string deletePaymentMethodMapping)
+        {
+            try
+            {
+                var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+                var mappingSettings = await _settingService.LoadSettingAsync<SiigoPaymentMethodMappingSettings>(storeId);
+
+                // Remove mapping using the helper method
+                var removed = mappingSettings.RemoveMapping(deletePaymentMethodMapping);
+
+                if (removed)
+                {
+                    await _settingService.SaveSettingAsync(mappingSettings, storeId);
+                    _notificationService.SuccessNotification("Payment method mapping deleted successfully.");
+                }
+                else
+                {
+                    _notificationService.ErrorNotification("Payment method mapping not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ErrorNotification($"Error deleting payment method mapping: {ex.Message}");
+            }
+
+            return await Configure();
         }
     }
 }

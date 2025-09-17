@@ -11,6 +11,10 @@ namespace Plugin.ElectronicInvoice.SIIGO
         public int DocumentId { get; set; }
         public string DefaultItemCode { get; set; }
         public int SellerId { get; set; }
+        
+        /// <summary>
+        /// Default/fallback payment method ID for SIIGO. Used when no dynamic mapping is configured for the order's payment method.
+        /// </summary>
         public int PaymentMethodId { get; set; }
         public int AccountGroup { get; set; }
         public bool SendByEmail { get; set; }

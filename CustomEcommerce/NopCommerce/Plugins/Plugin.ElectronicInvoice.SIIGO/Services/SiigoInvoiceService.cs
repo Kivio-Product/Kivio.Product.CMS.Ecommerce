@@ -12,6 +12,7 @@ using Nop.Services.Orders;
 using Nop.Services.Common;
 using Nop.Services.Catalog;
 using Nop.Services.Stores;
+using Nop.Services.Payments;
 using Plugin.ElectronicInvoice.SIIGO.Models;
 using Plugin.ElectronicInvoice.SIIGO.Data;
 using System.Text;
@@ -34,6 +35,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
         private readonly ISiigoAuthService _siigoAuthService;
         private readonly IProductService _productService;
         private readonly IStoreContext _storeContext;
+        private readonly IPaymentPluginManager _paymentPluginManager;
         private readonly HttpClient _httpClient;
         private List<CountryData> _countryData;
 
@@ -49,6 +51,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             ISiigoAuthService siigoAuthService,
             IProductService productService,
             IStoreContext storeContext,
+            IPaymentPluginManager paymentPluginManager,
             HttpClient httpClient)
         {
             _settingService = settingService;
@@ -62,6 +65,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             _siigoAuthService = siigoAuthService;
             _productService = productService;
             _storeContext = storeContext;
+            _paymentPluginManager = paymentPluginManager;
             _httpClient = httpClient;
             
             LoadCountryData();
@@ -398,7 +402,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                 {
                     new SiigoPayment
                     {
-                        Id = siigoSettings.PaymentMethodId,
+                        Id = await GetPaymentMethodCodeAsync(order, siigoSettings),
                         Value = Math.Round(order.OrderSubtotalInclTax, 1),
                         DueDate = DateTime.Now.ToString("yyyy-MM-dd")
                     }
@@ -866,6 +870,51 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
             {
                 await _logger.ErrorAsync($"Error sending SIIGO invoice email for invoice {invoiceId}: {ex.Message}", ex);
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Gets the appropriate SIIGO payment method code for an order based on configured mappings
+        /// </summary>
+        /// <param name="order">The order</param>
+        /// <param name="siigoSettings">SIIGO settings</param>
+        /// <returns>SIIGO payment method code</returns>
+        private async Task<int> GetPaymentMethodCodeAsync(Order order, SiigoSettings siigoSettings)
+        {
+            try
+            {
+                // Get the payment method system name from the order
+                var paymentMethodSystemName = order.PaymentMethodSystemName;
+                
+                if (string.IsNullOrEmpty(paymentMethodSystemName))
+                {
+                    await _logger.WarningAsync($"Order {order.Id} has no payment method system name, using default payment method ID: {siigoSettings.PaymentMethodId}");
+                    return siigoSettings.PaymentMethodId;
+                }
+
+                // Load payment method mappings
+                var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+                var paymentMethodMappingSettings = await _settingService.LoadSettingAsync<SiigoPaymentMethodMappingSettings>(storeId);
+
+                // Try to get the mapped SIIGO payment method code
+                var mappedCode = paymentMethodMappingSettings.GetSiigoPaymentMethodCode(paymentMethodSystemName);
+                
+                if (mappedCode.HasValue)
+                {
+                    await _logger.InformationAsync($"Order {order.Id} using mapped payment method: {paymentMethodSystemName} -> SIIGO code: {mappedCode.Value}");
+                    return mappedCode.Value;
+                }
+                else
+                {
+                    await _logger.WarningAsync($"Order {order.Id} payment method '{paymentMethodSystemName}' has no mapping configured, using default payment method ID: {siigoSettings.PaymentMethodId}");
+                    return siigoSettings.PaymentMethodId;
+                }
+            }
+            catch (Exception ex)
+            {
+                await _logger.ErrorAsync($"Error getting payment method code for order {order.Id}: {ex.Message}", ex);
+                await _logger.WarningAsync($"Falling back to default payment method ID: {siigoSettings.PaymentMethodId}");
+                return siigoSettings.PaymentMethodId;
             }
         }
 

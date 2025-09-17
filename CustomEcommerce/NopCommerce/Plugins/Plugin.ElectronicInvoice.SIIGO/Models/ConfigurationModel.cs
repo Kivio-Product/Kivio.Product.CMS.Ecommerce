@@ -9,6 +9,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
         {
             RecentInvoicedOrders = new List<InvoicedOrderModel>();
             TaxCategoryMappings = new TaxCategoryMappingConfigurationModel();
+            PaymentMethodMappings = new PaymentMethodMappingConfigurationModel();
         }
 
         public int ActiveStoreScopeConfiguration { get; set; }
@@ -86,6 +87,8 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
         public bool IdentificationAddressAttributeId_OverrideForStore { get; set; }
 
         public TaxCategoryMappingConfigurationModel TaxCategoryMappings { get; set; }
+
+        public PaymentMethodMappingConfigurationModel PaymentMethodMappings { get; set; }
 
         public List<InvoicedOrderModel> RecentInvoicedOrders { get; set; }
     }
