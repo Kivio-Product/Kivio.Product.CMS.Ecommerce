@@ -26,8 +26,8 @@
 
 .popup-close {
     position: absolute;
-    top: 10px;
-    right: 15px;
+    top: -8px;
+    right: 1px;
     background: none;
     border: none;
     font-size: 30px;
@@ -87,7 +87,7 @@
     
     .popup-close {
         font-size: 25px;
-        top: 5px;
-        right: 10px;
+        top: -8px;
+        right: 1px;
     }
 }
