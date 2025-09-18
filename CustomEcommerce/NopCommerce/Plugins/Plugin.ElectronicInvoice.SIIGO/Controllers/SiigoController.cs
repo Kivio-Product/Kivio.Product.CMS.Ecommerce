@@ -416,7 +416,9 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
                         PaymentMethodSystemName = mapping.PaymentMethodSystemName,
                         PaymentMethodFriendlyName = friendlyName,
                         SiigoPaymentMethodCode = mapping.SiigoPaymentMethodCode,
-                        IsEnabled = mapping.IsEnabled
+                        IsEnabled = mapping.IsEnabled,
+                        HasSubOptions = mapping.HasSubOptions,
+                        SubOptionsCount = mapping.SubOptions?.Count(so => so.IsEnabled) ?? 0
                     });
                 }
 
@@ -531,6 +533,126 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
             }
 
             return await Configure();
+        }
+
+        [HttpGet]
+        [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
+        public async Task<IActionResult> ConfigurePaymentSubOptions(string paymentMethodSystemName)
+        {
+            if (string.IsNullOrEmpty(paymentMethodSystemName))
+                return RedirectToAction(nameof(Configure));
+
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var mappingSettings = await _settingService.LoadSettingAsync<SiigoPaymentMethodMappingSettings>(storeId);
+            
+            var mapping = mappingSettings.PaymentMethodMappings
+                .FirstOrDefault(m => m.PaymentMethodSystemName.Equals(paymentMethodSystemName, StringComparison.OrdinalIgnoreCase));
+
+            if (mapping == null)
+                return RedirectToAction(nameof(Configure));
+
+            // Get friendly name
+            var allPaymentMethods = await _paymentPluginManager.LoadActivePluginsAsync();
+            var paymentMethod = allPaymentMethods.FirstOrDefault(pm => pm.PluginDescriptor.SystemName.Equals(paymentMethodSystemName, StringComparison.OrdinalIgnoreCase));
+            var friendlyName = paymentMethod?.PluginDescriptor.FriendlyName ?? paymentMethodSystemName;
+
+            var model = new PaymentSubOptionConfigurationModel
+            {
+                PaymentMethodSystemName = paymentMethodSystemName,
+                PaymentMethodFriendlyName = friendlyName,
+                SubOptions = mapping.SubOptions?.Select(so => new PaymentSubOptionConfigModel
+                {
+                    Id = mapping.SubOptions.IndexOf(so) + 1,
+                    Name = so.Name,
+                    SiigoCode = so.SiigoCode,
+                    Description = so.Description,
+                    IsEnabled = so.IsEnabled
+                }).ToList() ?? new List<PaymentSubOptionConfigModel>()
+            };
+
+            return View("~/Plugins/ElectronicInvoice.SIIGO/Views/ConfigurePaymentSubOptions.cshtml", model);
+        }
+
+        [HttpPost]
+        [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
+        public async Task<IActionResult> AddPaymentSubOption(PaymentSubOptionConfigurationModel model)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(model.PaymentMethodSystemName))
+                {
+                    _notificationService.ErrorNotification("Invalid payment method system name.");
+                    return RedirectToAction(nameof(Configure));
+                }
+
+                if (string.IsNullOrEmpty(model.NewSubOptionName))
+                {
+                    _notificationService.ErrorNotification("Please enter a valid sub-option name.");
+                    return RedirectToAction(nameof(ConfigurePaymentSubOptions), new { paymentMethodSystemName = model.PaymentMethodSystemName });
+                }
+
+                if (model.NewSubOptionSiigoCode <= 0)
+                {
+                    _notificationService.ErrorNotification("Please enter a valid SIIGO code.");
+                    return RedirectToAction(nameof(ConfigurePaymentSubOptions), new { paymentMethodSystemName = model.PaymentMethodSystemName });
+                }
+
+                var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+                var mappingSettings = await _settingService.LoadSettingAsync<SiigoPaymentMethodMappingSettings>(storeId);
+
+                // Add the sub-option
+                mappingSettings.AddOrUpdateSubOption(
+                    model.PaymentMethodSystemName,
+                    model.NewSubOptionName,
+                    model.NewSubOptionSiigoCode,
+                    model.NewSubOptionIsEnabled,
+                    model.NewSubOptionDescription);
+
+                await _settingService.SaveSettingAsync(mappingSettings, storeId);
+
+                _notificationService.SuccessNotification($"Sub-option '{model.NewSubOptionName}' added successfully.");
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ErrorNotification($"Error adding sub-option: {ex.Message}");
+            }
+
+            return RedirectToAction(nameof(ConfigurePaymentSubOptions), new { paymentMethodSystemName = model.PaymentMethodSystemName });
+        }
+
+        [HttpPost]
+        [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
+        public async Task<IActionResult> DeletePaymentSubOption(string paymentMethodSystemName, string subOptionName)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(paymentMethodSystemName) || string.IsNullOrEmpty(subOptionName))
+                {
+                    _notificationService.ErrorNotification("Invalid parameters.");
+                    return RedirectToAction(nameof(Configure));
+                }
+
+                var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+                var mappingSettings = await _settingService.LoadSettingAsync<SiigoPaymentMethodMappingSettings>(storeId);
+
+                var removed = mappingSettings.RemoveSubOption(paymentMethodSystemName, subOptionName);
+
+                if (removed)
+                {
+                    await _settingService.SaveSettingAsync(mappingSettings, storeId);
+                    _notificationService.SuccessNotification($"Sub-option '{subOptionName}' deleted successfully.");
+                }
+                else
+                {
+                    _notificationService.ErrorNotification("Sub-option not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ErrorNotification($"Error deleting sub-option: {ex.Message}");
+            }
+
+            return RedirectToAction(nameof(ConfigurePaymentSubOptions), new { paymentMethodSystemName = paymentMethodSystemName });
         }
     }
 }

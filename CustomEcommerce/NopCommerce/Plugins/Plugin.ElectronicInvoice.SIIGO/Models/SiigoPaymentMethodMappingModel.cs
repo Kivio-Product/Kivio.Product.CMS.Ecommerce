@@ -8,6 +8,11 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
     /// </summary>
     public record SiigoPaymentMethodMappingModel : BaseNopEntityModel
     {
+        public SiigoPaymentMethodMappingModel()
+        {
+            SubOptionsConfiguration = new PaymentSubOptionConfigurationModel();
+        }
+
         [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.PaymentMethodSystemName")]
         public string PaymentMethodSystemName { get; set; }
 
@@ -19,6 +24,21 @@ namespace Plugin.ElectronicInvoice.SIIGO.Models
 
         [NopResourceDisplayName("Plugins.ElectronicInvoice.SIIGO.Fields.IsEnabled")]
         public bool IsEnabled { get; set; }
+
+        /// <summary>
+        /// Indicates if this payment method has sub-options configured
+        /// </summary>
+        public bool HasSubOptions { get; set; }
+
+        /// <summary>
+        /// Number of configured sub-options
+        /// </summary>
+        public int SubOptionsCount { get; set; }
+
+        /// <summary>
+        /// Configuration for sub-options (used in detail view)
+        /// </summary>
+        public PaymentSubOptionConfigurationModel SubOptionsConfiguration { get; set; }
     }
 
     /// <summary>
