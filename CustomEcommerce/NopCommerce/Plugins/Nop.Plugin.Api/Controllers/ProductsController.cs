@@ -24,6 +24,7 @@ using Nop.Services.Media;
 using Nop.Services.Security;
 using Nop.Services.Seo;
 using Nop.Services.Stores;
+using Nop.Services.Logging;
 using Nop.Services.Configuration;
 using System.Net;
 
@@ -48,7 +49,7 @@ namespace Nop.Plugin.Api.Controllers
         IPictureService pictureService,
         IManufacturerService manufacturerService,
         IProductTagService productTagService,
-        IProductAttributeService productAttributeService,
+        IProductAttributeService productAttributeService,ILogger logger,
         IDTOHelper dtoHelper, ICopyProductService copyProductService) : BaseApiController(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService,
                                      customerActivityService, localizationService, pictureService)
     {
@@ -64,6 +65,7 @@ namespace Nop.Plugin.Api.Controllers
         protected readonly ILocalizationService _localizationService = localizationService;
         private readonly ISettingService _settingService = settingService;
         private readonly IProductSimilarityService _productSimilarityService = productSimilarityService;
+    private readonly ILogger _logger = logger;
         private readonly IProductDeduplicationService _productDeduplicationService = productDeduplicationService;
 
         [HttpPost]
@@ -76,14 +78,25 @@ namespace Nop.Plugin.Api.Controllers
             if (request == null || request.CategoryId <= 0)
                 return BadRequest("CategoryId is required and must be greater than 0.");
 
+            var taskId = Guid.NewGuid().ToString();
             var options = new DeduplicationOptions
             {
                 WinnerSelectionStrategy = request.WinnerSelectionStrategy ?? WinnerSelectionStrategy.LowestPrice,
             };
 
-            var result = await _productDeduplicationService.DeduplicateCategoryAsync(request.CategoryId, options);
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _productDeduplicationService.DeduplicateCategoryAsync(request.CategoryId, options);
+                }
+                catch (Exception ex)
+                {
+                    await _logger.ErrorAsync($"Background deduplication failed", ex);
+                }
+            });
 
-            return Ok(result);
+            return Ok(new { TaskId = taskId, Status = "Started", Message = "Process started in background" });
         }
 
 

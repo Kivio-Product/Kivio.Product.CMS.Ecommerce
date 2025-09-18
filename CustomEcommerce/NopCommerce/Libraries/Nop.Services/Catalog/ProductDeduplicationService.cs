@@ -3,6 +3,7 @@ using Nop.Core.Domain.Catalog;
 using Nop.Services.Catalog;
 using Nop.Services.Configuration;
 using Nop.Services.Logging;
+using Nop.Core.Domain.Logging;
 
 namespace Nop.Services.Catalog;
 
@@ -35,6 +36,8 @@ public class ProductDeduplicationService(
             StartTime = DateTime.UtcNow,
             Options = options
         };
+
+        var overallStopwatch = System.Diagnostics.Stopwatch.StartNew();
 
         var currentStore = await _storeContext.GetCurrentStoreAsync();
 
@@ -77,48 +80,81 @@ public class ProductDeduplicationService(
             var allProductsToUnpublish = new List<Product>();
             var allProductsToAddToCategory = new List<(Product Product, Category Category)>();
 
-            foreach (var product in publishedProducts.ToList())
+            var productBatches = publishedProducts
+            .Where(p => activeProductIds.Contains(p.Id))
+            .Chunk(options.BatchSize)
+            .ToList();
+
+            _logger.Information($"Processing {publishedProducts.Count} products in {productBatches.Count} batches of {options.BatchSize}");
+
+
+            foreach (var batch in productBatches)
             {
-                if (!activeProductIds.Contains(product.Id))
-                    continue;
+                _logger.Information($"Processing batch of {batch.Length} products");
 
-                result.ProductsAnalyzed++;
-
-                try
+                var semaphore = new SemaphoreSlim(5);
+                var tasks = batch.Select(async product =>
                 {
-                    var duplicates = await _similarityService.FindDuplicatesStrictAsync(
-                        product.Name,
-                        product.Price,
-                        minCombinedScore: minCombinedScorePercentage);
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        if (!activeProductIds.Contains(product.Id))
+                            return null;
 
-                    var validDuplicates = duplicates
-                        .Where(d => activeProductIds.Contains(d.Product.Id) &&
-                                   d.Product.Id != product.Id)
-                        .ToList();
+                        result.ProductsAnalyzed++;
 
-                    if (validDuplicates.Count == 0)
+                        var duplicates = await _similarityService.FindDuplicatesStrictAsync(
+                            product.Name,
+                            product.Price,
+                            minCombinedScore: minCombinedScorePercentage);
+
+                        var validDuplicates = duplicates
+                            .Where(d => activeProductIds.Contains(d.Product.Id) &&
+                                       d.Product.Id != product.Id)
+                            .ToList();
+
+                        if (validDuplicates.Count == 0)
+                            return null;
+
+                        LogFoundDuplicates(product, validDuplicates);
+
+                        var categoryFilteredDuplicates = await FilterDuplicatesByCategoryAsync(
+                            validDuplicates, categoryId);
+
+                        if (categoryFilteredDuplicates.Count == 0)
+                            return null;
+
+                        var duplicateGroup = new List<Product> { product };
+                        duplicateGroup.AddRange(categoryFilteredDuplicates.Select(d =>
+                            publishedProducts.First(p => p.Id == d.Product.Id)));
+
+                        var groupId = GenerateGroupId(duplicateGroup);
+
+                        return new { Product = product, DuplicateGroup = duplicateGroup, GroupId = groupId, CategoryFilteredDuplicates = categoryFilteredDuplicates };
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"Error processing product {product.Id} in deduplication", ex);
+                        result.Errors.Add($"Error processing product {product.Id}: {ex.Message}");
+                        return null;
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
+
+                var batchResults = await Task.WhenAll(tasks);
+
+                foreach (var batchResult in batchResults.Where(r => r != null))
+                {
+                    if (processedGroups.Contains(batchResult.GroupId))
                         continue;
 
-                    LogFoundDuplicates(product, validDuplicates);
+                    processedGroups.Add(batchResult.GroupId);
 
-                    var categoryFilteredDuplicates = await FilterDuplicatesByCategoryAsync(
-                        validDuplicates, categoryId);
-
-                    if (categoryFilteredDuplicates.Count == 0)
-                        continue;
-
-                    var duplicateGroup = new List<Product> { product };
-                    duplicateGroup.AddRange(categoryFilteredDuplicates.Select(d =>
-                        publishedProducts.First(p => p.Id == d.Product.Id)));
-
-                    var groupId = GenerateGroupId(duplicateGroup);
-                    if (processedGroups.Contains(groupId))
-                        continue;
-
-                    processedGroups.Add(groupId);
-
-                    var winner = DetermineWinnerProduct(duplicateGroup, options);
-                    var losers = duplicateGroup.Where(p => p.Id != winner.Id).ToList();
+                    var winner = DetermineWinnerProduct(batchResult.DuplicateGroup, options);
+                    var losers = batchResult.DuplicateGroup.Where(p => p.Id != winner.Id).ToList();
 
                     if (losers.Count != 0)
                     {
@@ -139,7 +175,7 @@ public class ProductDeduplicationService(
                             WinnerProduct = ToProductResultDto(winner),
                             UnpublishedProducts = losers.Select(ToProductResultDto).ToList(),
                             Reason = GetDuplicationReason(winner, losers),
-                            SimilarityScores = categoryFilteredDuplicates.ToDictionary(
+                            SimilarityScores = batchResult.CategoryFilteredDuplicates.ToDictionary(
                                 d => d.Product.Id,
                                 d => d.CombinedScore)
                         };
@@ -150,10 +186,10 @@ public class ProductDeduplicationService(
                         _logger.Information($"Prepared {losers.Count} duplicates of product {winner.Id} ({winner.Name}) for unpublishing");
                     }
                 }
-                catch (Exception ex)
+
+                if (batch.Length == options.BatchSize)
                 {
-                    _logger.Error($"Error processing product {product.Id} in deduplication", ex);
-                    result.Errors.Add($"Error processing product {product.Id}: {ex.Message}");
+                    await Task.Delay(1000);
                 }
             }
 
@@ -186,6 +222,12 @@ public class ProductDeduplicationService(
         {
             result.EndTime = DateTime.UtcNow;
             result.Duration = result.EndTime.Value - result.StartTime;
+
+            overallStopwatch.Stop();
+
+            _logger.Information($"Overall deduplication process took {overallStopwatch.Elapsed:hh\\:mm\\:ss}");
+
+            await LogDeduplicationResult(result);
         }
 
         return result;
@@ -262,6 +304,33 @@ public class ProductDeduplicationService(
                               $"Duplicate {duplicate.Product.Id} ({duplicate.Product.Name}), " +
                               $"Score: {duplicate.CombinedScore:F3}, " +
                               $"MeasurementMatch: {duplicate.MeasurementMatch}");
+        }
+    }
+
+    private async Task LogDeduplicationResult(DeduplicationResult result)
+    {
+        var summary = $"Deduplication completed for category {result.CategoryId}:\n" +
+                    $"  Duration: {result.Duration:hh\\:mm\\:ss}\n" +
+                    $"  Success: {result.CompletedSuccessfully}\n" +
+                    $"  Initial Products: {result.InitialProductCount:N0}\n" +
+                    $"  Final Products: {result.FinalProductCount:N0}\n" +
+                    $"  Products Analyzed: {result.ProductsAnalyzed:N0}\n" +
+                    $"  Products Unpublished: {result.ProductsUnpublished:N0}\n" +
+                    $"  Duplicate Groups: {result.DuplicateGroupsFound:N0}\n" +
+                    $"  Deduplication Rate: {result.DeduplicationRate:F2}%";
+
+        if (result.Errors.Any())
+        {
+            summary += $"\n  Errors: {string.Join("; ", result.Errors)}";
+        }
+
+        if (result.CompletedSuccessfully)
+        {
+            await _logger.InsertLogAsync(LogLevel.Information, "Deduplication completed successfully. See details on main message", summary);
+        }
+        else
+        {
+           await _logger.InsertLogAsync(LogLevel.Warning, "Deduplication failed. See details on main message", summary);
         }
     }
 

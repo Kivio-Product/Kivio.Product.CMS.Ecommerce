@@ -199,7 +199,8 @@ public partial interface IProductService
         bool? overridePublished = null,
         bool sortByDiscount = true,
         decimal? minimumDiscountPercentage = null,
-        bool onlyNonStock = false);
+        bool onlyNonStock = false,
+        int? minStockQuantity = 0);
 
     /// <summary>
     /// Gets products by product attribute
