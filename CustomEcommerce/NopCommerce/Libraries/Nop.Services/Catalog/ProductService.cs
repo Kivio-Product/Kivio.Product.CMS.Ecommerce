@@ -983,10 +983,7 @@ public partial class ProductService : IProductService
             );
         }
 
-        if (onlyNonStock)
-        {
-            productsQuery = productsQuery.Where(p => p.StockQuantity <= 0);
-        }
+        productsQuery = onlyNonStock ? productsQuery.Where(p => p.StockQuantity <= 0) : productsQuery.Where(p => p.StockQuantity > 0);
 
         var activeSearchProvider = await _searchPluginManager.LoadPrimaryPluginAsync(customer, storeId);
         var providerResults = new List<int>();
