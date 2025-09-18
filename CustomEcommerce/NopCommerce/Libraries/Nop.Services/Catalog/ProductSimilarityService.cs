@@ -36,25 +36,27 @@ public partial class ProductSimilarityService(
 
     private async Task<IList<ProductMatch>> FindAsync(string name, decimal? originalPrice, int maxResults, bool strict, double minCombinedScore = 0.0)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return new List<ProductMatch>();
+        try
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return new List<ProductMatch>();
 
-        var nameNorm = _tokenizer.Normalize(name);
-        var qTokens = _tokenizer.Tokenize(name);
+            var nameNorm = _tokenizer.Normalize(name);
+            var qTokens = _tokenizer.Tokenize(name);
 
-        if (!qTokens.Any())
-            return new List<ProductMatch>();
+            if (!qTokens.Any())
+                return new List<ProductMatch>();
 
-        var idf = await LoadIdfAsync();
-        var (minIdf, maxIdf) = GetMinMaxIdf(idf);
+            var idf = await LoadIdfAsync();
+            var (minIdf, maxIdf) = GetMinMaxIdf(idf);
 
-        var ftsQuery = UseWeightedFts
-            ? BuildIsAboutQuery(qTokens, idf, minIdf, maxIdf)
-            : BuildSimpleOrQuery(qTokens);
+            var ftsQuery = UseWeightedFts
+                ? BuildIsAboutQuery(qTokens, idf, minIdf, maxIdf)
+                : BuildSimpleOrQuery(qTokens);
 
-        double pricePct = strict ? MaxPriceDiffStrictPct : MaxPriceDiffSoftPct;
+            var pricePct = strict ? MaxPriceDiffStrictPct : MaxPriceDiffSoftPct;
 
-        var parameters = new List<DataParameter>
+            var parameters = new List<DataParameter>
         {
             new("@FtsQuery", ftsQuery),
             new("@MaxCandidates", MaxDbCandidates),
@@ -62,46 +64,51 @@ public partial class ProductSimilarityService(
             new("@MaxPriceDiffPercent", originalPrice.HasValue ? pricePct : (object)DBNull.Value)
         };
 
-        var rows = await _data.QueryProcAsync<ProductCandidate>(
-            "dbo.GetProductsByFtsQuery", parameters.ToArray());
+            var rows = await _data.QueryProcAsync<ProductCandidate>(
+                "dbo.GetProductsByFtsQuery", parameters.ToArray());
 
-        var list = new List<ProductMatch>();
+            var list = new List<ProductMatch>();
 
-        foreach (var r in rows)
-        {
-            var nameC = _tokenizer.Normalize(r.Name);
-            var cTokens = _tokenizer.Tokenize(r.Name);
-
-            var jw = WeightedJaccard(qTokens, cTokens, idf);
-            var lev = NormalizedLevenshtein(nameNorm, nameC);
-            var ft = NormalizeRank(r.FtRank);
-
-            double score = 0.70 * jw + 0.10 * ft + 0.20 * (1.0 - lev);
-
-            double thr = strict ? JaccardStrict : JaccardSoft;
-            if ((jw >= thr || score >= (strict ? 0.60 : 0.45)) && score >= minCombinedScore)
-            list.Add(new ProductMatch
+            foreach (var r in rows)
             {
-                Product = new ProductCandidate
-                {
-                Id = r.Id,
-                Name = r.Name,
-                Sku = r.Sku ?? string.Empty,
-                Price = r.Price,
-                ShortDescription = r.ShortDescription ?? string.Empty,
-                FtRank = r.FtRank
-                },
-                JaccardSimilarity = jw,
-                LevenshteinSimilarity = lev,
-                MeasurementMatch = true,
-                CombinedScore = score
-            });
-        }
+                var nameC = _tokenizer.Normalize(r.Name);
+                var cTokens = _tokenizer.Tokenize(r.Name);
 
-        return list
-            .OrderByDescending(x => x.CombinedScore)
-            .Take(maxResults)
-            .ToList();
+                var jw = WeightedJaccard(qTokens, cTokens, idf);
+                var lev = NormalizedLevenshtein(nameNorm, nameC);
+                var ft = NormalizeRank(r.FtRank);
+
+                var score = 0.70 * jw + 0.10 * ft + 0.20 * (1.0 - lev);
+
+                var thr = strict ? JaccardStrict : JaccardSoft;
+                if ((jw >= thr || score >= (strict ? 0.60 : 0.45)) && score >= minCombinedScore)
+                    list.Add(new ProductMatch
+                    {
+                        Product = new ProductCandidate
+                        {
+                            Id = r.Id,
+                            Name = r.Name,
+                            Sku = r.Sku ?? string.Empty,
+                            Price = r.Price,
+                            ShortDescription = r.ShortDescription ?? string.Empty,
+                            FtRank = r.FtRank
+                        },
+                        JaccardSimilarity = jw,
+                        LevenshteinSimilarity = lev,
+                        MeasurementMatch = true,
+                        CombinedScore = score
+                    });
+            }
+
+            return list
+                .OrderByDescending(x => x.CombinedScore)
+                .Take(maxResults)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error finding similar products", ex);
+        }
     }
 
     private static double WeightedJaccard(HashSet<string> a, HashSet<string> b, Dictionary<string, double> idf)
@@ -175,8 +182,10 @@ public partial class ProductSimilarityService(
 
         foreach (var value in idf.Values)
         {
-            if (value < min) min = value;
-            if (value > max) max = value;
+            if (value < min)
+                min = value;
+            if (value > max)
+                max = value;
         }
 
         if (double.IsInfinity(min) || double.IsInfinity(max))
@@ -188,7 +197,7 @@ public partial class ProductSimilarityService(
     private static string BuildSimpleOrQuery(HashSet<string> tokens)
     {
         if (!tokens.Any())
-            return "\"placeholder\""; 
+            return "\"placeholder\"";
 
         var parts = tokens.Select(t => $"\"{t}*\"");
         return string.Join(" OR ", parts);

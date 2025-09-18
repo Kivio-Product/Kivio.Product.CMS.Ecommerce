@@ -923,7 +923,8 @@ public partial class ProductService : IProductService
         bool? overridePublished = null,
         bool sortByDiscount = true,
         decimal? minimumDiscountPercentage = null,
-        bool onlyNonStock = false)
+        bool onlyNonStock = false,
+        int? minStockQuantity = 0)
     {
         //some databases don't support int.MaxValue
         if (pageSize == int.MaxValue)
@@ -968,7 +969,8 @@ public partial class ProductService : IProductService
                    DateTime.UtcNow <= (p.AvailableEndDateTimeUtc ?? SqlDateTime.MaxValue.Value)
                   ) &&
                   (priceMin == null || p.Price >= priceMin) &&
-                  (priceMax == null || p.Price <= priceMax)
+                  (priceMax == null || p.Price <= priceMax) &&
+                  (minStockQuantity == null || p.StockQuantity >= minStockQuantity) 
             select p;
 
         if (minimumDiscountPercentage.HasValue && minimumDiscountPercentage.Value > 0)

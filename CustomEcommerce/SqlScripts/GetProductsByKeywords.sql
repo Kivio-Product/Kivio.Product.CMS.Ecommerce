@@ -104,79 +104,78 @@ GO
 -- @Price: Precio de referencia para filtrado opcional
 -- @MaxPriceDiffPercent: Porcentaje de variación permitido del precio
 CREATE OR ALTER PROCEDURE [dbo].[GetProductsByFtsQuery]
-    @FtsQuery NVARCHAR(4000),              -- Consulta de búsqueda en texto libre
-    @MaxCandidates INT = 200,               -- Límite de resultados (performance)
-    @Price DECIMAL(18, 4) = NULL,          -- Precio de referencia opcional
-    @MaxPriceDiffPercent DECIMAL(5, 2) = NULL  -- % de variación de precio permitido
+    @FtsQuery NVARCHAR(4000),              
+    @MaxCandidates INT = 100,         
+    @Price DECIMAL(18, 4) = NULL,          
+    @MaxPriceDiffPercent DECIMAL(5, 2) = NULL  
 AS
 BEGIN
     SET NOCOUNT ON;
-    
-    -- ========================================
-    -- VALIDACIÓN DE PARÁMETROS DE ENTRADA
-    -- ========================================
-    -- Verificar que la consulta no esté vacía o sea solo espacios en blanco
-    IF LTRIM(RTRIM(ISNULL(@FtsQuery, ''))) = ''
+    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+    IF LTRIM(RTRIM(ISNULL(@FtsQuery, ''))) = '' OR @MaxCandidates <= 0
     BEGIN
-        -- Retorno silencioso para consultas vacías (evita errores en UI)
         RETURN;
     END
     
-    -- ========================================
-    -- CÁLCULO DE RANGO DE PRECIOS OPCIONAL
-    -- ========================================
+    SET @MaxCandidates = CASE 
+        WHEN @MaxCandidates > 200 THEN 200 
+        ELSE @MaxCandidates 
+    END;
+    
     DECLARE @PriceMin DECIMAL(18, 4) = NULL;
     DECLARE @PriceMax DECIMAL(18, 4) = NULL;
     
-    -- Si se especifican tanto precio como porcentaje, calcular rango
-    -- Ejemplo: Precio $100 con 20% = rango [$80, $120]
-    IF @Price IS NOT NULL AND @MaxPriceDiffPercent IS NOT NULL
+    IF @Price IS NOT NULL AND @MaxPriceDiffPercent IS NOT NULL AND @MaxPriceDiffPercent > 0
     BEGIN
-        SET @PriceMin = @Price * (1.0 - @MaxPriceDiffPercent / 100.0);
-        SET @PriceMax = @Price * (1.0 + @MaxPriceDiffPercent / 100.0);
+        DECLARE @PriceFactor DECIMAL(10, 6) = @MaxPriceDiffPercent / 100.0;
+        SET @PriceMin = @Price * (1.0 - @PriceFactor);
+        SET @PriceMax = @Price * (1.0 + @PriceFactor);
     END
     
-    -- ========================================
-    -- CONSTRUCCIÓN DE CONSULTA DINÁMICA
-    -- ========================================
-    -- Usar SQL dinámico para optimizar la consulta según los filtros aplicados
-    DECLARE @sql NVARCHAR(MAX) = N'
     SELECT TOP (@MaxCandidates)
         p.Id,
         p.Name,
-        p.Sku,
+        ISNULL(p.Sku, '') as Sku,
         p.Price,
-        p.ShortDescription,
-        ft.RANK as FtRank              -- Ranking de relevancia FTS (0-1000)
-    FROM Product p
-    INNER JOIN FREETEXTTABLE(Product, (Name, Sku, ShortDescription), @FtsQuery, @MaxCandidates) ft
-        ON p.Id = ft.[KEY]             -- Vincular por clave primaria
-    WHERE p.Published = 1              -- Solo productos publicados
-        AND p.Deleted = 0';            -- Solo productos no eliminados
-        
-    -- Agregar filtro de precio solo si se especificaron ambos parámetros
-    IF @PriceMin IS NOT NULL AND @PriceMax IS NOT NULL
-    BEGIN
-        SET @sql = @sql + N'
-        AND p.Price BETWEEN @PriceMin AND @PriceMax';
-    END
-    
-    -- Ordenar por relevancia descendente (más relevante primero)
-    SET @sql = @sql + N'
-    ORDER BY ft.RANK DESC';
-    
-    -- ========================================
-    -- EJECUCIÓN DE CONSULTA PARAMETRIZADA
-    -- ========================================
-    -- Ejecutar con parámetros para prevenir inyección SQL
-    EXEC sp_executesql @sql, 
-        N'@FtsQuery NVARCHAR(4000), @MaxCandidates INT, @PriceMin DECIMAL(18,4), @PriceMax DECIMAL(18,4)',
-        @FtsQuery = @FtsQuery,
-        @MaxCandidates = @MaxCandidates,
-        @PriceMin = @PriceMin,
-        @PriceMax = @PriceMax;
+        ISNULL(p.ShortDescription, '') as ShortDescription,
+        ft.RANK as FtRank
+    FROM Product p WITH (NOLOCK, INDEX(PK_Product))
+    INNER JOIN FREETEXTTABLE(Product, (Name, Sku, FullDescription, ShortDescription), @FtsQuery, @MaxCandidates) ft
+        ON p.Id = ft.[KEY]
+    WHERE p.Published = 1              
+        AND p.Deleted = 0
+        AND (@PriceMin IS NULL OR p.Price >= @PriceMin)
+        AND (@PriceMax IS NULL OR p.Price <= @PriceMax)
+    ORDER BY ft.RANK DESC
+    OPTION (
+        MAXDOP 1,           
+        RECOMPILE,          
+        FAST 50             
+    );
 END
 GO
+
+
+-- ============================================================
+-- ÍNDICES PARA BATCHING
+-- ============================================================
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Product_Deduplication_Optimized' AND object_id = OBJECT_ID('Product'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_Product_Deduplication_Optimized 
+    ON [Product] (Published, Deleted) 
+    INCLUDE (Id, Name, Sku, Price, ShortDescription)
+    WITH (
+        ONLINE = ON, 
+        FILLFACTOR = 85,       
+        PAD_INDEX = ON,
+        SORT_IN_TEMPDB = ON,    
+        MAXDOP = 1              
+    );
+    
+    PRINT 'Índice IX_Product_Deduplication_Optimized creado exitosamente';
+END
 
 /* ============================================================
    INFRAESTRUCTURA DE SCORING IDF (INVERSE DOCUMENT FREQUENCY)
