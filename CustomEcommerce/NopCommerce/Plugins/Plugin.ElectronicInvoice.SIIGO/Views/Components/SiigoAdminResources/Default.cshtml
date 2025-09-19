@@ -50,19 +50,23 @@
         // Show loading state
         showLoadingState();
 
+        // Prepare data with antiforgery token
+        var postData = { orderId: orderId };
+        addAntiForgeryToken(postData);
+
         // Make AJAX call to check if sub-options are needed
         $.ajax({
             cache: false,
             url: '/Admin/SiigoOrder/CheckPaymentMethodBeforeMarkAsPaid',
             type: 'POST',
-            data: { orderId: orderId },
+            data: postData,
             success: function(response) {
                 hideLoadingState();
 
                 if (response.success) {
-                    if (response.needsSubOptionSelection) {
+                    if (response.requiresSubOption) {
                         // Show modal with sub-options
-                        showPaymentSubOptionModal(orderId, response.subOptions);
+                        showPaymentSubOptionModal(orderId, response.model.AvailableSubOptions);
                     } else {
                         // Proceed with normal mark as paid
                         proceedWithMarkAsPaid();
@@ -90,8 +94,9 @@
 
         subOptions.forEach(function(option) {
             const optionElement = document.createElement('option');
-            optionElement.value = option.name;
-            optionElement.textContent = option.name;
+            optionElement.value = option.SiigoCode;
+            optionElement.setAttribute('data-name', option.Name);
+            optionElement.textContent = option.Description || option.Name;
             selectElement.appendChild(optionElement);
         });
 
@@ -138,39 +143,46 @@
         // Add click handler for confirm button
         document.getElementById('confirmPaymentSubOption').addEventListener('click', function() {
             const orderId = document.getElementById('siigoPaymentSubOptionModal').getAttribute('data-order-id');
-            const selectedSubOption = document.getElementById('paymentSubOptionSelect').value;
+            const selectedOption = document.getElementById('paymentSubOptionSelect');
+            const selectedSubOptionCode = selectedOption.value;
+            const selectedSubOptionName = selectedOption.selectedOptions[0]?.getAttribute('data-name') || selectedOption.selectedOptions[0]?.textContent;
 
-            if (!selectedSubOption) {
+            if (!selectedSubOptionCode) {
                 showErrorMessage('Please select a payment method');
                 return;
             }
 
-            markAsPaidWithSubOption(orderId, selectedSubOption);
+            markAsPaidWithSubOption(orderId, selectedSubOptionCode, selectedSubOptionName);
         });
     }
 
-    function markAsPaidWithSubOption(orderId, subOptionName) {
+    function markAsPaidWithSubOption(orderId, selectedSubOptionCode, selectedSubOptionName) {
         // Show loading in modal
         const confirmBtn = document.getElementById('confirmPaymentSubOption');
         const originalText = confirmBtn.textContent;
         confirmBtn.textContent = 'Processing...';
         confirmBtn.disabled = true;
 
+        // Prepare data with antiforgery token
+        var postData = {
+            orderId: orderId,
+            selectedSubOptionCode: selectedSubOptionCode,
+            selectedSubOptionName: selectedSubOptionName
+        };
+        addAntiForgeryToken(postData);
+
         $.ajax({
             cache:false,
             url: '/Admin/SiigoOrder/MarkAsPaidWithSubOption',
             type: 'POST',
-            data: {
-                orderId: orderId,
-                subOptionName: subOptionName
-            },
+            data: postData,
             success: function(response) {
                 if (response.success) {
                     // Hide modal
                     $('#siigoPaymentSubOptionModal').modal('hide');
 
                     // Show success message
-                    showSuccessMessage('Order marked as paid with payment method: ' + subOptionName);
+                    showSuccessMessage('Order marked as paid with payment method: ' + selectedSubOptionName);
 
                     // Reload page to reflect changes
                     setTimeout(function() {

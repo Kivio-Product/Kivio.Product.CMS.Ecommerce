@@ -49,6 +49,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
         }
 
         [HttpPost]
+        [CheckPermission(StandardPermission.Orders.ORDERS_CREATE_EDIT_DELETE)]
         public async Task<IActionResult> CheckPaymentMethodBeforeMarkAsPaid(int orderId)
         {
             try
@@ -113,6 +114,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
         }
 
         [HttpPost]
+        [CheckPermission(StandardPermission.Orders.ORDERS_CREATE_EDIT_DELETE)]
         public async Task<IActionResult> MarkAsPaidWithSubOption(int orderId, int selectedSubOptionCode, string selectedSubOptionName = null)
         {
             try
@@ -143,6 +145,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
         }
 
         [HttpPost]
+        [CheckPermission(StandardPermission.Orders.ORDERS_VIEW)]
         public async Task<IActionResult> GetOrderPaymentSubOptionInfo(int orderId)
         {
             try
