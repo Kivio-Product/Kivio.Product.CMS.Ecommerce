@@ -1,0 +1,261 @@
+@using Nop.Core
+
+<link href="~/Plugins/ElectronicInvoice.SIIGO/css/siigo-payment-suboptions.css" rel="stylesheet" />
+
+<!-- SIIGO Payment Sub-Options Resources Loaded -->
+
+<script>
+
+    $(document).ready(function() {
+        // Check if we're on the order edit page
+        if (window.location.pathname.includes('/Admin/Order/Edit/')) {
+            initSiigoPaymentSubOptions();
+        }
+    });
+
+    function initSiigoPaymentSubOptions() {
+        // Get order ID from URL
+        const orderId = getOrderIdFromUrl();
+        if (!orderId) return;
+
+        // Override the mark as paid button click behavior
+        const markAsPaidBtn = document.getElementById('markorderaspaid');
+        if (markAsPaidBtn) {
+            // Remove existing action confirmation
+            const existingConfirmation = document.querySelector('nop-action-confirmation[asp-button-id="markorderaspaid"]');
+            if (existingConfirmation) {
+                existingConfirmation.style.display = 'none';
+            }
+
+            // Add our custom click handler
+            markAsPaidBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                checkPaymentMethodBeforeMarkAsPaid(orderId);
+            });
+        }
+    }
+
+    function getOrderIdFromUrl() {
+        const pathParts = window.location.pathname.split('/');
+        const editIndex = pathParts.indexOf('Edit');
+        if (editIndex !== -1 && editIndex < pathParts.length - 1) {
+            return pathParts[editIndex + 1];
+        }
+        return null;
+    }
+
+    function checkPaymentMethodBeforeMarkAsPaid(orderId) {
+        // Show loading state
+        showLoadingState();
+
+        // Prepare data with antiforgery token
+        var postData = { orderId: orderId };
+        addAntiForgeryToken(postData);
+
+        // Make AJAX call to check if sub-options are needed
+        $.ajax({
+            cache: false,
+            url: '/Admin/SiigoOrder/CheckPaymentMethodBeforeMarkAsPaid',
+            type: 'POST',
+            data: postData,
+            success: function(response) {
+                hideLoadingState();
+
+                if (response.success) {
+                    if (response.requiresSubOption) {
+                        // Show modal with sub-options
+                        showPaymentSubOptionModal(orderId, response.model.AvailableSubOptions);
+                    } else {
+                        // Proceed with normal mark as paid
+                        proceedWithMarkAsPaid();
+                    }
+                } else {
+                    showErrorMessage(response.message || 'Error checking payment method');
+                }
+            },
+            error: function(xhr, status, error) {
+                hideLoadingState();
+                showErrorMessage('Error communicating with server: ' + error);
+            }
+        });
+    }
+
+    function showPaymentSubOptionModal(orderId, subOptions) {
+        // Create modal HTML if it doesn't exist
+        if (!document.getElementById('siigoPaymentSubOptionModal')) {
+            createPaymentSubOptionModal();
+        }
+
+        // Populate sub-options
+        const selectElement = document.getElementById('paymentSubOptionSelect');
+        selectElement.innerHTML = '<option value="">-- Select Payment Method --</option>';
+
+        subOptions.forEach(function(option) {
+            const optionElement = document.createElement('option');
+            optionElement.value = option.SiigoCode;
+            optionElement.setAttribute('data-name', option.Name);
+            optionElement.textContent = option.Description || option.Name;
+            selectElement.appendChild(optionElement);
+        });
+
+        // Store order ID for later use
+        document.getElementById('siigoPaymentSubOptionModal').setAttribute('data-order-id', orderId);
+
+        // Show modal
+        $('#siigoPaymentSubOptionModal').modal('show');
+    }
+
+    function createPaymentSubOptionModal() {
+        const modalHtml = `
+            <div class="modal fade" id="siigoPaymentSubOptionModal" tabindex="-1" role="dialog" aria-labelledby="siigoPaymentSubOptionModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="siigoPaymentSubOptionModalLabel">Select Payment Method</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="paymentSubOptionSelect">Payment Method:</label>
+                                <select class="form-control" id="paymentSubOptionSelect">
+                                    <option value="">-- Select Payment Method --</option>
+                                </select>
+                            </div>
+                            <div class="alert alert-info">
+                                <small>Please select the specific payment method used for this Cash on Delivery order. This information will be included in the SIIGO electronic invoice.</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" id="confirmPaymentSubOption">Mark as Paid</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        // Add click handler for confirm button
+        document.getElementById('confirmPaymentSubOption').addEventListener('click', function() {
+            const orderId = document.getElementById('siigoPaymentSubOptionModal').getAttribute('data-order-id');
+            const selectedOption = document.getElementById('paymentSubOptionSelect');
+            const selectedSubOptionCode = selectedOption.value;
+            const selectedSubOptionName = selectedOption.selectedOptions[0]?.getAttribute('data-name') || selectedOption.selectedOptions[0]?.textContent;
+
+            if (!selectedSubOptionCode) {
+                showErrorMessage('Please select a payment method');
+                return;
+            }
+
+            markAsPaidWithSubOption(orderId, selectedSubOptionCode, selectedSubOptionName);
+        });
+    }
+
+    function markAsPaidWithSubOption(orderId, selectedSubOptionCode, selectedSubOptionName) {
+        // Show loading in modal
+        const confirmBtn = document.getElementById('confirmPaymentSubOption');
+        const originalText = confirmBtn.textContent;
+        confirmBtn.textContent = 'Processing...';
+        confirmBtn.disabled = true;
+
+        // Prepare data with antiforgery token
+        var postData = {
+            orderId: orderId,
+            selectedSubOptionCode: selectedSubOptionCode,
+            selectedSubOptionName: selectedSubOptionName
+        };
+        addAntiForgeryToken(postData);
+
+        $.ajax({
+            cache:false,
+            url: '/Admin/SiigoOrder/MarkAsPaidWithSubOption',
+            type: 'POST',
+            data: postData,
+            success: function(response) {
+                if (response.success) {
+                    // Hide modal
+                    $('#siigoPaymentSubOptionModal').modal('hide');
+
+                    // Show success message
+                    showSuccessMessage('Order marked as paid with payment method: ' + selectedSubOptionName);
+
+                    // Reload page to reflect changes
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showErrorMessage(response.message || 'Error marking order as paid');
+
+                    // Reset button
+                    confirmBtn.textContent = originalText;
+                    confirmBtn.disabled = false;
+                }
+            },
+            error: function(xhr, status, error) {
+                showErrorMessage('Error communicating with server: ' + error);
+
+                // Reset button
+                confirmBtn.textContent = originalText;
+                confirmBtn.disabled = false;
+            }
+        });
+    }
+
+    function proceedWithMarkAsPaid() {
+        // Submit the original form action
+        const form = document.getElementById('order-form');
+        if (form) {
+            // Create hidden input for mark as paid action
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'markorderaspaid';
+            hiddenInput.value = 'markorderaspaid';
+            form.appendChild(hiddenInput);
+
+            // Submit form
+            form.submit();
+        }
+    }
+
+    function showLoadingState() {
+        const markAsPaidBtn = document.getElementById('markorderaspaid');
+        if (markAsPaidBtn) {
+            markAsPaidBtn.textContent = 'Loading...';
+            markAsPaidBtn.disabled = true;
+        }
+    }
+
+    function hideLoadingState() {
+        const markAsPaidBtn = document.getElementById('markorderaspaid');
+        if (markAsPaidBtn) {
+            markAsPaidBtn.textContent = markAsPaidBtn.getAttribute('data-original-text') || 'Mark as Paid';
+            markAsPaidBtn.disabled = false;
+        }
+    }
+
+    function showSuccessMessage(message) {
+        // Use NopCommerce's notification system if available
+        if (typeof displaySuccessMessage !== 'undefined') {
+            displaySuccessMessage(message);
+        } else {
+            alert('Success: ' + message);
+        }
+    }
+
+    function showErrorMessage(message) {
+        // Use NopCommerce's notification system if available
+        if (typeof displayErrorMessage !== 'undefined') {
+            displayErrorMessage(message);
+        } else {
+            alert('Error: ' + message);
+        }
+    }
+
+</script>
+@* Include payment sub-option information in order details *@
+@await Component.InvokeAsync("SiigoPaymentSubOptionInfo", Model)

@@ -1,0 +1,12 @@
+@using Plugin.ElectronicInvoice.SIIGO
+@{
+    var selectedSubOption = ViewBag.SelectedSubOption as string;
+}
+
+@if (!string.IsNullOrEmpty(selectedSubOption))
+{
+    <div class="siigo-payment-suboption-info">
+        <span class="label">@T("Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.OrderDetail.Label")</span>
+        <span class="value">@selectedSubOption</span>
+    </div>
+}

@@ -892,6 +892,21 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                     return siigoSettings.PaymentMethodId;
                 }
 
+                // For CashOnDelivery, check if there's a selected sub-option
+                if (paymentMethodSystemName.Equals("Payments.CashOnDelivery", StringComparison.OrdinalIgnoreCase))
+                {
+                    var selectedSubOptionCode = await _genericAttributeService.GetAttributeAsync<int>(order, "SelectedPaymentSubOption");
+                    if (selectedSubOptionCode > 0)
+                    {
+                        await _logger.InformationAsync($"Order {order.Id} using CashOnDelivery sub-option SIIGO code: {selectedSubOptionCode}");
+                        return selectedSubOptionCode;
+                    }
+                    else
+                    {
+                        await _logger.WarningAsync($"Order {order.Id} is CashOnDelivery but no sub-option selected, checking for general mapping");
+                    }
+                }
+
                 // Load payment method mappings
                 var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
                 var paymentMethodMappingSettings = await _settingService.LoadSettingAsync<SiigoPaymentMethodMappingSettings>(storeId);
