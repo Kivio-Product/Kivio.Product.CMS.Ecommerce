@@ -3635,6 +3635,7 @@ button.add-to-wishlist-button.selected {
   align-items: center;
   justify-content: center;
   margin-bottom: 5px;
+  width: 100%;
 }
 
 .item-box .qty-wrapper .qty-input {
@@ -3644,6 +3645,7 @@ button.add-to-wishlist-button.selected {
   border-left: none;
   border-right: none;
   height: 40px;
+  flex: 1;
 }
 
 .item-box .qty-wrapper .qty-button {
@@ -3655,6 +3657,7 @@ button.add-to-wishlist-button.selected {
   font-size: 20px;
   font-weight: bold;
   color: #7a37f0;
+  flex-shrink: 0;
 }
 
 .item-box .qty-wrapper .qty-button.minus {
