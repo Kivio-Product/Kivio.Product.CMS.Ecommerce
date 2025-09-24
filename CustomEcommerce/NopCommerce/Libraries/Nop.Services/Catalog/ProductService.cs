@@ -797,7 +797,8 @@ public partial class ProductService : IProductService
         var query = from p in _productRepository.Table
                     where p.Published && p.VisibleIndividually && p.MarkAsNew && !p.Deleted &&
                           DateTime.UtcNow >= (p.MarkAsNewStartDateTimeUtc ?? SqlDateTime.MinValue.Value) &&
-                          DateTime.UtcNow <= (p.MarkAsNewEndDateTimeUtc ?? SqlDateTime.MaxValue.Value)
+                          DateTime.UtcNow <= (p.MarkAsNewEndDateTimeUtc ?? SqlDateTime.MaxValue.Value) &&
+                          p.StockQuantity > 0
                     select p;
 
         if (minimumDiscountPercentage.HasValue && minimumDiscountPercentage.Value > 0)
