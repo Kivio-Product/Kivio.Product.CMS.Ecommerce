@@ -3629,3 +3629,41 @@ button.add-to-wishlist-button.selected {
     top: auto !important;
   }
 }
+
+.item-box .qty-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+  width: 100%;
+}
+
+.item-box .qty-wrapper .qty-input {
+  width: 50px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-left: none;
+  border-right: none;
+  height: 40px;
+  flex: 1;
+}
+
+.item-box .qty-wrapper .qty-button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ddd;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  color: #7a37f0;
+  flex-shrink: 0;
+}
+
+.item-box .qty-wrapper .qty-button.minus {
+  border-radius: 5px 0 0 5px;
+}
+
+.item-box .qty-wrapper .qty-button.plus {
+  border-radius: 0 5px 5px 0;
+}

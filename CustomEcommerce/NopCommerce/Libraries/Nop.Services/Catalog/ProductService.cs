@@ -797,7 +797,8 @@ public partial class ProductService : IProductService
         var query = from p in _productRepository.Table
                     where p.Published && p.VisibleIndividually && p.MarkAsNew && !p.Deleted &&
                           DateTime.UtcNow >= (p.MarkAsNewStartDateTimeUtc ?? SqlDateTime.MinValue.Value) &&
-                          DateTime.UtcNow <= (p.MarkAsNewEndDateTimeUtc ?? SqlDateTime.MaxValue.Value)
+                          DateTime.UtcNow <= (p.MarkAsNewEndDateTimeUtc ?? SqlDateTime.MaxValue.Value) &&
+                          p.StockQuantity > 0
                     select p;
 
         if (minimumDiscountPercentage.HasValue && minimumDiscountPercentage.Value > 0)
@@ -983,10 +984,7 @@ public partial class ProductService : IProductService
             );
         }
 
-        if (onlyNonStock)
-        {
-            productsQuery = productsQuery.Where(p => p.StockQuantity <= 0);
-        }
+        productsQuery = onlyNonStock ? productsQuery.Where(p => p.StockQuantity <= 0) : productsQuery.Where(p => p.StockQuantity > 0);
 
         var activeSearchProvider = await _searchPluginManager.LoadPrimaryPluginAsync(customer, storeId);
         var providerResults = new List<int>();

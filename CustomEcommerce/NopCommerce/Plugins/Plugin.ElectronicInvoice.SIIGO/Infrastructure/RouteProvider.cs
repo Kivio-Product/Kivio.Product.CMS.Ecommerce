@@ -8,6 +8,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Infrastructure
     {
         public void RegisterRoutes(IEndpointRouteBuilder endpointRouteBuilder)
         {
+            // SIIGO Plugin Configuration Routes
             endpointRouteBuilder.MapControllerRoute(
                 name: "Plugin.ElectronicInvoice.SIIGO.Configure",
                 pattern: "Admin/Siigo/Configure",
@@ -18,6 +19,31 @@ namespace Plugin.ElectronicInvoice.SIIGO.Infrastructure
                 name: "Plugin.ElectronicInvoice.SIIGO.TestConnection",
                 pattern: "Admin/Siigo/TestConnection",
                 defaults: new { controller = "Siigo", action = "TestConnection" },
+                constraints: new { area = "Admin" });
+
+            // SIIGO Order Processing Routes
+            endpointRouteBuilder.MapControllerRoute(
+                name: "Plugin.ElectronicInvoice.SIIGO.CheckPaymentMethodBeforeMarkAsPaid",
+                pattern: "Admin/SiigoOrder/CheckPaymentMethodBeforeMarkAsPaid",
+                defaults: new { controller = "SiigoOrder", action = "CheckPaymentMethodBeforeMarkAsPaid" },
+                constraints: new { area = "Admin" });
+
+            endpointRouteBuilder.MapControllerRoute(
+                name: "Plugin.ElectronicInvoice.SIIGO.MarkAsPaidWithSubOption",
+                pattern: "Admin/SiigoOrder/MarkAsPaidWithSubOption",
+                defaults: new { controller = "SiigoOrder", action = "MarkAsPaidWithSubOption" },
+                constraints: new { area = "Admin" });
+
+            endpointRouteBuilder.MapControllerRoute(
+                name: "Plugin.ElectronicInvoice.SIIGO.GetOrderPaymentSubOptionInfo",
+                pattern: "Admin/SiigoOrder/GetOrderPaymentSubOptionInfo",
+                defaults: new { controller = "SiigoOrder", action = "GetOrderPaymentSubOptionInfo" },
+                constraints: new { area = "Admin" });
+
+            endpointRouteBuilder.MapControllerRoute(
+                name: "Plugin.ElectronicInvoice.SIIGO.GetLocalizedResources",
+                pattern: "Admin/SiigoOrder/GetLocalizedResources",
+                defaults: new { controller = "SiigoOrder", action = "GetLocalizedResources" },
                 constraints: new { area = "Admin" });
         }
 

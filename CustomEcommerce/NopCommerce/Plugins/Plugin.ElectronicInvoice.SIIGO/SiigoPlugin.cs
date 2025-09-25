@@ -1,16 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
+using Nop.Services.Cms;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Plugins;
 using Nop.Services.Security;
+using Nop.Web.Framework.Infrastructure;
 using Nop.Web.Framework.Menu;
 using Plugin.ElectronicInvoice.SIIGO.Services;
 
 namespace Plugin.ElectronicInvoice.SIIGO
 {
-    public class SiigoPlugin : BasePlugin, IMiscPlugin
+    public class SiigoPlugin : BasePlugin, IMiscPlugin, IWidgetPlugin
     {
         private readonly IWebHelper _webHelper;
         private readonly ISettingService _settingService;
@@ -29,6 +31,33 @@ namespace Plugin.ElectronicInvoice.SIIGO
         public override string GetConfigurationPageUrl()
         {
             return $"{_webHelper.GetStoreLocation()}Admin/Siigo/Configure";
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether to hide this plugin on the widget list page in the admin area
+        /// </summary>
+        public bool HideInWidgetList => false;
+
+        /// <summary>
+        /// Gets widget zones where this widget should be rendered
+        /// </summary>
+        /// <returns>Widget zones</returns>
+        public Task<IList<string>> GetWidgetZonesAsync()
+        {
+            return Task.FromResult<IList<string>>(new List<string> 
+            { 
+                AdminWidgetZones.OrderDetailsBlock
+            });
+        }
+
+        /// <summary>
+        /// Gets a name of a view component for displaying widget
+        /// </summary>
+        /// <param name="widgetZone">Name of the widget zone</param>
+        /// <returns>View component name</returns>
+        public Type GetWidgetViewComponent(string widgetZone)
+        {
+            return typeof(Components.SiigoAdminResourcesViewComponent);
         }
 
         public override async Task InstallAsync()
@@ -127,7 +156,29 @@ namespace Plugin.ElectronicInvoice.SIIGO
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.PaymentMethodSystemName"] = "Payment Method System Name",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.PaymentMethodFriendlyName"] = "Payment Method",
                 ["Plugins.ElectronicInvoice.SIIGO.Fields.SiigoPaymentMethodCode"] = "SIIGO Payment Code",
-                ["Plugins.ElectronicInvoice.SIIGO.Fields.SiigoPaymentMethodCode.Hint"] = "Payment method code ID from SIIGO system"
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.SiigoPaymentMethodCode.Hint"] = "Payment method code ID from SIIGO system",
+                
+                // Payment Sub-Option Resources
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.SubOptionName"] = "Sub-Option Name",
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.SubOptionSiigoCode"] = "SIIGO Code",
+                ["Plugins.ElectronicInvoice.SIIGO.Fields.SubOptionDescription"] = "Description",
+                
+                // Modal Resources
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.Modal.Title"] = "Select Payment Method",
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.Modal.SelectLabel"] = "Payment Method:",
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.Modal.SelectPlaceholder"] = "-- Select Payment Method --",
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.Modal.InfoMessage"] = "Please select the specific payment method used for this Cash on Delivery order. This information will be included in the SIIGO electronic invoice.",
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.Modal.CancelButton"] = "Cancel",
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.Modal.ConfirmButton"] = "Mark as Paid",
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.Modal.ProcessingButton"] = "Processing...",
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.Modal.ValidationError"] = "Please select a payment method",
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.Modal.SuccessMessage"] = "Order marked as paid with payment method: {0}",
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.Modal.ErrorMessage"] = "Error marking order as paid",
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.Modal.LoadingMessage"] = "Loading...",
+                
+                // Order Detail Resources
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.OrderDetail.Label"] = "Payment Method Used:",
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.OrderDetail.NotSelected"] = "Not specified"
             });
 
             await base.InstallAsync();

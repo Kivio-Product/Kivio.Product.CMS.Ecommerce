@@ -1285,8 +1285,7 @@
   .px_right_grid .item-box .details {
     float: left;
   }
-  .item-box .product-title,
-  .item-box .prices {
+  .item-box .product-title {
     min-height: 40px;
   }
   .px_right_grid .item-box .details span.tax-shipping-info {

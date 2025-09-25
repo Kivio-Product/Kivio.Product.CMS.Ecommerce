@@ -11,6 +11,27 @@ namespace Plugin.ElectronicInvoice.SIIGO
         public string PaymentMethodSystemName { get; set; }
         public int SiigoPaymentMethodCode { get; set; }
         public bool IsEnabled { get; set; }
+        
+        /// <summary>
+        /// Sub-options for this payment method (e.g., for CashOnDelivery: Cash, Transfer, etc.)
+        /// </summary>
+        public List<PaymentSubOption> SubOptions { get; set; } = new List<PaymentSubOption>();
+        
+        /// <summary>
+        /// Indicates if this payment method has sub-options configured
+        /// </summary>
+        public bool HasSubOptions => SubOptions?.Any() == true;
+    }
+
+    /// <summary>
+    /// Represents a sub-option for a payment method (e.g., Cash, Transfer for CashOnDelivery)
+    /// </summary>
+    public class PaymentSubOption
+    {
+        public string Name { get; set; }  // "Efectivo", "Transferencia", "Nequi"
+        public int SiigoCode { get; set; }  // 1234, 5678
+        public bool IsEnabled { get; set; } = true;
+        public string Description { get; set; }  // Optional description
     }
 
     /// <summary>
@@ -105,6 +126,7 @@ namespace Plugin.ElectronicInvoice.SIIGO
             {
                 existingMapping.SiigoPaymentMethodCode = siigoPaymentMethodCode;
                 existingMapping.IsEnabled = isEnabled;
+                // Keep existing sub-options
             }
             else
             {
@@ -112,11 +134,105 @@ namespace Plugin.ElectronicInvoice.SIIGO
                 {
                     PaymentMethodSystemName = paymentMethodSystemName,
                     SiigoPaymentMethodCode = siigoPaymentMethodCode,
-                    IsEnabled = isEnabled
+                    IsEnabled = isEnabled,
+                    SubOptions = new List<PaymentSubOption>()
                 });
             }
 
             PaymentMethodMappings = mappings;
+        }
+
+        /// <summary>
+        /// Adds or updates a sub-option for a specific payment method
+        /// </summary>
+        /// <param name="paymentMethodSystemName">Payment method system name</param>
+        /// <param name="subOptionName">Sub-option name</param>
+        /// <param name="siigoCode">SIIGO code for this sub-option</param>
+        /// <param name="isEnabled">Whether the sub-option is enabled</param>
+        /// <param name="description">Optional description</param>
+        public void AddOrUpdateSubOption(string paymentMethodSystemName, string subOptionName, int siigoCode, bool isEnabled, string description = null)
+        {
+            if (string.IsNullOrEmpty(paymentMethodSystemName) || string.IsNullOrEmpty(subOptionName))
+                return;
+
+            var mappings = PaymentMethodMappings.ToList();
+            var mapping = mappings.FirstOrDefault(m => 
+                m.PaymentMethodSystemName.Equals(paymentMethodSystemName, StringComparison.OrdinalIgnoreCase));
+
+            if (mapping != null)
+            {
+                if (mapping.SubOptions == null)
+                    mapping.SubOptions = new List<PaymentSubOption>();
+
+                var existingSubOption = mapping.SubOptions.FirstOrDefault(so => 
+                    so.Name.Equals(subOptionName, StringComparison.OrdinalIgnoreCase));
+
+                if (existingSubOption != null)
+                {
+                    existingSubOption.SiigoCode = siigoCode;
+                    existingSubOption.IsEnabled = isEnabled;
+                    existingSubOption.Description = description;
+                }
+                else
+                {
+                    mapping.SubOptions.Add(new PaymentSubOption
+                    {
+                        Name = subOptionName,
+                        SiigoCode = siigoCode,
+                        IsEnabled = isEnabled,
+                        Description = description
+                    });
+                }
+
+                PaymentMethodMappings = mappings;
+            }
+        }
+
+        /// <summary>
+        /// Removes a sub-option from a payment method
+        /// </summary>
+        /// <param name="paymentMethodSystemName">Payment method system name</param>
+        /// <param name="subOptionName">Sub-option name to remove</param>
+        /// <returns>True if removed successfully</returns>
+        public bool RemoveSubOption(string paymentMethodSystemName, string subOptionName)
+        {
+            if (string.IsNullOrEmpty(paymentMethodSystemName) || string.IsNullOrEmpty(subOptionName))
+                return false;
+
+            var mappings = PaymentMethodMappings.ToList();
+            var mapping = mappings.FirstOrDefault(m => 
+                m.PaymentMethodSystemName.Equals(paymentMethodSystemName, StringComparison.OrdinalIgnoreCase));
+
+            if (mapping?.SubOptions != null)
+            {
+                var subOptionToRemove = mapping.SubOptions.FirstOrDefault(so => 
+                    so.Name.Equals(subOptionName, StringComparison.OrdinalIgnoreCase));
+
+                if (subOptionToRemove != null)
+                {
+                    mapping.SubOptions.Remove(subOptionToRemove);
+                    PaymentMethodMappings = mappings;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gets sub-options for a specific payment method
+        /// </summary>
+        /// <param name="paymentMethodSystemName">Payment method system name</param>
+        /// <returns>List of enabled sub-options</returns>
+        public List<PaymentSubOption> GetSubOptions(string paymentMethodSystemName)
+        {
+            if (string.IsNullOrEmpty(paymentMethodSystemName))
+                return new List<PaymentSubOption>();
+
+            var mapping = PaymentMethodMappings
+                .FirstOrDefault(m => m.PaymentMethodSystemName.Equals(paymentMethodSystemName, StringComparison.OrdinalIgnoreCase) && m.IsEnabled);
+
+            return mapping?.SubOptions?.Where(so => so.IsEnabled).ToList() ?? new List<PaymentSubOption>();
         }
 
         /// <summary>

@@ -1,0 +1,98 @@
+/*
+* SIIGO Plugin - Payment Sub-Options Modal Styles
+*/
+
+#siigoPaymentSubOptionModal .modal-header {
+    background-color: #007bff;
+    color: white;
+}
+
+#siigoPaymentSubOptionModal .modal-header .close {
+    color: white;
+    opacity: 0.8;
+}
+
+#siigoPaymentSubOptionModal .modal-header .close:hover {
+    opacity: 1;
+}
+
+#siigoPaymentSubOptionModal .form-group label {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+#siigoPaymentSubOptionModal .alert-info {
+    border-left: 4px solid #007bff;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+#siigoPaymentSubOptionModal .modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 15px 20px;
+}
+
+#siigoPaymentSubOptionModal .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+#siigoPaymentSubOptionModal .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+#siigoPaymentSubOptionModal .btn-primary:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+}
+
+#siigoPaymentSubOptionModal select.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Order detail payment sub-option display */
+.siigo-payment-suboption-info {
+    background-color: #e7f3ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.siigo-payment-suboption-info .label {
+    font-weight: 600;
+    color: #0066cc;
+}
+
+.siigo-payment-suboption-info .value {
+    color: #333;
+    margin-left: 5px;
+}
+
+/* Loading state styles */
+.siigo-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.siigo-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    animation: siigo-spin 1s linear infinite;
+}
+
+@keyframes siigo-spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
