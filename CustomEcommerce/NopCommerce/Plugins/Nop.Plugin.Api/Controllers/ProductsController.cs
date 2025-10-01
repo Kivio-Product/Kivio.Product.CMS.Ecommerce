@@ -391,8 +391,13 @@ namespace Nop.Plugin.Api.Controllers
             }
 
             var priceUpdateConditionEnabled = await _settingService.GetSettingByKeyAsync<bool>("ApiSettings.PriceUpdateConditionEnabled", false);
+            var omitValidationPrice = productDelta.Dto.OmitValidationPrice ?? false;
 
-            if (priceUpdateConditionEnabled && productDelta.Dto.Price.HasValue && productDelta.Dto.Price > 0 && productDelta.Dto.Price < product.Price)
+            if (priceUpdateConditionEnabled &&
+            productDelta.Dto.Price.HasValue &&
+            productDelta.Dto.Price > 0 &&
+            productDelta.Dto.Price < product.Price &&
+            !omitValidationPrice)
             {
                 return Ok(new { message = "Price update condition not met" });
             }
