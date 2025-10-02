@@ -1,8 +1,11 @@
 @model FilteredProductsModel
 
-<div class="custom-product-section">
+<div class="custom-product-section filtered-products-section">
     <div class="filter-section">
-        <span class="section-title">@Model.SectionTitle</span>
+        <div class="section-icon-title">
+            <img src="@Url.Content("~/Themes/MarketTheme/Content/images/amor.png")" alt="@T("FilteredProducts.Icon")" class="filtered-products-icon" />
+            <span class="section-title">@Model.SectionTitle</span>
+        </div>
 
         <div class="filters-bar">
             @foreach (var button in Model.FilterButtons)
