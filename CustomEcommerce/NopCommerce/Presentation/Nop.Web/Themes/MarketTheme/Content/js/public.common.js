@@ -322,17 +322,9 @@ window.ProductDisplayManager = {
   },
 
   setupFlashSaleDisplay: function () {
-    var highDiscountContainer = $("#high-discount-products");
-    var regularDiscountContainer = $("#regular-discount-products");
+    var regularDiscountContainer = $(".regular-discount-row");
 
     if (window.innerWidth <= 767) {
-      this.setupMobileCarousel(highDiscountContainer, 2, "high-discount-row", {
-        items: 2,
-        margin: 8,
-        stagePadding: 0,
-        center: false,
-      });
-
       this.setupMobileCarousel(
         regularDiscountContainer,
         2,
@@ -343,30 +335,8 @@ window.ProductDisplayManager = {
         }
       );
     } else {
-      highDiscountContainer.removeClass("mobile-grid");
       regularDiscountContainer.removeClass("mobile-grid");
-
-      highDiscountContainer.find(".item-box").show();
       regularDiscountContainer.find(".item-box").show();
-
-      if (
-        highDiscountContainer.length &&
-        highDiscountContainer.find(".item-box").length > 3
-      ) {
-        this.setupDesktopCarousel(highDiscountContainer, {
-          responsive: {
-            0: { items: 1 },
-            600: { items: 2 },
-            1024: { items: 3 },
-          },
-        });
-        highDiscountContainer.css("width", "60%");
-        $(".regular-discount-row").css("margin-top", "40px");
-      } else {
-        this.destroyCarousel(highDiscountContainer);
-        highDiscountContainer.css("width", "100%");
-        $(".regular-discount-row").css("margin-top", "");
-      }
 
       if (
         regularDiscountContainer.length &&

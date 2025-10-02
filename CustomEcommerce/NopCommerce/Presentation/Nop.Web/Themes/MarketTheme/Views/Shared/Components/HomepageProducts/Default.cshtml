@@ -1,39 +1,13 @@
 ﻿@model IList<ProductOverviewModel>
-@using Nop.Core
-@using Nop.Services.Configuration
-@using Nop.Core.Infrastructure
-@inject IWorkContext workContext
-
-@{
-    var maxProductsPerCategory = EngineContext.Current.Resolve<ISettingService>().GetSettingByKeyAsync<int>("Catalog.Home.MaxProductsPerCategory", defaultValue: 20).Result;
-}
 
 @if (Model.Count > 0)
 {
     <div class="section-padding section-bg product-grid home-page-product-grid">
-        <div class="section-width">
+        <div class="section-width flash-sale-section">
             <div class="flash-sale-container">
-                <div class="flash-sale-info">
-                    <div class="flash-icon desktop-only">
-                        <div class="flash-icon-image"></div>
-                    </div>
-                    <h2 class="flash-title">@T("HomePageProducts.Title")</h2>
-                    <div class="timer-section">
-                        <span class="timer-label desktop-only">Termina en</span>
-                        <div class="countdown-timer">
-                            <span class="time-segment" id="hours">00</span>
-                            <span class="separator">:</span>
-                            <span class="time-segment" id="minutes">00</span>
-                            <span class="separator">:</span>
-                            <span class="time-segment" id="seconds">00</span>
-                        </div>
-                    </div>
-                    <div class="flash-title-mobile mobile-only">
-                        <span>@T("HomePageProducts.TitleMobile")</span>
-                    </div>
-                    <div class="decorative-arrow">
-                        <div class="decorative-arrow-image"></div>
-                    </div>
+                <div class="section-icon-title">
+                    <img src="@Url.Content("~/Themes/MarketTheme/Content/images/flash-icon.png")" alt="@T("Flash.Icon")" class="flash-icon" />
+                    <h2 class="section-title">@T("HomePageProducts.Title")</h2>
                 </div>
                 <a href="@Url.RouteUrl("AllProducts")" class="view-all-button desktop-only">
                     @T("HomePageProducts.Button.ViewAll")
