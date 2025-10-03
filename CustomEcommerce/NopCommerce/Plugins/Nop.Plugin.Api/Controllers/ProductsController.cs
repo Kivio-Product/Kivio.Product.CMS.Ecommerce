@@ -50,7 +50,8 @@ namespace Nop.Plugin.Api.Controllers
         IManufacturerService manufacturerService,
         IProductTagService productTagService,
         IProductAttributeService productAttributeService,ILogger logger,
-        IDTOHelper dtoHelper, ICopyProductService copyProductService) : BaseApiController(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService,
+        IDTOHelper dtoHelper, ICopyProductService copyProductService,
+        IProductTaxRecalculationService productTaxRecalculationService) : BaseApiController(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService,
                                      customerActivityService, localizationService, pictureService)
     {
         private readonly IDTOHelper _dtoHelper = dtoHelper;
@@ -67,6 +68,7 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IProductSimilarityService _productSimilarityService = productSimilarityService;
     private readonly ILogger _logger = logger;
         private readonly IProductDeduplicationService _productDeduplicationService = productDeduplicationService;
+        private readonly IProductTaxRecalculationService _productTaxRecalculationService = productTaxRecalculationService;
 
         [HttpPost]
         [Route("/api/products/deduplicate-category", Name = "DeduplicateCategory")]
@@ -295,6 +297,9 @@ namespace Nop.Plugin.Api.Controllers
             var product = await _factory.InitializeAsync();
             productDelta.Merge(product);
 
+            // Validación de impuestos
+            await _productTaxRecalculationService.ProcessProductTaxRecalculationAsync(product, isInsert: true);
+
             var isRenewalEnabled = await _settingService.GetSettingByKeyAsync<bool>("ApiSettings.EnableProductRenewal");
 
             Console.WriteLine($"Is Renewal Enabled: {isRenewalEnabled}");
@@ -403,6 +408,9 @@ namespace Nop.Plugin.Api.Controllers
             }
             
             productDelta.Merge(product);
+
+            // Validación de impuestos
+            await _productTaxRecalculationService.ProcessProductTaxRecalculationAsync(product, isInsert: false);
 
             product.UpdatedOnUtc = DateTime.UtcNow;
             await _productService.UpdateProductAsync(product);
