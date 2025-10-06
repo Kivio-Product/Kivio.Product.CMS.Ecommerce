@@ -14,6 +14,11 @@ namespace Nop.Plugin.Api.Areas.Admin.Models
 
         public bool TokenExpiryInDays_OverrideForStore { get; set; }
 
+        [NopResourceDisplayName("Plugins.Api.Admin.EnableSwagger")]
+        public bool EnableSwagger { get; set; }
+
+        public bool EnableSwagger_OverrideForStore { get; set; }
+
         public int ActiveStoreScopeConfiguration { get; set; }
     }
 }

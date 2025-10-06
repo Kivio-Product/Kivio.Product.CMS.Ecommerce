@@ -7,5 +7,7 @@ namespace Nop.Plugin.Api.Domain
         public bool EnableApi { get; set; } = true;
 
         public int TokenExpiryInDays { get; set; } = 0;
+
+        public bool EnableSwagger { get; set; } = true;
     }
 }
