@@ -1746,7 +1746,7 @@ text-decoration: underline;
   font-size: 22px;
 }
 .item-box button {
-  display: block;
+  /* display: block; */
   border: 0;
   vertical-align: middle;
 }
@@ -1757,6 +1757,8 @@ text-decoration: underline;
   transition: all 0.3s;
   display: block;
   width: 100%;
+  border-top: 2px solid #000;
+  padding-top: 10px;
 }  
 .item-box .product-box-add-to-cart-button
  {
