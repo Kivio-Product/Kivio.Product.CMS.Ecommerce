@@ -1944,13 +1944,14 @@ button.add-to-wishlist-button.selected {
 }
 
 .super-deals-section .section-header {
-  padding: 20px;
+  padding: 10px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   flex-wrap: wrap;
   background: #7723e1;
-  margin: 10px 0px;
+  margin-top: 20px;
+  margin-bottom: 40px;
 }
 
 .super-deals-section .section-title {
@@ -2034,7 +2035,7 @@ button.add-to-wishlist-button.selected {
 
 .pantry-staples-section .section-icon-title,
 .super-deals-section .section-icon-title,
-.flash-sale-section .section-icon-title{
+.flash-sale-section .section-icon-title {
   display: flex;
   align-items: center;
 }
@@ -2892,6 +2893,130 @@ button.add-to-wishlist-button.selected {
   border-radius: 0 5px 5px 0;
 }
 
+.cart-action-wrapper {
+  position: relative;
+  width: 100%;
+  height: 50px;
+  overflow: hidden;
+}
+
+.add-to-cart-initial {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.add-to-cart-initial.slide-out {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.cart-quantity-selector {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 5px;
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+}
+
+.cart-quantity-selector.slide-in {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.quantity-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.in-cart-label {
+  font-size: 11px;
+  color: #717680;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.quantity-display {
+  font-size: 15px;
+  color: #333;
+  font-weight: 700;
+}
+
+.quantity-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.qty-control-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 20px;
+  background-color: #fff;
+  color: #7a37f0;
+  cursor: pointer;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.qty-control-btn.hidden {
+  display: none !important;
+}
+
+.qty-control-btn:hover {
+  background-color: #7a37f0;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.qty-control-btn:active {
+  transform: scale(0.95);
+}
+
+.qty-control-btn svg {
+  display: block;
+}
+
+.qty-control-btn.remove-btn {
+  color: #dc3545;
+}
+
+.qty-control-btn.remove-btn:hover {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.qty-control-btn.increase-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.qty-control-btn.increase-btn.disabled:hover {
+  background-color: #fff;
+  color: #7a37f0;
+  transform: none;
+}
+
 @media all and (max-width: 1000px) {
   .flyout-cart {
     position: fixed;
@@ -3065,7 +3190,6 @@ button.add-to-wishlist-button.selected {
 }
 
 @media (max-width: 640px) {
-
   .flash-sale-section {
     padding: 0 10px;
   }
@@ -3242,7 +3366,6 @@ button.add-to-wishlist-button.selected {
 }
 
 @media (min-width: 768px) {
-
   .flash-sale-section {
     padding: 0 50px;
   }
@@ -3306,8 +3429,7 @@ button.add-to-wishlist-button.selected {
 }
 
 @media (max-width: 767px) {
-
-  .flash-sale-section{
+  .flash-sale-section {
     padding: 0 10px;
   }
 
@@ -3615,7 +3737,8 @@ button.add-to-wishlist-button.selected {
     gap: 0;
     padding: 0;
     background: transparent;
-    margin: 10px 0px;
+    margin-bottom: 40px;
+    margin-top: 20px;
   }
 
   .super-deals-section .section-icon-title {
@@ -3647,11 +3770,27 @@ button.add-to-wishlist-button.selected {
     font-size: 15px;
     min-width: fit-content;
   }
+
+  .cart-action-wrapper {
+    height: 48px;
+  }
+
+  .qty-control-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .in-cart-label {
+    font-size: 10px;
+  }
+
+  .quantity-display {
+    font-size: 14px;
+  }
 }
 
 @media (max-width: 480px) {
-
-  .flash-sale-section{
+  .flash-sale-section {
     padding: 0 5px;
   }
 
@@ -3721,8 +3860,7 @@ button.add-to-wishlist-button.selected {
 }
 
 @media (max-width: 991px) {
-
-  .flash-sale-section{
+  .flash-sale-section {
     padding: 0 10px;
   }
 
@@ -3745,4 +3883,3 @@ button.add-to-wishlist-button.selected {
     top: auto !important;
   }
 }
-

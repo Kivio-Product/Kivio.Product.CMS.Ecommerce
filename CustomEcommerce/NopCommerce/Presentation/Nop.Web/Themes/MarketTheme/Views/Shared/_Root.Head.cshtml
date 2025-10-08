@@ -38,6 +38,7 @@
     NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/public.onepagecheckout.js");
     NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/discount-giftcard-module.js");
     NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/product-validation.js");
+    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/product-box.js");
 
 
     if (commonSettings.JqueryMigrateScriptLoggingActive)
@@ -77,6 +78,10 @@
     <meta name="generator" content="nopCommerce" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <link rel="manifest" href="~/manifest.json" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet" />
 
     @NopHtml.GenerateHeadCustom()
     @*This is used so that themes can inject content into the header*@
