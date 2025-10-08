@@ -37,8 +37,6 @@ using Nop.Web.Framework.Mvc.Routing;
 using Nop.Web.Infrastructure.Cache;
 using Nop.Web.Models.Media;
 using Nop.Web.Models.ShoppingCart;
-using Nop.Services.Orders;
-using Nop.Services.Logging;
 
 namespace Nop.Web.Controllers;
 
