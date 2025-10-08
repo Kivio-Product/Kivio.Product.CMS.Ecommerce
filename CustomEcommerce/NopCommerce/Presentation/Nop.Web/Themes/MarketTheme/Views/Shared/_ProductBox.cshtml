@@ -11,6 +11,7 @@
     var addtocartlink = "";
     var shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart;
     var quantity = 1;
+    var maxQuantity = Model.AllowedQuantitiesPerClient > 0 ? Model.AllowedQuantitiesPerClient : 5;
     if (Model.ProductPrice.ForceRedirectionAfterAddingToCart)
     {
         addtocartlink = Url.RouteUrl("AddProductToCart-Catalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId, quantity = quantity, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart });
@@ -139,7 +140,7 @@
                         addToCartText = T("ShoppingCart.PreOrder").Text;
                     }
                     
-                    <div class="cart-action-wrapper" data-productid="@Model.Id" data-addurl="@addtocartlink">
+                    <div class="cart-action-wrapper" data-productid="@Model.Id" data-addurl="@addtocartlink" data-max-quantity="@maxQuantity">
                         <button type="button" class="button-2 product-box-add-to-cart-button primary-btn add-to-cart-initial">
                             <span class="add-to-cart-text">@addToCartText</span>
                         </button>

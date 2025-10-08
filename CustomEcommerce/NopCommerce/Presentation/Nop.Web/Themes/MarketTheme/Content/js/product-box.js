@@ -208,13 +208,27 @@
     
     PBCart.handleIncrease = function($wrapper, productId, currentQty) {
         var itemId = PBCart.cartItemIds[productId];
+        var maxQuantity = parseInt($wrapper.data('max-quantity')) || 5;
         
         console.log('handleIncrease called:', {
             productId: productId,
             itemId: itemId,
             currentQty: currentQty,
+            maxQuantity: maxQuantity,
             allItemIds: PBCart.cartItemIds
         });
+        
+        // Verificar si se alcanzó el límite
+        if (currentQty >= maxQuantity) {
+            console.warn('Maximum quantity reached:', maxQuantity);
+            $wrapper.find('.qty-control-btn').removeClass('updating');
+            
+            // Mostrar mensaje al usuario (opcional)
+            if (typeof displayBarNotification !== 'undefined') {
+                displayBarNotification('No puedes agregar más unidades de este producto', 'error', 3000);
+            }
+            return;
+        }
         
         if (!itemId) {
             console.error('No itemId found for product:', productId);
@@ -242,7 +256,7 @@
         // Actualizar UI optimísticamente
         PBCart.productQuantities[productId] = newQty;
         PBCart.updateQuantityDisplay($wrapper, newQty);
-        PBCart.toggleButtons($wrapper, newQty);
+        PBCart.toggleButtons($wrapper, newQty, maxQuantity);
         
         // Llamar al endpoint para actualizar
         $.ajax({
@@ -282,7 +296,12 @@
                     console.error('Failed to increase quantity:', response.message);
                     PBCart.productQuantities[productId] = currentQty;
                     PBCart.updateQuantityDisplay($wrapper, currentQty);
-                    PBCart.toggleButtons($wrapper, currentQty);
+                    PBCart.toggleButtons($wrapper, currentQty, maxQuantity);
+                    
+                    // Mostrar mensaje de error
+                    if (typeof displayBarNotification !== 'undefined') {
+                        displayBarNotification(response.message || 'No se pudo actualizar la cantidad', 'error', 3000);
+                    }
                 }
             },
             error: function(xhr, status, error) {
@@ -290,7 +309,7 @@
                 console.error('Error increasing quantity:', error);
                 PBCart.productQuantities[productId] = currentQty;
                 PBCart.updateQuantityDisplay($wrapper, currentQty);
-                PBCart.toggleButtons($wrapper, currentQty);
+                PBCart.toggleButtons($wrapper, currentQty, maxQuantity);
             },
             complete: function() {
                 $wrapper.find('.qty-control-btn').removeClass('updating');
@@ -429,16 +448,30 @@
         $quantityDisplay.text(quantity + ' und.');
     };
     
-    PBCart.toggleButtons = function($wrapper, quantity) {
+    PBCart.toggleButtons = function($wrapper, quantity, maxQuantity) {
         var $removeBtn = $wrapper.find('.remove-btn');
         var $decreaseBtn = $wrapper.find('.decrease-btn');
+        var $increaseBtn = $wrapper.find('.increase-btn');
         
+        // Obtener maxQuantity del data attribute si no se pasa como parámetro
+        if (!maxQuantity) {
+            maxQuantity = parseInt($wrapper.data('max-quantity')) || 5;
+        }
+        
+        // Toggle entre remove y decrease
         if (quantity === 1) {
             $removeBtn.removeClass('hidden');
             $decreaseBtn.addClass('hidden');
         } else {
             $removeBtn.addClass('hidden');
             $decreaseBtn.removeClass('hidden');
+        }
+        
+        // Deshabilitar botón increase si se alcanzó el máximo
+        if (quantity >= maxQuantity) {
+            $increaseBtn.addClass('disabled').attr('disabled', 'disabled');
+        } else {
+            $increaseBtn.removeClass('disabled').removeAttr('disabled');
         }
     };
     
