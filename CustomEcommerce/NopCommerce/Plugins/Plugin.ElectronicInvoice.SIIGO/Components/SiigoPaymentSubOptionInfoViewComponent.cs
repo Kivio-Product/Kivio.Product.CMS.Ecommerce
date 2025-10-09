@@ -41,14 +41,19 @@ namespace Plugin.ElectronicInvoice.SIIGO.Components
                 return Content("");
 
             // Get the selected payment sub-option from generic attributes
-            var selectedSubOption = await _genericAttributeService.GetAttributeAsync<string>(
-                order, "SiigoSelectedPaymentSubOption");
+            var selectedSubOptionCode = await _genericAttributeService.GetAttributeAsync<int>(order, "SelectedPaymentSubOption");
+            var selectedSubOptionName = await _genericAttributeService.GetAttributeAsync<string>(order, "SelectedPaymentSubOptionName");
+            var selectedSubOptionDate = await _genericAttributeService.GetAttributeAsync<DateTime?>(order, "SelectedPaymentSubOptionDate");
 
-            if (string.IsNullOrEmpty(selectedSubOption))
+            if (selectedSubOptionCode <= 0 || string.IsNullOrEmpty(selectedSubOptionName))
                 return Content("");
 
-            // Return view with the selected sub-option
-            ViewBag.SelectedSubOption = selectedSubOption;
+            // Return view with the selected sub-option data
+            ViewBag.SelectedSubOptionCode = selectedSubOptionCode;
+            ViewBag.SelectedSubOptionName = selectedSubOptionName;
+            ViewBag.SelectedSubOptionDate = selectedSubOptionDate;
+            ViewBag.PaymentMethodName = order.PaymentMethodSystemName;
+            
             return View("~/Plugins/Plugin.ElectronicInvoice.SIIGO/Views/Components/SiigoPaymentSubOptionInfo/Default.cshtml");
         }
     }

@@ -177,6 +177,10 @@ namespace Plugin.ElectronicInvoice.SIIGO
                 ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.Modal.LoadingMessage"] = "Loading...",
                 
                 // Order Detail Resources
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.OrderDetail.Title"] = "SIIGO Payment Sub-Option",
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.OrderDetail.SubOption"] = "Selected Sub-Option",
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.OrderDetail.SiigoCode"] = "SIIGO Code",
+                ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.OrderDetail.SelectedDate"] = "Selection Date",
                 ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.OrderDetail.Label"] = "Payment Method Used:",
                 ["Plugins.ElectronicInvoice.SIIGO.PaymentSubOption.OrderDetail.NotSelected"] = "Not specified"
             });
