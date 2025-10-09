@@ -110,8 +110,9 @@ namespace Nop.Plugin.Payments.PayU.Services
         public async Task<bool> HidePaymentMethodAsync()
         {
             var currentCurrency = (await _workContext.GetWorkingCurrencyAsync()).Id;
-            var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
-            var payUPaymentSettings = await _settingService.LoadSettingAsync<PayUPaymentSettings>(storeScope);
+            var store = await _storeContext.GetCurrentStoreAsync();
+            var storeId = store?.Id ?? 0;
+            var payUPaymentSettings = await _settingService.LoadSettingAsync<PayUPaymentSettings>(storeId);
             return !payUPaymentSettings.SelectedCurrencyIdList.Contains(currentCurrency);
         }
 

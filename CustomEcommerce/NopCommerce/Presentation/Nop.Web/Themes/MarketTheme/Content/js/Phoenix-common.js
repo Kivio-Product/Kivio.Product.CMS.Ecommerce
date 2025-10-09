@@ -90,6 +90,7 @@ function initCarousel(config) {
     let currentSlide = 0;
     let autoPlayInterval = null;
     const autoPlayDelay = 40000;
+    let isTransitioning = false;
 
     const carousel = document.getElementById(carouselId);
     const track = document.getElementById(trackId);
@@ -100,8 +101,29 @@ function initCarousel(config) {
         return;
     }
 
-    const slides = track.children;
-    const totalSlides = slides.length;
+    const originalSlides = Array.from(track.children);
+    const totalSlides = originalSlides.length;
+    
+    // Clonar slides para el efecto infinito
+    const slidesToClone = isMobile ? 1 : slidesToShow;
+    
+    // Clonar al final
+    for (let i = 0; i < slidesToClone; i++) {
+        const clone = originalSlides[i].cloneNode(true);
+        clone.classList.add('clone');
+        track.appendChild(clone);
+    }
+    
+    // Clonar al inicio
+    for (let i = totalSlides - 1; i >= totalSlides - slidesToClone; i--) {
+        const clone = originalSlides[i].cloneNode(true);
+        clone.classList.add('clone');
+        track.insertBefore(clone, track.firstChild);
+    }
+    
+    // Ajustar índice inicial para compensar los clones al inicio
+    currentSlide = slidesToClone;
+    
     const maxSlideIndex = isMobile ? totalSlides - 1 : Math.max(0, totalSlides - slidesToShow);
 
     if (isMobile && dotsContainer) {
@@ -115,31 +137,40 @@ function initCarousel(config) {
         }
     }
 
-    function updateCarousel() {
+    function updateCarousel(instant = false) {
+        if (instant) {
+            track.style.transition = 'none';
+        } else {
+            track.style.transition = 'transform 0.5s ease-in-out';
+        }
+
         if (isMobile) {
-            const slideWidth = 80; // 80% de ancho
-            const gap = 15; // gap en px
-            const containerWidth = track.parentElement.offsetWidth - 30; // menos padding
+            const slideWidth = 80;
+            const gap = 15;
+            const containerWidth = track.parentElement.offsetWidth - 30;
             const slideWidthPx = (containerWidth * slideWidth) / 100;
             const gapPercent = (gap / containerWidth) * 100;
-            const offset = 10; // 15px de padding inicial convertido a %
+            const offset = 10;
             
             const translateX = -(currentSlide * (slideWidth + gapPercent)) + offset;
             track.style.transform = `translateX(${translateX}%)`;
         } else {
-            // Desktop: original
             const slideWidth = 100 / slidesToShow;
             const translateX = -(currentSlide * slideWidth);
             track.style.transform = `translateX(${translateX}%)`;
         }
+        
         updateDots();
     }
 
     function updateDots() {
         if (!dotsContainer) return;
         const dots = dotsContainer.querySelectorAll('.carousel-dot');
+        // Calcular el índice real (sin contar clones)
+        const realIndex = (currentSlide - slidesToClone + totalSlides) % totalSlides;
+        
         dots.forEach((dot, index) => {
-            if (index === currentSlide) {
+            if (index === realIndex) {
                 dot.style.backgroundColor = '#667eea';
                 dot.style.width = '24px';
                 dot.style.borderRadius = '4px';
@@ -152,20 +183,34 @@ function initCarousel(config) {
     }
 
     function moveSlide(direction) {
+        if (isTransitioning) return;
+        
+        isTransitioning = true;
         currentSlide += direction;
-
-        if (currentSlide < 0) {
-            currentSlide = maxSlideIndex;
-        } else if (currentSlide > maxSlideIndex) {
-            currentSlide = 0;
-        }
-
         updateCarousel();
+
+        setTimeout(() => {
+            // Si llegamos al final (clones), saltar al inicio real
+            if (currentSlide >= totalSlides + slidesToClone) {
+                currentSlide = slidesToClone;
+                updateCarousel(true);
+            }
+            // Si llegamos al inicio (clones), saltar al final real
+            else if (currentSlide < slidesToClone) {
+                currentSlide = totalSlides + slidesToClone - 1;
+                updateCarousel(true);
+            }
+            
+            isTransitioning = false;
+        }, 500);
+
         restartAutoPlay();
     }
 
     function goToSlide(slideIndex) {
-        currentSlide = Math.min(slideIndex, maxSlideIndex);
+        if (isTransitioning) return;
+        
+        currentSlide = slidesToClone + Math.min(slideIndex, maxSlideIndex);
         updateCarousel();
         restartAutoPlay();
     }
@@ -230,7 +275,7 @@ function initCarousel(config) {
         startAutoPlay();
     }, { passive: true });
 
-    updateCarousel();
+    updateCarousel(true);
     startAutoPlay();
 }
 

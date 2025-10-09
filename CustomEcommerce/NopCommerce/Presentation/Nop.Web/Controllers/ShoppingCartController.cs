@@ -2202,7 +2202,7 @@ public partial class ShoppingCartController : BasePublicController
             var updatetopcartsectionhtml = string.Empty;
             var updateflyoutcartsectionhtml = string.Empty;
 
-            var model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(new ShoppingCartModel(), cart);
+            var model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(new ShoppingCartModel(), updatedCart);
 
             if (_shoppingCartSettings.MiniShoppingCartEnabled)
             {
@@ -2257,7 +2257,7 @@ public partial class ShoppingCartController : BasePublicController
             var updatetopcartsectionhtml = string.Empty;
             var updateflyoutcartsectionhtml = string.Empty;
 
-            var model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(new ShoppingCartModel(), cart);
+            var model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(new ShoppingCartModel(), updatedCart);
 
             if (_shoppingCartSettings.MiniShoppingCartEnabled)
             {
