@@ -1996,6 +1996,7 @@ button.add-to-wishlist-button.selected {
 
 .super-deals-section .category-products-container.active {
   display: block;
+  padding: 0px 40px;
 }
 
 @keyframes fadeIn {
@@ -3429,6 +3430,10 @@ button.add-to-wishlist-button.selected {
 }
 
 @media (max-width: 767px) {
+  .super-deals-section .category-products-container.active {
+    padding: 0px 20px;
+  }
+
   .flash-sale-section {
     padding: 0 10px;
   }

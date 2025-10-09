@@ -9,7 +9,6 @@
     
     // Evitar inicialización múltiple
     if (window.ProductBoxCartAnimation && window.ProductBoxCartAnimation.initialized) {
-        console.log('ProductBoxCartAnimation already initialized');
         return;
     }
     
@@ -22,12 +21,10 @@
     
     var PBCart = window.ProductBoxCartAnimation;
     
-    console.log('Initializing ProductBoxCartAnimation...');
     
     // Esperar a que jQuery y AjaxCart estén disponibles
     var initWhenReady = function() {
         if (typeof $ === 'undefined' || typeof AjaxCart === 'undefined') {
-            console.log('Waiting for jQuery and AjaxCart...');
             setTimeout(initWhenReady, 100);
             return;
         }
@@ -47,7 +44,6 @@
             // Si fue exitoso
             if (response && response.success && PBCart.lastAddedProductId) {
                 var productId = PBCart.lastAddedProductId;
-                console.log('Product added successfully:', productId);
                 
                 // Obtener la cantidad real del carrito después de agregar
                 PBCart.fetchCartQuantityForProduct(productId, function(quantity, itemId) {
@@ -57,7 +53,6 @@
                         // Guardar itemId para futuras operaciones
                         if (itemId) {
                             PBCart.cartItemIds[productId] = itemId;
-                            console.log('Saved itemId for product', productId, ':', itemId);
                         }
                         PBCart.productQuantities[productId] = quantity;
                         
@@ -85,7 +80,6 @@
             return result;
         };
         
-        console.log('AjaxCart.success_process overridden successfully');
         
         // Event delegation para los botones - UNA SOLA VEZ
         $(document).off('click.pbcart').on('click.pbcart', '.add-to-cart-initial', function(e) {
@@ -96,7 +90,6 @@
             var productId = $wrapper.data('productid');
             
             if (!addUrl) {
-                console.error('No add URL found');
                 return false;
             }
             
@@ -110,9 +103,7 @@
                 urlParts[urlParts.length - 1] = '1';
                 url = urlParts.join('/');
             }
-            
-            console.log('Adding to cart with URL:', url);
-            
+                        
             // Llamar a AjaxCart usando la función original
             if (typeof AjaxCart !== 'undefined' && AjaxCart.addproducttocart_catalog) {
                 AjaxCart.addproducttocart_catalog(url);
@@ -127,7 +118,6 @@
             
             // Prevenir múltiples clicks
             if ($(this).hasClass('updating')) {
-                console.log('Button is updating, ignoring click');
                 return false;
             }
             
@@ -137,13 +127,6 @@
             var productId = $wrapper.data('productid');
             var $quantityDisplay = $wrapper.find('.quantity-display');
             var currentQty = parseInt($quantityDisplay.text().match(/\d+/)[0]) || 1;
-            
-            console.log('Control button clicked:', {
-                action: action,
-                productId: productId,
-                currentQty: currentQty,
-                hasItemId: !!PBCart.cartItemIds[productId]
-            });
             
             // Marcar como actualizando
             $wrapper.find('.qty-control-btn').addClass('updating');
@@ -159,12 +142,10 @@
             return false;
         });
         
-        console.log('ProductBoxCartAnimation initialized successfully');
     };
     
     // Función para obtener la cantidad real del producto en el carrito
     PBCart.fetchCartQuantityForProduct = function(productId, callback) {
-        console.log('Fetching cart quantity for product:', productId);
         
         $.ajax({
             cache: false,
@@ -172,17 +153,14 @@
             data: { productId: productId },
             type: 'GET',
             success: function(response) {
-                console.log('Cart quantity response:', response);
                 
                 if (response.success) {
                     callback(response.quantity || 1, response.itemId);
                 } else {
-                    console.error('Failed to get cart quantity:', response.message);
                     callback(1, null);
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Error fetching cart quantity:', error);
                 callback(1, null);
             }
         });
@@ -210,17 +188,8 @@
         var itemId = PBCart.cartItemIds[productId];
         var maxQuantity = parseInt($wrapper.data('max-quantity')) || 5;
         
-        console.log('handleIncrease called:', {
-            productId: productId,
-            itemId: itemId,
-            currentQty: currentQty,
-            maxQuantity: maxQuantity,
-            allItemIds: PBCart.cartItemIds
-        });
-        
         // Verificar si se alcanzó el límite
         if (currentQty >= maxQuantity) {
-            console.warn('Maximum quantity reached:', maxQuantity);
             $wrapper.find('.qty-control-btn').removeClass('updating');
             
             // Mostrar mensaje al usuario (opcional)
@@ -230,19 +199,14 @@
             return;
         }
         
-        if (!itemId) {
-            console.error('No itemId found for product:', productId);
-            console.log('Attempting to fetch from server...');
-            
+        if (!itemId) {            
             // Intentar obtener el itemId del servidor
             PBCart.fetchCartQuantityForProduct(productId, function(quantity, fetchedItemId) {
                 if (fetchedItemId) {
-                    console.log('ItemId fetched successfully:', fetchedItemId);
                     PBCart.cartItemIds[productId] = fetchedItemId;
                     // Reintentar la operación
                     PBCart.handleIncrease($wrapper, productId, currentQty);
                 } else {
-                    console.error('Could not fetch itemId from server');
                     $wrapper.find('.qty-control-btn').removeClass('updating');
                 }
             });
@@ -250,9 +214,7 @@
         }
         
         var newQty = currentQty + 1;
-        
-        console.log('Updating quantity to:', newQty);
-        
+                
         // Actualizar UI optimísticamente
         PBCart.productQuantities[productId] = newQty;
         PBCart.updateQuantityDisplay($wrapper, newQty);
@@ -269,31 +231,24 @@
             },
             type: 'POST',
             success: function(response) {
-                console.log('Update response:', response);
                 
                 if (response.success) {
-                    console.log('Quantity increased successfully');
-                    
                     // Actualizar contador del carrito
                     if (response.updatetopcartsectionhtml) {
                         $(AjaxCart.topcartselector).html(response.updatetopcartsectionhtml);
-                        console.log('Updated top cart section with:', response.updatetopcartsectionhtml);
                     }
                     
                     // Actualizar flyout cart
                     if (response.updateflyoutcartsectionhtml) {
                         $(AjaxCart.flyoutcartselector).replaceWith(response.updateflyoutcartsectionhtml);
-                        console.log('Updated flyout cart section');
                     }
                     
                     // Si no vienen en la respuesta, refrescar manualmente el mini cart
                     if (!response.updatetopcartsectionhtml || !response.updateflyoutcartsectionhtml) {
-                        console.log('Missing cart HTML in response, fetching manually...');
                         PBCart.refreshMiniCart();
                     }
                 } else {
                     // Revertir cambio
-                    console.error('Failed to increase quantity:', response.message);
                     PBCart.productQuantities[productId] = currentQty;
                     PBCart.updateQuantityDisplay($wrapper, currentQty);
                     PBCart.toggleButtons($wrapper, currentQty, maxQuantity);
@@ -306,7 +261,6 @@
             },
             error: function(xhr, status, error) {
                 // Revertir cambio
-                console.error('Error increasing quantity:', error);
                 PBCart.productQuantities[productId] = currentQty;
                 PBCart.updateQuantityDisplay($wrapper, currentQty);
                 PBCart.toggleButtons($wrapper, currentQty, maxQuantity);
@@ -321,7 +275,6 @@
         var itemId = PBCart.cartItemIds[productId];
         
         if (!itemId) {
-            console.error('No itemId found for product:', productId);
             $wrapper.find('.qty-control-btn').removeClass('updating');
             return;
         }
@@ -350,7 +303,6 @@
             type: 'POST',
             success: function(response) {
                 if (response.success) {
-                    console.log('Quantity decreased successfully');
                     // Actualizar mini cart
                     if (response.updatetopcartsectionhtml) {
                         $(AjaxCart.topcartselector).html(response.updatetopcartsectionhtml);
@@ -363,7 +315,6 @@
                     PBCart.productQuantities[productId] = currentQty;
                     PBCart.updateQuantityDisplay($wrapper, currentQty);
                     PBCart.toggleButtons($wrapper, currentQty);
-                    console.error('Failed to decrease quantity:', response.message);
                 }
             },
             error: function() {
@@ -371,7 +322,6 @@
                 PBCart.productQuantities[productId] = currentQty;
                 PBCart.updateQuantityDisplay($wrapper, currentQty);
                 PBCart.toggleButtons($wrapper, currentQty);
-                console.error('Error decreasing quantity');
             },
             complete: function() {
                 $wrapper.find('.qty-control-btn').removeClass('updating');
@@ -383,7 +333,6 @@
         var itemId = PBCart.cartItemIds[productId];
         
         if (!itemId) {
-            console.error('No itemId found for product:', productId);
             $wrapper.find('.qty-control-btn').removeClass('updating');
             return;
         }
@@ -409,7 +358,6 @@
             type: 'POST',
             success: function(response) {
                 if (response.success) {
-                    console.log('Item removed successfully');
                     delete PBCart.productQuantities[productId];
                     delete PBCart.cartItemIds[productId];
                     
@@ -426,7 +374,6 @@
                     setTimeout(function() {
                         $selector.addClass('slide-in');
                     }, 50);
-                    console.error('Failed to remove item:', response.message);
                 }
             },
             error: function() {
@@ -435,7 +382,6 @@
                 setTimeout(function() {
                     $selector.addClass('slide-in');
                 }, 50);
-                console.error('Error removing item');
             },
             complete: function() {
                 $wrapper.find('.qty-control-btn').removeClass('updating');
@@ -481,9 +427,7 @@
             cache: false,
             url: '/shoppingcart/GetMiniShoppingCart',
             type: 'GET',
-            success: function(data) {
-                console.log('Mini cart refreshed');
-                
+            success: function(data) {                
                 // Actualizar el contador del carrito
                 if (data.TotalProducts !== undefined) {
                     $(AjaxCart.topcartselector).html(data.TotalProducts.toString());
