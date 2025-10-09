@@ -102,11 +102,16 @@ namespace Nop.Plugin.Api.Services
             if (_cachedActiveStoreScopeConfiguration.HasValue)
                 return _cachedActiveStoreScopeConfiguration.Value;
 
+            var stores = await _storeService.GetAllStoresAsync();
+
             //ensure that we have 2 (or more) stores
-            if ((await _storeService.GetAllStoresAsync()).Count > 1)
+            if ( stores.Count > 1)
             {
                 //do not inject IAuthenticationService via constructor because it'll cause circular references
                 var currentCustomer = await EngineContext.Current.Resolve<IAuthenticationService>().GetAuthenticatedCustomerAsync();
+
+                if (currentCustomer == null) 
+                    return stores.FirstOrDefault()?.Id ?? 0;
 
                 //try to get store identifier from attributes
                 var storeId = await _genericAttributeService
