@@ -403,7 +403,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                     new SiigoPayment
                     {
                         Id = await GetPaymentMethodCodeAsync(order, siigoSettings),
-                        Value = Math.Round(order.OrderSubtotalInclTax, 1),
+                        Value = Math.Round(order.OrderSubtotalInclTax, 2),
                         DueDate = DateTime.Now.ToString("yyyy-MM-dd")
                     }
                 },
@@ -498,7 +498,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                         Code = productSku,
                         Description = product.Name,
                         Quantity = orderItem.Quantity,
-                        Price = Math.Round(orderItem.UnitPriceExclTax, 1),
+                        Price = Math.Round(orderItem.UnitPriceExclTax, 2),
                         Taxes = taxes // Will be null if no tax should be applied
                     };
 
