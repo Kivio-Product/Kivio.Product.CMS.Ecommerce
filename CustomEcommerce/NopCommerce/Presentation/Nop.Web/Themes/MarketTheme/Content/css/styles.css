@@ -1612,7 +1612,7 @@ text-decoration: underline;
   top: 0;
   right: 0;
   bottom: 0;
-  padding: 20px;
+  padding: 15px;
   left: 0;
   max-width: 100%;
   max-height: 100%;
@@ -7883,8 +7883,8 @@ a.ui-button:active, .ui-button:active,
 }
 
 .category-name{
-  font-size: 12px;
-  font-weight: inherit;
+  font-size: 16px;
+  font-weight: 400;
   margin: 0 0 0px;
   text-align: center;
 }
@@ -7907,7 +7907,7 @@ a.ui-button:active, .ui-button:active,
 
 .home-page-category-grid .px_category_slider{
   width: 100%;
-  max-width: 1050px;
+  max-width: 1366px;
   margin: 0 auto;
   text-align: center;
 }
@@ -8070,6 +8070,10 @@ white-space: nowrap; /* Evita que el texto del botón se parta */
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+
+  .category-name{
+    font-size: 11px;
+  }
 .flash-sale-container {
     flex-direction: column;
     align-items: flex-start;

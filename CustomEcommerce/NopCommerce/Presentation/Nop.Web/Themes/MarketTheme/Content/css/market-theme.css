@@ -1913,6 +1913,8 @@ button.add-to-wishlist-button.selected {
   justify-content: center;
   width: auto !important;
   transform: none !important;
+  gap: 30px;
+  flex-direction: row-reverse;
 }
 
 .owl-center-few-items .owl-item {
@@ -3591,6 +3593,7 @@ button.add-to-wishlist-button.selected {
 
   .category-row {
     flex-wrap: wrap;
+    justify-content: center;
   }
 
   .category-row .item-box {
