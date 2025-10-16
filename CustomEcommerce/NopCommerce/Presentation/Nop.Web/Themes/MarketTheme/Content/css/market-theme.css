@@ -2037,8 +2037,9 @@ button.add-to-wishlist-button.selected {
 }
 
 .pantry-staples-section .section-icon-title,
-.super-deals-section .section-icon-title,
-.flash-sale-section .section-icon-title {
+.super-deals-section .section-icon-title-wrapper,
+.flash-sale-section .section-icon-title,
+.filter-section .section-icon-title-wrapper {
   display: flex;
   align-items: center;
 }
@@ -3680,6 +3681,17 @@ button.add-to-wishlist-button.selected {
     font-size: 1.5rem;
   }
 
+  .super-deals-section .section-icon-title-wrapper {
+    display: flex;
+    align-items: center;
+    max-width: 80%;
+  }
+
+  .filtered-products-section .section-icon-title {
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
   .super-deals-section .view-all-svg-button {
     width: 70%;
   }
@@ -3753,6 +3765,8 @@ button.add-to-wishlist-button.selected {
     justify-content: center;
     padding: 20px 15px;
     background: #7723e1;
+    align-items: center;
+    display: flex;
   }
 
   .super-deals-section .section-title {

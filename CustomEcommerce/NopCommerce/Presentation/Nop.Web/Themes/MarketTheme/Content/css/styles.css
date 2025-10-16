@@ -801,6 +801,14 @@ label, label + * {
         gap: 20px;
         font-size: 16px;
     }
+    .custom-product-section .filter-section {
+      padding: 0 15px;
+      display: flex;
+      padding-top: 40px;
+      flex-direction: row;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
 }
 
 
@@ -7963,6 +7971,7 @@ height: 40px;
 display: flex;
 justify-content: center;
 align-items: center;
+padding: 5px;
 }
 
 .flash-sale-container .flash-icon-image{
@@ -8102,31 +8111,37 @@ white-space: nowrap; /* Evita que el texto del botón se parta */
 }
 }
 @media (max-width: 480px) {
-.item-box .product-box-add-to-cart-button
+  .item-box .product-box-add-to-cart-button
   {
     font-size: 12px !important;
   }
-.flash-sale-container .flash-title {
-    font-size: 18px;
-}
-.flash-sale-container .time-segment {
-    width: 26px;
-    height: 26px;
-    font-size: 14px;
-}
-.flash-sale-container .flash-icon {
-    width: 35px;
-    height: 35px;
-}
-.flash-sale-container .flash-icon svg {
-    width: 18px;
-    height: 18px;
-}
-.flash-sale-container .timer-label {
-    /* Opcional: Si "Termina en" hace que el layout sea muy apretado */
-    /* display: none; */ 
-    /* O reducir su tamaño de fuente */
-    font-size: 11px;
+  .flash-sale-container .flash-title {
+      font-size: 18px;
+  }
+  .flash-sale-container .section-icon-title .section-title {
+      font-size: 18px;
+  }
+  .filter-section .section-icon-title .section-title {
+      font-size: 18px;
+  }
+  .flash-sale-container .time-segment {
+      width: 26px;
+      height: 26px;
+      font-size: 14px;
+  }
+  .flash-sale-container .flash-icon {
+      width: 35px;
+      height: 35px;
+  }
+  .flash-sale-container .flash-icon svg {
+      width: 18px;
+      height: 18px;
+  }
+  .flash-sale-container .timer-label {
+      /* Opcional: Si "Termina en" hace que el layout sea muy apretado */
+      /* display: none; */ 
+      /* O reducir su tamaño de fuente */
+      font-size: 11px;
 }
 }
 
@@ -8440,18 +8455,10 @@ white-space: nowrap; /* Evita que el texto del botón se parta */
 .custom-product-section .section-title {
     font-size: 24px;
     font-weight: bold;
-    margin-bottom: 20px;
     color: #333;
 }
 
-.custom-product-section .filter-section {
-  padding: 0 15px;
-  display: flex;
-  padding-top: 40px;
-  flex-direction: row;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
+
 
 .filters-bar {
     display: flex;
