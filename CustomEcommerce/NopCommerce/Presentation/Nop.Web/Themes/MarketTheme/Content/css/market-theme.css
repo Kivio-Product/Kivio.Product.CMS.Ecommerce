@@ -3192,7 +3192,7 @@ button.add-to-wishlist-button.selected {
 
 @media (max-width: 640px) {
   .flash-sale-section {
-    padding: 0 10px;
+    padding: 0 10px !important;
   }
 
   .discount-form,
@@ -3368,7 +3368,7 @@ button.add-to-wishlist-button.selected {
 
 @media (min-width: 768px) {
   .flash-sale-section {
-    padding: 0 50px;
+    padding: 0 50px !important;
   }
 
   .super-deals-section .view-all-svg-button {
@@ -3435,7 +3435,7 @@ button.add-to-wishlist-button.selected {
   }
 
   .flash-sale-section {
-    padding: 0 10px;
+    padding: 0 10px !important;
   }
 
   .search-form-container .search-results-container {
@@ -3796,7 +3796,7 @@ button.add-to-wishlist-button.selected {
 
 @media (max-width: 480px) {
   .flash-sale-section {
-    padding: 0 5px;
+    padding: 0 5px !important;
   }
 
   .discount-input,
@@ -3866,7 +3866,7 @@ button.add-to-wishlist-button.selected {
 
 @media (max-width: 991px) {
   .flash-sale-section {
-    padding: 0 10px;
+    padding: 0 10px !important;
   }
 
   .similar-product-row {

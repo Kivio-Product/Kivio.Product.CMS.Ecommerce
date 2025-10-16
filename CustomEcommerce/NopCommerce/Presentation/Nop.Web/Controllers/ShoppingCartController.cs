@@ -2134,6 +2134,12 @@ public partial class ShoppingCartController : BasePublicController
 
             var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
+            if (cart == null || !cart.Any())
+            {
+                throw new Exception("El carrito está vacío");
+            }
+
+            var product = await _productService.GetProductByIdAsync(productId) ?? throw new Exception("Producto no encontrado");
             var cartItem = cart.FirstOrDefault(sci => sci.ProductId == productId);
 
             if (cartItem != null)
@@ -2142,7 +2148,8 @@ public partial class ShoppingCartController : BasePublicController
                 {
                     success = true,
                     quantity = cartItem.Quantity,
-                    itemId = cartItem.Id
+                    itemId = cartItem.Id,
+                    maxQuantity = Math.Min(product.OrderMaximumQuantity, product.StockQuantity)
                 });
             }
 
@@ -2150,7 +2157,8 @@ public partial class ShoppingCartController : BasePublicController
             {
                 success = true,
                 quantity = 0,
-                itemId = (int?)null
+                itemId = (int?)null,
+                maxQuantity = Math.Min(product.OrderMaximumQuantity, product.StockQuantity)
             });
         }
         catch (Exception ex)
@@ -2158,7 +2166,10 @@ public partial class ShoppingCartController : BasePublicController
             return Json(new
             {
                 success = false,
-                message = ex.Message
+                message = ex.Message,
+                quantity = 0,
+                itemId = (int?)null,
+                maxQuantity = 0
             });
         }
     }

@@ -1289,7 +1289,7 @@ public partial class ProductModelFactory : IProductModelFactory
                 FullDescription = await _localizationService.GetLocalizedAsync(product, x => x.FullDescription),
                 SeName = await _urlRecordService.GetSeNameAsync(product),
                 Sku = product.Sku,
-                AllowedQuantitiesPerClient = product.OrderMaximumQuantity,
+                AllowedQuantitiesPerClient = product.StockQuantity,
                 ProductType = product.ProductType,
                 MarkAsNew = product.MarkAsNew &&
                             (!product.MarkAsNewStartDateTimeUtc.HasValue || product.MarkAsNewStartDateTimeUtc.Value < DateTime.UtcNow) &&
