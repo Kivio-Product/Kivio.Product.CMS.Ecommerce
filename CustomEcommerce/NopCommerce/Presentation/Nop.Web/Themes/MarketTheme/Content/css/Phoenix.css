@@ -328,10 +328,13 @@ ul.login-list li :hover{
 .section-bg {
   background-color: #F5F5F5;
 }
+.home-page .section-width{
+  padding: 0 0;
+}
 .section-width{
   width: 100%;
   display: inline-block;
-  /* padding: 0 70px; */
+  padding: 0 70px;
 }
 .product-img{
     position:relative;

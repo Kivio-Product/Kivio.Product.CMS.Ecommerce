@@ -7988,10 +7988,13 @@ flex-direction: column;
 }
 
 .flash-sale-container .timer-label {
-font-size: 12px;
-color: #555;
+font-size: 14px;
+color: #181D27;
 align-self: flex-start; 
 padding-top: 2px;
+font-family: Inter;
+font-weight: 900;
+line-height: 20px;
 }
 
 .flash-sale-container .countdown-timer {
