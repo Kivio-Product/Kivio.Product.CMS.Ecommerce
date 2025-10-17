@@ -156,6 +156,7 @@ public partial record ProductDetailsModel : BaseNopEntityModel
         public int EnteredQuantity { get; set; }
         public string MinimumQuantityNotification { get; set; }
         public List<SelectListItem> AllowedQuantities { get; set; }
+        public int MaximumQuantity { get; set; }
 
         //price entered by customers
         [NopResourceDisplayName("Products.EnterProductPrice")]

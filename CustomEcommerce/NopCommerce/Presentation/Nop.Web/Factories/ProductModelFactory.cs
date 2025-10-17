@@ -783,6 +783,19 @@ public partial class ProductModelFactory : IProductModelFactory
 
         //quantity
         model.EnteredQuantity = updatecartitem != null ? updatecartitem.Quantity : product.OrderMinimumQuantity;
+        
+        //maximum quantity - minimum between OrderMaximumQuantity and StockQuantity
+        var maxQuantity = product.OrderMaximumQuantity;
+        if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock)
+        {
+            var stockQuantity = await _productService.GetTotalStockQuantityAsync(product);
+            if (stockQuantity > 0)
+            {
+                maxQuantity = maxQuantity > 0 ? Math.Min(maxQuantity, stockQuantity) : stockQuantity;
+            }
+        }
+        model.MaximumQuantity = maxQuantity;
+        
         //allowed quantities
         var allowedQuantities = _productService.ParseAllowedQuantities(product);
         foreach (var qty in allowedQuantities)

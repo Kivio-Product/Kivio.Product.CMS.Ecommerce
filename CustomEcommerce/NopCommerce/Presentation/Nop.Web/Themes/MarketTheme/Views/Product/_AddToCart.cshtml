@@ -50,32 +50,91 @@
                     }
                     else
                     {
+                        var maxQtyAttr = Model.MaximumQuantity > 0 ? Model.MaximumQuantity.ToString() : "";
                         <div class="quantity-wrapper">
-                            <button type="button" class="quantity-button minus">-</button>
-                            <input asp-for="EnteredQuantity" id="product_enteredQuantity_@Model.ProductId" class="qty-input"
-                                type="number" min="1" aria-label=@T("Products.Qty.AriaLabel") />
-                            <button type="button" class="quantity-button plus">+</button>
+                            <button type="button" class="quantity-button minus" data-product-id="@Model.ProductId">-</button>
+                            @if (Model.MaximumQuantity > 0)
+                            {
+                                <input asp-for="EnteredQuantity" id="product_enteredQuantity_@Model.ProductId" class="qty-input"
+                                    type="number" min="1" max="@Model.MaximumQuantity" 
+                                    data-max="@Model.MaximumQuantity" aria-label=@T("Products.Qty.AriaLabel") />
+                            }
+                            else
+                            {
+                                <input asp-for="EnteredQuantity" id="product_enteredQuantity_@Model.ProductId" class="qty-input"
+                                    type="number" min="1" 
+                                    data-max="@Model.MaximumQuantity" aria-label=@T("Products.Qty.AriaLabel") />
+                            }
+                            <button type="button" class="quantity-button plus" data-product-id="@Model.ProductId">+</button>
                         </div>
                         <script asp-location="Footer">
                             $(function () {
-                                $('.quantity-button').on('click', function () {
-                                    var $input = $(this).siblings('.qty-input');
+                                var productId = @Model.ProductId;
+                                var $input = $('#product_enteredQuantity_' + productId);
+                                var $plusBtn = $('.quantity-button.plus[data-product-id="' + productId + '"]');
+                                var $minusBtn = $('.quantity-button.minus[data-product-id="' + productId + '"]');
+                                var maxQuantity = parseInt($input.attr('data-max')) || 0;
+
+                                function updateButtonStates() {
+                                    var currentVal = parseInt($input.val()) || 1;
+                                    
+                                    // Disable minus button if at minimum (1)
+                                    if (currentVal <= 1) {
+                                        $minusBtn.prop('disabled', true).addClass('disabled');
+                                    } else {
+                                        $minusBtn.prop('disabled', false).removeClass('disabled');
+                                    }
+                                    
+                                    // Disable plus button if at maximum
+                                    if (maxQuantity > 0 && currentVal >= maxQuantity) {
+                                        $plusBtn.prop('disabled', true).addClass('disabled');
+                                    } else {
+                                        $plusBtn.prop('disabled', false).removeClass('disabled');
+                                    }
+                                }
+
+                                $('.quantity-button[data-product-id="' + productId + '"]').on('click', function () {
                                     var currentVal = parseInt($input.val()) || 1;
 
                                     if ($(this).hasClass('plus')) {
-                                        $input.val(currentVal + 1);
+                                        if (maxQuantity <= 0 || currentVal < maxQuantity) {
+                                            $input.val(currentVal + 1);
+                                        }
                                     } else {
-                                        if (currentVal > 1) $input.val(currentVal - 1);
+                                        if (currentVal > 1) {
+                                            $input.val(currentVal - 1);
+                                        }
                                     }
 
                                     $input.trigger('change');
+                                    updateButtonStates();
 
                                     var data = {
-                                        productId: @Model.ProductId,
+                                        productId: productId,
                                         quantity: $input.val()
                                     };
                                     $(document).trigger({ type: "product_quantity_changed", changedData: data });
                                 });
+
+                                // Validate input on change
+                                $input.on('input change', function() {
+                                    var currentVal = parseInt($(this).val()) || 1;
+                                    
+                                    // Enforce minimum
+                                    if (currentVal < 1) {
+                                        $(this).val(1);
+                                    }
+                                    
+                                    // Enforce maximum
+                                    if (maxQuantity > 0 && currentVal > maxQuantity) {
+                                        $(this).val(maxQuantity);
+                                    }
+                                    
+                                    updateButtonStates();
+                                });
+
+                                // Initial button state
+                                updateButtonStates();
 
                                 //when a customer clicks 'Enter' button we submit the "add to cart" button (if visible)
                                 $("#@Html.IdFor(model => model.EnteredQuantity)").on("keydown", function (event) {
