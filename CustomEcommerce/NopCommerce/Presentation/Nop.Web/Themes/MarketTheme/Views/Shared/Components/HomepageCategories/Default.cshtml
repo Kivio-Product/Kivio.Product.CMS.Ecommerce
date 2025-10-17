@@ -182,77 +182,147 @@
 <script asp-location="Footer">
     $(document).ready(function() {
         var mobileBreakpoint = 768;
+        var resizeTimer;
+        var currentWidth = $(window).width();
+        var isInitialized = false;
         
-        function initCarousel() {
-            // Destruir carousels existentes
+        function destroyCarousels() {
+            // Destruir carousel móvil
             if ($('.px_category_carousel').hasClass('owl-loaded')) {
-                $('.px_category_carousel').owlCarousel('destroy');
-            }
-            if ($('.px_category_slider').hasClass('owl-loaded')) {
-                $('.px_category_slider').owlCarousel('destroy');
+                $('.px_category_carousel').trigger('destroy.owl.carousel');
+                $('.px_category_carousel').removeClass('owl-carousel owl-loaded owl-drag owl-theme');
+                
+                // Limpiar estilos y estructura de Owl
+                $('.px_category_carousel').find('.owl-stage-outer').children().unwrap();
+                $('.px_category_carousel').find('.owl-stage').children().unwrap();
+                $('.px_category_carousel').find('.owl-item').each(function () {
+                    $(this).replaceWith($(this).html());
+                });
+                $('.px_category_carousel').find('.owl-nav, .owl-dots').remove();
+                $('.px_category_carousel').removeAttr('style');
             }
             
-            if ($(window).width() <= mobileBreakpoint) {
-                if (@Model.Count > 8 && $('.px_category_carousel').length > 0) {
-                    $('.px_category_carousel').owlCarousel({
-                        loop: false,
-                        margin: 0,
-                        items: 1,
-                        nav: false,
-                        dots: false,
-                        autoplay: false,
-                        smartSpeed: 800,
-                        responsive: {
-                            0: { items: 1 },
-                            600: { items: 1 },
-                            1024: { items: 1 }
-                        }
-                    });
-                }
-            } else {
-                if ($(".px_category_slider").length > 0) {
-                    $(".px_category_slider").owlCarousel({
-                        autoplay: false,
-                        loop: @(Model.Count > 8 ? "true" : "false"),
-                        rtl: true,
-                        margin: 0,
-                        responsiveClass: true,
-                        autoHeight: false,
-                        autoplayTimeout: 7000,
-                        smartSpeed: 800,
-                        dots: false,
-                        nav: false,
-                        center: @Model.Count < 9 ? "true" : "false",
-                        responsive: {
-                            0: { 
-                                items: 4,
-                                center: @Model.Count < 4 ? "true" : "false"
-                            },
-                            600: { 
-                                items: 6,
-                                center: @Model.Count < 6 ? "true" : "false"
-                            },
-                            1024: { 
-                                items: 9,
-                                center: @Model.Count < 9 ? "true" : "false"
-                            },
-                            1366: { 
-                                items: 9,
-                                center: @Model.Count < 9 ? "true" : "false"
-                            }
-                        }
-                    });
-                    if (@Model.Count < 9) {
-                        $('.px_category_slider').addClass('owl-center-few-items');
-                    }
-                }
+            // Destruir carousel desktop
+            if ($('.px_category_slider').hasClass('owl-loaded')) {
+                $('.px_category_slider').trigger('destroy.owl.carousel');
+                $('.px_category_slider').removeClass('owl-loaded owl-drag owl-center-few-items');
+                
+                // Limpiar estilos y estructura de Owl
+                $('.px_category_slider').find('.owl-stage-outer').children().unwrap();
+                $('.px_category_slider').find('.owl-stage').children().unwrap();
+                $('.px_category_slider').find('.owl-item').each(function () {
+                    $(this).replaceWith($(this).html());
+                });
+                $('.px_category_slider').find('.owl-nav, .owl-dots').remove();
+                $('.px_category_slider').removeAttr('style');
             }
+            
+            // Limpiar todos los item-box
+            $('.item-box.px_category').each(function() {
+                $(this).removeAttr('style').removeClass('active center');
+            });
         }
         
+        function initCarousel() {
+            // Destruir carousels existentes primero
+            destroyCarousels();
+            
+            var windowWidth = $(window).width();
+            
+            if (windowWidth <= mobileBreakpoint) {
+                // Modo móvil
+                if (@Model.Count > 8 && $('.px_category_carousel').length > 0) {
+                    setTimeout(function() {
+                        $('.px_category_carousel').addClass('owl-carousel owl-theme').owlCarousel({
+                            loop: false,
+                            margin: 0,
+                            items: 1,
+                            nav: false,
+                            dots: false,
+                            autoplay: false,
+                            smartSpeed: 800,
+                            responsive: {
+                                0: { items: 1 },
+                                600: { items: 1 },
+                                1024: { items: 1 }
+                            }
+                        });
+                    }, 50);
+                }
+            } else {
+                // Modo desktop
+                if ($(".px_category_slider").length > 0) {
+                    setTimeout(function() {
+                        $(".px_category_slider").owlCarousel({
+                            autoplay: false,
+                            loop: @(Model.Count > 8 ? "true" : "false"),
+                            rtl: true,
+                            margin: 0,
+                            responsiveClass: true,
+                            autoHeight: false,
+                            autoplayTimeout: 7000,
+                            smartSpeed: 800,
+                            dots: false,
+                            nav: false,
+                            center: @Model.Count < 9 ? "true" : "false",
+                            responsive: {
+                                0: { 
+                                    items: 4,
+                                    center: @Model.Count < 4 ? "true" : "false"
+                                },
+                                600: { 
+                                    items: 6,
+                                    center: @Model.Count < 6 ? "true" : "false"
+                                },
+                                1024: { 
+                                    items: 9,
+                                    center: @Model.Count < 9 ? "true" : "false"
+                                },
+                                1366: { 
+                                    items: 9,
+                                    center: @Model.Count < 9 ? "true" : "false"
+                                }
+                            }
+                        });
+                        
+                        if (@Model.Count < 9) {
+                            $('.px_category_slider').addClass('owl-center-few-items');
+                        }
+                    }, 50);
+                }
+            }
+            
+            isInitialized = true;
+        }
+        
+        // Inicializar al cargar
         initCarousel();
         
-        $(window).resize(function() {
-            initCarousel();
+        // Manejar resize con debounce y detección de breakpoint
+        $(window).on('resize', function() {
+            clearTimeout(resizeTimer);
+            
+            resizeTimer = setTimeout(function() {
+                var newWidth = $(window).width();
+                
+                // Solo reinicializar si cruzamos el breakpoint
+                var crossedBreakpoint = 
+                    (currentWidth <= mobileBreakpoint && newWidth > mobileBreakpoint) || 
+                    (currentWidth > mobileBreakpoint && newWidth <= mobileBreakpoint);
+                
+                if (crossedBreakpoint || !isInitialized) {
+                    currentWidth = newWidth;
+                    initCarousel();
+                }
+            }, 300);
+        });
+        
+        // Manejar cambio de orientación en móviles
+        $(window).on('orientationchange', function() {
+            setTimeout(function() {
+                currentWidth = $(window).width();
+                initCarousel();
+            }, 200);
         });
     });
 </script>

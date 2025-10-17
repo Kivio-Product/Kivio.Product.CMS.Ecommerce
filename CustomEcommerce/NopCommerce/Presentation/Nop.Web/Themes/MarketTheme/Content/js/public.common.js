@@ -307,11 +307,26 @@ function addAntiForgeryToken(data) {
 }
 
 // =======================
-// Super Deals & Flash Sale & Pantry Staples Carousel Manager
+// Carousel Manager 1.1
 // =======================
 
 window.ProductDisplayManager = {
   resizeTimer: null,
+  currentViewport: null,
+
+  initViewport: function() {
+    this.currentViewport = window.innerWidth <= 767 ? 'mobile' : 'desktop';
+  },
+
+  checkViewportChange: function() {
+    var newViewport = window.innerWidth <= 767 ? 'mobile' : 'desktop';
+    
+    if (this.currentViewport !== newViewport) {
+      location.reload();
+      return true;
+    }
+    return false;
+  },
 
   setupAllProductDisplays: function () {
     this.setupFlashSaleDisplay();
@@ -576,15 +591,17 @@ window.ProductDisplayManager = {
 // Init events on page load
 // =======================
 $(document).ready(function () {
-  // Inicialización de todos los displays
+  // Inicializar el viewport actual
+  ProductDisplayManager.initViewport();
   ProductDisplayManager.setupAllProductDisplays();
 
-  // Reconfiguración en resize
   $(window).resize(function () {
     clearTimeout(ProductDisplayManager.resizeTimer);
     ProductDisplayManager.resizeTimer = setTimeout(function () {
-      ProductDisplayManager.destroyAllCarousels();
-      ProductDisplayManager.setupAllProductDisplays();
+      if (!ProductDisplayManager.checkViewportChange()) {
+        ProductDisplayManager.destroyAllCarousels();
+        ProductDisplayManager.setupAllProductDisplays();
+      }
     }, 250);
   });
 });

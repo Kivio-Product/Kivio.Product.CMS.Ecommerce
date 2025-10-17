@@ -361,14 +361,12 @@
         });
     };
     
-    PBCart.handleRemove = function($wrapper, productId) {
+        PBCart.handleRemove = function($wrapper, productId) {
         var itemId = PBCart.cartItemIds[productId];
         if (!itemId) { $wrapper.find('.qty-control-btn').removeClass('updating'); return; }
         
         var $selector = $wrapper.find('.cart-quantity-selector');
         var $button = $wrapper.find('.add-to-cart-initial');
-        $selector.removeClass('slide-in');
-        setTimeout(function() { $button.removeClass('slide-out'); }, 400);
         
         $.ajax({
             cache: false,
@@ -379,6 +377,10 @@
                 if (response.success) {
                     delete PBCart.productQuantities[productId];
                     delete PBCart.cartItemIds[productId];
+                    
+                    $selector.removeClass('slide-in');
+                    setTimeout(function() { $button.removeClass('slide-out'); }, 400);
+                    
                     if (response.updatetopcartsectionhtml) { $(AjaxCart.topcartselector).html(response.updatetopcartsectionhtml); }
                     if (response.updateflyoutcartsectionhtml) { $(AjaxCart.flyoutcartselector).replaceWith(response.updateflyoutcartsectionhtml); }
                 } else {
