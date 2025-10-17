@@ -781,10 +781,17 @@ public partial class ProductModelFactory : IProductModelFactory
             model.UpdateShoppingCartItemType = updatecartitem.ShoppingCartType;
         }
 
-        //quantity
-        model.EnteredQuantity = updatecartitem != null ? updatecartitem.Quantity : product.OrderMinimumQuantity;
+        //Get current customer and cart to calculate available quantity
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+        var existingCartItem = cart.FirstOrDefault(x => x.ProductId == product.Id);
+        var quantityInCart = existingCartItem?.Quantity ?? 0;
+
+        //quantity - start at 0 for new additions, or existing quantity for updates
+        model.EnteredQuantity = updatecartitem != null ? updatecartitem.Quantity : 0;
         
-        //maximum quantity - minimum between OrderMaximumQuantity and StockQuantity
+        //maximum quantity - minimum between OrderMaximumQuantity and StockQuantity, considering what's already in cart
         var maxQuantity = product.OrderMaximumQuantity;
         if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock)
         {
@@ -794,6 +801,23 @@ public partial class ProductModelFactory : IProductModelFactory
                 maxQuantity = maxQuantity > 0 ? Math.Min(maxQuantity, stockQuantity) : stockQuantity;
             }
         }
+        
+        //Subtract quantity already in cart from maximum allowed
+        if (updatecartitem == null)
+        {
+            // When not updating an existing cart item, subtract what's already in cart
+            if (maxQuantity > 0)
+            {
+                maxQuantity = Math.Max(0, maxQuantity - quantityInCart);
+            }
+            else if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock)
+            {
+                // If no OrderMaximumQuantity is set, use stock quantity minus cart quantity
+                var stockQuantity = await _productService.GetTotalStockQuantityAsync(product);
+                maxQuantity = Math.Max(0, stockQuantity - quantityInCart);
+            }
+        }
+        
         model.MaximumQuantity = maxQuantity;
         
         //allowed quantities
@@ -814,7 +838,8 @@ public partial class ProductModelFactory : IProductModelFactory
         }
 
         //'add to cart', 'add to wishlist' buttons
-        model.DisableBuyButton = product.DisableBuyButton || !await _permissionService.AuthorizeAsync(StandardPermission.PublicStore.ENABLE_SHOPPING_CART);
+        model.DisableBuyButton = product.DisableBuyButton || 
+                                 !await _permissionService.AuthorizeAsync(StandardPermission.PublicStore.ENABLE_SHOPPING_CART);
         model.DisableWishlistButton = product.DisableWishlistButton || !await _permissionService.AuthorizeAsync(StandardPermission.PublicStore.ENABLE_WISHLIST);
         if (!await _permissionService.AuthorizeAsync(StandardPermission.PublicStore.DISPLAY_PRICES))
         {
