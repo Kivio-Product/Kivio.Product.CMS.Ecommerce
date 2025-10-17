@@ -2214,6 +2214,16 @@ button.email-a-friend-button:hover{
     font-size: 14px;
     margin-right: 10px;
 }
+.max-qty-notification {
+  padding: 10px;
+  margin-bottom: 15px;
+  background-color: #7a37f033;
+  border: 1px solid #7A37F0;
+  border-radius: 4px;
+  color: #7A37F0;
+  font-weight: 500;
+  font-size: 15px;    
+}
 .variant-overview .download-sample {
   display: inline-block;
   margin: 0 0 25px;

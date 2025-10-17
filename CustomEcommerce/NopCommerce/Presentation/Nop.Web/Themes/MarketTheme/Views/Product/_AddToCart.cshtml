@@ -27,6 +27,12 @@
             {
                 <div class="min-qty-notification">@Model.MinimumQuantityNotification</div>
             }
+            @if (Model.MaximumQuantity == 0 && Model.UpdatedShoppingCartItemId == 0)
+            {
+                <div class="alert alert-warning max-qty-notification">
+                    <strong>@T("ShoppingCart.MaximumQuantityReached")</strong>
+                </div>
+            }
             @if (!Model.DisableBuyButton)
             {
                 <div class="add-to-cart-panel">
@@ -50,32 +56,99 @@
                     }
                     else
                     {
+                        var maxQtyAttr = Model.MaximumQuantity > 0 ? Model.MaximumQuantity.ToString() : "";
                         <div class="quantity-wrapper">
-                            <button type="button" class="quantity-button minus">-</button>
-                            <input asp-for="EnteredQuantity" id="product_enteredQuantity_@Model.ProductId" class="qty-input"
-                                type="number" min="1" aria-label=@T("Products.Qty.AriaLabel") />
-                            <button type="button" class="quantity-button plus">+</button>
+                            <button type="button" class="quantity-button minus" data-product-id="@Model.ProductId">-</button>
+                            @if (Model.MaximumQuantity > 0)
+                            {
+                                <input asp-for="EnteredQuantity" id="product_enteredQuantity_@Model.ProductId" class="qty-input"
+                                    type="number" min="0" max="@Model.MaximumQuantity" 
+                                    data-max="@Model.MaximumQuantity" aria-label=@T("Products.Qty.AriaLabel") />
+                            }
+                            else
+                            {
+                                <input asp-for="EnteredQuantity" id="product_enteredQuantity_@Model.ProductId" class="qty-input"
+                                    type="number" min="0" 
+                                    data-max="@Model.MaximumQuantity" aria-label=@T("Products.Qty.AriaLabel") />
+                            }
+                            <button type="button" class="quantity-button plus" data-product-id="@Model.ProductId">+</button>
                         </div>
                         <script asp-location="Footer">
                             $(function () {
-                                $('.quantity-button').on('click', function () {
-                                    var $input = $(this).siblings('.qty-input');
-                                    var currentVal = parseInt($input.val()) || 1;
+                                var productId = @Model.ProductId;
+                                var $input = $('#product_enteredQuantity_' + productId);
+                                var $plusBtn = $('.quantity-button.plus[data-product-id="' + productId + '"]');
+                                var $minusBtn = $('.quantity-button.minus[data-product-id="' + productId + '"]');
+                                var maxQuantity = parseInt($input.attr('data-max')) || 0;
+                                var hasMaxLimit = maxQuantity > 0;
+
+                                function updateButtonStates() {
+                                    var currentVal = parseInt($input.val()) || 0;
+                                    
+                                    // Disable minus button if at minimum (0)
+                                    if (currentVal <= 0) {
+                                        $minusBtn.prop('disabled', true).addClass('disabled');
+                                    } else {
+                                        $minusBtn.prop('disabled', false).removeClass('disabled');
+                                    }
+                                    
+                                    // Disable plus button if at maximum or if max is 0 (no more items can be added)
+                                    if (hasMaxLimit && currentVal >= maxQuantity) {
+                                        $plusBtn.prop('disabled', true).addClass('disabled');
+                                    } else if (!hasMaxLimit && maxQuantity === 0) {
+                                        // If maxQuantity is 0 and no limit is set, disable plus button
+                                        $plusBtn.prop('disabled', true).addClass('disabled');
+                                    } else {
+                                        $plusBtn.prop('disabled', false).removeClass('disabled');
+                                    }
+                                }
+
+                                $('.quantity-button[data-product-id="' + productId + '"]').on('click', function () {
+                                    var currentVal = parseInt($input.val()) || 0;
 
                                     if ($(this).hasClass('plus')) {
-                                        $input.val(currentVal + 1);
+                                        // Only allow increment if we haven't reached the maximum
+                                        if (hasMaxLimit && currentVal < maxQuantity) {
+                                            $input.val(currentVal + 1);
+                                        } else if (!hasMaxLimit && maxQuantity !== 0) {
+                                            // Allow increment if no max limit and maxQuantity is not 0
+                                            $input.val(currentVal + 1);
+                                        }
                                     } else {
-                                        if (currentVal > 1) $input.val(currentVal - 1);
+                                        if (currentVal > 0) {
+                                            $input.val(currentVal - 1);
+                                        }
                                     }
 
                                     $input.trigger('change');
+                                    updateButtonStates();
 
                                     var data = {
-                                        productId: @Model.ProductId,
+                                        productId: productId,
                                         quantity: $input.val()
                                     };
                                     $(document).trigger({ type: "product_quantity_changed", changedData: data });
                                 });
+
+                                // Validate input on change
+                                $input.on('input change', function() {
+                                    var currentVal = parseInt($(this).val()) || 0;
+                                    
+                                    // Enforce minimum
+                                    if (currentVal < 0) {
+                                        $(this).val(0);
+                                    }
+                                    
+                                    // Enforce maximum if set
+                                    if (hasMaxLimit && currentVal > maxQuantity) {
+                                        $(this).val(maxQuantity);
+                                    }
+                                    
+                                    updateButtonStates();
+                                });
+
+                                // Initial button state
+                                updateButtonStates();
 
                                 //when a customer clicks 'Enter' button we submit the "add to cart" button (if visible)
                                 $("#@Html.IdFor(model => model.EnteredQuantity)").on("keydown", function (event) {
@@ -108,11 +181,13 @@
                         }
                         <button type="button" id="shop-now-button-@Model.ProductId" class="button-1 shop-now-button primary-btn"
                             data-productid="@Model.ProductId"
+                            @(Model.MaximumQuantity == 0 && Model.UpdatedShoppingCartItemId == 0 ? "disabled" : "")
                             onclick="(async () => { await AjaxCart.addproducttocart_details_with_redirect('@Url.RouteUrl("AddProductToCart-Details", new { productId = Model.ProductId, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })', '#product-details-form', '/onepagecheckout');})();return false;">
                             @T("Product.AddToCart.ShopNow")</button>
                         <button type="button" id="add-to-cart-button-@Model.ProductId"
                             class="button-1 add-to-cart-button primary-btn desktop-only" data-productid="@Model.ProductId"
-                            onclick="AjaxCart.addproducttocart_details('@Url.RouteUrl("AddProductToCart-Details", new { productId = Model.ProductId, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })', '#product-details-form');return false;">
+                            @(Model.MaximumQuantity == 0 && Model.UpdatedShoppingCartItemId == 0 ? "disabled" : "")
+                            onclick="AjaxCart.addproducttocart_details('@Url.RouteUrl("AddProductToCart-Details", new { productId = Model.ProductId, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })', '#product-details-form'); setTimeout(function() { location.reload(); }, 500); return false;">
                             @addToCartText</button>
                     }
                 </div>
@@ -148,7 +223,8 @@
         }
         <button type="button" id="mobile-add-to-cart-button-@Model.ProductId" class="add-to-cart-btn-mobile"
             data-productid="@Model.ProductId"
-            onclick="AjaxCart.addproducttocart_details('@Url.RouteUrl("AddProductToCart-Details", new { productId = Model.ProductId, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })', '#product-details-form');return false;">@mobileAddToCartText</button>
+            @(Model.MaximumQuantity == 0 && Model.UpdatedShoppingCartItemId == 0 ? "disabled" : "")
+            onclick="AjaxCart.addproducttocart_details('@Url.RouteUrl("AddProductToCart-Details", new { productId = Model.ProductId, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })', '#product-details-form'); setTimeout(function() { location.reload(); }, 500); return false;">@mobileAddToCartText</button>
     </div>
 }
 }
