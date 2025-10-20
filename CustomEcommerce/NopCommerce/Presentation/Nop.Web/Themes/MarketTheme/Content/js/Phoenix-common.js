@@ -236,14 +236,18 @@ function initCarousel(config) {
 
     // Event listeners
     carousel.addEventListener('click', (e) => {
-        if (e.target.classList.contains('carousel-prev') && 
-            e.target.dataset.carousel === (isMobile ? 'mobile' : 'desktop')) {
+        const target = e.target.closest('.carousel-prev, .carousel-next, .carousel-dot');
+        
+        if (!target) return;
+        
+        if (target.classList.contains('carousel-prev') && 
+            target.dataset.carousel === (isMobile ? 'mobile' : 'desktop')) {
             moveSlide(-1);
-        } else if (e.target.classList.contains('carousel-next') && 
-                   e.target.dataset.carousel === (isMobile ? 'mobile' : 'desktop')) {
+        } else if (target.classList.contains('carousel-next') && 
+                   target.dataset.carousel === (isMobile ? 'mobile' : 'desktop')) {
             moveSlide(1);
-        } else if (e.target.classList.contains('carousel-dot')) {
-            const slideIndex = parseInt(e.target.dataset.slide) || 0;
+        } else if (target.classList.contains('carousel-dot')) {
+            const slideIndex = parseInt(target.dataset.slide) || 0;
             goToSlide(slideIndex);
         }
     });
