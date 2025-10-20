@@ -8062,8 +8062,8 @@ color: #333;
 padding: 10px 20px;
 border: 1px solid #ccc;
 border-radius: 6px;
-background-color: white;
-color: #333;
+background-color: #7A37F0;
+color: white;
 text-decoration: none;
 font-size: 14px;
 font-weight: 500;
@@ -8075,9 +8075,9 @@ white-space: nowrap; /* Evita que el texto del botón se parta */
 }
 
 .flash-sale-container .view-all-button:hover {
-  background-color: #7a37f0;
+  background-color: #fff;
   border-color: #bbb;
-  color: white;
+  color: #7A37F0;
 }
 
 .flash-sale-container .view-all-button svg {
@@ -8096,26 +8096,32 @@ white-space: nowrap; /* Evita que el texto del botón se parta */
   .category-name{
     font-size: 11px;
   }
-.flash-sale-container {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-}
-.flash-sale-container .flash-sale-info {
-    flex-wrap: wrap; /* Permite que el contador pase abajo si no cabe */
-    gap: 10px;
-    width: 100%; /* Para que ocupe todo el ancho disponible */
-}
-.flash-sale-container .timer-section {
-    margin-left: 0;
-    justify-content: flex-start; /* Alinea el contador a la izquierda */
-}
-.flash-sale-container .view-all-button {
-    align-self: flex-start; /* Alinea el botón a la izquierda */
-}
-.custom-product-section {
-  padding: 0 10px;
-}
+  .flash-sale-container {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+  }
+  .flash-sale-container .flash-sale-info {
+      flex-wrap: wrap; /* Permite que el contador pase abajo si no cabe */
+      gap: 10px;
+      width: 100%; /* Para que ocupe todo el ancho disponible */
+  }
+  .flash-sale-container .timer-section {
+      margin-left: 0;
+      justify-content: flex-start; /* Alinea el contador a la izquierda */
+  }
+    .flash-sale-container .decorative-arrow {
+      display: none; /* Ocultar la flecha en móvil */
+  }
+  .flash-sale-container .view-all-button {
+      align-self: flex-start; /* Alinea el botón a la izquierda */
+  }
+  .custom-product-section {
+    padding: 0 10px;
+  }
+  .home-page .topic-block{
+    padding: 10px 0 ;
+  }
 }
 @media (max-width: 480px) {
   .item-box .product-box-add-to-cart-button

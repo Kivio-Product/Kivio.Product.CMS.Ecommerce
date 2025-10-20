@@ -1331,8 +1331,8 @@ input[type="radio"]:checked + .radio-custom {
   padding: 10px 20px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  background-color: #fff;
-  color: #333;
+  background-color: #7A37F0;
+  color: white;
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
@@ -1349,9 +1349,8 @@ input[type="radio"]:checked + .radio-custom {
 }
 
 .home-page-product-grid .view-all-mobile .view-all-button:hover {
-  background-color: #7a37f0;
-  border-color: #bbb;
-  color: #fff;
+  background-color: #cad2df;
+  color: #7a37f0;
 }
 
 .home-page-product-grid .view-all-mobile .view-all-button svg {
@@ -2030,7 +2029,6 @@ button.add-to-wishlist-button.selected {
 }
 
 .pantry-staples-section {
-  margin: 20px auto;
   padding: 0 70px;
 }
 
@@ -3053,6 +3051,13 @@ button.add-to-wishlist-button.selected {
   .pantry-staples-section .view-all-link-mobile {
     display: block;
     width: min-content;
+    background-color:  #7A37F0;
+    color: white;
+  }
+
+  .pantry-staples-section .view-all-link-mobile:hover {
+    background-color: #cad2df;
+    color: #7a37f0;
   }
 
   .pantry-staples-section .view-all-link-desktop {
