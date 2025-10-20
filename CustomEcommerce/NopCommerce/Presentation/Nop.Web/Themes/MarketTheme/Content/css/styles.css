@@ -8110,9 +8110,9 @@ white-space: nowrap; /* Evita que el texto del botón se parta */
     margin-left: 0;
     justify-content: flex-start; /* Alinea el contador a la izquierda */
 }
-  .flash-sale-container .decorative-arrow {
-    display: none; /* Ocultar la flecha en móvil */
-}
+  /* .flash-sale-container .decorative-arrow {
+    display: none; 
+} */
 .flash-sale-container .view-all-button {
     align-self: flex-start; /* Alinea el botón a la izquierda */
 }
