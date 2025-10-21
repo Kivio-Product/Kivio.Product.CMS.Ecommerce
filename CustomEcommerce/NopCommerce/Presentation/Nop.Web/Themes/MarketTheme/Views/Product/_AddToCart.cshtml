@@ -85,21 +85,35 @@
                                 function updateButtonStates() {
                                     var currentVal = parseInt($input.val()) || 0;
                                     
-                                    // Disable minus button if at minimum (0)
+                                    // Update minus button state
                                     if (currentVal <= 0) {
-                                        $minusBtn.prop('disabled', true).addClass('disabled');
+                                        $minusBtn.addClass('disabled').css({
+                                            'opacity': '0.5',
+                                            'cursor': 'not-allowed'
+                                        });
                                     } else {
-                                        $minusBtn.prop('disabled', false).removeClass('disabled');
+                                        $minusBtn.removeClass('disabled').css({
+                                            'opacity': '1',
+                                            'cursor': 'pointer'
+                                        });
                                     }
                                     
-                                    // Disable plus button if at maximum or if max is 0 (no more items can be added)
+                                    // Update plus button state - don't disable, just add visual feedback
                                     if (hasMaxLimit && currentVal >= maxQuantity) {
-                                        $plusBtn.prop('disabled', true).addClass('disabled');
+                                        $plusBtn.addClass('disabled').css({
+                                            'opacity': '0.5',
+                                            'cursor': 'not-allowed'
+                                        });
                                     } else if (!hasMaxLimit && maxQuantity === 0) {
-                                        // If maxQuantity is 0 and no limit is set, disable plus button
-                                        $plusBtn.prop('disabled', true).addClass('disabled');
+                                        $plusBtn.addClass('disabled').css({
+                                            'opacity': '0.5',
+                                            'cursor': 'not-allowed'
+                                        });
                                     } else {
-                                        $plusBtn.prop('disabled', false).removeClass('disabled');
+                                        $plusBtn.removeClass('disabled').css({
+                                            'opacity': '1',
+                                            'cursor': 'pointer'
+                                        });
                                     }
                                 }
 
@@ -107,6 +121,21 @@
                                     var currentVal = parseInt($input.val()) || 0;
 
                                     if ($(this).hasClass('plus')) {
+                                        // Check if we've reached the limit before allowing increment
+                                        if (hasMaxLimit && currentVal >= maxQuantity) {
+                                            // Show limit popup when trying to exceed maximum
+                                            if (window.ProductBoxCartAnimation && window.ProductBoxCartAnimation.showLimitPopup) {
+                                                window.ProductBoxCartAnimation.showLimitPopup();
+                                            }
+                                            return false;
+                                        } else if (!hasMaxLimit && maxQuantity === 0) {
+                                            // Show limit popup when maxQuantity is 0
+                                            if (window.ProductBoxCartAnimation && window.ProductBoxCartAnimation.showLimitPopup) {
+                                                window.ProductBoxCartAnimation.showLimitPopup();
+                                            }
+                                            return false;
+                                        }
+                                        
                                         // Only allow increment if we haven't reached the maximum
                                         if (hasMaxLimit && currentVal < maxQuantity) {
                                             $input.val(currentVal + 1);
