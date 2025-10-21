@@ -3549,6 +3549,14 @@ button.add-to-wishlist-button.selected {
     translate: 2px;
   }
 
+  .pantry-staples-section .px_featured .owl-nav button.owl-prev::before{
+    translate: -11px;
+  }
+
+  .pantry-staples-section .px_featured .owl-nav button.owl-next::before{
+    translate: 11px;
+  }
+
   .px_featured .owl-nav button.owl-prev,
   .px_featured .owl-nav button.owl-next {
     width: 25px !important;
