@@ -1,7 +1,7 @@
 /**
  * Product Box Cart Animation
  * Maneja la animación y funcionalidad del carrito en las cajas de producto
- * @version 2.2.2
+ * @version 2.2.3
  * @author Kivio SAS
  */
 
@@ -15,7 +15,8 @@
     window.ProductBoxCartAnimation = {
         initialized: true,
         productQuantities: {},
-        cartItemIds: {} 
+        cartItemIds: {},
+        pendingAdditions: {}
     };
     
     var PBCart = window.ProductBoxCartAnimation;
@@ -99,6 +100,8 @@
             if (response && response.success && PBCart.lastAddedProductId) {
                 var productId = PBCart.lastAddedProductId;
                 
+                PBCart.pendingAdditions[productId] = true;
+                
                 PBCart.fetchCartQuantityForProduct(productId, function(quantity, itemId, maxQtyFromServer) {
                     var $wrapper = $('.cart-action-wrapper[data-productid="' + productId + '"]');
                     
@@ -113,7 +116,12 @@
                         var $selector = $wrapper.find('.cart-quantity-selector');
                         var isVisible = $selector.hasClass('slide-in');
                         
-                        if (isVisible) {
+                        if (PBCart.pendingAdditions[productId]) {
+                            delete PBCart.pendingAdditions[productId];
+                            setTimeout(function() { 
+                                PBCart.showQuantitySelector($wrapper, quantity, maxQuantity); 
+                            }, 300);
+                        } else if (isVisible) {
                             PBCart.updateQuantityDisplay($wrapper, quantity);
                             PBCart.toggleButtons($wrapper, quantity, maxQuantity);
                         } else {
@@ -139,6 +147,12 @@
                 
                 if (!addUrl) { return false; }
                 
+                var $selector = $wrapper.find('.cart-quantity-selector');
+                var isVisible = $selector.hasClass('slide-in');
+                
+                if (isVisible) {
+                    return false;
+                }
                 
                 PBCart.fetchCartQuantityForProduct(productId, function(currentQty, itemId, maxQtyFromServer) {
                     
@@ -153,9 +167,11 @@
                     }
                     
                     if (currentQty > 0) {
-                        var $selector = $wrapper.find('.cart-quantity-selector');
-                        var isVisible = $selector.hasClass('slide-in');
-                        if (!isVisible) { PBCart.showQuantitySelector($wrapper, currentQty, maxQuantity); }
+                        var $selectorCheck = $wrapper.find('.cart-quantity-selector');
+                        var isVisibleCheck = $selectorCheck.hasClass('slide-in');
+                        if (!isVisibleCheck) { 
+                            PBCart.showQuantitySelector($wrapper, currentQty, maxQuantity); 
+                        }
                         return;
                     }
                     
@@ -361,7 +377,7 @@
         });
     };
     
-        PBCart.handleRemove = function($wrapper, productId) {
+    PBCart.handleRemove = function($wrapper, productId) {
         var itemId = PBCart.cartItemIds[productId];
         if (!itemId) { $wrapper.find('.qty-control-btn').removeClass('updating'); return; }
         
@@ -377,6 +393,7 @@
                 if (response.success) {
                     delete PBCart.productQuantities[productId];
                     delete PBCart.cartItemIds[productId];
+                    delete PBCart.pendingAdditions[productId];
                     
                     $selector.removeClass('slide-in');
                     setTimeout(function() { $button.removeClass('slide-out'); }, 400);
@@ -447,7 +464,6 @@
         }, 50);
     };
     
-    // Refrescar mini cart
     PBCart.refreshMiniCart = function() {
         $.ajax({
             cache: false,
@@ -463,7 +479,6 @@
         });
     };
     
-    // Iniciar cuando el DOM esté listo
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initWhenReady);
     } else {
