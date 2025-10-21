@@ -307,7 +307,7 @@ function addAntiForgeryToken(data) {
 }
 
 // =======================
-// Carousel Manager 1.1
+// Carousel Manager 1.2
 // =======================
 
 window.ProductDisplayManager = {
@@ -337,7 +337,9 @@ window.ProductDisplayManager = {
   },
 
   setupFlashSaleDisplay: function () {
-    var regularDiscountContainer = $(".regular-discount-row");
+    var regularDiscountContainer = $("#regular-discount-products");
+
+    if (!regularDiscountContainer.length) return;
 
     if (window.innerWidth <= 767) {
       this.setupMobileCarousel(
@@ -591,7 +593,6 @@ window.ProductDisplayManager = {
 // Init events on page load
 // =======================
 $(document).ready(function () {
-  // Inicializar el viewport actual
   ProductDisplayManager.initViewport();
   ProductDisplayManager.setupAllProductDisplays();
 
