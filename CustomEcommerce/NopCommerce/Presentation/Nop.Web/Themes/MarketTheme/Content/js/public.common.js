@@ -307,11 +307,26 @@ function addAntiForgeryToken(data) {
 }
 
 // =======================
-// Super Deals & Flash Sale & Pantry Staples Carousel Manager
+// Carousel Manager 1.2
 // =======================
 
 window.ProductDisplayManager = {
   resizeTimer: null,
+  currentViewport: null,
+
+  initViewport: function() {
+    this.currentViewport = window.innerWidth <= 767 ? 'mobile' : 'desktop';
+  },
+
+  checkViewportChange: function() {
+    var newViewport = window.innerWidth <= 767 ? 'mobile' : 'desktop';
+    
+    if (this.currentViewport !== newViewport) {
+      location.reload();
+      return true;
+    }
+    return false;
+  },
 
   setupAllProductDisplays: function () {
     this.setupFlashSaleDisplay();
@@ -322,17 +337,11 @@ window.ProductDisplayManager = {
   },
 
   setupFlashSaleDisplay: function () {
-    var highDiscountContainer = $("#high-discount-products");
     var regularDiscountContainer = $("#regular-discount-products");
 
-    if (window.innerWidth <= 767) {
-      this.setupMobileCarousel(highDiscountContainer, 2, "high-discount-row", {
-        items: 2,
-        margin: 8,
-        stagePadding: 0,
-        center: false,
-      });
+    if (!regularDiscountContainer.length) return;
 
+    if (window.innerWidth <= 767) {
       this.setupMobileCarousel(
         regularDiscountContainer,
         2,
@@ -343,30 +352,8 @@ window.ProductDisplayManager = {
         }
       );
     } else {
-      highDiscountContainer.removeClass("mobile-grid");
       regularDiscountContainer.removeClass("mobile-grid");
-
-      highDiscountContainer.find(".item-box").show();
       regularDiscountContainer.find(".item-box").show();
-
-      if (
-        highDiscountContainer.length &&
-        highDiscountContainer.find(".item-box").length > 3
-      ) {
-        this.setupDesktopCarousel(highDiscountContainer, {
-          responsive: {
-            0: { items: 1 },
-            600: { items: 2 },
-            1024: { items: 3 },
-          },
-        });
-        highDiscountContainer.css("width", "60%");
-        $(".regular-discount-row").css("margin-top", "40px");
-      } else {
-        this.destroyCarousel(highDiscountContainer);
-        highDiscountContainer.css("width", "100%");
-        $(".regular-discount-row").css("margin-top", "");
-      }
 
       if (
         regularDiscountContainer.length &&
@@ -606,15 +593,16 @@ window.ProductDisplayManager = {
 // Init events on page load
 // =======================
 $(document).ready(function () {
-  // Inicialización de todos los displays
+  ProductDisplayManager.initViewport();
   ProductDisplayManager.setupAllProductDisplays();
 
-  // Reconfiguración en resize
   $(window).resize(function () {
     clearTimeout(ProductDisplayManager.resizeTimer);
     ProductDisplayManager.resizeTimer = setTimeout(function () {
-      ProductDisplayManager.destroyAllCarousels();
-      ProductDisplayManager.setupAllProductDisplays();
+      if (!ProductDisplayManager.checkViewportChange()) {
+        ProductDisplayManager.destroyAllCarousels();
+        ProductDisplayManager.setupAllProductDisplays();
+      }
     }, 250);
   });
 });

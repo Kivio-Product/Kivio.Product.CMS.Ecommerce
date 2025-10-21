@@ -19,6 +19,7 @@ public partial record ProductOverviewModel : BaseNopEntityModel
     public string FullDescription { get; set; }
     public string SeName { get; set; }
     public bool HasHighDiscount { get; set; }
+    public int AllowedQuantitiesPerClient { get; set; }
 
     public string Sku { get; set; }
 

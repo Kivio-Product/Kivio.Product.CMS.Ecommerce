@@ -4,10 +4,12 @@
 @using Nop.Core.Domain.Media
 @using Nop.Core.Domain.Orders
 @using Nop.Core.Domain.Tax
+@using Nop.Services.Orders
 @inject IWebHelper webHelper
 @inject IWorkContext workContext
 @inject MediaSettings mediaSettings
 @inject OrderSettings orderSettings
+@inject IColombianHolidayService colombianHolidayService
 <div class="order-summary-content">
     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryContentBefore, additionalData = Model })
     @await Html.PartialAsync("_OrderReviewData", Model.OrderReviewData)
@@ -561,9 +563,16 @@
                                         }
                                         else
                                         {
-                                            <button type="submit" id="checkout" name="checkout" value="checkout" class="button-1 checkout-button primary-btn">
-                                                @T("Checkout.Button")
-                                            </button>
+                                            var isColombianHoliday = await colombianHolidayService.IsCheckoutDisabledByDateAsync();
+                                            if (isColombianHoliday){
+                                                <div class="checkout-disabled">
+                                                    @T("Checkout.Disabled.ColombianHoliday")
+                                                </div>
+                                            }else{
+                                                <button type="submit" id="checkout" name="checkout" value="checkout" class="button-1 checkout-button primary-btn">
+                                                    @T("Checkout.Button")
+                                                </button>
+                                            }
                                         }
                                     }
                                 </div>

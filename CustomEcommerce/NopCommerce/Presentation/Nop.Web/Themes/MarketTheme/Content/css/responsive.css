@@ -8,8 +8,7 @@
 
 @media all and (max-width:1440px) {
   .header-upper,
-  .header-lower,
-  .section-width {
+  .header-lower {
     padding: 0 70px;
   }
   .header-menu > ul > li {

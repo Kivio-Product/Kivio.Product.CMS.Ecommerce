@@ -295,7 +295,7 @@ namespace Nop.Plugin.Api.Controllers
             orderItemToUpdate.RentalStartDateUtc = rentalStartDate;
             orderItemToUpdate.RentalEndDateUtc = rentalEndDate;
 
-            await _orderService.UpdateOrderAsync(order);
+            await _orderService.UpdateOrderItemAsync(orderItemToUpdate);
 
             await CustomerActivityService.InsertActivityAsync("UpdateOrderItem", await LocalizationService.GetResourceAsync("ActivityLog.UpdateOrderItem"), orderItemToUpdate);
 

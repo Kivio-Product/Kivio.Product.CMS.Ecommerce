@@ -46,6 +46,9 @@ namespace Nop.Plugin.Api.Services
 
         public async Task<Customer> GetAuthenticatedCustomerAsync()
         {
+            if (httpContextAccessor?.HttpContext == null)
+                return null;
+
             //try to get authenticated user identity
             var authenticateResult = await httpContextAccessor.HttpContext.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
             if (!authenticateResult.Succeeded)

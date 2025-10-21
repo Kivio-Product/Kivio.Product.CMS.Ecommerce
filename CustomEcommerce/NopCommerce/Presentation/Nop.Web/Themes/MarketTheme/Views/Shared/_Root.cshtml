@@ -104,6 +104,13 @@
         }
         lastTouchEnd = now;
     }, false);
+
+    window.CartMessages = {
+        maxQuantityReached: '@T("ShoppingCart.MaxQuantityReached")',
+        maxQuantityTitle: '@T("ShoppingCart.MaxQuantityReached.Title")',
+        updateError: '@T("ShoppingCart.UpdateQuantityError")',
+        stockError: '@T("ShoppingCart.StockError")'
+    };
 </script>
 <script asp-location="Footer">
     jQuery(window).on('load', function (event) {

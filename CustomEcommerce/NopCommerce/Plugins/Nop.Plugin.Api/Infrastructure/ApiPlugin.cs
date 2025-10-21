@@ -47,6 +47,8 @@ namespace Nop.Plugin.Api.Infrastructure
                 { "Plugins.Api.Admin.EnableApi", "Enable Api" },
                 { "Plugins.Api.Admin.EnableApi.Hint", "By checking this settings you can Enable/Disable the Web Api" },
                 { "Plugins.Api.Admin.TokenExpiryInDays", "Access token expiration in days" },
+                { "Plugins.Api.Admin.EnableSwagger", "Enable Swagger" },
+                { "Plugins.Api.Admin.EnableSwagger.Hint", "By checking this setting you can Enable/Disable the Swagger documentation UI" },
                 { "Plugins.Api.Admin.Menu.Title", "API" },
                 { "Plugins.Api.Admin.Menu.Settings.Title", "Settings" },
                 { "Plugins.Api.Admin.Page.Settings.Title", "Api Settings" },

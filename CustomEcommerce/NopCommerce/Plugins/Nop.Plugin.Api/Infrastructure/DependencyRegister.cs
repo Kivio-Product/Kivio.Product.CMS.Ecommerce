@@ -49,6 +49,7 @@ namespace Nop.Plugin.Api.Infrastructure
             services.AddScoped<IManufacturerApiService, ManufacturerApiService>();
             services.AddScoped<IWarehouseApiService, WarehouseApiService>();
             services.AddScoped<IProductWarehouseInventoriesApiService, ProductWarehouseInventoriesApiService>();
+            services.AddScoped<IProductTaxRecalculationService, ProductTaxRecalculationService>();
 
             services.AddScoped<IMappingHelper, MappingHelper>();
             services.AddScoped<ICustomerRolesHelper, CustomerRolesHelper>();

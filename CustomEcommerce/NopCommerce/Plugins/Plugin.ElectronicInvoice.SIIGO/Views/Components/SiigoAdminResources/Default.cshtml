@@ -7,9 +7,10 @@
 <script>
 
     $(document).ready(function() {
-        // Check if we're on the order edit page
+        // Check if we're on the order edit page or details page
         if (window.location.pathname.includes('/Admin/Order/Edit/')) {
             initSiigoPaymentSubOptions();
+            initSiigoPaymentSubOptionDisplay();
         }
     });
 
@@ -34,6 +35,74 @@
 
                 checkPaymentMethodBeforeMarkAsPaid(orderId);
             });
+        }
+    }
+
+    function initSiigoPaymentSubOptionDisplay() {
+        // Get order ID from URL
+        const orderId = getOrderIdFromUrl();
+        if (!orderId) return;
+
+        // Load payment sub-option info and display it
+        loadPaymentSubOptionInfo(orderId);
+    }
+
+    function loadPaymentSubOptionInfo(orderId) {
+        // Prepare data with antiforgery token
+        var postData = { orderId: orderId };
+        addAntiForgeryToken(postData);
+
+        $.ajax({
+            url: '@Url.Action("GetOrderPaymentSubOptionInfo", "SiigoOrder")',
+            type: 'POST',
+            data: postData,
+            success: function(response) {
+                if (response.success && response.hasSubOption) {
+                    displayPaymentSubOptionInfo(response);
+                }
+            },
+            error: function() {
+                console.log('Error loading payment sub-option info');
+            }
+        });
+    }
+
+    function displayPaymentSubOptionInfo(subOptionData) {
+        // Find a good place to insert the payment sub-option info
+        const paymentInfoSection = $('.payment-suboption-info').first();
+        
+        if (paymentInfoSection.length > 0) {
+            const subOptionHtml = `
+                <div class="siigo-payment-suboption-info">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Opción de Pago SIIGO</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Método de pago seleccionado:</label>
+                                    <p class="form-control-static">${subOptionData.subOptionName}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Código SIIGO:</label>
+                                    <p class="form-control-static">${subOptionData.subOptionCode}</p>
+                                </div>
+                            </div>
+                            ${subOptionData.subOptionDate ? `
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Fecha de Selección:</label>
+                                    <p class="form-control-static">${subOptionData.subOptionDate}</p>
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            paymentInfoSection.after(subOptionHtml);
         }
     }
 

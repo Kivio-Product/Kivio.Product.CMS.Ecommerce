@@ -328,6 +328,9 @@ ul.login-list li :hover{
 .section-bg {
   background-color: #F5F5F5;
 }
+.home-page .section-width{
+  padding: 0 0;
+}
 .section-width{
   width: 100%;
   display: inline-block;
@@ -2679,11 +2682,11 @@ button.mfp-close, button.mfp-arrow {
 }
 .px_featured .owl-nav button.owl-prev,
 .px_featured .owl-nav button.owl-next {
-    background: #7A37F0;
-    width: 40px;
-    height: 40px;
-    line-height: 41px;
-    border-radius: 10px;
+    background: transparent;
+    width: auto;
+    height: auto;
+    line-height: normal;
+    border-radius: 0;
     transition: all .3s;
     position: absolute;
 }
@@ -2711,9 +2714,16 @@ button.mfp-close, button.mfp-arrow {
 }
 .px_featured .owl-nav button.owl-prev::before,
 .px_featured .owl-nav button.owl-next:before {
-    font-family: 'phoniex-icon';
-    font-size: 16px;
-    color: #fff;
+  font-family: 'phoniex-icon';
+  font-size: 30px;
+  color: #ebe8e8;
+  display: inline-block;
+  transform: scaleY(3.5);
+  text-shadow: 1px 1px 3px rgba(0,0,0,.3);
+}
+.px_featured .owl-nav button.owl-prev:hover::before,
+.px_featured .owl-nav button.owl-next:hover:before {
+    opacity: 0.7;
 }
 .px_featured .owl-nav button span{
     display: none;

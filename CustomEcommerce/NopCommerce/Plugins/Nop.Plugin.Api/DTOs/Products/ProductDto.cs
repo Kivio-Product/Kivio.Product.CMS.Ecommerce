@@ -542,6 +542,12 @@ namespace Nop.Plugin.Api.DTO.Products
         public DateTime? UpdatedOnUtc { get; set; }
 
         /// <summary>
+        ///     Gets or sets the omitValidationPrice
+        /// </summary>
+        [JsonProperty("omit_validation_price")]
+        public bool? OmitValidationPrice { get; set; }
+
+        /// <summary>
         ///     Gets or sets the product type
         /// </summary>
         [ProductTypeValidation]

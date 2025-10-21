@@ -801,6 +801,14 @@ label, label + * {
         gap: 20px;
         font-size: 16px;
     }
+    .custom-product-section .filter-section {
+      padding: 0 15px;
+      display: flex;
+      padding-top: 40px;
+      flex-direction: row;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
 }
 
 
@@ -1612,7 +1620,7 @@ text-decoration: underline;
   top: 0;
   right: 0;
   bottom: 0;
-  padding: 20px;
+  padding: 15px;
   left: 0;
   max-width: 100%;
   max-height: 100%;
@@ -1746,7 +1754,7 @@ text-decoration: underline;
   font-size: 22px;
 }
 .item-box button {
-  display: block;
+  /* display: block; */
   border: 0;
   vertical-align: middle;
 }
@@ -1757,6 +1765,8 @@ text-decoration: underline;
   transition: all 0.3s;
   display: block;
   width: 100%;
+  border-top: 2px solid #000;
+  padding-top: 10px;
 }  
 .item-box .product-box-add-to-cart-button
  {
@@ -2203,6 +2213,16 @@ button.email-a-friend-button:hover{
     color: #444;
     font-size: 14px;
     margin-right: 10px;
+}
+.max-qty-notification {
+  padding: 10px;
+  margin-bottom: 15px;
+  background-color: #7a37f033;
+  border: 1px solid #7A37F0;
+  border-radius: 4px;
+  color: #7A37F0;
+  font-weight: 500;
+  font-size: 15px;    
 }
 .variant-overview .download-sample {
   display: inline-block;
@@ -7881,8 +7901,8 @@ a.ui-button:active, .ui-button:active,
 }
 
 .category-name{
-  font-size: 12px;
-  font-weight: inherit;
+  font-size: 16px;
+  font-weight: 400;
   margin: 0 0 0px;
   text-align: center;
 }
@@ -7905,7 +7925,7 @@ a.ui-button:active, .ui-button:active,
 
 .home-page-category-grid .px_category_slider{
   width: 100%;
-  max-width: 1050px;
+  max-width: 1366px;
   margin: 0 auto;
   text-align: center;
 }
@@ -7961,6 +7981,7 @@ height: 40px;
 display: flex;
 justify-content: center;
 align-items: center;
+padding: 5px;
 }
 
 .flash-sale-container .flash-icon-image{
@@ -7986,10 +8007,13 @@ flex-direction: column;
 }
 
 .flash-sale-container .timer-label {
-font-size: 12px;
-color: #555;
+font-size: 14px;
+color: #181D27;
 align-self: flex-start; 
 padding-top: 2px;
+font-family: Inter;
+font-weight: 900;
+line-height: 20px;
 }
 
 .flash-sale-container .countdown-timer {
@@ -8038,8 +8062,8 @@ color: #333;
 padding: 10px 20px;
 border: 1px solid #ccc;
 border-radius: 6px;
-background-color: white;
-color: #333;
+background-color: #7A37F0;
+color: white;
 text-decoration: none;
 font-size: 14px;
 font-weight: 500;
@@ -8051,9 +8075,9 @@ white-space: nowrap; /* Evita que el texto del botón se parta */
 }
 
 .flash-sale-container .view-all-button:hover {
-  background-color: #7a37f0;
+  background-color: #fff;
   border-color: #bbb;
-  color: white;
+  color: #7A37F0;
 }
 
 .flash-sale-container .view-all-button svg {
@@ -8068,56 +8092,66 @@ white-space: nowrap; /* Evita que el texto del botón se parta */
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-.flash-sale-container {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-}
-.flash-sale-container .flash-sale-info {
-    flex-wrap: wrap; /* Permite que el contador pase abajo si no cabe */
-    gap: 10px;
-    width: 100%; /* Para que ocupe todo el ancho disponible */
-}
-.flash-sale-container .timer-section {
-    margin-left: 0;
-    justify-content: flex-start; /* Alinea el contador a la izquierda */
-}
-  .flash-sale-container .decorative-arrow {
-    display: none; /* Ocultar la flecha en móvil */
-}
-.flash-sale-container .view-all-button {
-    align-self: flex-start; /* Alinea el botón a la izquierda */
-}
-.custom-product-section {
-  padding: 0 10px;
-}
+
+  .category-name{
+    font-size: 11px;
+  }
+  .flash-sale-container {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+  }
+  .flash-sale-container .flash-sale-info {
+      flex-wrap: wrap; /* Permite que el contador pase abajo si no cabe */
+      gap: 10px;
+      width: 100%; /* Para que ocupe todo el ancho disponible */
+  }
+  .flash-sale-container .timer-section {
+      margin-left: 0;
+      justify-content: flex-start; /* Alinea el contador a la izquierda */
+  }
+  .flash-sale-container .view-all-button {
+      align-self: flex-start; /* Alinea el botón a la izquierda */
+  }
+  .custom-product-section {
+    padding: 0 10px;
+  }
+  .home-page .topic-block{
+    padding: 10px 0 ;
+  }
 }
 @media (max-width: 480px) {
-.item-box .product-box-add-to-cart-button
+  .item-box .product-box-add-to-cart-button
   {
     font-size: 12px !important;
   }
-.flash-sale-container .flash-title {
-    font-size: 18px;
-}
-.flash-sale-container .time-segment {
-    width: 26px;
-    height: 26px;
-    font-size: 14px;
-}
-.flash-sale-container .flash-icon {
-    width: 35px;
-    height: 35px;
-}
-.flash-sale-container .flash-icon svg {
-    width: 18px;
-    height: 18px;
-}
-.flash-sale-container .timer-label {
-    /* Opcional: Si "Termina en" hace que el layout sea muy apretado */
-    /* display: none; */ 
-    /* O reducir su tamaño de fuente */
-    font-size: 11px;
+  .flash-sale-container .flash-title {
+      font-size: 18px;
+  }
+  .flash-sale-container .section-icon-title .section-title {
+      font-size: 4vw;
+  }
+  .filter-section .section-icon-title .section-title {
+      font-size: 18px;
+  }
+  .flash-sale-container .time-segment {
+      width: 26px;
+      height: 26px;
+      font-size: 14px;
+  }
+  .flash-sale-container .flash-icon {
+      width: 35px;
+      height: 35px;
+  }
+  .flash-sale-container .flash-icon svg {
+      width: 18px;
+      height: 18px;
+  }
+  .flash-sale-container .timer-label {
+      /* Opcional: Si "Termina en" hace que el layout sea muy apretado */
+      /* display: none; */ 
+      /* O reducir su tamaño de fuente */
+      font-size: 11px;
 }
 }
 
@@ -8431,18 +8465,10 @@ white-space: nowrap; /* Evita que el texto del botón se parta */
 .custom-product-section .section-title {
     font-size: 24px;
     font-weight: bold;
-    margin-bottom: 20px;
     color: #333;
 }
 
-.custom-product-section .filter-section {
-  padding: 0 15px;
-  display: flex;
-  padding-top: 40px;
-  flex-direction: row;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
+
 
 .filters-bar {
     display: flex;

@@ -21,6 +21,8 @@ using Nop.Plugin.Api.Authorization.Policies;
 using Nop.Plugin.Api.Authorization.Requirements;
 using Nop.Plugin.Api.Configuration;
 using Nop.Plugin.Api.Delta;
+using Nop.Plugin.Api.Domain;
+using Nop.Services.Configuration;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
 
@@ -102,38 +104,46 @@ namespace Nop.Plugin.Api.Infrastructure
             {
                 options.SerializerSettings.Converters.Add(new StringEnumConverter());
             });
-            services.AddSwaggerGen(options =>
+            
+            // Configure Swagger only if enabled in settings
+            var settingService = services.BuildServiceProvider().GetService<ISettingService>();
+            var apiSettings = settingService?.LoadSettingAsync<ApiSettings>().Result;
+            
+            if (apiSettings?.EnableSwagger ?? true)
             {
-                // api description >>
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Nop API", Version = "v1" });
-                // auth definition >>
-                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                services.AddSwaggerGen(options =>
                 {
-                    In = ParameterLocation.Header,
-                    Description = "Please enter into field the word 'Bearer' following by space and JWT",
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey
-                });
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    // api description >>
+                    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Nop API", Version = "v1" });
+                    // auth definition >>
+                    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                    {
+                        In = ParameterLocation.Header,
+                        Description = "Please enter into field the word 'Bearer' following by space and JWT",
+                        Name = "Authorization",
+                        Type = SecuritySchemeType.ApiKey
+                    });
+                    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                  {
               {
-          {
-            new OpenApiSecurityScheme
-            {
-              Reference = new OpenApiReference
-              {
-                Type = ReferenceType.SecurityScheme,
-                Id = "Bearer"
+                new OpenApiSecurityScheme
+                {
+                  Reference = new OpenApiReference
+                  {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                  }
+                },
+                Array.Empty<string>()
               }
-            },
-            Array.Empty<string>()
-          }
-              });
-                // custom type mappings >>
-                options.MapType<decimal>(() => new OpenApiSchema { Type = "number", Format = "decimal" }); // correct currency typings
-                options.SchemaFilter<DeltaSchemaFilter>();
-                // TODO: options.UseAllOfToExtendReferenceSchemas(); // https://github.com/stepanbenes/api-for-nopcommerce/issues/16
-            });
-            services.AddSwaggerGenNewtonsoftSupport();
+                  });
+                    // custom type mappings >>
+                    options.MapType<decimal>(() => new OpenApiSchema { Type = "number", Format = "decimal" }); // correct currency typings
+                    options.SchemaFilter<DeltaSchemaFilter>();
+                    // TODO: options.UseAllOfToExtendReferenceSchemas(); // https://github.com/stepanbenes/api-for-nopcommerce/issues/16
+                });
+                services.AddSwaggerGenNewtonsoftSupport();
+            }
 
 
         }
@@ -181,7 +191,11 @@ namespace Nop.Plugin.Api.Infrastructure
                 endpoints.MapControllers();
             });
 
-                  // swagger configuration
+                  // swagger configuration - only if enabled
+                  var settingService = a.ApplicationServices.GetService<ISettingService>();
+                  var apiSettings = settingService?.LoadSettingAsync<ApiSettings>().Result;
+                  
+                  if (apiSettings?.EnableSwagger ?? true)
                   {
                       // http://eatcodelive.com/2017/05/19/change-default-swagger-route-in-an-asp-net-core-web-api/
 

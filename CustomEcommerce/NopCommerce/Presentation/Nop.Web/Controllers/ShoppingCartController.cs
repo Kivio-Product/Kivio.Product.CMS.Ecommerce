@@ -37,8 +37,6 @@ using Nop.Web.Framework.Mvc.Routing;
 using Nop.Web.Infrastructure.Cache;
 using Nop.Web.Models.Media;
 using Nop.Web.Models.ShoppingCart;
-using Nop.Services.Orders;
-using Nop.Services.Logging;
 
 namespace Nop.Web.Controllers;
 
@@ -2123,5 +2121,177 @@ public partial class ShoppingCartController : BasePublicController
     }
 
     #endregion
+
+    [HttpGet]
+    public virtual async Task<IActionResult> GetProductQuantity(int productId)
+    {
+        try
+        {
+            var customer = await _workContext.GetCurrentCustomerAsync();
+                    var store = await _storeContext.GetCurrentStoreAsync();
+
+            var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+            if (cart == null || !cart.Any())
+            {
+                throw new Exception("El carrito está vacío");
+            }
+
+            var product = await _productService.GetProductByIdAsync(productId) ?? throw new Exception("Producto no encontrado");
+            var cartItem = cart.FirstOrDefault(sci => sci.ProductId == productId);
+
+            if (cartItem != null)
+            {
+                return Json(new
+                {
+                    success = true,
+                    quantity = cartItem.Quantity,
+                    itemId = cartItem.Id,
+                    maxQuantity = Math.Min(product.OrderMaximumQuantity, product.StockQuantity)
+                });
+            }
+
+            return Json(new
+            {
+                success = true,
+                quantity = 0,
+                itemId = (int?)null,
+                maxQuantity = Math.Min(product.OrderMaximumQuantity, product.StockQuantity)
+            });
+        }
+        catch (Exception ex)
+        {
+            return Json(new
+            {
+                success = false,
+                message = ex.Message,
+                quantity = 0,
+                itemId = (int?)null,
+                maxQuantity = 0
+            });
+        }
+    }
+
+    [HttpPost]
+    public virtual async Task<IActionResult> UpdateCartItemQuantity(int itemId, int quantity)
+    {
+        try
+        {
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            var store = await _storeContext.GetCurrentStoreAsync();
+            var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+            var cartItem = cart.FirstOrDefault(sci => sci.Id == itemId);
+
+            if (cartItem == null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = await _localizationService.GetResourceAsync("ShoppingCart.ItemNotFound")
+                });
+            }
+
+            var warnings = await _shoppingCartService.UpdateShoppingCartItemAsync(customer,
+                itemId, cartItem.AttributesXml, cartItem.CustomerEnteredPrice,
+                cartItem.RentalStartDateUtc, cartItem.RentalEndDateUtc, quantity);
+
+            if (warnings.Any())
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = string.Join(", ", warnings)
+                });
+            }
+
+            var updatedCart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+
+            var updatetopcartsectionhtml = string.Empty;
+            var updateflyoutcartsectionhtml = string.Empty;
+
+            var model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(new ShoppingCartModel(), updatedCart);
+
+            if (_shoppingCartSettings.MiniShoppingCartEnabled)
+            {
+                updatetopcartsectionhtml = string.Format(await _localizationService.GetResourceAsync("ShoppingCart.HeaderQuantity"),
+                        updatedCart.Sum(item => item.Quantity));
+
+                var miniShoppingCartModel = await _shoppingCartModelFactory.PrepareMiniShoppingCartModelAsync();
+                updateflyoutcartsectionhtml = await RenderViewComponentToStringAsync(typeof(FlyoutShoppingCartViewComponent), miniShoppingCartModel);
+            }
+
+            return Json(new
+            {
+                success = true,
+                updatetopcartsectionhtml,
+                updateflyoutcartsectionhtml
+            });
+        }
+        catch (Exception ex)
+        {
+            return Json(new
+            {
+                success = false,
+                message = ex.Message
+            });
+        }
+    }
+
+    [HttpPost]
+    public virtual async Task<IActionResult> RemoveCartItem(int itemId)
+    {
+        try
+        {
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            var store = await _storeContext.GetCurrentStoreAsync();
+            var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+            var cartItem = cart.FirstOrDefault(sci => sci.Id == itemId);
+
+            if (cartItem == null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = await _localizationService.GetResourceAsync("ShoppingCart.ItemNotFound")
+                });
+            }
+
+            await _shoppingCartService.DeleteShoppingCartItemAsync(cartItem);
+
+            var updatedCart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+            var updatetopcartsectionhtml = string.Empty;
+            var updateflyoutcartsectionhtml = string.Empty;
+
+            var model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(new ShoppingCartModel(), updatedCart);
+
+            if (_shoppingCartSettings.MiniShoppingCartEnabled)
+            {
+                updatetopcartsectionhtml = string.Format(await _localizationService.GetResourceAsync("ShoppingCart.HeaderQuantity"),
+                        updatedCart.Sum(item => item.Quantity));
+
+                var miniShoppingCartModel = await _shoppingCartModelFactory.PrepareMiniShoppingCartModelAsync();
+                updateflyoutcartsectionhtml = await RenderViewComponentToStringAsync(typeof(FlyoutShoppingCartViewComponent), miniShoppingCartModel);
+            }
+
+            return Json(new
+            {
+                success = true,
+                updatetopcartsectionhtml,
+                updateflyoutcartsectionhtml
+            });
+        }
+        catch (Exception ex)
+        {
+            return Json(new
+            {
+                success = false,
+                message = ex.Message
+            });
+        }
+    }
 
 }

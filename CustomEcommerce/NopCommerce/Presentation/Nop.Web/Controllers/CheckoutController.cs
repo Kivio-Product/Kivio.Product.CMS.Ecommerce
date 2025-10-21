@@ -66,6 +66,7 @@ public partial class CheckoutController : BasePublicController
     protected readonly TaxSettings _taxSettings;
     protected readonly IGiftCardService _giftCardService;
     protected readonly IDiscountService _discountService;
+    protected readonly IColombianHolidayService _colombianHolidayService;
     private static readonly string[] _separator = ["___"];
 
     #endregion
@@ -101,10 +102,12 @@ public partial class CheckoutController : BasePublicController
         ShippingSettings shippingSettings,
         TaxSettings taxSettings,
         IGiftCardService giftCardService,
-        IDiscountService discountService)
+        IDiscountService discountService,
+        IColombianHolidayService colombianHolidayService)
     {
         _discountService = discountService;
         _giftCardService = giftCardService;
+        _colombianHolidayService = colombianHolidayService;
         _addressSettings = addressSettings;
         _captchaSettings = captchaSettings;
         _customerSettings = customerSettings;
@@ -325,6 +328,10 @@ public partial class CheckoutController : BasePublicController
     {
         //validation
         if (_orderSettings.CheckoutDisabled)
+            return RedirectToRoute("ShoppingCart");
+
+        //check if checkout is disabled by date (weekends and Colombian holidays)
+        if (await _colombianHolidayService.IsCheckoutDisabledByDateAsync())
             return RedirectToRoute("ShoppingCart");
 
         var customer = await _workContext.GetCurrentCustomerAsync();
@@ -1303,6 +1310,10 @@ public partial class CheckoutController : BasePublicController
     {
         //validation
         if (_orderSettings.CheckoutDisabled)
+            return RedirectToRoute("ShoppingCart");
+
+        //check if checkout is disabled by date (weekends and Colombian holidays)
+        if (await _colombianHolidayService.IsCheckoutDisabledByDateAsync())
             return RedirectToRoute("ShoppingCart");
 
         var customer = await _workContext.GetCurrentCustomerAsync();
