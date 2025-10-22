@@ -80,6 +80,28 @@
                 let currentRequest;
                 let isUpdating = false;
 
+                // Función para mostrar popup de límite (reutiliza ProductBoxCartAnimation si está disponible)
+                function showLimitPopup(message, title) {
+                    if (window.ProductBoxCartAnimation && typeof window.ProductBoxCartAnimation.showLimitPopup === 'function') {
+                        window.ProductBoxCartAnimation.showLimitPopup(message, title);
+                        return;
+                    }
+
+                    // Fallback si ProductBoxCartAnimation no está disponible
+                    message = message || '⚠️ No puedes agregar más unidades. La cantidad seleccionada supera el stock disponible.';
+                    title = title || 'Límite de cantidad alcanzado';
+                    
+                    if (typeof displayBarNotification !== 'undefined') {
+                        try {
+                            displayBarNotification(message, 'error', 3500);
+                        } catch(e) {
+                            alert(message);
+                        }
+                    } else {
+                        alert(message);
+                    }
+                }
+
                 function showResults() {
                     $(searchResultsSelector).slideDown(200);
                 }
@@ -98,6 +120,46 @@
                     newValue = Math.min(newValue, maxQty);
 
                     input.val(newValue);
+                    
+                    // Actualizar estado de botones
+                    toggleQuantityButtons(productId, newValue, maxQty);
+                }
+
+                function toggleQuantityButtons(productId, currentQty, maxQty) {
+                    const $plusBtn = $(searchResultsSelector + ` .qty-plus[data-productid="${productId}"]`);
+                    const $minusBtn = $(searchResultsSelector + ` .qty-minus[data-productid="${productId}"]`);
+                    
+                    // Deshabilitar botón + si alcanzó el máximo
+                    if (currentQty >= maxQty) {
+                        $plusBtn
+                            .addClass('disabled')
+                            .attr('aria-disabled', 'true')
+                            .css({
+                                'opacity': '0.5',
+                                'cursor': 'not-allowed',
+                                'pointer-events': 'auto'
+                            });
+                    } else {
+                        $plusBtn
+                            .removeClass('disabled')
+                            .removeAttr('aria-disabled')
+                            .css({
+                                'opacity': '1',
+                                'cursor': 'pointer',
+                                'pointer-events': 'auto'
+                            });
+                    }
+                    
+                    // Deshabilitar botón - si está en el mínimo
+                    if (currentQty <= 1) {
+                        $minusBtn
+                            .addClass('disabled')
+                            .css('opacity', '0.5');
+                    } else {
+                        $minusBtn
+                            .removeClass('disabled')
+                            .css('opacity', '1');
+                    }
                 }
 
                 function setQuantityControlsDisabled(productId, disabled) {
@@ -183,7 +245,7 @@
                                     const imageUrl = product.imageUrl || '/images/thumbs/default-image_100.png';
                                     const stockClass = product.isInStock ? 'in-stock' : 'out-of-stock';
                                     const stockText = product.isInStock ? 'En stock' : 'Agotado';
-                                    const maxQty = product.maxOrderQuantity > 0 ? product.maxOrderQuantity : 999;
+                                    const maxQty = product.stockQuantity;
                                     const minQty = product.minOrderQuantity || 1;
 
                                     const quantityControls = product.isInStock ?
@@ -271,11 +333,30 @@
                 });
 
                 // Event handlers para controles de cantidad - específico para esta instancia
-                $(document).on('click', `[data-unique-id="${uniqueId}"].qty-btn`, function () {
-                    if (isUpdating || $(this).hasClass('disabled')) return;
+                $(document).on('click', `[data-unique-id="${uniqueId}"].qty-btn`, function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if (isUpdating || $(this).hasClass('disabled')) {
+                        // Si es el botón + y está deshabilitado, mostrar popup
+                        if ($(this).hasClass('qty-plus') && $(this).hasClass('disabled')) {
+                            showLimitPopup();
+                        }
+                        return;
+                    }
 
                     const productId = $(this).data('productid');
                     const change = parseInt($(this).data('change'));
+                    const input = $(searchResultsSelector + ` #search-qty-${productId}-${uniqueId}`);
+                    const currentValue = parseInt(input.val()) || 1;
+                    const maxQty = parseInt(input.attr('data-max')) || 999;
+                    
+                    // Si intenta aumentar y ya está en el máximo, mostrar popup
+                    if (change > 0 && currentValue >= maxQty) {
+                        showLimitPopup();
+                        return;
+                    }
+                    
                     updateQuantity(productId, change);
                 });
 
