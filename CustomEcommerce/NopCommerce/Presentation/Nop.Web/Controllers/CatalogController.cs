@@ -494,7 +494,7 @@ public partial class CatalogController : BasePublicController
         foreach (var productM in productModels)
         {
             var product = products.FirstOrDefault(p => p.Id == productM.Id);
-            var stockAvailability = product?.StockQuantity ?? 0;
+            var stockAvailability = Math.Min(product?.OrderMaximumQuantity ?? 0, product?.StockQuantity ?? 0);
             var isInStock = stockAvailability > 0;
             var minOrderQty = product?.OrderMinimumQuantity ?? 1;
             var maxOrderQty = product?.OrderMaximumQuantity ?? 999;
