@@ -56,7 +56,7 @@ public class ProductTaxRecalculationService : IProductTaxRecalculationService
         }
         else
         {
-            if (product.Id <= 0 || IsScrapeCategory(product))
+            if (product.Id <= 0 || !IsScrapeCategory(product))
             {
                 return;
             }
