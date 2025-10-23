@@ -57,8 +57,15 @@
             type: 'POST',
             data: postData,
             success: function(response) {
-                if (response.success && response.hasSubOption) {
-                    displayPaymentSubOptionInfo(response);
+                if (response.success) {
+                    // Display payment sub-option if exists
+                    if (response.hasSubOption) {
+                        displayPaymentSubOptionInfo(response);
+                    }
+                    // Display invoice link if exists
+                    if (response.publicUrl) {
+                        displaySiigoInvoiceLink(response.publicUrl);
+                    }
                 }
             },
             error: function() {
@@ -103,6 +110,36 @@
             `;
             
             paymentInfoSection.after(subOptionHtml);
+        }
+    }
+
+    function displaySiigoInvoiceLink(publicUrl) {
+        const paymentInfoSection = $('.payment-suboption-info').first();
+        
+        if (paymentInfoSection.length > 0 && publicUrl) {
+            const invoiceLinkHtml = `
+                <div class="siigo-invoice-link-info mt-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Factura Electrónica SIIGO</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <a href="${publicUrl}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-file-invoice"></i> Ver Factura Electrónica
+                                    </a>
+                                    <p class="mt-2 text-muted">
+                                        <small>Haz clic para ver la factura electrónica generada en SIIGO</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            paymentInfoSection.after(invoiceLinkHtml);
         }
     }
 
@@ -326,5 +363,3 @@
     }
 
 </script>
-@* Include payment sub-option information in order details *@
-@await Component.InvokeAsync("SiigoPaymentSubOptionInfo", Model)

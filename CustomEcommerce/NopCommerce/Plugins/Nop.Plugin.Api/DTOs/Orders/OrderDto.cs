@@ -286,5 +286,11 @@ namespace Nop.Plugin.Api.DTO.Orders
         /// </summary>
         [JsonProperty("customer_tax_display_type")]
         public string CustomerTaxDisplayType { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the SIIGO invoice public URL
+        /// </summary>
+        [JsonProperty("siigo_invoice_public_url")]
+        public string SiigoInvoicePublicUrl { get; set; }
     }
 }

@@ -105,6 +105,12 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                 await order.SetSiigoInvoiceNumberAsync(_genericAttributeService, response.Number);
                 await order.SetSiigoInvoiceDateAsync(_genericAttributeService, DateTime.Now);
                 await order.SetSiigoInvoiceStatusAsync(_genericAttributeService, response.Status ?? "Created");
+                
+                // Save public URL if available
+                if (!string.IsNullOrEmpty(response.PublicUrl))
+                {
+                    await order.SetSiigoInvoicePublicUrlAsync(_genericAttributeService, response.PublicUrl);
+                }
 
                 if (siigoSettings.LogEnabled)
                 {
