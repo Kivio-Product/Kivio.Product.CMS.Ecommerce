@@ -21,6 +21,7 @@ public partial record ProductSearchModel : BaseSearchModel
         AvailableVendors = new List<SelectListItem>();
         AvailableProductTypes = new List<SelectListItem>();
         AvailablePublishedOptions = new List<SelectListItem>();
+        AvailableScrapeStores = new List<SelectListItem>();
         LicenseCheckModel = new();
     }
 
@@ -61,6 +62,9 @@ public partial record ProductSearchModel : BaseSearchModel
     [NopResourceDisplayName("Admin.Catalog.Products.List.SearchNonStockOnly")]
     public bool SearchNonStockOnly { get; set; }
 
+    [NopResourceDisplayName("Admin.Catalog.Products.List.SearchScrapeStore")]
+    public string SearchScrapeStorePrefix { get; set; }
+
     public bool IsLoggedInAsVendor { get; set; }
 
     public bool AllowVendorsToImportProducts { get; set; }
@@ -82,6 +86,7 @@ public partial record ProductSearchModel : BaseSearchModel
     public IList<SelectListItem> AvailableProductTypes { get; set; }
 
     public IList<SelectListItem> AvailablePublishedOptions { get; set; }
+    public IList<SelectListItem> AvailableScrapeStores { get; set; }
 
     #endregion
 }
