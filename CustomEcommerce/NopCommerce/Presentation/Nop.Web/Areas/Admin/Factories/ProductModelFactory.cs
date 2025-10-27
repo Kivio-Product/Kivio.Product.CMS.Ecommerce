@@ -702,6 +702,29 @@ public partial class ProductModelFactory : IProductModelFactory
             Text = await _localizationService.GetResourceAsync("Admin.Catalog.Products.List.SearchPublished.UnpublishedOnly")
         });
 
+        //prepare available scrape stores
+
+        var scrapeStores = await _settingService.GetSettingByKeyAsync<string>("CustomAdmin.ScrapeStores", defaultValue: "");
+
+        searchModel.AvailableScrapeStores.Add(new SelectListItem
+        {
+            Value = "",
+            Text = await _localizationService.GetResourceAsync("CustomAdmin.ScrapeStores.List.All")
+        });
+
+        if (!string.IsNullOrEmpty(scrapeStores))
+        {
+            var scrapeStoreList = scrapeStores.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+            foreach (var store in scrapeStoreList)
+            {
+                searchModel.AvailableScrapeStores.Add(new SelectListItem
+                {
+                    Value = store.ToString().ToUpperInvariant(),
+                    Text = store
+                });
+            }
+        }
+
         //prepare grid
         searchModel.SetGridPageSize();
 
@@ -743,7 +766,8 @@ public partial class ProductModelFactory : IProductModelFactory
             keywords: searchModel.SearchProductName,
             pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize,
             overridePublished: overridePublished,
-            onlyNonStock: searchModel.SearchNonStockOnly);
+            onlyNonStock: searchModel.SearchNonStockOnly,
+            scrapeStorePrefix: searchModel.SearchScrapeStorePrefix);
 
         var primaryStoreCurrency = await _currencyService.GetCurrencyByIdAsync(_currencySettings.PrimaryStoreCurrencyId);
 
