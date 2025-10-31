@@ -1,0 +1,75 @@
+@model dynamic
+
+@{
+    // Extract model properties
+    var hasExitoProducts = Model?.HasExitoProducts ?? false;
+    var cutoffHour = Model?.CutoffHour ?? 13;
+}
+
+<!-- Load CSS -->
+<link rel="stylesheet" href="~/Plugins/Misc.DeliveryTimePicker/Content/delivery-time-picker.css" />
+
+<div class="checkout-data">
+    <div class="delivery-time-picker-wrapper" id="deliveryTimePickerSection">
+        <div class="delivery-time-picker-content">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Definir Fecha</label>
+                        <input type="text" 
+                               id="deliveryDatePicker" 
+                               class="form-control delivery-date-input" 
+                               placeholder="DD-MM-YYYY"
+                               readonly />
+                        <small class="form-text text-muted">
+                            Recuerda que por el momento no contamos con servicio los fines de semana o festivos
+                        </small>
+                        <div id="datePickerCalendar" class="calendar-wrapper" style="display: none;">
+                            <!-- Calendar will be rendered here by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label>Rango de hora de entrega</label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="small-label">Horario mínima de entrega</label>
+                                <select id="minDeliveryTime" class="form-control time-select" disabled>
+                                    <option value="">Seleccione una fecha</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small-label">Horario máxima de entrega</label>
+                                <select id="maxDeliveryTime" class="form-control time-select" disabled>
+                                    <option value="">Seleccione una fecha</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="timeSlotOptions" class="time-slot-grid" style="display: none;">
+                        <!-- Time slots will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hidden fields to store selected values -->
+        <input type="hidden" id="selectedDeliveryDate" name="DeliveryDate" />
+        <input type="hidden" id="selectedMinTime" name="MinDeliveryTime" />
+        <input type="hidden" id="selectedMaxTime" name="MaxDeliveryTime" />
+        <input type="hidden" id="selectedReservationId" name="ReservationId" />
+    </div>
+</div>
+
+<!-- Load JavaScript -->
+<script src="~/Plugins/Misc.DeliveryTimePicker/Scripts/delivery-time-picker.js"></script>
+<script>
+    var DeliveryTime = DeliveryTime || {};
+    DeliveryTime.config = {
+        hasExitoProducts: @(hasExitoProducts.ToString().ToLower()),
+        cutoffHour: @cutoffHour
+    };
+</script>

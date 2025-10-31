@@ -1,0 +1,31 @@
+@{
+    Layout = "_AdminLayout";
+    ViewBag.PageTitle = T("Plugins.Misc.DeliveryTimePicker.Holidays").Text;
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Plugins.Misc.DeliveryTimePicker.Holidays")
+    </h1>
+    <div class="float-right">
+        <form asp-controller="DeliveryTimePicker" asp-action="ImportHolidays" method="post" style="display: inline;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-download"></i>
+                @T("Plugins.Misc.DeliveryTimePicker.Holidays.Import")
+            </button>
+        </form>
+        <a asp-controller="DeliveryTimePicker" asp-action="Configure" class="btn btn-default">
+            <i class="fas fa-arrow-circle-left"></i>
+            @T("Admin.Common.BackToConfig")
+        </a>
+    </div>
+</div>
+
+<div class="content">
+    <div class="card card-default">
+        <div class="card-body">
+            <p>Manage holidays and non-working days. Click "Import Holidays" to automatically fetch public holidays for the configured country.</p>
+            <p class="text-info">Note: Implement CRUD operations for holidays here or use the database directly for initial setup.</p>
+        </div>
+    </div>
+</div>

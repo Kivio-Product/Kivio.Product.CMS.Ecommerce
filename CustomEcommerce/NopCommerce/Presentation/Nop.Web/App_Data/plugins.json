@@ -54,6 +54,10 @@
     {
       "SystemName": "Widgets.PopUp",
       "Version": "1.0"
+    },
+    {
+      "SystemName": "Misc.DeliveryTimePicker",
+      "Version": "1.0"
     }
   ],
   "PluginNamesToUninstall": [],
