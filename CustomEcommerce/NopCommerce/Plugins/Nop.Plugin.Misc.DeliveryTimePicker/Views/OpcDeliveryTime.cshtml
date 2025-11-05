@@ -1,42 +1,194 @@
 @model dynamic
 
 @{
-    // Extract model properties
+    // Extract model properties safely
     var hasExitoProducts = Model?.HasExitoProducts ?? false;
     var cutoffHour = Model?.CutoffHour ?? 13;
+    var savedDate = Model?.SavedDate ?? string.Empty;
+    var savedMinTime = Model?.SavedMinTime ?? string.Empty;
+    var savedMaxTime = Model?.SavedMaxTime ?? string.Empty;
 }
 
-<!-- Load CSS -->
-<link rel="stylesheet" href="~/Plugins/Misc.DeliveryTimePicker/Content/delivery-time-picker.css" />
+<!-- Load CSS directly without tag helpers -->
+<link rel="stylesheet" type="text/css" href="/Plugins/Misc.DeliveryTimePicker/Content/delivery-time-picker.css" />
 
-<div class="checkout-data">
-    <div class="delivery-time-picker-wrapper" id="deliveryTimePickerSection">
-        <div class="delivery-time-picker-content">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label>Definir Fecha</label>
-                        <input type="text" 
-                               id="deliveryDatePicker" 
-                               class="form-control delivery-date-input" 
-                               placeholder="DD-MM-YYYY"
-                               readonly />
-                        <small class="form-text text-muted">
-                            Recuerda que por el momento no contamos con servicio los fines de semana o festivos
-                        </small>
-                        <div id="datePickerCalendar" class="calendar-wrapper" style="display: none;">
-                            <!-- Calendar will be rendered here by JavaScript -->
+<!-- Inline critical styles with higher specificity to override theme styles -->
+<style>
+    /* Critical styles with !important to ensure they apply in AJAX context */
+    .delivery-time-picker-wrapper {
+        margin: 20px 0 !important;
+        padding: 20px !important;
+        background: #f8f9fa !important;
+        border-radius: 8px !important;
+    }
+
+    .delivery-time-picker-content {
+        background: white !important;
+        padding: 20px !important;
+        border-radius: 8px !important;
+    }
+
+    .delivery-date-input {
+        cursor: pointer !important;
+        text-align: center !important;
+        font-size: 18px !important;
+        letter-spacing: 2px !important;
+    }
+
+    .calendar-wrapper {
+        position: absolute !important;
+        z-index: 10000 !important;
+        background: white !important;
+        border: 1px solid #ddd !important;
+        border-radius: 8px !important;
+        padding: 15px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        margin-top: 5px !important;
+        min-width: 300px !important;
+    }
+
+    .calendar-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 15px !important;
+        font-weight: 600 !important;
+    }
+
+    .calendar-nav {
+        background: none !important;
+        border: none !important;
+        font-size: 18px !important;
+        cursor: pointer !important;
+        padding: 5px 10px !important;
+    }
+
+    .calendar-grid {
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        gap: 5px !important;
+    }
+
+    .calendar-day-header {
+        text-align: center !important;
+        font-weight: 600 !important;
+        padding: 8px !important;
+        color: #666 !important;
+        font-size: 12px !important;
+    }
+
+    .calendar-day {
+        text-align: center !important;
+        padding: 10px !important;
+        cursor: pointer !important;
+        border-radius: 4px !important;
+        transition: all 0.2s !important;
+        border: 1px solid transparent !important;
+        min-height: 36px !important;
+    }
+
+    .calendar-day:hover:not(.disabled):not(.other-month) {
+        background: #f0f0f0 !important;
+    }
+
+    .calendar-day.selected {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        font-weight: 600 !important;
+    }
+
+    .calendar-day.today {
+        border: 2px solid #667eea !important;
+    }
+
+    .calendar-day.disabled {
+        color: #ccc !important;
+        cursor: not-allowed !important;
+        text-decoration: line-through !important;
+    }
+
+    .calendar-day.other-month {
+        color: #ccc !important;
+    }
+
+    .calendar-accept-btn {
+        margin-top: 15px !important;
+        width: 100% !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border: none !important;
+        padding: 10px !important;
+        border-radius: 20px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+    }
+
+    .time-slot-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+        gap: 10px !important;
+        margin-top: 15px !important;
+    }
+
+    .time-slot-option {
+        padding: 12px 8px !important;
+        text-align: center !important;
+        border: 2px solid #e0e0e0 !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        transition: all 0.2s !important;
+        font-size: 13px !important;
+    }
+
+    .time-slot-option:hover:not(.disabled) {
+        border-color: #667eea !important;
+        background: #f5f7ff !important;
+    }
+
+    .time-slot-option.selected {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border-color: #667eea !important;
+        font-weight: 600 !important;
+    }
+
+    .time-slot-option.disabled {
+        background: #f5f5f5 !important;
+        color: #999 !important;
+        cursor: not-allowed !important;
+        opacity: 0.6 !important;
+    }
+</style>
+
+<form id="co-delivery-time-form">
+    <div class="checkout-data">
+        <div class="delivery-time-picker-wrapper" id="deliveryTimePickerSection">
+            <div class="delivery-time-picker-content">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Definir Fecha</label>
+                            <input type="text" 
+                                   id="deliveryDatePicker" 
+                                   class="form-control delivery-date-input" 
+                                   placeholder="DD-MM-YYYY"
+                                   readonly />
+                            <small class="form-text text-muted">
+                                Recuerda que por el momento no contamos con servicio los fines de semana o festivos
+                            </small>
+                            <div id="datePickerCalendar" class="calendar-wrapper" style="display: none;">
+                                <!-- Calendar will be rendered here by JavaScript -->
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="col-md-8">
-                    <div class="form-group">
-                        <label>Rango de hora de entrega</label>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label class="small-label">Horario mínima de entrega</label>
-                                <select id="minDeliveryTime" class="form-control time-select" disabled>
+                    
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label>Rango de hora de entrega</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="small-label">Horario mínima de entrega</label>
+                                    <select id="minDeliveryTime" class="form-control time-select" disabled>
                                     <option value="">Seleccione una fecha</option>
                                 </select>
                             </div>
@@ -57,19 +209,93 @@
         </div>
         
         <!-- Hidden fields to store selected values -->
-        <input type="hidden" id="selectedDeliveryDate" name="DeliveryDate" />
-        <input type="hidden" id="selectedMinTime" name="MinDeliveryTime" />
-        <input type="hidden" id="selectedMaxTime" name="MaxDeliveryTime" />
+        <input type="hidden" id="selectedDeliveryDate" name="DeliveryDate" value="@savedDate" />
+        <input type="hidden" id="selectedMinTime" name="MinDeliveryTime" value="@savedMinTime" />
+        <input type="hidden" id="selectedMaxTime" name="MaxDeliveryTime" value="@savedMaxTime" />
         <input type="hidden" id="selectedReservationId" name="ReservationId" />
     </div>
 </div>
+</form>
 
-<!-- Load JavaScript -->
-<script src="~/Plugins/Misc.DeliveryTimePicker/Scripts/delivery-time-picker.js"></script>
-<script>
-    var DeliveryTime = DeliveryTime || {};
-    DeliveryTime.config = {
-        hasExitoProducts: @(hasExitoProducts.ToString().ToLower()),
-        cutoffHour: @cutoffHour
-    };
+<script type="text/javascript">
+    (function() {
+        console.log('DeliveryTimePicker: Loading script...');
+        
+        // Ensure jQuery is available
+        if (typeof jQuery === 'undefined') {
+            console.error('DeliveryTimePicker: jQuery is not loaded!');
+            return;
+        }
+        
+        // Function to load script dynamically
+        function loadScript(url, callback) {
+            // Check if script is already loaded
+            var existingScript = document.querySelector('script[src*="delivery-time-picker.js"]');
+            if (existingScript) {
+                console.log('DeliveryTimePicker: Script already loaded');
+                if (callback) callback();
+                return;
+            }
+            
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = url;
+            script.onload = function() {
+                console.log('DeliveryTimePicker: Script loaded successfully from ' + url);
+                if (callback) callback();
+            };
+            script.onerror = function() {
+                console.error('DeliveryTimePicker: Failed to load script from ' + url);
+            };
+            document.head.appendChild(script);
+        }
+        
+        // Initialize the picker
+        function initializeDeliveryTimePicker() {
+            console.log('DeliveryTimePicker: Attempting to initialize...');
+            
+            // Check if DeliveryTime object exists (from public.onepagecheckout.js)
+            if (typeof DeliveryTime === 'undefined') {
+                console.error('DeliveryTimePicker: DeliveryTime object not found in public.onepagecheckout.js');
+                return;
+            }
+            
+            // Set configuration
+            DeliveryTime.config = {
+                hasExitoProducts: @(hasExitoProducts.ToString().ToLower()),
+                cutoffHour: @cutoffHour,
+                savedDate: '@savedDate',
+                savedMinTime: '@savedMinTime',
+                savedMaxTime: '@savedMaxTime'
+            };
+            
+            console.log('DeliveryTimePicker: Config set', DeliveryTime.config);
+            
+            // Wait for DeliveryTimePicker object to be available
+            var attempts = 0;
+            var maxAttempts = 20;
+            var interval = setInterval(function() {
+                attempts++;
+                
+                if (typeof DeliveryTimePicker !== 'undefined') {
+                    clearInterval(interval);
+                    console.log('DeliveryTimePicker: Object found, initializing...');
+                    
+                    try {
+                        DeliveryTimePicker.init(DeliveryTime.config);
+                        console.log('DeliveryTimePicker: Successfully initialized');
+                    } catch (error) {
+                        console.error('DeliveryTimePicker: Error during initialization', error);
+                    }
+                } else if (attempts >= maxAttempts) {
+                    clearInterval(interval);
+                    console.error('DeliveryTimePicker: Object not found after ' + maxAttempts + ' attempts');
+                }
+            }, 100);
+        }
+        
+        // Load the script and then initialize
+        loadScript('/Plugins/Misc.DeliveryTimePicker/Scripts/delivery-time-picker.js?v=' + new Date().getTime(), 
+                   initializeDeliveryTimePicker);
+    })();
 </script>

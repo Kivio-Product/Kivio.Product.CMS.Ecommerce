@@ -39,6 +39,40 @@ var DeliveryTimePicker = (function () {
         
         // Load available slots
         loadAvailableSlots();
+        
+        // Restore saved data if available
+        if (config.savedDate && config.savedMinTime && config.savedMaxTime) {
+            console.log('DeliveryTimePicker: Restoring saved data', {
+                date: config.savedDate,
+                minTime: config.savedMinTime,
+                maxTime: config.savedMaxTime
+            });
+            
+            // Parse and set the saved date
+            var dateParts = config.savedDate.split('-');
+            if (dateParts.length === 3) {
+                var day = parseInt(dateParts[0], 10);
+                var month = parseInt(dateParts[1], 10) - 1; // JavaScript months are 0-indexed
+                var year = parseInt(dateParts[2], 10);
+                state.selectedDate = new Date(year, month, day);
+                
+                // Update the date picker display
+                $('#deliveryDatePicker').val(config.savedDate);
+                
+                // Set the times
+                state.selectedMinTime = config.savedMinTime;
+                state.selectedMaxTime = config.savedMaxTime;
+                
+                // Update the dropdowns
+                $('#minDeliveryTime').val(config.savedMinTime);
+                $('#maxDeliveryTime').val(config.savedMaxTime);
+                
+                // Enable the time selects
+                $('#minDeliveryTime, #maxDeliveryTime').prop('disabled', false);
+                
+                console.log('DeliveryTimePicker: Data restored successfully');
+            }
+        }
     }
 
     /**
@@ -141,7 +175,11 @@ var DeliveryTimePicker = (function () {
         for (let day = 1; day <= lastDay.getDate(); day++) {
             const date = new Date(year, month, day);
             const dateStr = formatDate(date);
-            const slotData = state.availableSlots.find(s => s.dateFormatted === dateStr);
+            // Handle both camelCase and PascalCase property names
+            const slotData = state.availableSlots.find(s => 
+                (s.dateFormatted && s.dateFormatted === dateStr) || 
+                (s.DateFormatted && s.DateFormatted === dateStr)
+            );
             
             let classes = 'calendar-day';
             
@@ -156,8 +194,9 @@ var DeliveryTimePicker = (function () {
                 classes += ' selected';
             }
             
-            // Check if available
-            if (!slotData || !slotData.isAvailable) {
+            // Check if available - Handle both camelCase and PascalCase properties
+            const isAvailable = slotData ? (slotData.isAvailable || slotData.IsAvailable) : false;
+            if (!slotData || !isAvailable) {
                 classes += ' disabled';
             }
             
@@ -194,7 +233,10 @@ var DeliveryTimePicker = (function () {
             state.selectedDate = parseDate(dateStr);
         });
         
-        $('.calendar-accept-btn').on('click', function () {
+        $('.calendar-accept-btn').on('click', function (e) {
+            e.preventDefault(); // Prevent form submission
+            e.stopPropagation(); // Stop event bubbling
+            
             if (state.selectedDate) {
                 $('#deliveryDatePicker').val(formatDateDisplay(state.selectedDate));
                 $('#selectedDeliveryDate').val(formatDate(state.selectedDate));
@@ -203,9 +245,39 @@ var DeliveryTimePicker = (function () {
                 // Clear time selection
                 state.selectedMinTime = null;
                 state.selectedMaxTime = null;
-                $('#minDeliveryTime').val('');
-                $('#maxDeliveryTime').val('');
+                
+                // Reset select dropdowns to default
+                $('#minDeliveryTime').empty().append(
+                    $('<option>', {
+                        value: '',
+                        text: 'Seleccione horario',
+                        selected: true
+                    })
+                );
+                
+                $('#maxDeliveryTime').empty().append(
+                    $('<option>', {
+                        value: '',
+                        text: 'Seleccione horario',
+                        selected: true
+                    })
+                );
+                
+                // Clear hidden fields
+                $('#selectedMinTime').val('');
+                $('#selectedMaxTime').val('');
+                
+                // Hide and clear time slots
                 $('#timeSlotOptions').html('').hide();
+                
+                // Enable time selects (though we're using the grid now)
+                $('#minDeliveryTime, #maxDeliveryTime').prop('disabled', false);
+                
+                // Show time slots immediately
+                renderTimeSlots();
+                $('#timeSlotOptions').show();
+                
+                console.log('Date selected:', formatDate(state.selectedDate));
             }
         });
     }
@@ -217,9 +289,16 @@ var DeliveryTimePicker = (function () {
         if (!state.selectedDate) return;
         
         const dateStr = formatDate(state.selectedDate);
-        const slotData = state.availableSlots.find(s => s.dateFormatted === dateStr);
+        // Handle both camelCase and PascalCase property names
+        const slotData = state.availableSlots.find(s => 
+            (s.dateFormatted && s.dateFormatted === dateStr) || 
+            (s.DateFormatted && s.DateFormatted === dateStr)
+        );
         
-        if (!slotData || !slotData.timeSlots || slotData.timeSlots.length === 0) {
+        // Get time slots array (handle both camelCase and PascalCase)
+        const timeSlots = slotData ? (slotData.timeSlots || slotData.TimeSlots || []) : [];
+        
+        if (!slotData || timeSlots.length === 0) {
             $('#timeSlotOptions').html('<p class="text-danger">No hay horarios disponibles para esta fecha</p>');
             return;
         }
@@ -227,24 +306,38 @@ var DeliveryTimePicker = (function () {
         let html = '<div class="row"><div class="col-12"><h6>Horarios disponibles:</h6></div></div>';
         html += '<div class="time-slot-grid">';
         
-        slotData.timeSlots.forEach(slot => {
+        timeSlots.forEach(slot => {
+            // Handle both camelCase and PascalCase for all properties
+            const isAvailable = slot.isAvailable ?? slot.IsAvailable ?? false;
+            const minTimeRaw = slot.minTime || slot.MinTime;
+            const maxTimeRaw = slot.maxTime || slot.MaxTime;
+            const displayText = slot.displayText || slot.DisplayText;
+            const slotId = slot.slotId || slot.SlotId;
+            const availableCapacity = slot.availableCapacity ?? slot.AvailableCapacity ?? 0;
+            
+            // Format TimeSpan values to strings
+            const minTime = formatTimeSpan(minTimeRaw);
+            const maxTime = formatTimeSpan(maxTimeRaw);
+            
+            console.log('Time slot:', { displayText, minTime, maxTime, minTimeRaw, maxTimeRaw });
+            
             let classes = 'time-slot-option';
-            if (!slot.isAvailable) {
+            if (!isAvailable) {
                 classes += ' disabled';
             }
-            if (state.selectedMinTime === slot.minTime && state.selectedMaxTime === slot.maxTime) {
+            if (state.selectedMinTime === minTime && state.selectedMaxTime === maxTime) {
                 classes += ' selected';
             }
             
             html += '<div class="' + classes + '" ';
-            html += 'data-min-time="' + slot.minTime + '" ';
-            html += 'data-max-time="' + slot.maxTime + '" ';
-            html += 'data-slot-id="' + (slot.slotId || '') + '">';
-            html += slot.displayText;
-            if (!slot.isAvailable) {
+            html += 'data-min-time="' + minTime + '" ';
+            html += 'data-max-time="' + maxTime + '" ';
+            html += 'data-slot-id="' + (slotId || '') + '">';
+            html += displayText;
+            if (!isAvailable) {
                 html += '<div class="capacity-info">No disponible</div>';
             } else {
-                html += '<div class="capacity-info">' + slot.availableCapacity + ' disponibles</div>';
+                html += '<div class="capacity-info">' + availableCapacity + ' disponibles</div>';
             }
             html += '</div>';
         });
@@ -261,15 +354,40 @@ var DeliveryTimePicker = (function () {
             const minTime = $(this).data('min-time');
             const maxTime = $(this).data('max-time');
             const slotId = $(this).data('slot-id');
+            const displayText = $(this).text().split('\n')[0].trim(); // Get just the time text
             
             state.selectedMinTime = minTime;
             state.selectedMaxTime = maxTime;
             
-            // Update selects
-            $('#minDeliveryTime').val(minTime);
-            $('#maxDeliveryTime').val(maxTime);
+            console.log('Selected time slot:', { minTime, maxTime, slotId, displayText });
+            
+            // Update the select elements to show selected time
+            $('#minDeliveryTime').empty().append(
+                $('<option>', {
+                    value: minTime,
+                    text: minTime,
+                    selected: true
+                })
+            );
+            
+            $('#maxDeliveryTime').empty().append(
+                $('<option>', {
+                    value: maxTime,
+                    text: maxTime,
+                    selected: true
+                })
+            );
+            
+            // Update hidden fields
             $('#selectedMinTime').val(minTime);
             $('#selectedMaxTime').val(maxTime);
+            
+            // Debug: verify values were set
+            console.log('Hidden fields updated:');
+            console.log('  selectedDeliveryDate:', $('#selectedDeliveryDate').val());
+            console.log('  selectedMinTime:', $('#selectedMinTime').val());
+            console.log('  selectedMaxTime:', $('#selectedMaxTime').val());
+            console.log('  selectedReservationId:', $('#selectedReservationId').val());
             
             // Reserve the slot
             reserveSlot(state.selectedDate, minTime, maxTime, slotId);
@@ -285,13 +403,19 @@ var DeliveryTimePicker = (function () {
             releaseReservation(state.reservationId);
         }
         
+        // Ensure times are formatted as strings
+        const minTimeStr = formatTimeSpan(minTime);
+        const maxTimeStr = formatTimeSpan(maxTime);
+        
         const data = {
             deliveryDate: formatDate(date),
-            minDeliveryTime: minTime,
-            maxDeliveryTime: maxTime,
+            minDeliveryTime: minTimeStr,
+            maxDeliveryTime: maxTimeStr,
             timeSlotId: slotId || null,
             isTemporary: true
         };
+        
+        console.log('Reserving slot with data:', data);
         
         $.ajax({
             url: config.baseUrl + '/ReserveSlot',
@@ -299,19 +423,38 @@ var DeliveryTimePicker = (function () {
             contentType: 'application/json',
             data: JSON.stringify(data),
             success: function (response) {
-                if (response.success) {
-                    state.reservationId = response.reservationId;
-                    $('#selectedReservationId').val(response.reservationId);
-                    console.log('Slot reserved:', response.reservationId);
+                console.log('Reserve slot response:', response);
+                
+                if (response.success || response.Success) {
+                    const resId = response.reservationId || response.ReservationId;
+                    state.reservationId = resId;
+                    $('#selectedReservationId').val(resId);
+                    console.log('Slot reserved:', resId);
                 } else {
-                    alert(response.message);
+                    const errorMsg = response.message || response.Message || 'Error desconocido al reservar el horario';
+                    alert(errorMsg);
+                    console.error('Failed to reserve slot:', response);
                     // Reload available slots
                     loadAvailableSlots();
                 }
             },
             error: function (xhr, status, error) {
                 console.error('Error reserving slot:', error);
-                alert('Error al reservar el horario. Por favor, intente nuevamente.');
+                console.error('XHR:', xhr);
+                let errorMessage = 'Error al reservar el horario. Por favor, intente nuevamente.';
+                
+                if (xhr.responseJSON) {
+                    errorMessage = xhr.responseJSON.message || xhr.responseJSON.Message || errorMessage;
+                } else if (xhr.responseText) {
+                    try {
+                        const parsed = JSON.parse(xhr.responseText);
+                        errorMessage = parsed.message || parsed.Message || errorMessage;
+                    } catch (e) {
+                        // Keep default message
+                    }
+                }
+                
+                alert(errorMessage);
             }
         });
     }
@@ -353,6 +496,29 @@ var DeliveryTimePicker = (function () {
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         return day + '-' + month + '-' + year;
+    }
+
+    /**
+     * Format TimeSpan to HH:MM:SS string
+     * Handles TimeSpan objects from C# which can be strings like "09:00:00" or objects
+     */
+    function formatTimeSpan(timeSpan) {
+        if (!timeSpan) return '';
+        
+        // If it's already a string in HH:MM:SS format, return it
+        if (typeof timeSpan === 'string') {
+            return timeSpan;
+        }
+        
+        // If it's an object with hours, minutes, seconds
+        if (typeof timeSpan === 'object') {
+            const hours = String(timeSpan.hours || timeSpan.Hours || 0).padStart(2, '0');
+            const minutes = String(timeSpan.minutes || timeSpan.Minutes || 0).padStart(2, '0');
+            const seconds = String(timeSpan.seconds || timeSpan.Seconds || 0).padStart(2, '0');
+            return hours + ':' + minutes + ':' + seconds;
+        }
+        
+        return String(timeSpan);
     }
 
     /**

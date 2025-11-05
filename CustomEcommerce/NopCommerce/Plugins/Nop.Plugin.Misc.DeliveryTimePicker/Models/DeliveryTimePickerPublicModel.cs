@@ -19,5 +19,20 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Models
         /// Gets or sets a value indicating whether weekends are disabled
         /// </summary>
         public bool DisableWeekends { get; set; }
+
+        /// <summary>
+        /// Gets or sets the saved delivery date if user is returning to the step
+        /// </summary>
+        public string SavedDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the saved minimum delivery time if user is returning to the step
+        /// </summary>
+        public string SavedMinTime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the saved maximum delivery time if user is returning to the step
+        /// </summary>
+        public string SavedMaxTime { get; set; }
     }
 }
