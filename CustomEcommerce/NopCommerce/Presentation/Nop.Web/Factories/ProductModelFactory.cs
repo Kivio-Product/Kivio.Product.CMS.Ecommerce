@@ -788,9 +788,6 @@ public partial class ProductModelFactory : IProductModelFactory
         var existingCartItem = cart.FirstOrDefault(x => x.ProductId == product.Id);
         var quantityInCart = existingCartItem?.Quantity ?? 0;
 
-        //quantity - start at 0 for new additions, or existing quantity for updates
-        model.EnteredQuantity = updatecartitem != null ? updatecartitem.Quantity : 0;
-        
         //maximum quantity - minimum between OrderMaximumQuantity and StockQuantity, considering what's already in cart
         var maxQuantity = product.OrderMaximumQuantity;
         if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock)
@@ -819,6 +816,9 @@ public partial class ProductModelFactory : IProductModelFactory
         }
         
         model.MaximumQuantity = maxQuantity;
+        
+        //quantity - set to 1 if stock available (maxQuantity > 0), otherwise 0, or existing quantity for updates
+        model.EnteredQuantity = updatecartitem != null ? updatecartitem.Quantity : (maxQuantity > 0 ? 1 : 0);
         
         //allowed quantities
         var allowedQuantities = _productService.ParseAllowedQuantities(product);
