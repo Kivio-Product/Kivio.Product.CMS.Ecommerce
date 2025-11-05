@@ -24,7 +24,6 @@ using Nop.Services.Media;
 using Nop.Services.Security;
 using Nop.Services.Seo;
 using Nop.Services.Stores;
-using Nop.Services.Logging;
 using Nop.Services.Configuration;
 using System.Net;
 
@@ -159,7 +158,7 @@ namespace Nop.Plugin.Api.Controllers
 
             var allProducts = _productApiService.GetProducts(parameters.Ids, parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.UpdatedAtMin,
                                                              parameters.UpdatedAtMax, parameters.Limit, parameters.Page, parameters.SinceId, parameters.CategoryId,
-                                                             parameters.VendorName, parameters.PublishedStatus, parameters.ManufacturerPartNumbers, parameters.IsDownload)
+                                                             parameters.VendorName, parameters.PublishedStatus, parameters.ManufacturerPartNumbers, parameters.IsDownload, parameters.Name)
                                                 .WhereAwait(async p => await StoreMappingService.AuthorizeAsync(p));
 
             IList<ProductDto> productsAsDtos = await allProducts.SelectAwait(async product => await _dtoHelper.PrepareProductDTOAsync(product)).ToListAsync();
@@ -190,7 +189,7 @@ namespace Nop.Plugin.Api.Controllers
         {
             var allProductsCount = await _productApiService.GetProductsCountAsync(parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.UpdatedAtMin,
                                                                        parameters.UpdatedAtMax, parameters.PublishedStatus, parameters.VendorName,
-                                                                       parameters.CategoryId, manufacturerPartNumbers: null, parameters.IsDownload);
+                                                                       parameters.CategoryId, manufacturerPartNumbers: null, parameters.IsDownload, parameters.Name);
 
             var productsCountRootObject = new ProductsCountRootObject
             {
