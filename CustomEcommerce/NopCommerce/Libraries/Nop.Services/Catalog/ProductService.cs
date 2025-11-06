@@ -925,7 +925,8 @@ public partial class ProductService : IProductService
         bool sortByDiscount = true,
         decimal? minimumDiscountPercentage = null,
         bool onlyNonStock = false,
-        int? minStockQuantity = 0)
+        int? minStockQuantity = 0,
+        string? scrapeStorePrefix = null)
     {
         //some databases don't support int.MaxValue
         if (pageSize == int.MaxValue)
@@ -971,7 +972,8 @@ public partial class ProductService : IProductService
                   ) &&
                   (priceMin == null || p.Price >= priceMin) &&
                   (priceMax == null || p.Price <= priceMax) &&
-                  (minStockQuantity == null || p.StockQuantity >= minStockQuantity) 
+                  (minStockQuantity == null || p.StockQuantity >= minStockQuantity) &&
+                  (string.IsNullOrEmpty(scrapeStorePrefix) || p.Sku.Contains(scrapeStorePrefix.ToUpper()))
             select p;
 
         if (minimumDiscountPercentage.HasValue && minimumDiscountPercentage.Value > 0)

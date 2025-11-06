@@ -200,7 +200,8 @@ public partial interface IProductService
         bool sortByDiscount = true,
         decimal? minimumDiscountPercentage = null,
         bool onlyNonStock = false,
-        int? minStockQuantity = 0);
+        int? minStockQuantity = 0,
+        string? scrapeStorePrefix = null);
 
     /// <summary>
     /// Gets products by product attribute

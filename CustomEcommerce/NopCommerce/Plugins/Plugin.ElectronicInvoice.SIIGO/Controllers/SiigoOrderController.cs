@@ -157,13 +157,17 @@ namespace Plugin.ElectronicInvoice.SIIGO.Controllers
                 var selectedSubOptionCode = await _genericAttributeService.GetAttributeAsync<int>(order, "SelectedPaymentSubOption");
                 var selectedSubOptionName = await _genericAttributeService.GetAttributeAsync<string>(order, "SelectedPaymentSubOptionName");
                 var selectedSubOptionDate = await _genericAttributeService.GetAttributeAsync<DateTime?>(order, "SelectedPaymentSubOptionDate");
+                
+                // Get SIIGO invoice public URL
+                var publicUrl = await _genericAttributeService.GetAttributeAsync<string>(order, "SiigoInvoicePublicUrl");
 
                 return Json(new { 
                     success = true,
                     hasSubOption = selectedSubOptionCode > 0,
                     subOptionCode = selectedSubOptionCode,
                     subOptionName = selectedSubOptionName,
-                    subOptionDate = selectedSubOptionDate?.ToString("yyyy-MM-dd HH:mm")
+                    subOptionDate = selectedSubOptionDate?.ToString("yyyy-MM-dd HH:mm"),
+                    publicUrl = publicUrl
                 });
             }
             catch (Exception ex)

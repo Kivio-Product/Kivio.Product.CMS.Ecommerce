@@ -145,6 +145,14 @@
                                                 <nop-select asp-for="SearchVendorId" asp-items="Model.AvailableVendors" />
                                             </div>
                                         </div>
+                                         <div class="form-group row" @(Model.AvailableScrapeStores.Count == 1 || Model.IsLoggedInAsVendor ? Html.Raw("style='display: none;'") : null)>
+                                            <div class="col-md-4">
+                                                <nop-label asp-for="SearchScrapeStorePrefix" />
+                                            </div>
+                                            <div class="col-md-8">
+                                                <nop-select asp-for="SearchScrapeStorePrefix" asp-items="Model.AvailableScrapeStores" />
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="col-md-7">
                                         <div class="form-group row" @(Model.HideStoresList ? Html.Raw("style=\"display:none\"") : null)>
@@ -238,7 +246,8 @@
                                       new FilterParameter(nameof(Model.SearchWarehouseId)),
                                       new FilterParameter(nameof(Model.SearchVendorId)),
                                       new FilterParameter(nameof(Model.SearchProductTypeId)),
-                                      new FilterParameter(nameof(Model.SearchPublishedId))
+                                      new FilterParameter(nameof(Model.SearchPublishedId)),
+                                      new FilterParameter(nameof(Model.SearchScrapeStorePrefix))
                                   },
                              ColumnCollection = new List<ColumnProperty>
                                   {
@@ -448,6 +457,7 @@ $(function() {
             SearchProductTypeId: $('#@Html.IdFor(model => model.SearchProductTypeId)').val(),
             SearchPublishedId: $('#@Html.IdFor(model => model.SearchPublishedId)').val(),
             SearchNonStockOnly: $('#@Html.IdFor(model => model.SearchNonStockOnly)').prop('checked'),
+            SearchScrapeStorePrefix: $('#@Html.IdFor(model => model.SearchScrapeStorePrefix)').val()
         };
         
         if (tableInitialized && $('#products-grid').length > 0) {
@@ -483,6 +493,7 @@ $(function() {
         $('#@Html.IdFor(model => model.SearchProductTypeId)').val(params.SearchProductTypeId || '');
         $('#@Html.IdFor(model => model.SearchPublishedId)').val(params.SearchPublishedId || '');
         $('#@Html.IdFor(model => model.SearchNonStockOnly)').prop('checked', params.SearchNonStockOnly || false);
+        $('#@Html.IdFor(model => model.SearchScrapeStorePrefix)').val(params.SearchScrapeStorePrefix || null);
 
         $('#search-products').trigger('click');
         

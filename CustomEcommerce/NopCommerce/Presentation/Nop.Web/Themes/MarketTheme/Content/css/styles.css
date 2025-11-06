@@ -3962,6 +3962,10 @@ button.email-a-friend-button:hover{
   transition: all 0.3s;
   border-radius: 5px;
 }
+.shopping-cart-page .common-buttons .continue-shopping-button{
+  color: #fff;
+  background-color: #7A37F0;
+}
 .checkout-attributes {
   margin: -30px 0 30px;
   color: #444;

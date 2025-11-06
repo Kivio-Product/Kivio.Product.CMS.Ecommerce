@@ -49,5 +49,11 @@ namespace Nop.Plugin.Api.Models.ProductsParameters
         /// </summary>
         [JsonProperty("is_download")]
         public bool? IsDownload { get; set; }
+
+        /// <summary>
+        ///     filter products by name (contains search)
+        /// </summary>
+        [JsonProperty("name")]
+        public string Name { get; set; }
     }
 }

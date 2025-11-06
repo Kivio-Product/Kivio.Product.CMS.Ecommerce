@@ -12,6 +12,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Data
         private const string SIIGO_INVOICE_NUMBER_KEY = "SiigoInvoiceNumber";
         private const string SIIGO_INVOICE_DATE_KEY = "SiigoInvoiceDate";
         private const string SIIGO_INVOICE_STATUS_KEY = "SiigoInvoiceStatus";
+        private const string SIIGO_INVOICE_PUBLIC_URL_KEY = "SiigoInvoicePublicUrl";
 
         /// <summary>
         /// Gets the SIIGO invoice ID
@@ -85,6 +86,22 @@ namespace Plugin.ElectronicInvoice.SIIGO.Data
         {
             var invoiceId = await order.GetSiigoInvoiceIdAsync(genericAttributeService);
             return !string.IsNullOrEmpty(invoiceId);
+        }
+
+        /// <summary>
+        /// Gets the SIIGO invoice public URL
+        /// </summary>
+        public static async Task<string> GetSiigoInvoicePublicUrlAsync(this Order order, IGenericAttributeService genericAttributeService)
+        {
+            return await genericAttributeService.GetAttributeAsync<string>(order, SIIGO_INVOICE_PUBLIC_URL_KEY);
+        }
+
+        /// <summary>
+        /// Sets the SIIGO invoice public URL
+        /// </summary>
+        public static async Task SetSiigoInvoicePublicUrlAsync(this Order order, IGenericAttributeService genericAttributeService, string publicUrl)
+        {
+            await genericAttributeService.SaveAttributeAsync(order, SIIGO_INVOICE_PUBLIC_URL_KEY, publicUrl);
         }
     }
 }

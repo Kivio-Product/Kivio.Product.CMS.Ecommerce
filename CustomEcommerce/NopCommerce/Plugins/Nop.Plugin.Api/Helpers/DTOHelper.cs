@@ -62,6 +62,7 @@ namespace Nop.Plugin.Api.Helpers
         private readonly IStoreService _storeService;
         private readonly IUrlRecordService _urlRecordService;
         private readonly ISpecificationAttributeService _specificationAttributeService;
+        private readonly IGenericAttributeService _genericAttributeService;
 
         private readonly Lazy<Task<Language>> _customerLanguage;
 
@@ -85,7 +86,8 @@ namespace Nop.Plugin.Api.Helpers
           IAuthenticationService authenticationService,
           ICustomerApiService customerApiService,
           ICurrencyService currencyService,
-          ISpecificationAttributeService specificationAttributeService)
+          ISpecificationAttributeService specificationAttributeService,
+          IGenericAttributeService genericAttributeService)
         {
             _productService = productService;
             _aclService = aclService;
@@ -107,6 +109,7 @@ namespace Nop.Plugin.Api.Helpers
             _customerApiService = customerApiService;
             _currencyService = currencyService;
             _specificationAttributeService = specificationAttributeService;
+            _genericAttributeService = genericAttributeService;
 
             _customerLanguage = new Lazy<Task<Language>>(GetAuthenticatedCustomerLanguage);
         }
@@ -181,6 +184,13 @@ namespace Nop.Plugin.Api.Helpers
 
             orderDto.BillingAddress = (await _addressService.GetAddressByIdAsync(order.BillingAddressId))?.ToDto();
             orderDto.ShippingAddress = (await _addressService.GetAddressByIdAsync(order.ShippingAddressId ?? 0))?.ToDto();
+
+            // Get SIIGO invoice public URL if exists
+            var siigoPublicUrl = await _genericAttributeService.GetAttributeAsync<string>(order, "SiigoInvoicePublicUrl");
+            if (!string.IsNullOrEmpty(siigoPublicUrl))
+            {
+                orderDto.SiigoInvoicePublicUrl = siigoPublicUrl;
+            }
 
             return orderDto;
         }
