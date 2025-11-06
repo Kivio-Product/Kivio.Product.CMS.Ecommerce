@@ -353,68 +353,6 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
             ];
         }
 
-        public async Task<IActionResult> HolidayList()
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermission.Configuration.MANAGE_PLUGINS))
-                return AccessDeniedView();
-
-            return View("~/Plugins/Misc.DeliveryTimePicker/Views/HolidayList.cshtml");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> HolidayList(int draw, int start, int length)
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermission.Configuration.MANAGE_PLUGINS))
-                return AccessDeniedView();
-
-            var holidays = await _deliveryTimeService.GetAllHolidaysAsync();
-
-            var data = holidays.Skip(start).Take(length).Select(holiday => new HolidayModel
-            {
-                Id = holiday.Id,
-                Date = holiday.Date,
-                Name = holiday.Name,
-                IsRecurring = holiday.IsRecurring,
-                CountryCode = holiday.CountryCode,
-                IsActive = holiday.IsActive
-            }).ToList();
-
-            return Json(new
-            {
-                draw,
-                recordsTotal = holidays.Count,
-                recordsFiltered = holidays.Count,
-                data
-            });
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ImportHolidays()
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermission.Configuration.MANAGE_PLUGINS))
-                return AccessDeniedView();
-
-            try
-            {
-                var settings = await _settingService.LoadSettingAsync<DeliveryTimePickerSettings>();
-                var currentYear = DateTime.Now.Year;
-
-                await _deliveryTimeService.ImportHolidaysAsync(settings.HolidayCountryCode, currentYear);
-                await _deliveryTimeService.ImportHolidaysAsync(settings.HolidayCountryCode, currentYear + 1);
-
-                _notificationService.SuccessNotification(
-                    await _localizationService.GetResourceAsync("Plugins.Misc.DeliveryTimePicker.Holidays.Imported"));
-            }
-            catch (Exception ex)
-            {
-                _notificationService.ErrorNotification(
-                    await _localizationService.GetResourceAsync("Plugins.Misc.DeliveryTimePicker.Holidays.ImportError") +
-                    ": " + ex.Message);
-            }
-
-            return RedirectToAction("HolidayList");
-        }
-
         #endregion
     }
 }

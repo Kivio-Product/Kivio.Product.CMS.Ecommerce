@@ -98,45 +98,6 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Services
 
         #endregion
 
-        #region Holidays
-
-        /// <summary>
-        /// Gets all holidays
-        /// </summary>
-        Task<IList<Holiday>> GetAllHolidaysAsync();
-
-        /// <summary>
-        /// Gets a holiday by ID
-        /// </summary>
-        Task<Holiday> GetHolidayByIdAsync(int id);
-
-        /// <summary>
-        /// Inserts a holiday
-        /// </summary>
-        Task InsertHolidayAsync(Holiday holiday);
-
-        /// <summary>
-        /// Updates a holiday
-        /// </summary>
-        Task UpdateHolidayAsync(Holiday holiday);
-
-        /// <summary>
-        /// Deletes a holiday
-        /// </summary>
-        Task DeleteHolidayAsync(Holiday holiday);
-
-        /// <summary>
-        /// Checks if a date is a holiday
-        /// </summary>
-        Task<bool> IsHolidayAsync(DateTime date);
-
-        /// <summary>
-        /// Imports holidays from external service
-        /// </summary>
-        Task ImportHolidaysAsync(string countryCode, int year);
-
-        #endregion
-
         #region Validation
 
         /// <summary>

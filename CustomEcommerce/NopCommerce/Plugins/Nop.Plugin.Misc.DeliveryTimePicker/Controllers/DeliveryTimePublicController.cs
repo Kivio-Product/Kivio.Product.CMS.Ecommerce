@@ -30,6 +30,7 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
         IShoppingCartService shoppingCartService,
         IOrderProcessingService orderProcessingService,
         IHttpContextAccessor httpContextAccessor,
+        IColombianHolidayService colombianHolidayService,
         DeliveryTimePickerSettings settings,
         AddressSettings addressSettings,
         ICustomerService customerService,
@@ -48,6 +49,7 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
         private readonly IShoppingCartService _shoppingCartService = shoppingCartService;
         private readonly IOrderProcessingService _orderProcessingService = orderProcessingService;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly IColombianHolidayService _colombianHolidayService = colombianHolidayService;
         private readonly DeliveryTimePickerSettings _settings = settings;
         protected readonly AddressSettings _addressSettings = addressSettings;
         protected readonly ICustomerService _customerService = customerService;
@@ -88,6 +90,10 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
 
                     // Skip weekends if configured
                     if (_settings.DisableWeekends && (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday))
+                        continue;
+
+                    // Skip holidays using centralized Colombian holiday service
+                    if (_colombianHolidayService.IsColombianHoliday(date))
                         continue;
 
                     var daySlots = new AvailableDeliverySlotModel
@@ -532,6 +538,44 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
             catch (Exception ex)
             {
                 return Content("Error loading delivery time picker: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Gets holidays for a date range to mark them in the calendar
+        /// </summary>
+        [HttpGet]
+        public IActionResult GetHolidays(DateTime? startDate, DateTime? endDate)
+        {
+            try
+            {
+                var start = startDate ?? DateTime.Now.Date;
+                var end = endDate ?? start.AddDays(60);
+
+                var holidays = new List<object>();
+
+                // Get Colombian holidays from centralized service
+                // (Include holidays for all years in the range)
+                var years = Enumerable.Range(start.Year, end.Year - start.Year + 1);
+                foreach (var year in years)
+                {
+                    var colombianHolidays = _colombianHolidayService.GetHolidaysForYear(year);
+                    foreach (var (Date, Name) in colombianHolidays.Where(h => h.Date >= start && h.Date <= end))
+                    {
+                        holidays.Add(new
+                        {
+                            date = Date.ToString("yyyy-MM-dd"),
+                            name = Name,
+                            source = "colombian"
+                        });
+                    }
+                }
+
+                return Json(new { success = true, data = holidays });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
             }
         }
 

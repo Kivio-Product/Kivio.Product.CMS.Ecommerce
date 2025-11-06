@@ -9,7 +9,6 @@ using Nop.Plugin.Misc.DeliveryTimePicker.Domain;
 using Nop.Services.Catalog;
 using Nop.Services.Configuration;
 using Nop.Services.Orders;
-using Nager.Date;
 
 namespace Nop.Plugin.Misc.DeliveryTimePicker.Services
 {
@@ -22,11 +21,11 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Services
 
         private readonly IRepository<DeliveryTimeSlot> _timeSlotRepository;
         private readonly IRepository<DeliveryTimeReservation> _reservationRepository;
-        private readonly IRepository<Holiday> _holidayRepository;
         private readonly ISettingService _settingService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IProductService _productService;
         private readonly IWorkContext _workContext;
+        private readonly IColombianHolidayService _colombianHolidayService;
         private readonly DeliveryTimePickerSettings _settings;
 
         #endregion
@@ -36,20 +35,20 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Services
         public DeliveryTimeService(
             IRepository<DeliveryTimeSlot> timeSlotRepository,
             IRepository<DeliveryTimeReservation> reservationRepository,
-            IRepository<Holiday> holidayRepository,
             ISettingService settingService,
             IShoppingCartService shoppingCartService,
             IProductService productService,
             IWorkContext workContext,
+            IColombianHolidayService colombianHolidayService,
             DeliveryTimePickerSettings settings)
         {
             _timeSlotRepository = timeSlotRepository;
             _reservationRepository = reservationRepository;
-            _holidayRepository = holidayRepository;
             _settingService = settingService;
             _shoppingCartService = shoppingCartService;
             _productService = productService;
             _workContext = workContext;
+            _colombianHolidayService = colombianHolidayService;
             _settings = settings;
         }
 
@@ -64,14 +63,6 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Services
         {
             var timeZone = TimeZoneInfo.FindSystemTimeZoneById(_settings.TimeZoneId);
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
-        }
-
-        /// <summary>
-        /// Checks if a date is a weekend
-        /// </summary>
-        private bool IsWeekend(DateTime date)
-        {
-            return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
         }
 
         #endregion
@@ -260,119 +251,15 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Services
 
         #endregion
 
-        #region Holidays
-
-        public virtual async Task<IList<Holiday>> GetAllHolidaysAsync()
-        {
-            var holidays = await _holidayRepository.GetAllAsync(query =>
-            {
-                return query.Where(x => x.IsActive).OrderBy(x => x.Date);
-            });
-
-            return holidays.ToList();
-        }
-
-        public virtual async Task<Holiday> GetHolidayByIdAsync(int id)
-        {
-            return await _holidayRepository.GetByIdAsync(id);
-        }
-
-        public virtual async Task InsertHolidayAsync(Holiday holiday)
-        {
-            if (holiday == null)
-                throw new ArgumentNullException(nameof(holiday));
-
-            holiday.CreatedOnUtc = DateTime.UtcNow;
-
-            await _holidayRepository.InsertAsync(holiday);
-        }
-
-        public virtual async Task UpdateHolidayAsync(Holiday holiday)
-        {
-            if (holiday == null)
-                throw new ArgumentNullException(nameof(holiday));
-
-            await _holidayRepository.UpdateAsync(holiday);
-        }
-
-        public virtual async Task DeleteHolidayAsync(Holiday holiday)
-        {
-            if (holiday == null)
-                throw new ArgumentNullException(nameof(holiday));
-
-            await _holidayRepository.DeleteAsync(holiday);
-        }
-
-        public virtual async Task<bool> IsHolidayAsync(DateTime date)
-        {
-            var holidays = await _holidayRepository.GetAllAsync(query =>
-            {
-                return query.Where(x => x.IsActive && x.Date.Date == date.Date);
-            });
-
-            if (holidays.Any())
-                return true;
-
-            // Check recurring holidays
-            var recurringHolidays = await _holidayRepository.GetAllAsync(query =>
-            {
-                return query.Where(x =>
-                    x.IsActive &&
-                    x.IsRecurring &&
-                    x.Date.Month == date.Month &&
-                    x.Date.Day == date.Day);
-            });
-
-            return recurringHolidays.Any();
-        }
-
-        public virtual async Task ImportHolidaysAsync(string countryCode, int year)
-        {
-            try
-            {
-                // Parse country code to CountryCode enum
-                if (!Enum.TryParse<CountryCode>(countryCode, out var country))
-                    return;
-
-                // Get public holidays from Nager.Date
-                var publicHolidays = DateSystem.GetPublicHolidays(year, country);
-
-                foreach (var holiday in publicHolidays)
-                {
-                    // Check if holiday already exists
-                    var existingHolidays = await _holidayRepository.GetAllAsync(query =>
-                    {
-                        return query.Where(x =>
-                            x.Date.Date == holiday.Date.Date &&
-                            x.CountryCode == countryCode);
-                    });
-
-                    if (!existingHolidays.Any())
-                    {
-                        var newHoliday = new Holiday
-                        {
-                            Date = holiday.Date,
-                            Name = holiday.LocalName ?? holiday.Name,
-                            IsRecurring = false,
-                            CountryCode = countryCode,
-                            IsAutoImported = true,
-                            IsActive = true
-                        };
-
-                        await InsertHolidayAsync(newHoliday);
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                // Log error but don't throw
-                // This is not critical functionality
-            }
-        }
-
-        #endregion
-
         #region Validation
+
+        /// <summary>
+        /// Checks if a date is a holiday using the centralized Colombian holiday service
+        /// </summary>
+        private bool IsHoliday(DateTime date)
+        {
+            return _colombianHolidayService.IsColombianHoliday(date);
+        }
 
         public virtual async Task<(bool IsValid, string Reason)> ValidateDeliveryDateAsync(DateTime date, bool hasExitoProducts)
         {
@@ -383,11 +270,11 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Services
                 return (false, "La fecha seleccionada está en el pasado");
 
             // Check if it's a weekend and weekends are disabled
-            if (_settings.DisableWeekends && IsWeekend(date))
+            if (_settings.DisableWeekends && _colombianHolidayService.IsWeekend(date))
                 return (false, "Los fines de semana no están disponibles para entrega");
 
-            // Check if it's a holiday
-            if (await IsHolidayAsync(date))
+            // Check if it's a holiday using centralized service
+            if (IsHoliday(date))
                 return (false, "La fecha seleccionada es un día festivo");
 
             // For NON-Éxito products: Maximum delivery is same day

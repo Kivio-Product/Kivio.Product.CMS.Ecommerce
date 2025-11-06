@@ -12,7 +12,6 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Data
         {
             Create.TableFor<DeliveryTimeSlot>();
             Create.TableFor<DeliveryTimeReservation>();
-            Create.TableFor<Holiday>();
         }
     }
 }
