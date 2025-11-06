@@ -37,42 +37,13 @@ var DeliveryTimePicker = (function () {
         // Setup event listeners
         setupEventListeners();
         
-        // Load available slots
-        loadAvailableSlots();
-        
-        // Restore saved data if available
-        if (config.savedDate && config.savedMinTime && config.savedMaxTime) {
-            console.log('DeliveryTimePicker: Restoring saved data', {
-                date: config.savedDate,
-                minTime: config.savedMinTime,
-                maxTime: config.savedMaxTime
-            });
-            
-            // Parse and set the saved date
-            var dateParts = config.savedDate.split('-');
-            if (dateParts.length === 3) {
-                var day = parseInt(dateParts[0], 10);
-                var month = parseInt(dateParts[1], 10) - 1; // JavaScript months are 0-indexed
-                var year = parseInt(dateParts[2], 10);
-                state.selectedDate = new Date(year, month, day);
-                
-                // Update the date picker display
-                $('#deliveryDatePicker').val(config.savedDate);
-                
-                // Set the times
-                state.selectedMinTime = config.savedMinTime;
-                state.selectedMaxTime = config.savedMaxTime;
-                
-                // Update the dropdowns
-                $('#minDeliveryTime').val(config.savedMinTime);
-                $('#maxDeliveryTime').val(config.savedMaxTime);
-                
-                // Enable the time selects
-                $('#minDeliveryTime, #maxDeliveryTime').prop('disabled', false);
-                
-                console.log('DeliveryTimePicker: Data restored successfully');
+        // Load available slots, then restore saved data
+        loadAvailableSlots(function() {
+            // Restore saved data if available (after slots are loaded)
+            if (config.savedDate && config.savedMinTime && config.savedMaxTime) {
+                restoreSavedData();
             }
-        }
+        });
     }
 
     /**
@@ -115,17 +86,22 @@ var DeliveryTimePicker = (function () {
     /**
      * Load available slots from server
      */
-    function loadAvailableSlots() {
+    function loadAvailableSlots(callback) {
         $.ajax({
             url: config.baseUrl + '/GetAvailableSlots',
             type: 'GET',
             data: {
-                daysToShow: 60
+                daysToShow: 10
             },
             success: function (response) {
                 if (response.success) {
                     state.availableSlots = response.data;
                     console.log('Available slots loaded:', state.availableSlots);
+                    
+                    // Call callback if provided
+                    if (callback && typeof callback === 'function') {
+                        callback();
+                    }
                 } else {
                     console.error('Error loading slots:', response.message);
                 }
@@ -134,6 +110,56 @@ var DeliveryTimePicker = (function () {
                 console.error('Error loading available slots:', error);
             }
         });
+    }
+
+    /**
+     * Restore saved data (date and time)
+     */
+    function restoreSavedData() {
+        console.log('DeliveryTimePicker: Restoring saved data', {
+            date: config.savedDate,
+            minTime: config.savedMinTime,
+            maxTime: config.savedMaxTime
+        });
+        
+        // Parse and set the saved date
+        var dateParts = config.savedDate.split('-');
+        if (dateParts.length === 3) {
+            var day = parseInt(dateParts[0], 10);
+            var month = parseInt(dateParts[1], 10) - 1; // JavaScript months are 0-indexed
+            var year = parseInt(dateParts[2], 10);
+            state.selectedDate = new Date(year, month, day);
+            
+            // Update the date picker display
+            $('#deliveryDatePicker').val(config.savedDate);
+            
+            // Set the times in state
+            state.selectedMinTime = config.savedMinTime;
+            state.selectedMaxTime = config.savedMaxTime;
+            
+            // Update the hidden fields
+            $('#selectedDeliveryDate').val(config.savedDate);
+            $('#selectedMinTime').val(config.savedMinTime);
+            $('#selectedMaxTime').val(config.savedMaxTime);
+            
+            // Load time slots for the selected date
+            var selectedSlot = state.availableSlots.find(s => 
+                ((s.dateFormatted && s.dateFormatted === config.savedDate) || 
+                 (s.DateFormatted && s.DateFormatted === config.savedDate))
+            );
+            
+            if (selectedSlot) {
+                // Render time slots
+                renderTimeSlots();
+                
+                // Enable the time selects
+                $('#minDeliveryTime, #maxDeliveryTime').prop('disabled', false);
+                
+                console.log('DeliveryTimePicker: Data restored successfully');
+            } else {
+                console.warn('DeliveryTimePicker: Saved date not found in available slots');
+            }
+        }
     }
 
     /**

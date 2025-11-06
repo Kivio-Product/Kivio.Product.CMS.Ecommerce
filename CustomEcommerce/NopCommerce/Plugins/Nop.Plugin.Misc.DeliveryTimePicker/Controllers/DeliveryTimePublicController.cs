@@ -1,14 +1,23 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
+using Nop.Core.Domain.Common;
+using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Orders;
+using Nop.Core.Domain.Payments;
+using Nop.Core.Http.Extensions;
 using Nop.Plugin.Misc.DeliveryTimePicker.Domain;
 using Nop.Plugin.Misc.DeliveryTimePicker.Models;
 using Nop.Plugin.Misc.DeliveryTimePicker.Services;
 using Nop.Plugin.Misc.DeliveryTimePicker.Services.Rules;
 using Nop.Services.Common;
-using Nop.Services.Configuration;
+using Nop.Services.Customers;
 using Nop.Services.Orders;
+using Nop.Services.Payments;
+using Nop.Web.Factories;
 using Nop.Web.Framework.Controllers;
+using Nop.Web.Framework.Themes;
+using Nop.Web.Models.Checkout;
 
 namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
 {
@@ -20,7 +29,14 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
         IGenericAttributeService genericAttributeService,
         IShoppingCartService shoppingCartService,
         IOrderProcessingService orderProcessingService,
-        DeliveryTimePickerSettings settings) : BasePluginController
+        IHttpContextAccessor httpContextAccessor,
+        DeliveryTimePickerSettings settings,
+        AddressSettings addressSettings,
+        ICustomerService customerService,
+        ICheckoutModelFactory checkoutModelFactory,
+        PaymentSettings paymentSettings,
+        IPaymentPluginManager paymentPluginManager,
+        IThemeContext themeContext) : BasePluginController
     {
         #region Fields
 
@@ -31,7 +47,14 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
         private readonly IGenericAttributeService _genericAttributeService = genericAttributeService;
         private readonly IShoppingCartService _shoppingCartService = shoppingCartService;
         private readonly IOrderProcessingService _orderProcessingService = orderProcessingService;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         private readonly DeliveryTimePickerSettings _settings = settings;
+        protected readonly AddressSettings _addressSettings = addressSettings;
+        protected readonly ICustomerService _customerService = customerService;
+        protected readonly ICheckoutModelFactory _checkoutModelFactory = checkoutModelFactory;
+        protected readonly PaymentSettings _paymentSettings = paymentSettings;
+        protected readonly IPaymentPluginManager _paymentPluginManager = paymentPluginManager;
+        private readonly IThemeContext _themeContext = themeContext;
 
         #endregion
         #region Ctor
@@ -62,7 +85,7 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
                 for (int i = 0; i < daysToShow; i++)
                 {
                     var date = start.AddDays(i);
-                    
+
                     // Skip weekends if configured
                     if (_settings.DisableWeekends && (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday))
                         continue;
@@ -266,6 +289,113 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
             }
         }
 
+        protected virtual async Task<JsonResult> OpcLoadStepAfterPaymentMethod(IPaymentMethod paymentMethod, IList<ShoppingCartItem> cart)
+        {
+            //skip payment info page
+            var paymentInfo = new ProcessPaymentRequest();
+
+            //session save
+            await HttpContext.Session.SetAsync("OrderPaymentInfo", paymentInfo);
+
+            var confirmOrderModel = await _checkoutModelFactory.PrepareConfirmOrderModelAsync(cart);
+
+            var themeName = await _themeContext.GetWorkingThemeNameAsync();
+            var viewPathOpcConfirmOrder = $"~/Themes/{themeName}/Views/Checkout/OpcConfirmOrder.cshtml";
+
+            return Json(new
+            {
+                update_section = new UpdateSectionJsonModel
+                {
+                    name = "confirm-order",
+                    html = await RenderPartialViewToStringAsync(viewPathOpcConfirmOrder, confirmOrderModel)
+                },
+                goto_section = "confirm_order"
+            });
+        }
+
+        protected virtual async Task<IActionResult> OpcLoadStepAfterDeliveryTime()
+        {
+            try
+            {
+
+                var themeName = await _themeContext.GetWorkingThemeNameAsync();
+                var viewPathOpcPaymentMethods = $"~/Themes/{themeName}/Views/Checkout/OpcPaymentMethods.cshtml";
+                var viewPathOpcConfirmOrder = $"~/Themes/{themeName}/Views/Checkout/OpcConfirmOrder.cshtml";
+
+                var customer = await _workContext.GetCurrentCustomerAsync();
+                var store = await _storeContext.GetCurrentStoreAsync();
+                var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+                var isPaymentWorkflowRequired = await _orderProcessingService.IsPaymentWorkflowRequiredAsync(cart, false);
+                if (isPaymentWorkflowRequired)
+                {
+                    //filter by country
+                    var filterByCountryId = 0;
+                    if (_addressSettings.CountryEnabled)
+                    {
+                        filterByCountryId = (await _customerService.GetCustomerBillingAddressAsync(customer))?.CountryId ?? 0;
+                    }
+
+                    //payment is required
+                    var paymentMethodModel = await _checkoutModelFactory.PreparePaymentMethodModelAsync(cart, filterByCountryId);
+
+                    if (_paymentSettings.BypassPaymentMethodSelectionIfOnlyOne &&
+                        paymentMethodModel.PaymentMethods.Count == 1 && !paymentMethodModel.DisplayRewardPoints)
+                    {
+                        //if we have only one payment method and reward points are disabled or the current customer doesn't have any reward points
+                        //so customer doesn't have to choose a payment method
+
+                        var selectedPaymentMethodSystemName = paymentMethodModel.PaymentMethods[0].PaymentMethodSystemName;
+                        await _genericAttributeService.SaveAttributeAsync(customer,
+                            NopCustomerDefaults.SelectedPaymentMethodAttribute,
+                            selectedPaymentMethodSystemName, store.Id);
+
+                        var paymentMethodInst = await _paymentPluginManager
+                            .LoadPluginBySystemNameAsync(selectedPaymentMethodSystemName, customer, store.Id);
+                        if (!_paymentPluginManager.IsPluginActive(paymentMethodInst))
+                            throw new Exception("Selected payment method can't be parsed");
+
+                        return await OpcLoadStepAfterPaymentMethod(paymentMethodInst, cart);
+                    }
+
+                    //customer have to choose a payment method
+                    return Json(new
+                    {
+                        update_section = new UpdateSectionJsonModel
+                        {
+                            name = "payment-method",
+                            html = await RenderPartialViewToStringAsync(viewPathOpcPaymentMethods, paymentMethodModel)
+                        },
+                        goto_section = "payment_method"
+                    });
+                }
+
+                //payment is not required
+                await _genericAttributeService.SaveAttributeAsync<string>(customer,
+                    NopCustomerDefaults.SelectedPaymentMethodAttribute, null, store.Id);
+
+                var confirmOrderModel = await _checkoutModelFactory.PrepareConfirmOrderModelAsync(cart);
+                return Json(new
+                {
+                    update_section = new UpdateSectionJsonModel
+                    {
+                        name = "confirm-order",
+                        html = await RenderPartialViewToStringAsync(viewPathOpcConfirmOrder, confirmOrderModel)
+                    },
+                    goto_section = "confirm_order"
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    error = true,
+                    message = "Error loading payment method step: " + ex.Message
+                });
+            }
+        }
+
         /// <summary>
         /// Saves delivery time selection in One Page Checkout
         /// </summary>
@@ -289,8 +419,8 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
                 }
 
                 // Validate the model
-                if (string.IsNullOrEmpty(model.DeliveryDate) || 
-                    string.IsNullOrEmpty(model.MinDeliveryTime) || 
+                if (string.IsNullOrEmpty(model.DeliveryDate) ||
+                    string.IsNullOrEmpty(model.MinDeliveryTime) ||
                     string.IsNullOrEmpty(model.MaxDeliveryTime))
                 {
                     return Json(new
@@ -349,39 +479,13 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
                 await _genericAttributeService.SaveAttributeAsync(customer, "Delivery.Date", model.DeliveryDate, store.Id);
                 await _genericAttributeService.SaveAttributeAsync(customer, "Delivery.MinTime", model.MinDeliveryTime, store.Id);
                 await _genericAttributeService.SaveAttributeAsync(customer, "Delivery.MaxTime", model.MaxDeliveryTime, store.Id);
-                
+
                 if (model.ReservationId.HasValue)
                 {
                     await _genericAttributeService.SaveAttributeAsync(customer, "Delivery.ReservationId", model.ReservationId.Value.ToString(), store.Id);
                 }
 
-                // Check if payment workflow is required
-                var isPaymentWorkflowRequired = await _orderProcessingService.IsPaymentWorkflowRequiredAsync(cart, false);
-                
-                if (!isPaymentWorkflowRequired)
-                {
-                    // Payment is not required, go directly to confirm order
-                    return Json(new
-                    {
-                        update_section = new
-                        {
-                            name = "confirm-order",
-                            html = "" // Will be loaded by the framework
-                        },
-                        goto_section = "confirm_order"
-                    });
-                }
-
-                // Payment is required, go to payment method step
-                return Json(new
-                {
-                    update_section = new
-                    {
-                        name = "payment-method",
-                        html = "" // Will be loaded by the framework
-                    },
-                    goto_section = "payment_method"
-                });
+                return await OpcLoadStepAfterDeliveryTime();
             }
             catch (Exception ex)
             {
@@ -403,7 +507,7 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
             {
                 var customer = await _workContext.GetCurrentCustomerAsync();
                 var store = await _storeContext.GetCurrentStoreAsync();
-                
+
                 // Get suppliers from cart using rule service
                 var suppliers = await _deliveryRuleService.GetSuppliersFromCartAsync(customer.Id);
                 var hasExitoProducts = suppliers.Contains("EXITO");

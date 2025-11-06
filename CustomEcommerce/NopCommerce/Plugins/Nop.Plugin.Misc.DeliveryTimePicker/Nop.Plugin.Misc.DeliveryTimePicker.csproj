@@ -38,6 +38,7 @@
 
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)NopCommerce\src\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
+    <ProjectReference Include="$(SolutionDir)NopCommerce\src\Presentation\Nop.Web\Nop.Web.csproj" />
     <ClearPluginAssemblies Include="$(SolutionDir)NopCommerce\src\Build\ClearPluginAssemblies.proj" />
   </ItemGroup>
 

@@ -350,10 +350,9 @@ public partial class CheckoutController : BasePublicController
                 return false;
 
             // Check if plugin is enabled in settings
-            //var settings = await _settingService.LoadSettingAsync<Nop.Plugin.Misc.DeliveryTimePicker.DeliveryTimePickerSettings>(store.Id);
+            var IsDeliveryTimePickerEnabled = await _settingService.GetSettingByKeyAsync<bool>("PantryStaples.ProductTypeStrategy", defaultValue: false);
 
-            //return settings?.Enabled ?? false;
-            return true;
+            return IsDeliveryTimePickerEnabled;
         }
         catch
         {
@@ -1486,7 +1485,7 @@ public partial class CheckoutController : BasePublicController
                 update_section = new UpdateSectionJsonModel
                 {
                     name = "delivery_time",
-                    html = "" // Will be loaded via AJAX by DeliveryTime.init()
+                    html = ""
                 },
                 goto_section = "delivery_time"
             });
