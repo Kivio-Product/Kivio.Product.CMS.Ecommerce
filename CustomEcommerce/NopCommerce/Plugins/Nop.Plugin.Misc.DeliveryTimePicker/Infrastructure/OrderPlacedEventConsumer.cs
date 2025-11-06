@@ -79,15 +79,15 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Infrastructure
                     !string.IsNullOrEmpty(deliveryMaxTime))
                 {
                     // Copy to order generic attributes
-                    await _genericAttributeService.SaveAttributeAsync(order, "Delivery.Date", deliveryDate);
-                    await _genericAttributeService.SaveAttributeAsync(order, "Delivery.MinTime", deliveryMinTime);
-                    await _genericAttributeService.SaveAttributeAsync(order, "Delivery.MaxTime", deliveryMaxTime);
-                    
+                    await _genericAttributeService.SaveAttributeAsync(order, "Delivery.Date", deliveryDate,  order.StoreId);
+                    await _genericAttributeService.SaveAttributeAsync(order, "Delivery.MinTime", deliveryMinTime,  order.StoreId);
+                    await _genericAttributeService.SaveAttributeAsync(order, "Delivery.MaxTime", deliveryMaxTime,  order.StoreId);
+
                     // Confirm the reservation if exists
                     if (!string.IsNullOrEmpty(reservationIdStr) && int.TryParse(reservationIdStr, out int reservationId))
                     {
-                        await _genericAttributeService.SaveAttributeAsync(order, "Delivery.ReservationId", reservationIdStr);
-                        
+                        await _genericAttributeService.SaveAttributeAsync(order, "Delivery.ReservationId", reservationIdStr,  order.StoreId);
+
                         // Confirm the temporary reservation (makes it permanent and links to order)
                         await _deliveryTimeService.ConfirmReservationAsync(reservationId, order.Id);
                         

@@ -1,16 +1,19 @@
 using Nop.Core;
 using Nop.Data;
+using Nop.Plugin.Misc.DeliveryTimePicker.Components;
 using Nop.Plugin.Misc.DeliveryTimePicker.Domain;
+using Nop.Services.Cms;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Plugins;
+using Nop.Web.Framework.Infrastructure;
 
 namespace Nop.Plugin.Misc.DeliveryTimePicker
 {
     /// <summary>
     /// Delivery Time Picker plugin
     /// </summary>
-    public class DeliveryTimePickerPlugin : BasePlugin
+    public class DeliveryTimePickerPlugin : BasePlugin, IWidgetPlugin
     {
         #region Fields
 
@@ -37,6 +40,15 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        /// Gets a value indicating whether to hide this plugin on the widget list page in the admin area
+        /// </summary>
+        public bool HideInWidgetList => false;
+
+        #endregion
+
         #region Methods
 
         /// <summary>
@@ -45,6 +57,31 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker
         public override string GetConfigurationPageUrl()
         {
             return $"{_webHelper.GetStoreLocation()}Admin/DeliveryTimePicker/Configure";
+        }
+
+        /// <summary>
+        /// Gets widget zones where this widget should be rendered
+        /// </summary>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the widget zones
+        /// </returns>
+        public Task<IList<string>> GetWidgetZonesAsync()
+        {
+            return Task.FromResult<IList<string>>(
+            [
+                AdminWidgetZones.OrderDetailsBlock
+            ]);
+        }
+
+        /// <summary>
+        /// Gets a type of a view component for displaying widget
+        /// </summary>
+        /// <param name="widgetZone">Name of the widget zone</param>
+        /// <returns>View component type</returns>
+        public Type GetWidgetViewComponent(string widgetZone)
+        {
+            return typeof(OrderDeliveryTimeInfoViewComponent);
         }
 
         /// <summary>

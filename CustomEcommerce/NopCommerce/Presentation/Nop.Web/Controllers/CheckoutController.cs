@@ -350,7 +350,7 @@ public partial class CheckoutController : BasePublicController
                 return false;
 
             // Check if plugin is enabled in settings
-            var IsDeliveryTimePickerEnabled = await _settingService.GetSettingByKeyAsync<bool>("PantryStaples.ProductTypeStrategy", defaultValue: false);
+            var IsDeliveryTimePickerEnabled = await _settingService.GetSettingByKeyAsync<bool>("deliverytimepickersettings.enabled", defaultValue: false);
 
             return IsDeliveryTimePickerEnabled;
         }
