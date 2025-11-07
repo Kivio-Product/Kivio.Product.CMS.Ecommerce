@@ -1,0 +1,516 @@
+@model Nop.Plugin.Misc.DeliveryTimePicker.Models.DeliveryTimePickerPublicModel
+
+@{
+    var hasExitoProducts = Model?.HasExitoProducts ?? false;
+    var cutoffHour = Model?.CutoffHour ?? 13;
+    var savedDate = Model?.SavedDate ?? string.Empty;
+    var savedMinTime = Model?.SavedMinTime ?? string.Empty;
+    var savedMaxTime = Model?.SavedMaxTime ?? string.Empty;
+}
+
+<style>
+    .delivery-time-picker-wrapper {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+
+    /* Purple header section */
+    .delivery-header {
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%) !important;
+        color: white !important;
+        padding: 16px 24px !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        border-radius: 8px !important;
+        margin-bottom: 30px !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+
+    .delivery-header-number {
+        background: rgba(255, 255, 255, 0.25) !important;
+        width: 28px !important;
+        height: 28px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 15px !important;
+        font-weight: 700 !important;
+    }
+
+    /* Content area */
+    .delivery-time-picker-content {
+        background: transparent !important;
+        padding: 0 !important;
+    }
+
+    /* Section titles */
+    .section-title {
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        color: #374151 !important;
+        margin-bottom: 12px !important;
+        display: block !important;
+        text-align: center !important;
+    }
+
+    /* Date input section */
+    .date-input-wrapper {
+        position: relative !important;
+        margin-bottom: 15px !important;
+        z-index: 10 !important;
+    }
+
+    .delivery-date-input {
+        width: 100% !important;
+        padding: 14px 45px 14px 16px !important;
+        border: 2px solid #7c3aed !important;
+        border-radius: 8px !important;
+        font-size: 15px !important;
+        font-weight: 500 !important;
+        color: #6b7280 !important;
+        cursor: pointer !important;
+        transition: all 0.2s !important;
+        background: white !important;
+        letter-spacing: 1px !important;
+        text-align: center !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+
+    .delivery-date-input:hover {
+        border-color: #6d28d9 !important;
+    }
+
+    .delivery-date-input:focus {
+        outline: none !important;
+        border-color: #6d28d9 !important;
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1) !important;
+    }
+
+    .date-input-icon {
+        position: absolute !important;
+        right: 16px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        color: #7c3aed !important;
+        font-size: 14px !important;
+        pointer-events: none !important;
+    }
+
+    /* Info message */
+    .delivery-info-message {
+        color: #6b7280 !important;
+        font-size: 12px !important;
+        margin-top: 8px !important;
+        line-height: 1.5 !important;
+        text-align: center !important;
+    }
+
+    .calendar-wrapper {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        margin-top: 4px !important;
+        z-index: 99999 !important;
+        background: white !important;
+        border: 1px solid #7c3aed !important;
+        border-radius: 6px !important;
+        padding: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        max-width: 280px !important;
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        transition: opacity 0.15s ease, visibility 0.15s ease !important;
+    }
+    
+    .calendar-wrapper.show {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    .calendar-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 8px !important;
+        padding-bottom: 6px !important;
+        border-bottom: 1px solid #e5e7eb !important;
+    }
+
+    .calendar-month-year {
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        color: #1f2937 !important;
+        flex: 1 !important;
+        text-align: center !important;
+    }
+
+    .calendar-nav {
+        background: transparent !important;
+        border: none !important;
+        width: 24px !important;
+        height: 24px !important;
+        border-radius: 4px !important;
+        font-size: 14px !important;
+        cursor: pointer !important;
+        color: #6b7280 !important;
+        transition: all 0.15s !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+    }
+
+    .calendar-nav:hover {
+        background: #f3f4f6 !important;
+        color: #7c3aed !important;
+    }
+
+    .calendar-grid {
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        gap: 2px !important;
+    }
+
+    .calendar-day-header {
+        text-align: center !important;
+        font-weight: 600 !important;
+        padding: 4px 0 !important;
+        color: #9ca3af !important;
+        font-size: 10px !important;
+        text-transform: uppercase !important;
+    }
+
+    .calendar-day {
+        aspect-ratio: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        border-radius: 4px !important;
+        transition: all 0.15s !important;
+        font-weight: 500 !important;
+        font-size: 12px !important;
+        color: #374151 !important;
+        min-height: 26px !important;
+        padding: 2px !important;
+    }
+
+    .calendar-day:hover:not(.disabled):not(.other-month) {
+        background: #f3f4f6 !important;
+    }
+
+    .calendar-day.selected {
+        background: #7c3aed !important;
+        color: white !important;
+        font-weight: 700 !important;
+    }
+
+    .calendar-day.today {
+        border: 1px solid #7c3aed !important;
+        font-weight: 600 !important;
+    }
+
+    .calendar-day.disabled {
+        color: #d1d5db !important;
+        cursor: not-allowed !important;
+        text-decoration: line-through !important;
+        font-size: 11px !important;
+    }
+
+    .calendar-day.other-month {
+        color: #e5e7eb !important;
+        font-size: 11px !important;
+    }
+
+    .calendar-accept-btn {
+        margin-top: 8px !important;
+        width: 100% !important;
+        background: #7c3aed !important;
+        color: white !important;
+        border: none !important;
+        padding: 8px !important;
+        border-radius: 4px !important;
+        font-weight: 600 !important;
+        font-size: 12px !important;
+        cursor: pointer !important;
+        transition: all 0.15s !important;
+    }
+
+    .calendar-accept-btn:hover {
+        background: #6d28d9 !important;
+    }
+
+    /* Click instruction */
+    .click-section {
+        margin-top: 20px !important;
+        text-align: center !important;
+    }
+
+    .click-title {
+        font-size: 14px !important;
+        color: #374151 !important;
+        font-weight: 600 !important;
+        margin-bottom: 6px !important;
+    }
+
+    .click-instruction {
+        color: #6b7280 !important;
+        font-size: 12px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Time range section */
+    .time-range-section {
+        margin-top: 0 !important;
+    }
+
+    .time-section-header {
+        margin-bottom: 20px !important;
+    }
+
+    /* Hide old select dropdowns */
+    #minDeliveryTime,
+    #maxDeliveryTime {
+        display: none !important;
+    }
+
+    /* Time slot grid - Modern design */
+    .time-slot-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        margin-top: 0 !important;
+    }
+
+    .time-slot-option {
+        padding: 16px 12px !important;
+        text-align: center !important;
+        border: 2px solid #e5e7eb !important;
+        border-radius: 10px !important;
+        cursor: pointer !important;
+        transition: all 0.2s !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        color: #374151 !important;
+        background: white !important;
+    }
+
+    .time-slot-option:hover:not(.disabled) {
+        border-color: #7c3aed !important;
+        background: #f5f3ff !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15) !important;
+    }
+
+    .time-slot-option.selected {
+        background: #7c3aed !important;
+        color: white !important;
+        border-color: #7c3aed !important;
+        font-weight: 700 !important;
+    }
+
+    .time-slot-option.disabled {
+        background: #f9fafb !important;
+        color: #d1d5db !important;
+        cursor: not-allowed !important;
+        opacity: 0.5 !important;
+        border-color: #f3f4f6 !important;
+    }
+
+    .time-slot-option.disabled:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .capacity-info {
+        font-size: 11px !important;
+        margin-top: 6px !important;
+        font-weight: 500 !important;
+        opacity: 0.8 !important;
+    }
+
+    .time-slot-option.selected .capacity-info {
+        opacity: 0.9 !important;
+    }
+
+    /* Column layout - Single column centered */
+    .delivery-columns {
+        display: block !important;
+        max-width: 600px !important;
+        margin: 0 auto !important;
+    }
+
+    .date-column {
+        margin-bottom: 40px !important;
+    }
+</style>
+
+<form id="co-delivery-time-form">
+    <div class="checkout-data">
+        <div class="delivery-time-picker-wrapper" id="deliveryTimePickerSection">
+            
+            <!-- Content -->
+            <div class="delivery-time-picker-content">
+                <div class="delivery-columns">
+                    <!-- Date Selection Column -->
+                    <div class="date-column">
+                        <label class="section-title">Definir Fecha</label>
+                        <div class="date-input-wrapper">
+                            <input type="text" 
+                                   id="deliveryDatePicker" 
+                                   class="form-control delivery-date-input" 
+                                   placeholder="0 0 - 0 0 - 0 0 0 0"
+                                   readonly />
+                            <span class="date-input-icon">▼</span>
+                            
+                            <!-- Calendar popup inside wrapper -->
+                            <div id="datePickerCalendar" class="calendar-wrapper">
+                                <!-- Calendar will be rendered here by JavaScript -->
+                            </div>
+                        </div>
+                        <div class="delivery-info-message">
+                            Recuerda que por el momento no contamos con servicio los fines de semana o festivos
+                        </div>
+                        
+                        <!-- Click instruction for calendar -->
+                        <div class="click-section">
+                            <div class="click-title">Click</div>
+                            <div class="click-instruction">
+                                Al hacer Click sale ventana emergente con calendario
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Time Selection Column -->
+                    <div class="time-column">
+                        <div class="time-range-section">
+                            <div class="time-section-header">
+                                <label class="section-title">Rango de hora de entrega</label>
+                                <div class="click-instruction" style="text-align: center; margin-bottom: 15px;">
+                                    Al hacer Click se despliega las opciones de los horarios tanto en la parte de la mínima hora de entrega y la máxima hora de entrega
+                                </div>
+                            </div>
+                            
+                            <!-- Hidden select elements for compatibility -->
+                            <select id="minDeliveryTime" class="form-control">
+                                <option value="">Seleccione una fecha</option>
+                            </select>
+                            <select id="maxDeliveryTime" class="form-control">
+                                <option value="">Seleccione una fecha</option>
+                            </select>
+                            
+                            <!-- Time slot buttons -->
+                            <div id="timeSlotOptions" class="time-slot-grid" style="display: none;">
+                                <!-- Time slots will be populated here by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hidden fields to store selected values -->
+        <input type="hidden" id="selectedDeliveryDate" name="DeliveryDate" value="@savedDate" />
+        <input type="hidden" id="selectedMinTime" name="MinDeliveryTime" value="@savedMinTime" />
+        <input type="hidden" id="selectedMaxTime" name="MaxDeliveryTime" value="@savedMaxTime" />
+        <input type="hidden" id="selectedReservationId" name="ReservationId" />
+    </div>
+</form>
+
+<script type="text/javascript">
+    (function() {
+        console.log('DeliveryTimePicker: Loading script...');
+        
+        // Ensure jQuery is available
+        if (typeof jQuery === 'undefined') {
+            console.error('DeliveryTimePicker: jQuery is not loaded!');
+            return;
+        }
+        
+        // Function to load script dynamically
+        function loadScript(url, callback) {
+            // Check if script is already loaded
+            var existingScript = document.querySelector('script[src*="delivery-time-picker.js"]');
+            if (existingScript) {
+                console.log('DeliveryTimePicker: Script already loaded');
+                if (callback) callback();
+                return;
+            }
+            
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = url;
+            script.onload = function() {
+                console.log('DeliveryTimePicker: Script loaded successfully from ' + url);
+                if (callback) callback();
+            };
+            script.onerror = function() {
+                console.error('DeliveryTimePicker: Failed to load script from ' + url);
+            };
+            document.head.appendChild(script);
+        }
+        
+        // Initialize the picker
+        function initializeDeliveryTimePicker() {
+            console.log('DeliveryTimePicker: Attempting to initialize...');
+            
+            // Check if DeliveryTime object exists (from public.onepagecheckout.js)
+            if (typeof DeliveryTime === 'undefined') {
+                console.error('DeliveryTimePicker: DeliveryTime object not found in public.onepagecheckout.js');
+                return;
+            }
+            
+            // Set configuration
+            DeliveryTime.config = {
+                hasExitoProducts: @(hasExitoProducts.ToString().ToLower()),
+                cutoffHour: @cutoffHour,
+                savedDate: '@savedDate',
+                savedMinTime: '@savedMinTime',
+                savedMaxTime: '@savedMaxTime'
+            };
+            
+            console.log('DeliveryTimePicker: Config set', DeliveryTime.config);
+            
+            // Wait for DeliveryTimePicker object to be available
+            var attempts = 0;
+            var maxAttempts = 20;
+            var interval = setInterval(function() {
+                attempts++;
+                
+                if (typeof DeliveryTimePicker !== 'undefined') {
+                    clearInterval(interval);
+                    console.log('DeliveryTimePicker: Object found, initializing...');
+                    
+                    try {
+                        DeliveryTimePicker.init(DeliveryTime.config);
+                        console.log('DeliveryTimePicker: Successfully initialized');
+                    } catch (error) {
+                        console.error('DeliveryTimePicker: Error during initialization', error);
+                    }
+                } else if (attempts >= maxAttempts) {
+                    clearInterval(interval);
+                    console.error('DeliveryTimePicker: Object not found after ' + maxAttempts + ' attempts');
+                }
+            }, 100);
+        }
+        
+        // Load the script and then initialize
+        loadScript('/Plugins/Misc.DeliveryTimePicker/Scripts/delivery-time-picker.js?v=' + new Date().getTime(), 
+                   initializeDeliveryTimePicker);
+    })();
+</script>

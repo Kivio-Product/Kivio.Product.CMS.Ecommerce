@@ -1,0 +1,126 @@
+@model Nop.Plugin.Misc.DeliveryTimePicker.Models.ConfigurationModel
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+<form asp-controller="DeliveryTimePicker" asp-action="Configure" method="post">
+    <div class="cards-group">
+        <div class="card card-default">
+            <div class="card-body">
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="Enabled" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Enabled" />
+                        <span asp-validation-for="Enabled"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="CutoffHour" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="CutoffHour" />
+                        <span asp-validation-for="CutoffHour"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="MaxCapacityPerSlot" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="MaxCapacityPerSlot" />
+                        <span asp-validation-for="MaxCapacityPerSlot"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="DisableWeekends" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="DisableWeekends" />
+                        <span asp-validation-for="DisableWeekends"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="TimeZoneId" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-select asp-for="TimeZoneId" asp-items="Model.AvailableTimeZones" />
+                        <span asp-validation-for="TimeZoneId"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ExitoProductSkuPrefix" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ExitoProductSkuPrefix" />
+                        <span asp-validation-for="ExitoProductSkuPrefix"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="AutoFetchHolidays" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="AutoFetchHolidays" />
+                        <span asp-validation-for="AutoFetchHolidays"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="HolidayCountryCode" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="HolidayCountryCode" />
+                        <span asp-validation-for="HolidayCountryCode"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ReservationTimeoutMinutes" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ReservationTimeoutMinutes" />
+                        <span asp-validation-for="ReservationTimeoutMinutes"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-md-9 offset-md-3">
+                        <button type="submit" name="save" class="btn btn-primary">
+                            <i class="far fa-save"></i>
+                            @T("Admin.Common.Save")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card card-default">
+            <div class="card-header">
+                @T("Plugins.Misc.DeliveryTimePicker.TimeSlots")
+            </div>
+            <div class="card-body">
+                <p>
+                    <a asp-controller="DeliveryTimePicker" asp-action="TimeSlotList" class="btn btn-primary">
+                        <i class="fas fa-clock"></i>
+                        @T("Plugins.Misc.DeliveryTimePicker.TimeSlots")
+                    </a>
+                </p>
+            </div>
+        </div>
+        </div>
+    </div>
+</form>

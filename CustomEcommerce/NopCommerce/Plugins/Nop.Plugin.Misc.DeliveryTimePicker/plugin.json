@@ -1,0 +1,11 @@
+{
+  "Group": "Misc",
+  "FriendlyName": "Delivery Time Picker",
+  "SystemName": "Misc.DeliveryTimePicker",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "KIVIO SAS",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.DeliveryTimePicker.dll",
+  "Description": "This plugin allows customers to select delivery date and time during checkout with configurable slots and capacity limits."
+}

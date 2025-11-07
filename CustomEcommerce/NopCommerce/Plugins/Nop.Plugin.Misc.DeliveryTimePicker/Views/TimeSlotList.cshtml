@@ -1,0 +1,129 @@
+@using Nop.Web.Framework.Models.DataTables
+@using Nop.Plugin.Misc.DeliveryTimePicker.Models
+@{
+    Layout = "_AdminLayout";
+    ViewBag.PageTitle = T("Plugins.Misc.DeliveryTimePicker.TimeSlots").Text;
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Plugins.Misc.DeliveryTimePicker.TimeSlots")
+    </h1>
+    <div class="float-right">
+        <a asp-controller="DeliveryTimePicker" asp-action="CreateTimeSlot" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            @T("Admin.Common.AddNew")
+        </a>
+        <a asp-controller="DeliveryTimePicker" asp-action="Configure" class="btn btn-default">
+            <i class="fas fa-arrow-circle-left"></i>
+            @T("Admin.Common.BackToConfig")
+        </a>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-default">
+            <div class="card-body">
+                @await Html.PartialAsync("Table", new DataTablesModel
+                {
+                    Name = "timeslots-grid",
+                    UrlRead = new DataUrl("TimeSlotListData", "DeliveryTimePicker", null),
+                    Paging = false,
+                    ColumnCollection = new List<ColumnProperty>
+                    {
+                        new ColumnProperty(nameof(DeliveryTimeSlotModel.DayOfWeekName))
+                        {
+                            Title = T("Plugins.Misc.DeliveryTimePicker.TimeSlots.Fields.DayOfWeek").Text,
+                            Width = "150"
+                        },
+                        new ColumnProperty(nameof(DeliveryTimeSlotModel.StartTime))
+                        {
+                            Title = T("Plugins.Misc.DeliveryTimePicker.TimeSlots.Fields.StartTime").Text,
+                            Width = "120"
+                        },
+                        new ColumnProperty(nameof(DeliveryTimeSlotModel.EndTime))
+                        {
+                            Title = T("Plugins.Misc.DeliveryTimePicker.TimeSlots.Fields.EndTime").Text,
+                            Width = "120"
+                        },
+                        new ColumnProperty(nameof(DeliveryTimeSlotModel.IsEnabled))
+                        {
+                            Title = T("Plugins.Misc.DeliveryTimePicker.TimeSlots.Fields.IsEnabled").Text,
+                            Width = "100",
+                            ClassName = NopColumnClassDefaults.CenterAll,
+                            Render = new RenderBoolean()
+                        },
+                        new ColumnProperty(nameof(DeliveryTimeSlotModel.MaxCapacity))
+                        {
+                            Title = T("Plugins.Misc.DeliveryTimePicker.TimeSlots.Fields.MaxCapacity").Text,
+                            Width = "120",
+                            Render = new RenderCustom("renderMaxCapacity")
+                        },
+                        new ColumnProperty(nameof(DeliveryTimeSlotModel.DisplayOrder))
+                        {
+                            Title = T("Plugins.Misc.DeliveryTimePicker.TimeSlots.Fields.DisplayOrder").Text,
+                            Width = "100"
+                        },
+                        new ColumnProperty(nameof(DeliveryTimeSlotModel.Id))
+                        {
+                            Title = T("Admin.Common.Edit").Text,
+                            Width = "100",
+                            ClassName = NopColumnClassDefaults.Button,
+                            Render = new RenderButtonEdit(new DataUrl("EditTimeSlot"))
+                        },
+                        new ColumnProperty(nameof(DeliveryTimeSlotModel.Id))
+                        {
+                            Title = T("Admin.Common.Delete").Text,
+                            Width = "100",
+                            ClassName = NopColumnClassDefaults.Button,
+                            Render = new RenderCustom("renderDeleteButton")
+                        }
+                    }
+                })
+
+                <script>
+                    function renderMaxCapacity(data, type, row, meta) {
+                        return data || 'Global';
+                    }
+
+                    function renderDeleteButton(data, type, row, meta) {
+                        return '<a href="#" class="btn btn-default delete-timeslot" data-id="' + data + '"><i class="far fa-trash-alt"></i>@T("Admin.Common.Delete")</a>';
+                    }
+
+                    $(document).ready(function () {
+                        $('#timeslots-grid').on('click', '.delete-timeslot', function (e) {
+                            e.preventDefault();
+                            var btn = $(this);
+                            var id = btn.data('id');
+                            
+                            if (confirm('@T("Admin.Common.AreYouSure")')) {
+                                $.ajax({
+                                    cache: false,
+                                    type: "POST",
+                                    url: "@Url.Action("DeleteTimeSlot", "DeliveryTimePicker")",
+                                    data: {
+                                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+                                        id: id
+                                    },
+                                    success: function (response) {
+                                        if (response.success) {
+                                            $('#timeslots-grid').DataTable().ajax.reload();
+                                        } else {
+                                            alert(response.message || '@T("Admin.Common.DeleteFailed")');
+                                        }
+                                    },
+                                    error: function () {
+                                        alert('@T("Admin.Common.DeleteFailed")');
+                                    }
+                                });
+                            }
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+</section>
+@Html.AntiForgeryToken()
+

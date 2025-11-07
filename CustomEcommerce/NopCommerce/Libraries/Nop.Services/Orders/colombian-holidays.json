@@ -1,0 +1,116 @@
+{
+  "fixedHolidays": [
+    {
+      "month": 1,
+      "day": 1,
+      "name": "Año Nuevo",
+      "description": "New Year's Day"
+    },
+    {
+      "month": 5,
+      "day": 1,
+      "name": "Día del Trabajo",
+      "description": "Labor Day"
+    },
+    {
+      "month": 7,
+      "day": 20,
+      "name": "Día de la Independencia",
+      "description": "Independence Day"
+    },
+    {
+      "month": 8,
+      "day": 7,
+      "name": "Batalla de Boyacá",
+      "description": "Battle of Boyacá"
+    },
+    {
+      "month": 12,
+      "day": 8,
+      "name": "Inmaculada Concepción",
+      "description": "Immaculate Conception"
+    },
+    {
+      "month": 12,
+      "day": 25,
+      "name": "Navidad",
+      "description": "Christmas Day"
+    }
+  ],
+  "movableHolidays": [
+    {
+      "month": 1,
+      "day": 6,
+      "name": "Reyes Magos",
+      "description": "Epiphany"
+    },
+    {
+      "month": 3,
+      "day": 19,
+      "name": "San José",
+      "description": "Saint Joseph's Day"
+    },
+    {
+      "month": 6,
+      "day": 29,
+      "name": "San Pedro y San Pablo",
+      "description": "Saint Peter and Saint Paul"
+    },
+    {
+      "month": 8,
+      "day": 15,
+      "name": "Asunción de la Virgen",
+      "description": "Assumption of Mary"
+    },
+    {
+      "month": 10,
+      "day": 12,
+      "name": "Día de la Raza",
+      "description": "Columbus Day"
+    },
+    {
+      "month": 11,
+      "day": 1,
+      "name": "Todos los Santos",
+      "description": "All Saints' Day"
+    },
+    {
+      "month": 11,
+      "day": 11,
+      "name": "Independencia de Cartagena",
+      "description": "Independence of Cartagena"
+    }
+  ],
+  "easterBasedHolidays": [
+    {
+      "daysOffset": -3,
+      "name": "Jueves Santo",
+      "description": "Maundy Thursday",
+      "moveToMonday": false
+    },
+    {
+      "daysOffset": -2,
+      "name": "Viernes Santo",
+      "description": "Good Friday",
+      "moveToMonday": false
+    },
+    {
+      "daysOffset": 43,
+      "name": "Ascensión del Señor",
+      "description": "Ascension of Jesus",
+      "moveToMonday": true
+    },
+    {
+      "daysOffset": 64,
+      "name": "Corpus Christi",
+      "description": "Corpus Christi",
+      "moveToMonday": true
+    },
+    {
+      "daysOffset": 71,
+      "name": "Sagrado Corazón",
+      "description": "Sacred Heart",
+      "moveToMonday": true
+    }
+  ]
+}
