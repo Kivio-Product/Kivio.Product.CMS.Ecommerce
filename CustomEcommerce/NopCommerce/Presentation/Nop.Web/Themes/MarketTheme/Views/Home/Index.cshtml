@@ -33,6 +33,7 @@
         @await Component.InvokeAsync(typeof(HomepageCategoriesViewComponent))
         @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "HomepageDiscountCarousel" })
         @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "DiscountDayBanner" })
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageTop, additionalData = "DISCOUNTDAYBANNER" })
         @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "HowToBuyBanner" })
         @await Component.InvokeAsync(typeof(HomepageProductsViewComponent))
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBeforeProducts })
