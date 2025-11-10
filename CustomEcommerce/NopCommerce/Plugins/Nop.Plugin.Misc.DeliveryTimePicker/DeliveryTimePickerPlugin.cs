@@ -13,30 +13,21 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker
     /// <summary>
     /// Delivery Time Picker plugin
     /// </summary>
-    public class DeliveryTimePickerPlugin : BasePlugin, IWidgetPlugin
+    public class DeliveryTimePickerPlugin(
+        ISettingService settingService,
+        ILocalizationService localizationService,
+        IWebHelper webHelper,
+        IRepository<DeliveryTimeSlot> timeSlotRepository) : BasePlugin, IWidgetPlugin
     {
         #region Fields
 
-        private readonly ISettingService _settingService;
-        private readonly ILocalizationService _localizationService;
-        private readonly IWebHelper _webHelper;
-        private readonly IRepository<DeliveryTimeSlot> _timeSlotRepository;
+        private readonly ISettingService _settingService = settingService;
+        private readonly ILocalizationService _localizationService = localizationService;
+        private readonly IWebHelper _webHelper = webHelper;
+        private readonly IRepository<DeliveryTimeSlot> _timeSlotRepository = timeSlotRepository;
 
         #endregion
-
         #region Ctor
-
-        public DeliveryTimePickerPlugin(
-            ISettingService settingService,
-            ILocalizationService localizationService,
-            IWebHelper webHelper,
-            IRepository<DeliveryTimeSlot> timeSlotRepository)
-        {
-            _settingService = settingService;
-            _localizationService = localizationService;
-            _webHelper = webHelper;
-            _timeSlotRepository = timeSlotRepository;
-        }
 
         #endregion
 
@@ -149,23 +140,6 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker
                 ["Plugins.Misc.DeliveryTimePicker.TimeSlots.Fields.DisplayOrder"] = "Display Order",
                 ["Plugins.Misc.DeliveryTimePicker.TimeSlots.Fields.DisplayOrder.Hint"] = "Display order",
                 
-                // Holidays
-                ["Plugins.Misc.DeliveryTimePicker.Holidays"] = "Holidays",
-                ["Plugins.Misc.DeliveryTimePicker.Holidays.AddNew"] = "Add Holiday",
-                ["Plugins.Misc.DeliveryTimePicker.Holidays.Import"] = "Import Holidays",
-                ["Plugins.Misc.DeliveryTimePicker.Holidays.Imported"] = "Holidays imported successfully",
-                ["Plugins.Misc.DeliveryTimePicker.Holidays.ImportError"] = "Error importing holidays",
-                ["Plugins.Misc.DeliveryTimePicker.Holidays.Fields.Date"] = "Date",
-                ["Plugins.Misc.DeliveryTimePicker.Holidays.Fields.Date.Hint"] = "Holiday date",
-                ["Plugins.Misc.DeliveryTimePicker.Holidays.Fields.Name"] = "Name",
-                ["Plugins.Misc.DeliveryTimePicker.Holidays.Fields.Name.Hint"] = "Holiday name",
-                ["Plugins.Misc.DeliveryTimePicker.Holidays.Fields.IsRecurring"] = "Recurring",
-                ["Plugins.Misc.DeliveryTimePicker.Holidays.Fields.IsRecurring.Hint"] = "Does this holiday repeat every year?",
-                ["Plugins.Misc.DeliveryTimePicker.Holidays.Fields.CountryCode"] = "Country Code",
-                ["Plugins.Misc.DeliveryTimePicker.Holidays.Fields.CountryCode.Hint"] = "ISO country code",
-                ["Plugins.Misc.DeliveryTimePicker.Holidays.Fields.IsActive"] = "Active",
-                ["Plugins.Misc.DeliveryTimePicker.Holidays.Fields.IsActive.Hint"] = "Is this holiday active?",
-                
                 // Public facing
                 ["Plugins.Misc.DeliveryTimePicker.Public.Title"] = "Fecha y hora de envío",
                 ["Plugins.Misc.DeliveryTimePicker.Public.SelectDate"] = "Definir Fecha",
@@ -175,6 +149,22 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker
                 ["Plugins.Misc.DeliveryTimePicker.Public.NoAvailableSlots"] = "No hay horarios disponibles para la fecha seleccionada",
                 ["Plugins.Misc.DeliveryTimePicker.Public.SlotFull"] = "Este horario ya está lleno",
                 ["Plugins.Misc.DeliveryTimePicker.Public.SelectDateTime"] = "Por favor seleccione fecha y hora de entrega",
+                
+                // Checkout
+                ["Plugins.Misc.DeliveryTimePicker.Checkout.DeliveryTime"] = "Fecha y hora de entrega",
+                ["Plugins.Misc.DeliveryTimePicker.Date.Title"] = "Definir Fecha",
+                ["Plugins.Misc.DeliveryTimePicker.NonWorking.Message"] = "Recuerda que por el momento no contamos con servicio los fines de semana o festivos",
+                ["Plugins.Misc.DeliveryTimePicker.Date.Guide"] = "Al hacer Click sale ventana emergente con calendario",
+                ["Plugins.Misc.DeliveryTimePicker.Time.Title"] = "Rango de hora de entrega",
+                ["Plugins.Misc.DeliveryTimePicker.Time.Guide"] = "Al hacer Click se despliega las opciones de los horarios tanto en la parte de la mínima hora de entrega y la máxima hora de entrega",
+                ["Plugins.Misc.DeliveryTimePicker.Time.MaxCapacityHelp"] = "Dejar en blanco para usar la capacidad global configurada",
+                
+                // Order Delivery Info
+                ["Plugins.Misc.DeliveryTimePicker.OrderDelivery.InfoTitle"] = "Información de Entrega",
+                ["Plugins.Misc.DeliveryTimePicker.OrderDelivery.DeliveryDate"] = "Fecha de entrega:",
+                ["Plugins.Misc.DeliveryTimePicker.OrderDelivery.DeliveryMinTime"] = "Hora mínima:",
+                ["Plugins.Misc.DeliveryTimePicker.OrderDelivery.DeliveryMaxTime"] = "Hora máxima:",
+                ["Plugins.Misc.DeliveryTimePicker.OrderDelivery.DeliveryTimeRange"] = "Rango horario:",
                 
                 // Messages
                 ["Plugins.Misc.DeliveryTimePicker.Messages.Required"] = "Debe seleccionar una fecha y hora de entrega",

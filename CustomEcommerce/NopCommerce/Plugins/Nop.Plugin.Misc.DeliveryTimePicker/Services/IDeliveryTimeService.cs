@@ -47,6 +47,8 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Services
         /// </summary>
         Task<IList<DeliveryTimeSlot>> GetTimeSlotsForDayAsync(int dayOfWeek);
 
+        Task<IList<DeliveryTimeSlot>> GetAvailableTimeSlotsForDayAsync(int dayOfWeek, TimeSpan minTime);
+
         #endregion
 
         #region Reservations
