@@ -136,6 +136,19 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Services
             return slots.ToList();
         }
 
+        public virtual async Task<IList<DeliveryTimeSlot>> GetAvailableTimeSlotsForDayAsync(int dayOfWeek, TimeSpan minTime)
+        {
+            var slots = await _timeSlotRepository.GetAllAsync(query =>
+            {
+                return query
+                    .Where(x => x.IsEnabled && (x.DayOfWeek == dayOfWeek || x.DayOfWeek == -1) && x.StartTime >= minTime)
+                    .OrderBy(x => x.StartTime);
+            });
+
+            return [.. slots];
+        }
+
+
         #endregion
 
         #region Reservations

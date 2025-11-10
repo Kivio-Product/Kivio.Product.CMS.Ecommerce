@@ -62,7 +62,7 @@
                     <div class="col-md-9">
                         <input asp-for="MaxCapacity" type="number" class="form-control" min="1" />
                         <span asp-validation-for="MaxCapacity" class="text-danger"></span>
-                        <span class="help-text">Dejar en blanco para usar la capacidad global configurada</span>
+                        <span class="help-text">@T("Plugins.Misc.DeliveryTimePicker.Time.MaxCapacityHelp")</span>
                     </div>
                 </div>
 

@@ -10,14 +10,14 @@
 <div class="card card-default">
     <div class="card-header">
         <i class="fas fa-clock"></i>
-        Información de Entrega
+        @T("Plugins.Misc.DeliveryTimePicker.OrderDelivery.InfoTitle")
     </div>
     <div class="card-body">
         <table class="table table-hover">
             <tbody>
                 <tr>
                     <td class="width-25">
-                        <strong>Fecha de entrega:</strong>
+                        <strong>@T("Plugins.Misc.DeliveryTimePicker.OrderDelivery.DeliveryDate")</strong>
                     </td>
                     <td>
                         @deliveryDate
@@ -25,7 +25,7 @@
                 </tr>
                 <tr>
                     <td class="width-25">
-                        <strong>Hora mínima:</strong>
+                        <strong>@T("Plugins.Misc.DeliveryTimePicker.OrderDelivery.DeliveryMinTime")</strong>
                     </td>
                     <td>
                         @deliveryMinTime
@@ -33,7 +33,7 @@
                 </tr>
                 <tr>
                     <td class="width-25">
-                        <strong>Hora máxima:</strong>
+                        <strong>@T("Plugins.Misc.DeliveryTimePicker.OrderDelivery.DeliveryMaxTime")</strong>
                     </td>
                     <td>
                         @deliveryMaxTime
@@ -41,13 +41,13 @@
                 </tr>
                 <tr>
                     <td class="width-25">
-                        <strong>Rango horario:</strong>
+                        <strong>@T("Plugins.Misc.DeliveryTimePicker.OrderDelivery.DeliveryTimeRange")</strong>
                     </td>
                     <td>
                         <span class="badge badge-info">@deliveryMinTime - @deliveryMaxTime</span>
                     </td>
                 </tr>
-                @if (!string.IsNullOrEmpty(reservationId))
+                @* @if (!string.IsNullOrEmpty(reservationId))
                 {
                     <tr>
                         <td class="width-25">
@@ -57,7 +57,7 @@
                             <span class="badge badge-secondary">#@reservationId</span>
                         </td>
                     </tr>
-                }
+                } *@
             </tbody>
         </table>
     </div>

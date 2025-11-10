@@ -69,7 +69,7 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
         /// Gets available delivery dates and time slots
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetAvailableSlots(DateTime? startDate, int daysToShow = 30)
+        public async Task<IActionResult> GetAvailableSlots(DateTime? startDate, int daysToShow = 5)
         {
             try
             {
@@ -104,8 +104,10 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
                         UnavailableReason = null
                     };
 
+                    var currentTime = date.Date == context.Now.Date ? context.Now.TimeOfDay : TimeSpan.Zero;
+
                     // Get time slots for this day
-                    var timeSlots = await _deliveryTimeService.GetTimeSlotsForDayAsync((int)date.DayOfWeek);
+                    var timeSlots = await _deliveryTimeService.GetAvailableTimeSlotsForDayAsync((int)date.DayOfWeek, currentTime);
 
                     foreach (var slot in timeSlots)
                     {
