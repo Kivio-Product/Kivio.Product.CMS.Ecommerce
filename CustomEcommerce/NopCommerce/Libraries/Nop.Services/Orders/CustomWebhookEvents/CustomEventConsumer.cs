@@ -1,3 +1,4 @@
+using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Orders;
 using Nop.Services.Common;
 using Nop.Services.Customers;
@@ -7,19 +8,24 @@ using Nop.Services.Logging;
 using System.Text.Json;
 
 namespace Nop.Services.Orders.CustomWebhookEvents;
+
 public class CustomEventConsumer : IConsumer<OrderPlacedEvent>, IConsumer<OrderStatusChangedEvent>
 {
     private readonly ICustomerService _customerService;
     private readonly ILocalizationService _localization;
     private readonly ILogger _logger;
     private readonly IAddressService _addressService;
+    private readonly IGenericAttributeService _genericAttributeService;
 
-    public CustomEventConsumer(ICustomerService customerService, ILocalizationService localization, ILogger logger, IAddressService addressService)
+
+    public CustomEventConsumer(ICustomerService customerService, ILocalizationService localization, ILogger logger, IAddressService addressService, IGenericAttributeService genericAttributeService)
     {
         _customerService = customerService;
         _localization = localization;
         _logger = logger;
         _addressService = addressService;
+        _genericAttributeService = genericAttributeService;
+
     }
 
     public async Task HandleEventAsync(OrderPlacedEvent eventMessage)
@@ -39,7 +45,8 @@ public class CustomEventConsumer : IConsumer<OrderPlacedEvent>, IConsumer<OrderS
             order = order,
             eventType = "orderPlaced",
             customer = customer,
-            language = customer.LanguageId
+            language = customer.LanguageId,
+            deliveryTime = await GetOrderDeliverTimeAsync(order, customer)
         };
 
         // Send the webhook request (implementation not shown)
@@ -54,7 +61,7 @@ public class CustomEventConsumer : IConsumer<OrderPlacedEvent>, IConsumer<OrderS
         var webHookUrl = _localization.GetLocaleStringResourceByName("CustomWebhookBaseUrl", order.CustomerLanguageId, true).ResourceValue ?? string.Empty;
         if (string.IsNullOrEmpty(webHookUrl))
             return;
-       
+
         // Prepare the payload for the webhook
         var payload = new
         {
@@ -81,6 +88,30 @@ public class CustomEventConsumer : IConsumer<OrderPlacedEvent>, IConsumer<OrderS
             var errorMessage = await response.Content.ReadAsStringAsync();
             _logger.Error(errorMessage, new Exception("Failed to send webhook request."));
         }
+    }
+
+    private async Task<object> GetOrderDeliverTimeAsync(Order order, Customer customer)
+    {
+        var deliveryDate = await _genericAttributeService.GetAttributeAsync<string>(order, "Delivery.Date", order.StoreId);
+        var deliveryMinTime = await _genericAttributeService.GetAttributeAsync<string>(order, "Delivery.MinTime", order.StoreId);
+        var deliveryMaxTime = await _genericAttributeService.GetAttributeAsync<string>(order, "Delivery.MaxTime", order.StoreId);
+
+        if (string.IsNullOrEmpty(deliveryDate) || string.IsNullOrEmpty(deliveryMinTime) || string.IsNullOrEmpty(deliveryMaxTime))
+        {
+            deliveryDate ??= await _genericAttributeService.GetAttributeAsync<string>(customer, "Delivery.Date", order.StoreId);
+            deliveryMinTime ??= await _genericAttributeService.GetAttributeAsync<string>(customer, "Delivery.MinTime", order.StoreId);
+            deliveryMaxTime ??= await _genericAttributeService.GetAttributeAsync<string>(customer, "Delivery.MaxTime", order.StoreId);
+
+            if (string.IsNullOrEmpty(deliveryDate) || string.IsNullOrEmpty(deliveryMinTime) || string.IsNullOrEmpty(deliveryMaxTime))
+                return null;
+        }
+
+        return new
+        {
+            DeliveryDate = deliveryDate,
+            DeliveryMinTime = deliveryMinTime,
+            DeliveryMaxTime = deliveryMaxTime,
+        };
     }
 
 
