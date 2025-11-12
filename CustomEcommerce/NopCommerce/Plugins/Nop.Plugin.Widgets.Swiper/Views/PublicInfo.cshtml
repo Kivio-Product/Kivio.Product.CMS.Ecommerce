@@ -1,6 +1,7 @@
 @model PublicInfoModel
 @{
     Layout = "";
+    var sliderId = Guid.NewGuid().ToString("N");
 }
 
 <link href="~/Plugins/Widgets.Swiper/Content/css/swiper-bundle.min.css" rel="stylesheet">
@@ -9,7 +10,7 @@
 
 @if (Model.Slides?.Any() == true)
 {
-    <div class="swiper nop-slider">
+    <div class="swiper nop-slider nop-slider-@sliderId">
         <div class="swiper-wrapper">
             @foreach (var slide in Model.Slides)
             {
@@ -26,41 +27,55 @@
             <div class="swiper-button-next"></div>
         }
     </div>
-}
 
-<script asp-location="Footer">
-    var swiper6 = new Swiper(".nop-slider", {
-        grabCursor: true,
-        effect: "fade",
-        fadeEffect: {
-            crossFade: true
-        },
-        lazy: true,
-        @if (Model.Autoplay)
-        {
-            <text>
-            autoplay: {
-                delay: @Model.AutoplayDelay
-            },
-            </text>
-        }
-        @if (Model.ShowPagination)
-        {
-            <text>
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-            },
-            </text>
-        }
-        @if (Model.ShowNavigation)
-        {
-            <text>
-            navigation: {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-            },
-            </text>
-        }
-    });
-</script>
+    <script asp-location="Footer">
+        (function() {
+            var swiper_@(sliderId) = new Swiper(".nop-slider-@sliderId", {
+                grabCursor: true,
+                effect: "fade",
+                fadeEffect: {
+                    crossFade: true
+                },
+                lazy: true,
+                @if (Model.Autoplay)
+                {
+                    <text>
+                    autoplay: {
+                        delay: @Model.AutoplayDelay,
+                        disableOnInteraction: false
+                    },
+                    </text>
+                }
+                @if (Model.ShowPagination)
+                {
+                    <text>
+                    pagination: {
+                        el: ".nop-slider-@sliderId .swiper-pagination",
+                        clickable: true,
+                    },
+                    </text>
+                }
+                @if (Model.ShowNavigation)
+                {
+                    <text>
+                    navigation: {
+                        nextEl: ".nop-slider-@sliderId .swiper-button-next",
+                        prevEl: ".nop-slider-@sliderId .swiper-button-prev",
+                    },
+                    </text>
+                }
+            });
+
+            var swiperContainer = document.querySelector(".nop-slider-@sliderId");
+            if (swiperContainer && swiper_@(sliderId).autoplay) {
+                swiperContainer.addEventListener("mouseenter", function() {
+                    swiper_@(sliderId).autoplay.stop();
+                });
+
+                swiperContainer.addEventListener("mouseleave", function() {
+                    swiper_@(sliderId).autoplay.start();
+                });
+            }
+        })();
+    </script>
+}
