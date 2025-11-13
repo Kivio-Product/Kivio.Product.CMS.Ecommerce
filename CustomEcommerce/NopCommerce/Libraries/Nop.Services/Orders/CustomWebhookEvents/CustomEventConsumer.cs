@@ -41,24 +41,17 @@ public class CustomEventConsumer : IConsumer<OrderPlacedEvent>, IConsumer<OrderS
         var deliveryTime = await GetOrderDeliverTimeAsync(order, customer);
 
         // Prepare the payload for the webhook
-        var payload = deliveryTime != null
-            ? new
-            {
-                billingAddress = billingAddress,
-                order = order,
-                eventType = "orderPlaced",
-                customer = customer,
-                language = customer.LanguageId,
-                deliveryTime = deliveryTime
-            }
-            : new
-            {
-                billingAddress = billingAddress,
-                order = order,
-                eventType = "orderPlaced",
-                customer = customer,
-                language = customer.LanguageId
-            };
+        var payload = new Dictionary<string, object>
+        {
+            ["billingAddress"] = billingAddress,
+            ["order"] = order,
+            ["eventType"] = "orderPlaced",
+            ["customer"] = customer,
+            ["language"] = customer.LanguageId
+        };
+
+        if (deliveryTime != null)
+            payload["deliveryTime"] = deliveryTime;
 
         // Send the webhook request (implementation not shown)
         await SendWebhookRequestAsync(webHookUrl, payload);
@@ -76,26 +69,19 @@ public class CustomEventConsumer : IConsumer<OrderPlacedEvent>, IConsumer<OrderS
         var deliveryTime = await GetOrderDeliverTimeAsync(order, customer);
 
         // Prepare the payload for the webhook
-        var payload = deliveryTime != null
-            ? new
-            {
-                order = order,
-                billingAddress = billingAddress,
-                eventType = "orderStatusChanged",
-                customer = customer,
-                newStatus = order.OrderStatus.ToString(),
-                oldStatus = eventMessage.PreviousOrderStatus.ToString(),
-                deliveryTime = deliveryTime
-            }
-            : new
-            {
-                order = order,
-                billingAddress = billingAddress,
-                eventType = "orderStatusChanged",
-                customer = customer,
-                newStatus = order.OrderStatus.ToString(),
-                oldStatus = eventMessage.PreviousOrderStatus.ToString()
-            };
+        var payload = new Dictionary<string, object>
+        {
+            ["order"] = order,
+            ["billingAddress"] = billingAddress,
+            ["eventType"] = "orderStatusChanged",
+            ["customer"] = customer,
+            ["newStatus"] = order.OrderStatus.ToString(),
+            ["oldStatus"] = eventMessage.PreviousOrderStatus.ToString()
+        };
+
+        if (deliveryTime != null)
+            payload["deliveryTime"] = deliveryTime;
+
         // Send the webhook request
         await SendWebhookRequestAsync(webHookUrl, payload);
     }
