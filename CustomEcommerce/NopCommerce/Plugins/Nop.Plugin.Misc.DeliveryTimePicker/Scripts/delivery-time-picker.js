@@ -457,15 +457,13 @@ var DeliveryTimePicker = (function () {
         if (state.reservationId) {
             releaseReservation(state.reservationId);
         }
+
+        const isoDate = formatDate(date)
         
-        const minTimeStr = formatTimeSpan(minTime);
-        const maxTimeStr = formatTimeSpan(maxTime);
-        
-        // Send date in DD-MM-YYYY format to match server expectations
         const data = {
-            deliveryDate: formatDateDisplay(date),
-            minDeliveryTime: minTimeStr,
-            maxDeliveryTime: maxTimeStr,
+            deliveryDate: isoDate,
+            minDeliveryTime: minTime,
+            maxDeliveryTime: maxTime,
             timeSlotId: slotId || null,
             isTemporary: true
         };

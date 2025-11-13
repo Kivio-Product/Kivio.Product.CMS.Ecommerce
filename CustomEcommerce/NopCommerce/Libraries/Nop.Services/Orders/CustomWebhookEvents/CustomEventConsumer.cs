@@ -71,6 +71,7 @@ public class CustomEventConsumer : IConsumer<OrderPlacedEvent>, IConsumer<OrderS
             customer = customer,
             newStatus = order.OrderStatus.ToString(),
             oldStatus = eventMessage.PreviousOrderStatus.ToString(),
+            deliveryTime = await GetOrderDeliverTimeAsync(order, customer)
         };
         // Send the webhook request
         await SendWebhookRequestAsync(webHookUrl, payload);
