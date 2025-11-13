@@ -38,16 +38,27 @@ public class CustomEventConsumer : IConsumer<OrderPlacedEvent>, IConsumer<OrderS
         if (string.IsNullOrEmpty(webHookUrl))
             return;
 
+        var deliveryTime = await GetOrderDeliverTimeAsync(order, customer);
+
         // Prepare the payload for the webhook
-        var payload = new
-        {
-            billingAddress = billingAddress,
-            order = order,
-            eventType = "orderPlaced",
-            customer = customer,
-            language = customer.LanguageId,
-            deliveryTime = await GetOrderDeliverTimeAsync(order, customer)
-        };
+        var payload = deliveryTime != null
+            ? new
+            {
+                billingAddress = billingAddress,
+                order = order,
+                eventType = "orderPlaced",
+                customer = customer,
+                language = customer.LanguageId,
+                deliveryTime = deliveryTime
+            }
+            : new
+            {
+                billingAddress = billingAddress,
+                order = order,
+                eventType = "orderPlaced",
+                customer = customer,
+                language = customer.LanguageId
+            };
 
         // Send the webhook request (implementation not shown)
         await SendWebhookRequestAsync(webHookUrl, payload);
@@ -62,17 +73,29 @@ public class CustomEventConsumer : IConsumer<OrderPlacedEvent>, IConsumer<OrderS
         if (string.IsNullOrEmpty(webHookUrl))
             return;
 
+        var deliveryTime = await GetOrderDeliverTimeAsync(order, customer);
+
         // Prepare the payload for the webhook
-        var payload = new
-        {
-            order = order,
-            billingAddress = billingAddress,
-            eventType = "orderStatusChanged",
-            customer = customer,
-            newStatus = order.OrderStatus.ToString(),
-            oldStatus = eventMessage.PreviousOrderStatus.ToString(),
-            deliveryTime = await GetOrderDeliverTimeAsync(order, customer)
-        };
+        var payload = deliveryTime != null
+            ? new
+            {
+                order = order,
+                billingAddress = billingAddress,
+                eventType = "orderStatusChanged",
+                customer = customer,
+                newStatus = order.OrderStatus.ToString(),
+                oldStatus = eventMessage.PreviousOrderStatus.ToString(),
+                deliveryTime = deliveryTime
+            }
+            : new
+            {
+                order = order,
+                billingAddress = billingAddress,
+                eventType = "orderStatusChanged",
+                customer = customer,
+                newStatus = order.OrderStatus.ToString(),
+                oldStatus = eventMessage.PreviousOrderStatus.ToString()
+            };
         // Send the webhook request
         await SendWebhookRequestAsync(webHookUrl, payload);
     }
