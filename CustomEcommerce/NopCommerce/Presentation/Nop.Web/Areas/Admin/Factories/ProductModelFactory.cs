@@ -825,6 +825,9 @@ public partial class ProductModelFactory : IProductModelFactory
                 model.SeName = await _urlRecordService.GetSeNameAsync(product, 0, true, false);
             }
 
+            model.CreatedOnUtc = product.CreatedOnUtc;
+            model.UpdatedOnUtc = product.UpdatedOnUtc;
+
             var parentGroupedProduct = await _productService.GetProductByIdAsync(product.ParentGroupedProductId);
             if (parentGroupedProduct != null)
             {
