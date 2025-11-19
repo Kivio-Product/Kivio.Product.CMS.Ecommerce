@@ -8,6 +8,7 @@ using Nop.Services.Catalog;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
+using Nop.Services.Tax;
 
 
 namespace Nop.Plugin.Api.Services
@@ -23,6 +24,7 @@ namespace Nop.Plugin.Api.Services
         private readonly ICategoryService _categoryService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ILocalizationService _localizationService;
+        private readonly ITaxCategoryService _taxCategoryService;
 
         public ProductApiService(
             IRepository<Product> productRepository,
@@ -33,7 +35,8 @@ namespace Nop.Plugin.Api.Services
             ISettingService settingService,
             ICategoryService categoryService,
             ICustomerActivityService customerActivityService,
-            ILocalizationService localizationService)
+            ILocalizationService localizationService,
+            ITaxCategoryService taxCategoryService)
         {
             _productRepository = productRepository;
             _productCategoryMappingRepository = productCategoryMappingRepository;
@@ -44,6 +47,7 @@ namespace Nop.Plugin.Api.Services
             _categoryService = categoryService;
             _customerActivityService = customerActivityService;
             _localizationService = localizationService;
+            _taxCategoryService = taxCategoryService;
         }
 
         public IList<Product> GetProducts(
@@ -105,6 +109,7 @@ namespace Nop.Plugin.Api.Services
                 };
             }
 
+            var isProductTaxeslessUnpublishEnabled = await _settingService.GetSettingByKeyAsync<bool>("ApiSettings.EnableProductTaxeslessUnpublish", false);
             var storesToUpdatePublishedStateRaw = await _settingService.GetSettingByKeyAsync<string>("ApiSettings.StoresToUpdatePublishedState", "");
 
             var storesToUpdatePublishedState = storesToUpdatePublishedStateRaw
@@ -120,6 +125,15 @@ namespace Nop.Plugin.Api.Services
                         existingProduct.Sku?.Contains(store, StringComparison.OrdinalIgnoreCase) == true))
                 {
                     existingProduct.Published = newProduct.Published;
+                }
+
+                if(isProductTaxeslessUnpublishEnabled)
+                {
+                    var hasTaxCategory = await CheckProductWithoutTaxAsync(newProduct);
+                    if (!hasTaxCategory)
+                    {
+                        existingProduct.Published = false;
+                    }
                 }
 
                 existingProduct.StockQuantity = newProduct.StockQuantity;
@@ -170,6 +184,30 @@ namespace Nop.Plugin.Api.Services
             }
         }
 
+        public async Task<bool> CheckProductWithoutTaxAsync(Product product)
+        {
+            if (product == null)
+                return false;
+
+            var hasTaxCategory = product.TaxCategoryId > 0;
+            
+            if (hasTaxCategory)
+            {
+                var taxCategory = await _taxCategoryService.GetTaxCategoryByIdAsync(product.TaxCategoryId);
+                hasTaxCategory = taxCategory != null;
+            }
+
+            if (!hasTaxCategory)
+            {
+                await _customerActivityService.InsertActivityAsync("ProductWithoutTax",
+                    await _localizationService.GetResourceAsync("ActivityLog.ProductWithoutTax") ?? "Product without tax category detected", 
+                    product);
+            }
+
+            return hasTaxCategory;
+        }
+
+        
         private IQueryable<Product> GetProductsQuery(
             DateTime? createdAtMin = null, DateTime? createdAtMax = null,
             DateTime? updatedAtMin = null, DateTime? updatedAtMax = null, string vendorName = null,
