@@ -22,5 +22,6 @@ namespace Nop.Plugin.Api.Services
 
         Task<ProductRenewalResult> RenewProductAsync(Product newProduct, Product existingProduct, int? extraCategoryId = null);
 
+        Task<bool> CheckProductWithoutTaxAsync(Product product);
     }
 }
