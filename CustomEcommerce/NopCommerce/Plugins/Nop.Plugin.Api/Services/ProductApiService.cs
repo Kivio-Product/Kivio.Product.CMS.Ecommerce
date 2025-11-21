@@ -129,7 +129,7 @@ namespace Nop.Plugin.Api.Services
 
                 if(isProductTaxeslessUnpublishEnabled)
                 {
-                    var hasTaxCategory = await CheckProductWithoutTaxAsync(newProduct);
+                    var hasTaxCategory = await CheckProductWithoutTaxAsync(existingProduct);
                     if (!hasTaxCategory)
                     {
                         existingProduct.Published = false;
