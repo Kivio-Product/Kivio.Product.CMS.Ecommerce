@@ -68,7 +68,7 @@ jobs:
 
       - name: Generate assetlinks.json in published binaries
         env:
-          ASSETLINKS_JSON: ${{ secrets.ASSETLINKS_JSON }}
+          ASSETLINKS_JSON: ${{ vars.ASSETLINKS_JSON }}
         run: |
           $targetDir = "${{ env.PUBLISH_OUTPUT_PATH }}\wwwroot\.well-known"
           New-Item -Path $targetDir -ItemType Directory -Force | Out-Null
