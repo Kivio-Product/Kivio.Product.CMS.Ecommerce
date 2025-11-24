@@ -66,6 +66,23 @@ jobs:
           PUBLISH_PROJECT_PATH: ${{ vars.KIVIO_ECOMMERCE_PUBLISH_PROJECT_PATH_BASE }}
         run: dotnet publish "${{ vars.KIVIO_ECOMMERCE_PUBLISH_PROJECT_PATH_BASE }}" -c Release -o "${{ env.PUBLISH_OUTPUT_PATH }}"
 
+      - name: Generate assetlinks.json in published binaries
+        env:
+          ASSETLINKS_JSON: ${{ vars.ASSETLINKS_JSON }}
+        run: |
+          $targetDir = "${{ env.PUBLISH_OUTPUT_PATH }}\wwwroot\.well-known"
+          New-Item -Path $targetDir -ItemType Directory -Force | Out-Null
+          $targetFile = Join-Path $targetDir "assetlinks.json"
+          [System.IO.File]::WriteAllText($targetFile, $env:ASSETLINKS_JSON, [System.Text.Encoding]::UTF8)
+          Write-Host "Wrote assetlinks.json to $targetFile"
+          if (Test-Path $targetFile) {
+              Write-Host "✓ File created successfully"
+              Write-Host "File size: $((Get-Item $targetFile).Length) bytes"
+          } else {
+              Write-Error "✗ Failed to create assetlinks.json"
+              exit 1
+          }
+
       - name: Copy appsettings.json to binaries
         run: cp "${{ vars.APPSETTINGS_OUTPUT_FILE }}" "${{ env.BINNARIES_APPSETTINGS_PATH }}"
 
