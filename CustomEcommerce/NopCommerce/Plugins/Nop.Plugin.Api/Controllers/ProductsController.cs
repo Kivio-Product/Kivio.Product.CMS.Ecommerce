@@ -299,7 +299,8 @@ namespace Nop.Plugin.Api.Controllers
             // Validación de impuestos
             await _productTaxRecalculationService.ProcessProductTaxRecalculationAsync(product, isInsert: true);
 
-            var isRenewalEnabled = await _settingService.GetSettingByKeyAsync<bool>("ApiSettings.EnableProductRenewal");
+            var isRenewalEnabled = await _settingService.GetSettingByKeyAsync<bool>("ApiSettings.EnableProductRenewal", true);
+            var isProductTaxeslessUnpublishEnabled = await _settingService.GetSettingByKeyAsync<bool>("ApiSettings.EnableProductTaxeslessUnpublish", false);
 
             Console.WriteLine($"Is Renewal Enabled: {isRenewalEnabled}");
 
@@ -328,6 +329,15 @@ namespace Nop.Plugin.Api.Controllers
             if (!IsProductDiscountValid(productDelta, discountPercentage) && isRenewalEnabled)
             {
                 return Error(HttpStatusCode.UnprocessableEntity, "product", "The discount percentage is below the minimum required value.");
+            }
+
+            if (isProductTaxeslessUnpublishEnabled)
+            {
+                var hasTaxCategory = await _productApiService.CheckProductWithoutTaxAsync(product);
+                if (!hasTaxCategory)
+                {
+                    product.Published = false;
+                }
             }
 
             await _productService.InsertProductAsync(product);

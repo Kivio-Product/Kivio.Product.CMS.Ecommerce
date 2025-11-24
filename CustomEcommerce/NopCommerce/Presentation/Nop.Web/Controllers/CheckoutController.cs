@@ -17,6 +17,7 @@ using Nop.Services.Directory;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
 using Nop.Services.Payments;
+using Nop.Services.Plugins;
 using Nop.Services.Shipping;
 using Nop.Services.Tax;
 using Nop.Web.Factories;
@@ -27,6 +28,7 @@ using Nop.Web.Models.Common;
 using Nop.Services.Discounts;
 using ILogger = Nop.Services.Logging.ILogger;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Nop.Services.Configuration;
 
 
 namespace Nop.Web.Controllers;
@@ -67,6 +69,8 @@ public partial class CheckoutController : BasePublicController
     protected readonly IGiftCardService _giftCardService;
     protected readonly IDiscountService _discountService;
     protected readonly IColombianHolidayService _colombianHolidayService;
+    protected readonly IPluginService _pluginService;
+    protected readonly ISettingService _settingService;
     private static readonly string[] _separator = ["___"];
 
     #endregion
@@ -103,11 +107,15 @@ public partial class CheckoutController : BasePublicController
         TaxSettings taxSettings,
         IGiftCardService giftCardService,
         IDiscountService discountService,
-        IColombianHolidayService colombianHolidayService)
+        IColombianHolidayService colombianHolidayService,
+        IPluginService pluginService,
+        ISettingService settingService)
     {
         _discountService = discountService;
         _giftCardService = giftCardService;
         _colombianHolidayService = colombianHolidayService;
+        _pluginService = pluginService;
+        _settingService = settingService;
         _addressSettings = addressSettings;
         _captchaSettings = captchaSettings;
         _customerSettings = customerSettings;
@@ -317,6 +325,38 @@ public partial class CheckoutController : BasePublicController
         {
             await _logger.WarningAsync(exc.Message, exc, await _workContext.GetCurrentCustomerAsync());
             return Json(new { error = 1, message = exc.Message });
+        }
+    }
+
+    /// <summary>
+    /// Check if Delivery Time Picker plugin is active and enabled
+    /// </summary>
+    /// <returns>True if plugin is installed and enabled in settings</returns>
+    protected virtual async Task<bool> IsDeliveryTimePickerActiveAsync()
+    {
+        try
+        {
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            var store = await _storeContext.GetCurrentStoreAsync();
+
+            // Check if plugin is installed
+            var deliveryTimePickerPlugin = await _pluginService.GetPluginDescriptorBySystemNameAsync<IPlugin>(
+                "Misc.DeliveryTimePicker",
+                LoadPluginsMode.InstalledOnly,
+                customer,
+                store.Id);
+
+            if (deliveryTimePickerPlugin == null || !deliveryTimePickerPlugin.Installed)
+                return false;
+
+            // Check if plugin is enabled in settings
+            var IsDeliveryTimePickerEnabled = await _settingService.GetSettingByKeyAsync<bool>("deliverytimepickersettings.enabled", defaultValue: false);
+
+            return IsDeliveryTimePickerEnabled;
+        }
+        catch
+        {
+            return false;
         }
     }
 
@@ -1431,10 +1471,26 @@ public partial class CheckoutController : BasePublicController
 
     protected virtual async Task<JsonResult> OpcLoadStepAfterShippingMethod(IList<ShoppingCartItem> cart)
     {
-        //Check whether payment workflow is required
-        //we ignore reward points during cart total calculation
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
+
+        // Check if Delivery Time Picker plugin is active AND enabled
+        var isDeliveryTimePickerActive = await IsDeliveryTimePickerActiveAsync();
+
+        // If plugin is active, go to delivery time step
+        if (isDeliveryTimePickerActive)
+        {
+            return Json(new
+            {
+                update_section = new UpdateSectionJsonModel
+                {
+                    name = "delivery_time",
+                    html = ""
+                },
+                goto_section = "delivery_time"
+            });
+        }
+
         var isPaymentWorkflowRequired = await _orderProcessingService.IsPaymentWorkflowRequiredAsync(cart, false);
         if (isPaymentWorkflowRequired)
         {
@@ -1533,6 +1589,9 @@ public partial class CheckoutController : BasePublicController
 
         if (await _customerService.IsGuestAsync(customer) && !_orderSettings.AnonymousCheckoutAllowed)
             return Challenge();
+
+        // Check if Delivery Time Picker plugin is active AND enabled
+        ViewBag.IsDeliveryTimePickerActive = await IsDeliveryTimePickerActiveAsync();
 
         var model = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
 

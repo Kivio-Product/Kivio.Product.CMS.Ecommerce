@@ -1,0 +1,70 @@
+@model Nop.Plugin.Misc.DeliveryTimePicker.Models.OrderDeliveryTimeInfoModel
+
+@{
+    var deliveryDate = Model?.DeliveryDate ?? "";
+    var deliveryMinTime = Model?.DeliveryMinTime ?? "";
+    var deliveryMaxTime = Model?.DeliveryMaxTime ?? "";
+    var reservationId = Model?.ReservationId ?? "";
+}
+
+<div class="card card-default">
+    <div class="card-header">
+        <i class="fas fa-clock"></i>
+        @T("Plugins.Misc.DeliveryTimePicker.OrderDelivery.InfoTitle")
+    </div>
+    <div class="card-body">
+        <table class="table table-hover">
+            <tbody>
+                <tr>
+                    <td class="width-25">
+                        <strong>@T("Plugins.Misc.DeliveryTimePicker.OrderDelivery.DeliveryDate")</strong>
+                    </td>
+                    <td>
+                        @deliveryDate
+                    </td>
+                </tr>
+                <tr>
+                    <td class="width-25">
+                        <strong>@T("Plugins.Misc.DeliveryTimePicker.OrderDelivery.DeliveryMinTime")</strong>
+                    </td>
+                    <td>
+                        @deliveryMinTime
+                    </td>
+                </tr>
+                <tr>
+                    <td class="width-25">
+                        <strong>@T("Plugins.Misc.DeliveryTimePicker.OrderDelivery.DeliveryMaxTime")</strong>
+                    </td>
+                    <td>
+                        @deliveryMaxTime
+                    </td>
+                </tr>
+                <tr>
+                    <td class="width-25">
+                        <strong>@T("Plugins.Misc.DeliveryTimePicker.OrderDelivery.DeliveryTimeRange")</strong>
+                    </td>
+                    <td>
+                        <span class="badge badge-info">@deliveryMinTime - @deliveryMaxTime</span>
+                    </td>
+                </tr>
+                @* @if (!string.IsNullOrEmpty(reservationId))
+                {
+                    <tr>
+                        <td class="width-25">
+                            <strong>ID de Reservación:</strong>
+                        </td>
+                        <td>
+                            <span class="badge badge-secondary">#@reservationId</span>
+                        </td>
+                    </tr>
+                } *@
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .width-25 {
+        width: 25%;
+    }
+</style>

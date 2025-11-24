@@ -23,14 +23,22 @@
 }
 @{
     //step numbers
+    var isDeliveryTimePickerActive = ViewBag.IsDeliveryTimePickerActive ?? false;
+    
     var billingAddressStepNumber = 1;
     var shippingAddressStepNumber = 2;
     var shippingMethodStepNumber = 3;
-    var paymentMethodStepNumber = 4;
-    //var paymentInfoStepNumber = 5;
-    var confirmOrderStepNumber = 5;
+    var deliveryTimeStepNumber = 4;
+    var paymentMethodStepNumber = isDeliveryTimePickerActive ? 5 : 4;
+    //var paymentInfoStepNumber = isDeliveryTimePickerActive ? 6 : 5;
+    var confirmOrderStepNumber = isDeliveryTimePickerActive ? 6 : 5;
+    
     if (!Model.ShippingRequired)
     {
+        if (isDeliveryTimePickerActive)
+        {
+            deliveryTimeStepNumber = deliveryTimeStepNumber - 2;
+        }
         paymentMethodStepNumber = paymentMethodStepNumber - 2;
         //paymentInfoStepNumber = paymentInfoStepNumber - 2;
         confirmOrderStepNumber = confirmOrderStepNumber - 2; 
@@ -39,6 +47,10 @@
     {
         shippingAddressStepNumber--;
         shippingMethodStepNumber--;
+        if (isDeliveryTimePickerActive)
+        {
+            deliveryTimeStepNumber--;
+        }
         paymentMethodStepNumber--;
         //paymentInfoStepNumber--;
         confirmOrderStepNumber--;
@@ -175,6 +187,35 @@
                             </form>
                         </div>
                     </li>
+                    @if (isDeliveryTimePickerActive)
+                    {
+                        <li id="opc-delivery_time" class="tab-section">
+                            <div class="step-title">
+                                <span class="number">@deliveryTimeStepNumber</span>
+                                <h2 class="title">@T("Plugins.Misc.DeliveryTimePicker.Checkout.DeliveryTime")</h2>
+                            </div>
+                            <div id="checkout-step-delivery-time" class="step a-item" style="display: none;">
+                                <form id="co-delivery-time-form" action="" method="post">
+                                    <div id="checkout-delivery-time-load">
+                                        @*delivery time content will be loaded here*@
+                                    </div>
+                                    <script asp-location="Footer">
+                                        DeliveryTime.init('#co-delivery-time-form', '@(storeLocation)DeliveryTimePublic/OpcSaveDeliveryTime/', '@(storeLocation)DeliveryTimePublic/OpcLoadDeliveryTime/');
+                                    </script>
+                                    <div class="buttons" id="delivery-time-buttons-container">
+                                        <p class="back-link">
+                                            <a href="#" onclick="Checkout.back(); return false;"><small>&laquo;
+                                                </small>@T("Common.Back")</a>
+                                        </p>
+                                        <button type="button" class="button-1 delivery-time-next-step-button primary-btn"
+                                            onclick="DeliveryTime.save()">@T("Common.Continue")</button>
+                                        <span id="delivery-time-please-wait" class="please-wait"
+                                            style="display: none;">@T("Common.LoadingNextStep")</span>
+                                    </div>
+                                </form>
+                            </div>
+                        </li>
+                    }
                 }
                 <li id="opc-payment_method" class="tab-section">
                     <div class="step-title">

@@ -601,6 +601,104 @@ var ShippingMethod = {
     }
 };
 
+var DeliveryTime = {
+    form: false,
+    saveUrl: false,
+    loadUrl: false,
+    isLoaded: false,
+    config: {
+        hasExitoProducts: false,
+        cutoffHour: 13
+    },
+
+    init: function (form, saveUrl, loadUrl) {
+        this.form = form;
+        this.saveUrl = saveUrl;
+        this.loadUrl = loadUrl;
+        
+        // Load content when the section is opened
+        this.loadContent();
+    },
+
+    loadContent: function () {
+        if (this.isLoaded) {
+            return; // Already loaded
+        }
+
+        var self = this;
+        $.ajax({
+            cache: false,
+            url: this.loadUrl,
+            type: "GET",
+            success: function (response) {
+                $('#checkout-delivery-time-load').html(response);
+                self.isLoaded = true;
+                
+                // Initialize the delivery time picker with config if available
+                if (typeof DeliveryTimePicker !== 'undefined' && self.config) {
+                    setTimeout(function() {
+                        DeliveryTimePicker.init(self.config);
+                    }, 100);
+                }
+            },
+            error: function () {
+                $('#checkout-delivery-time-load').html('<div class="message-error">Error al cargar el selector de fecha y hora de entrega.</div>');
+            }
+        });
+    },
+
+    validate: function () {       
+        var selectedDate = $('#selectedDeliveryDate').val();
+        var selectedMinTime = $('#selectedMinTime').val();
+        var selectedMaxTime = $('#selectedMaxTime').val();
+
+        if (!selectedDate || !selectedMinTime || !selectedMaxTime) {
+            showAlert('Por favor seleccione una fecha y hora de entrega');
+            return false;
+        }
+        
+        return true;
+    },
+
+    save: function () {
+        if (Checkout.loadWaiting !== false) return;
+
+        if (this.validate()) {
+            Checkout.setLoadWaiting('delivery-time');
+
+            var manualData = {
+                DeliveryDate: $('#selectedDeliveryDate').val(),
+                MinDeliveryTime: $('#selectedMinTime').val(),
+                MaxDeliveryTime: $('#selectedMaxTime').val(),
+                ReservationId: $('#selectedReservationId').val()
+            };
+
+            $.ajax({
+                cache: false,
+                url: this.saveUrl,
+                data: manualData,
+                type: "POST",
+                success: this.nextStep,
+                complete: this.resetLoadWaiting,
+                error: Checkout.ajaxFailure
+            });
+        }
+    },
+
+    resetLoadWaiting: function () {
+        Checkout.setLoadWaiting(false);
+    },
+
+    nextStep: function (response) {
+        if (response.error) {
+            showAlert(response.message);
+            return false;
+        }
+
+        Checkout.setStepResponse(response);
+    }
+};
+
 var PaymentMethod = {
     form: false,
     saveUrl: false,
