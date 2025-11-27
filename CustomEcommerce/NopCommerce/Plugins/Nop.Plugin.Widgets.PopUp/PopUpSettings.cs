@@ -42,4 +42,10 @@ public class PopUpSettings : ISettings
     /// Gets or sets a value indicating whether to show popup only once per browser session
     /// </summary>
     public bool ShowOncePerSession { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the images with their assigned weekdays (serialized as JSON)
+    /// Format: List of PopUpImage objects with PictureId, TitleText, LinkUrl, AltText, and Weekdays
+    /// </summary>
+    public string ImagesJson { get; set; } = string.Empty;
 }

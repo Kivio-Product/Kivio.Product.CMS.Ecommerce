@@ -1,0 +1,101 @@
+@model PopUpImageModel
+
+<div class="card card-default">
+    <div class="card-header">
+        @T("Plugins.Widgets.PopUp.AddImage")
+    </div>
+    <div class="card-body">
+        <div class="form-group row">
+            <div class="col-md-3">
+                <nop-label asp-for="PictureId" />
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="PictureId" />
+                <span asp-validation-for="PictureId"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">
+                <nop-label asp-for="TitleText" />
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="TitleText" />
+                <span asp-validation-for="TitleText"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">
+                <nop-label asp-for="AltText" />
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="AltText" />
+                <span asp-validation-for="AltText"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">
+                <nop-label asp-for="LinkUrl" />
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="LinkUrl" />
+                <span asp-validation-for="LinkUrl"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">
+                <label>@T("Plugins.Widgets.PopUp.Weekdays")</label>
+            </div>
+            <div class="col-md-9">
+                <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                    <div style="display: flex; align-items: center;">
+                        <nop-editor asp-for="Monday" />
+                        <label style="margin-left: 5px; margin-bottom: 0;" for="Monday">
+                            @T("Plugins.Widgets.PopUp.Weekday.Monday")
+                        </label>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <nop-editor asp-for="Tuesday" />
+                        <label style="margin-left: 5px; margin-bottom: 0;" for="Tuesday">
+                            @T("Plugins.Widgets.PopUp.Weekday.Tuesday")
+                        </label>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <nop-editor asp-for="Wednesday" />
+                        <label style="margin-left: 5px; margin-bottom: 0;" for="Wednesday">
+                            @T("Plugins.Widgets.PopUp.Weekday.Wednesday")
+                        </label>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <nop-editor asp-for="Thursday" />
+                        <label style="margin-left: 5px; margin-bottom: 0;" for="Thursday">
+                            @T("Plugins.Widgets.PopUp.Weekday.Thursday")
+                        </label>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <nop-editor asp-for="Friday" />
+                        <label style="margin-left: 5px; margin-bottom: 0;" for="Friday">
+                            @T("Plugins.Widgets.PopUp.Weekday.Friday")
+                        </label>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <nop-editor asp-for="Saturday" />
+                        <label style="margin-left: 5px; margin-bottom: 0;" for="Saturday">
+                            @T("Plugins.Widgets.PopUp.Weekday.Saturday")
+                        </label>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <nop-editor asp-for="Sunday" />
+                        <label style="margin-left: 5px; margin-bottom: 0;" for="Sunday">
+                            @T("Plugins.Widgets.PopUp.Weekday.Sunday")
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="offset-md-3 col-md-9">
+                <button type="submit" name="add-image" class="btn btn-primary">@T("Plugins.Widgets.PopUp.AddImage")</button>
+            </div>
+        </div>
+    </div>
+</div>
