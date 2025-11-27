@@ -1,183 +1,244 @@
-@using Nop.Plugin.Widgets.PopUp.Models;
-@using Nop.Web.Framework.Extensions;
-@using Nop.Plugin.Widgets.PopUp.Components;
-@using Nop.Web.Framework.Infrastructure
+@model ConfigurationModel
+
 @{
     Layout = "_ConfigurePlugin";
 }
-@model ConfigurationModel
-
-<style>
-    .form-check-group {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .form-check-group .form-check {
-        display: flex;
-        align-items: center;
-        margin-bottom: 0;
-    }
-
-    .form-check-group .form-check input[type="checkbox"] {
-        margin-right: 8px;
-    }
-
-    .form-check-group .form-check-label {
-        margin-bottom: 0;
-        font-weight: normal;
-        cursor: pointer;
-    }
-
-    @@media (min-width: 768px) {
-        .form-check-group {
-            flex-direction: row;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .form-check-group .form-check {
-            flex: 0 0 auto;
-            min-width: 120px;
-        }
-    }
-</style>
 
 <form asp-controller="WidgetPopUp" asp-action="Configure" method="post">
-    <div class="content-header clearfix">
-        <h1 class="float-left">
-            @T("Plugins.Widgets.PopUp.Configure")
-        </h1>
-        <div class="float-right">
-            <button type="submit" name="save" class="btn btn-primary">
-                <i class="fa fa-save"></i>
-                @T("Admin.Common.Save")
-            </button>
-        </div>
-    </div>
-
     <section class="content">
         <div class="container-fluid">
-            <div class="form-horizontal">
-                <div class="cards-group">
-                    <div class="card card-default">
-                        <div class="card-body">
-                            <div class="form-group row">
-                                <div class="col-md-3">
-                                    <nop-label asp-for="IsEnabled" />
-                                </div>
-                                <div class="col-md-9">
-                                    <nop-editor asp-for="IsEnabled" />
-                                    <span asp-validation-for="IsEnabled"></span>
-                                </div>
+            <div class="cards-group">
+
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Widgets.PopUp.Settings")
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="IsEnabled" />
                             </div>
-                            <div class="form-group row">
-                                <div class="col-md-3">
-                                    <nop-label asp-for="PictureId" />
-                                </div>
-                                <div class="col-md-9">
-                                    <nop-editor asp-for="PictureId" />
-                                    <span asp-validation-for="PictureId"></span>
-                                </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="IsEnabled" />
+                                <span asp-validation-for="IsEnabled"></span>
                             </div>
-                            <div class="form-group row">
-                                <div class="col-md-3">
-                                    <nop-label asp-for="TitleText" />
-                                </div>
-                                <div class="col-md-9">
-                                    <nop-editor asp-for="TitleText" />
-                                    <span asp-validation-for="TitleText"></span>
-                                </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="DisplayPages" />
                             </div>
-                            <div class="form-group row">
-                                <div class="col-md-3">
-                                    <nop-label asp-for="LinkUrl" />
-                                </div>
-                                <div class="col-md-9">
-                                    <nop-editor asp-for="LinkUrl" />
-                                    <span asp-validation-for="LinkUrl"></span>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <div class="col-md-3">
-                                    <nop-label asp-for="AltText" />
-                                </div>
-                                <div class="col-md-9">
-                                    <nop-editor asp-for="AltText" />
-                                    <span asp-validation-for="AltText"></span>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <div class="col-md-3">
-                                    <nop-label asp-for="DisplayPages" />
-                                </div>
-                                <div class="col-md-9">
-                                    <div class="form-check-group">
-                                        <div class="form-check">
-                                            <nop-editor asp-for="ShowOnAll" />
-                                            <label class="form-check-label" for="ShowOnAll">
-                                                @T("Plugins.Widgets.PopUp.Pages.All")
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <nop-editor asp-for="ShowOnHome" />
-                                            <label class="form-check-label" for="ShowOnHome">
-                                                @T("Plugins.Widgets.PopUp.Pages.Home")
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <nop-editor asp-for="ShowOnCategory" />
-                                            <label class="form-check-label" for="ShowOnCategory">
-                                                @T("Plugins.Widgets.PopUp.Pages.Category")
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <nop-editor asp-for="ShowOnProduct" />
-                                            <label class="form-check-label" for="ShowOnProduct">
-                                                @T("Plugins.Widgets.PopUp.Pages.Product")
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <nop-editor asp-for="ShowOnManufacturer" />
-                                            <label class="form-check-label" for="ShowOnManufacturer">
-                                                @T("Plugins.Widgets.PopUp.Pages.Manufacturer")
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <nop-editor asp-for="ShowOnTopic" />
-                                            <label class="form-check-label" for="ShowOnTopic">
-                                                @T("Plugins.Widgets.PopUp.Pages.Topic")
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <nop-editor asp-for="ShowOnBlog" />
-                                            <label class="form-check-label" for="ShowOnBlog">
-                                                @T("Plugins.Widgets.PopUp.Pages.Blog")
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <nop-editor asp-for="ShowOnNews" />
-                                            <label class="form-check-label" for="ShowOnNews">
-                                                @T("Plugins.Widgets.PopUp.Pages.News")
-                                            </label>
-                                        </div>
+                            <div class="col-md-9">
+                                <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                                    <div style="display: flex; align-items: center;">
+                                        <nop-editor asp-for="ShowOnAll" />
+                                        <label style="margin-left: 5px; margin-bottom: 0;" for="ShowOnAll">
+                                            @T("Plugins.Widgets.PopUp.Pages.All")
+                                        </label>
                                     </div>
-                                    <span asp-validation-for="DisplayPages"></span>
+                                    <div style="display: flex; align-items: center;">
+                                        <nop-editor asp-for="ShowOnHome" />
+                                        <label style="margin-left: 5px; margin-bottom: 0;" for="ShowOnHome">
+                                            @T("Plugins.Widgets.PopUp.Pages.Home")
+                                        </label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <nop-editor asp-for="ShowOnCategory" />
+                                        <label style="margin-left: 5px; margin-bottom: 0;" for="ShowOnCategory">
+                                            @T("Plugins.Widgets.PopUp.Pages.Category")
+                                        </label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <nop-editor asp-for="ShowOnProduct" />
+                                        <label style="margin-left: 5px; margin-bottom: 0;" for="ShowOnProduct">
+                                            @T("Plugins.Widgets.PopUp.Pages.Product")
+                                        </label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <nop-editor asp-for="ShowOnManufacturer" />
+                                        <label style="margin-left: 5px; margin-bottom: 0;" for="ShowOnManufacturer">
+                                            @T("Plugins.Widgets.PopUp.Pages.Manufacturer")
+                                        </label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <nop-editor asp-for="ShowOnTopic" />
+                                        <label style="margin-left: 5px; margin-bottom: 0;" for="ShowOnTopic">
+                                            @T("Plugins.Widgets.PopUp.Pages.Topic")
+                                        </label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <nop-editor asp-for="ShowOnBlog" />
+                                        <label style="margin-left: 5px; margin-bottom: 0;" for="ShowOnBlog">
+                                            @T("Plugins.Widgets.PopUp.Pages.Blog")
+                                        </label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <nop-editor asp-for="ShowOnNews" />
+                                        <label style="margin-left: 5px; margin-bottom: 0;" for="ShowOnNews">
+                                            @T("Plugins.Widgets.PopUp.Pages.News")
+                                        </label>
+                                    </div>
                                 </div>
+                                <span asp-validation-for="DisplayPages"></span>
                             </div>
-                            <div class="form-group row">
-                                <div class="col-md-3">
-                                    <nop-label asp-for="ShowOncePerSession" />
-                                </div>
-                                <div class="col-md-9">
-                                    <nop-editor asp-for="ShowOncePerSession" />
-                                    <span asp-validation-for="ShowOncePerSession"></span>
-                                </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="ShowOncePerSession" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="ShowOncePerSession" />
+                                <span asp-validation-for="ShowOncePerSession"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="offset-md-3 col-md-9">
+                                <button type="submit" name="save" class="btn btn-primary">@T("Admin.Common.Save")</button>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Widgets.PopUp.ImageList")
+                    </div>
+                    <div class="card-body">
+                        @await Html.PartialAsync("Table", new DataTablesModel
+                        {
+                            Name = "popup-images-grid",
+                            UrlRead = new DataUrl("ImageList", "WidgetPopUp", null),
+                            UrlDelete = new DataUrl("ImageDelete", "WidgetPopUp", null),
+                            UrlUpdate = new DataUrl("ImageEdit", "WidgetPopUp", null),
+                            BindColumnNameActionDelete = nameof(PopUpImageModel.PictureId),
+                            Length = Model.ImagesSearchModel.PageSize,
+                            LengthMenu = Model.ImagesSearchModel.AvailablePageSizes,
+                            ColumnCollection = new List<ColumnProperty>
+                            {
+                                new ColumnProperty(nameof(PopUpImageModel.PictureUrl))
+                                {
+                                    Title = T("Plugins.Widgets.PopUp.Picture").Text,
+                                    Render = new RenderCustom("renderPictureColumn"),
+                                    Width = "200",
+                                },
+                                new ColumnProperty(nameof(PopUpImageModel.TitleText))
+                                {
+                                    Title = T("Plugins.Widgets.PopUp.TitleText").Text,
+                                    Width = "150",
+                                    Editable = true,
+                                    EditType = EditType.String
+                                },
+                                new ColumnProperty(nameof(PopUpImageModel.AltText))
+                                {
+                                    Title = T("Plugins.Widgets.PopUp.AltText").Text,
+                                    Width = "150",
+                                    Editable = true,
+                                    EditType = EditType.String
+                                },
+                                new ColumnProperty(nameof(PopUpImageModel.LinkUrl))
+                                {
+                                    Title = T("Plugins.Widgets.PopUp.LinkUrl").Text,
+                                    Width = "150",
+                                    Editable = true,
+                                    EditType = EditType.String
+                                },
+                                new ColumnProperty(nameof(PopUpImageModel.WeekdaysDisplay))
+                                {
+                                    Title = T("Plugins.Widgets.PopUp.Weekdays").Text,
+                                    Width = "200",
+                                    Render = new RenderCustom("renderWeekdaysColumn")
+                                },
+                                new ColumnProperty(nameof(PopUpImageModel.PictureId))
+                                {
+                                    Title = T("Plugins.Widgets.PopUp.EditWeekdays").Text,
+                                    Width = "100",
+                                    ClassName = NopColumnClassDefaults.Button,
+                                    Render = new RenderCustom("renderEditWeekdaysButton")
+                                },
+                                new ColumnProperty(nameof(PopUpImageModel.PictureId))
+                                {
+                                    Title = T("Admin.Common.Delete").Text,
+                                    Width = "100",
+                                    Render = new RenderButtonRemove(T("Admin.Common.Delete").Text),
+                                    ClassName = NopColumnClassDefaults.Button
+                                }
+                            }
+                        })
+
+                        <script>
+                            function renderPictureColumn(data, type, row, meta) {
+                                return '<a href="' + row.PictureUrl + '" target="_blank"><img title="' + row.TitleText + '" alt="' + row.AltText + '" src="' + row.PictureUrl + '" style="max-width: 150px; max-height: 100px;" /></a>';
+                            }
+
+                            function renderWeekdaysColumn(data, type, row, meta) {
+                                return '<span>' + row.WeekdaysDisplay + '</span>';
+                            }
+
+                            function renderEditWeekdaysButton(data, type, row, meta) {
+                                return '<button type="button" class="btn btn-default" onclick="editWeekdays(' + row.PictureId + ', \'' + 
+                                    row.Sunday + '\', \'' + row.Monday + '\', \'' + row.Tuesday + '\', \'' + row.Wednesday + '\', \'' + 
+                                    row.Thursday + '\', \'' + row.Friday + '\', \'' + row.Saturday + '\')">' +
+                                    '<i class="fas fa-calendar-alt"></i></button>';
+                            }
+
+                            function editWeekdays(pictureId, sun, mon, tue, wed, thu, fri, sat) {
+                                // Create modal content
+                                var modalHtml = '<div id="weekday-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">' +
+                                    '<div style="background: white; padding: 20px; border-radius: 8px; max-width: 500px; width: 90%;">' +
+                                    '<h4>@T("Plugins.Widgets.PopUp.EditWeekdays")</h4>' +
+                                    '<div style="margin: 20px 0;">' +
+                                    '<div style="margin: 10px 0;"><label><input type="checkbox" id="edit-monday" ' + (mon === 'True' ? 'checked' : '') + '> @T("Plugins.Widgets.PopUp.Weekday.Monday")</label></div>' +
+                                    '<div style="margin: 10px 0;"><label><input type="checkbox" id="edit-tuesday" ' + (tue === 'True' ? 'checked' : '') + '> @T("Plugins.Widgets.PopUp.Weekday.Tuesday")</label></div>' +
+                                    '<div style="margin: 10px 0;"><label><input type="checkbox" id="edit-wednesday" ' + (wed === 'True' ? 'checked' : '') + '> @T("Plugins.Widgets.PopUp.Weekday.Wednesday")</label></div>' +
+                                    '<div style="margin: 10px 0;"><label><input type="checkbox" id="edit-thursday" ' + (thu === 'True' ? 'checked' : '') + '> @T("Plugins.Widgets.PopUp.Weekday.Thursday")</label></div>' +
+                                    '<div style="margin: 10px 0;"><label><input type="checkbox" id="edit-friday" ' + (fri === 'True' ? 'checked' : '') + '> @T("Plugins.Widgets.PopUp.Weekday.Friday")</label></div>' +
+                                    '<div style="margin: 10px 0;"><label><input type="checkbox" id="edit-saturday" ' + (sat === 'True' ? 'checked' : '') + '> @T("Plugins.Widgets.PopUp.Weekday.Saturday")</label></div>' +
+                                    '<div style="margin: 10px 0;"><label><input type="checkbox" id="edit-sunday" ' + (sun === 'True' ? 'checked' : '') + '> @T("Plugins.Widgets.PopUp.Weekday.Sunday")</label></div>' +
+                                    '</div>' +
+                                    '<div style="text-align: right;">' +
+                                    '<button type="button" class="btn btn-default" onclick="closeWeekdayModal()">@T("Admin.Common.Cancel")</button> ' +
+                                    '<button type="button" class="btn btn-primary" onclick="saveWeekdays(' + pictureId + ')">@T("Admin.Common.Save")</button>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '</div>';
+
+                                $('body').append(modalHtml);
+                            }
+
+                            function closeWeekdayModal() {
+                                $('#weekday-modal').remove();
+                            }
+
+                            function saveWeekdays(pictureId) {
+                                var model = {
+                                    PictureId: pictureId,
+                                    Monday: $('#edit-monday').is(':checked'),
+                                    Tuesday: $('#edit-tuesday').is(':checked'),
+                                    Wednesday: $('#edit-wednesday').is(':checked'),
+                                    Thursday: $('#edit-thursday').is(':checked'),
+                                    Friday: $('#edit-friday').is(':checked'),
+                                    Saturday: $('#edit-saturday').is(':checked'),
+                                    Sunday: $('#edit-sunday').is(':checked')
+                                };
+
+                                $.ajax({
+                                    url: '@Url.Action("ImageEdit", "WidgetPopUp")',
+                                    type: 'POST',
+                                    data: model,
+                                    success: function(response) {
+                                        closeWeekdayModal();
+                                        $('#popup-images-grid').DataTable().ajax.reload();
+                                    },
+                                    error: function(xhr) {
+                                        alert(xhr.responseText || 'Error updating weekdays');
+                                    }
+                                });
+                            }
+                        </script>
+                    </div>
+                </div>
+
+                @await Html.PartialAsync("~/Plugins/Widgets.PopUp/Views/_Configure.AddImage.cshtml", Model.AddImageModel)
+
             </div>
         </div>
     </section>

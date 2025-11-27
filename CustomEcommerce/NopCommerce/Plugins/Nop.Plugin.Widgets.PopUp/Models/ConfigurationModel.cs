@@ -12,19 +12,6 @@ public record ConfigurationModel : BaseNopModel
 {
     #region Properties
 
-    [UIHint("Picture")]
-    [NopResourceDisplayName("Plugins.Widgets.PopUp.Picture")]
-    public int PictureId { get; set; }
-
-    [NopResourceDisplayName("Plugins.Widgets.PopUp.TitleText")]
-    public string TitleText { get; set; } = string.Empty;
-
-    [NopResourceDisplayName("Plugins.Widgets.PopUp.LinkUrl")]
-    public string LinkUrl { get; set; } = string.Empty;
-
-    [NopResourceDisplayName("Plugins.Widgets.PopUp.AltText")]
-    public string AltText { get; set; } = string.Empty;
-
     [NopResourceDisplayName("Plugins.Widgets.PopUp.IsEnabled")]
     public bool IsEnabled { get; set; }
 
@@ -58,6 +45,9 @@ public record ConfigurationModel : BaseNopModel
 
     [NopResourceDisplayName("Plugins.Widgets.PopUp.ShowOncePerSession")]
     public bool ShowOncePerSession { get; set; }
+
+    public PopUpImagesSearchModel ImagesSearchModel { get; set; } = new();
+    public PopUpImageModel AddImageModel { get; set; } = new();
 
     #endregion
 }
