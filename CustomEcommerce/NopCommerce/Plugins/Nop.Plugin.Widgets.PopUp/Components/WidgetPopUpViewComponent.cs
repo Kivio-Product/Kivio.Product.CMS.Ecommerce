@@ -75,7 +75,7 @@ public class WidgetPopUpViewComponent : NopViewComponent
             }
             catch
             {
-                // If deserialization fails, fall back to legacy behavior
+                return Content("");
             }
         }
 
