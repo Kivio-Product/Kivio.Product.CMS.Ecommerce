@@ -1,0 +1,61 @@
+@model string
+@Html.Raw(Model)
+
+<script>
+    (function() {
+        // Detect if running as TWA (Trusted Web Activity) or regular web browser
+        function detectPlatform() {
+            // Check for TWA using multiple detection methods
+            var isTwa = false;
+            
+            // Method 1: Check if running in standalone mode (installed PWA/TWA)
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                isTwa = true;
+            }
+            
+            // Method 2: Check for TWA-specific referrer
+            if (document.referrer.includes('android-app://')) {
+                isTwa = true;
+            }
+            
+            // Method 3: Check navigator.standalone (iOS)
+            if (window.navigator.standalone === true) {
+                isTwa = true;
+            }
+            
+            // Method 4: Check for Android TWA custom header in sessionStorage (set by TWA)
+            if (sessionStorage.getItem('isTwa') === 'true') {
+                isTwa = true;
+            }
+            
+            // Method 5: Check URL parameters (can be set by TWA app)
+            var urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('source') === 'twa' || urlParams.get('utm_source') === 'twa') {
+                isTwa = true;
+                // Store for future page loads in the same session
+                sessionStorage.setItem('isTwa', 'true');
+            }
+            
+            return isTwa ? 'twa_app' : 'web_browser';
+        }
+        
+        // Only send the event once per session
+        var sessionKey = 'ga_site_visit_sent';
+        if (!sessionStorage.getItem(sessionKey)) {
+            var platform = detectPlatform();
+            
+            // Send the site_visit event with platform information
+            if (typeof gtag === 'function') {
+                gtag('event', 'site_visit', {
+                    'platform_type': platform,
+                    'is_twa': platform === 'twa_app',
+                    'page_location': window.location.href,
+                    'page_title': document.title
+                });
+            }
+            
+            // Mark as sent for this session
+            sessionStorage.setItem(sessionKey, 'true');
+        }
+    })();
+</script>
