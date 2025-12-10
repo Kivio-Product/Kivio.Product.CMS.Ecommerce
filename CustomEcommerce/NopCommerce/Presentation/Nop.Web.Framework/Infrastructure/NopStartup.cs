@@ -191,6 +191,7 @@ public partial class NopStartup : INopStartup
         services.AddScoped<IGiftCardService, GiftCardService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IColombianHolidayService, ColombianHolidayService>();
+        services.AddScoped<IBlockedCustomerService, BlockedCustomerService>();
         services.AddScoped<IOrderReportService, OrderReportService>();
         services.AddScoped<IOrderProcessingService, OrderProcessingService>();
         services.AddScoped<IOrderTotalCalculationService, OrderTotalCalculationService>();
