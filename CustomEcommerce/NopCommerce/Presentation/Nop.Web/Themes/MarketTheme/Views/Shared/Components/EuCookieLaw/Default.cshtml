@@ -1,7 +1,6 @@
 ﻿@inject IThemeContext themeContext
 @{
     var themeName = await themeContext.GetWorkingThemeNameAsync();
-    var privacyPolicyPDFPath = Url.Content($"~/Themes/{themeName}/Content/files/politica-tratamiento-datos.pdf");
 }
 
 <nop-antiforgery-token />
@@ -32,7 +31,7 @@
     <div class="cookie-banner-content">
         <p class="cookie-banner-text">
             @T("EUCookieLaw.Description2") 
-            <a href="@privacyPolicyPDFPath" target="_blank">@T("EUCookieLaw.LearnMore")</a>.
+            <a href="/privacy-policy" target="_blank">@T("EUCookieLaw.LearnMore")</a>.
         </p>
         <button class="cookie-banner-button" id="eu-cookie-ok">@T("Common.OK")</button>
     </div>
