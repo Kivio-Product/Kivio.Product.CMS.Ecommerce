@@ -4,7 +4,6 @@
 
 @{
     var themeName = await themeContext.GetWorkingThemeNameAsync();
-    var privacyPolicyPDFPath = Url.Content($"~/Themes/{themeName}/Content/files/politica-tratamiento-datos.pdf");
 }
 
 <div class="checkout-data">
@@ -70,7 +69,7 @@
                     <div class="checkbox-custom"></div>
                     <div class="checkbox-text">
                         @T("Checkout.PrivacyPolicy.IAccept") 
-                        <a href="@privacyPolicyPDFPath" target="_blank" class="checkout-link external-link">
+                        <a href="/privacy-policy" target="_blank" class="checkout-link external-link">
                             @T("Checkout.PrivacyPolicy.LinkText")
                         </a> 
                         @T("Checkout.PrivacyPolicy.AcceptText")

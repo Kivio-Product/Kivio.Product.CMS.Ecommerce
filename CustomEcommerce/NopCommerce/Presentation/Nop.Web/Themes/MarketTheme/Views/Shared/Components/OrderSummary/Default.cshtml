@@ -10,6 +10,7 @@
 @inject MediaSettings mediaSettings
 @inject OrderSettings orderSettings
 @inject IColombianHolidayService colombianHolidayService
+@inject IBlockedCustomerService blockedCustomerService
 <div class="order-summary-content">
     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryContentBefore, additionalData = Model })
     @await Html.PartialAsync("_OrderReviewData", Model.OrderReviewData)
@@ -554,8 +555,13 @@
                                                 }
                                             });
                                         </script>
-
-                                        @if (orderSettings.CheckoutDisabled)
+                                        @if (await blockedCustomerService.IsCustomerBlocked())
+                                        {
+                                            <div class="checkout-disabled">
+                                                @T("Checkout.Disabled.BlockedCustomer")
+                                            </div>
+                                        }
+                                        else if (orderSettings.CheckoutDisabled)
                                         {
                                             <div class="checkout-disabled">
                                                 @T("Checkout.Disabled")

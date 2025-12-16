@@ -69,6 +69,7 @@ public partial class CheckoutController : BasePublicController
     protected readonly IGiftCardService _giftCardService;
     protected readonly IDiscountService _discountService;
     protected readonly IColombianHolidayService _colombianHolidayService;
+    protected readonly IBlockedCustomerService _blockedCustomerService;
     protected readonly IPluginService _pluginService;
     protected readonly ISettingService _settingService;
     private static readonly string[] _separator = ["___"];
@@ -108,12 +109,14 @@ public partial class CheckoutController : BasePublicController
         IGiftCardService giftCardService,
         IDiscountService discountService,
         IColombianHolidayService colombianHolidayService,
+        IBlockedCustomerService blockedCustomerService,
         IPluginService pluginService,
         ISettingService settingService)
     {
         _discountService = discountService;
         _giftCardService = giftCardService;
         _colombianHolidayService = colombianHolidayService;
+        _blockedCustomerService = blockedCustomerService;
         _pluginService = pluginService;
         _settingService = settingService;
         _addressSettings = addressSettings;
@@ -372,6 +375,9 @@ public partial class CheckoutController : BasePublicController
 
         //check if checkout is disabled by date (weekends and Colombian holidays)
         if (await _colombianHolidayService.IsCheckoutDisabledByDateAsync())
+            return RedirectToRoute("ShoppingCart");
+
+        if (await _blockedCustomerService.IsCustomerBlocked())
             return RedirectToRoute("ShoppingCart");
 
         var customer = await _workContext.GetCurrentCustomerAsync();

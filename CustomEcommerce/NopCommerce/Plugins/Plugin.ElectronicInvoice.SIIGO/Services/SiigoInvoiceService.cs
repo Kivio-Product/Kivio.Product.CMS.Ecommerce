@@ -504,7 +504,7 @@ namespace Plugin.ElectronicInvoice.SIIGO.Services
                         Code = productSku,
                         Description = product.Name,
                         Quantity = orderItem.Quantity,
-                        Price = Math.Round(orderItem.UnitPriceExclTax, 2),
+                        Price = Math.Round(orderItem.UnitPriceExclTax, 2, MidpointRounding.AwayFromZero),
                         Taxes = taxes // Will be null if no tax should be applied
                     };
 
