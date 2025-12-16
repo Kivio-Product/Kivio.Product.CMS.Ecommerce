@@ -92,7 +92,8 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker
                 ExitoProductSkuPrefix = "EXITO",
                 AutoFetchHolidays = true,
                 HolidayCountryCode = "CO",
-                ReservationTimeoutMinutes = 30
+                ReservationTimeoutMinutes = 30,
+                SameDayDeliveryCutoffHour = 18
             };
 
             await _settingService.SaveSettingAsync(settings);
@@ -122,7 +123,9 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker
                 ["Plugins.Misc.DeliveryTimePicker.Fields.HolidayCountryCode.Hint"] = "ISO 3166-1 alpha-2 country code for holidays. Default: CO (Colombia)",
                 ["Plugins.Misc.DeliveryTimePicker.Fields.ReservationTimeoutMinutes"] = "Reservation Timeout (minutes)",
                 ["Plugins.Misc.DeliveryTimePicker.Fields.ReservationTimeoutMinutes.Hint"] = "How long to hold a temporary reservation. Default: 30 minutes",
-                
+                ["Plugins.Misc.DeliveryTimePicker.Fields.SameDayDeliveryCutoffHour"] = "Same-Day Delivery Cutoff Hour (24h format)",
+                ["Plugins.Misc.DeliveryTimePicker.Fields.SameDayDeliveryCutoffHour.Hint"] = "Orders placed before this hour can be delivered the same day (for Éxito products). Default: 18 (6:00 PM)",
+
                 // Time Slots
                 ["Plugins.Misc.DeliveryTimePicker.TimeSlots"] = "Time Slots",
                 ["Plugins.Misc.DeliveryTimePicker.TimeSlots.AddNew"] = "Add New Time Slot",

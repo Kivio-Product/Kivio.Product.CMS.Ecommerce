@@ -55,6 +55,7 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
                 AutoFetchHolidays = settings.AutoFetchHolidays,
                 HolidayCountryCode = settings.HolidayCountryCode,
                 ReservationTimeoutMinutes = settings.ReservationTimeoutMinutes,
+                SameDayDeliveryCutoffHour = settings.SameDayDeliveryCutoffHour,
                 // Populate available time zones
                 AvailableTimeZones = [.. TimeZoneInfo.GetSystemTimeZones()
                     .Select(tz => new SelectListItem
@@ -88,6 +89,7 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Controllers
             settings.AutoFetchHolidays = model.AutoFetchHolidays;
             settings.HolidayCountryCode = model.HolidayCountryCode;
             settings.ReservationTimeoutMinutes = model.ReservationTimeoutMinutes;
+            settings.SameDayDeliveryCutoffHour = model.SameDayDeliveryCutoffHour;
 
             await _settingService.SaveSettingAsync(settings);
 

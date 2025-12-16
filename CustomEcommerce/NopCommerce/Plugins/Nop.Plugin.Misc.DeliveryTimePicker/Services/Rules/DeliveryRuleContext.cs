@@ -32,6 +32,10 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Services.Rules
         /// Whether weekends are disabled for delivery
         /// </summary>
         public bool DisableWeekends { get; init; }
+        /// <summary>
+        /// Hours after which same-day delivery is not available
+        /// </summary>
+        public int SameDayDeliveryCutoffHour { get; init; }
     }
 
     /// <summary>

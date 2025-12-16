@@ -58,5 +58,11 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker
         /// Default: 30 minutes
         /// </summary>
         public int ReservationTimeoutMinutes { get; set; } = 30;
+
+        /// <summary>
+        /// Hour after which same-day delivery is not available
+        /// Default: 18 (6:00 PM)
+        /// </summary>
+        public int SameDayDeliveryCutoffHour { get; set; } = 18;
     }
 }
