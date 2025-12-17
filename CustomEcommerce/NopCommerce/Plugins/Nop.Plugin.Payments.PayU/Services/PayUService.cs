@@ -24,6 +24,7 @@ namespace Nop.Plugin.Payments.PayU.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IWebHelper _webHelper;
         private readonly IOrderProcessingService _orderProcessingService;
+        private readonly IOrderNotificationService _orderNotificationService;
         private readonly ICurrencyService _currencyService;
         private readonly IOrderService _orderService;
         private readonly IWorkContext _workContext;
@@ -42,6 +43,7 @@ namespace Nop.Plugin.Payments.PayU.Services
             IHttpContextAccessor httpContextAccessor,
             IWebHelper webHelper,
             IOrderProcessingService orderProcessingService,
+            IOrderNotificationService orderNotificationService,
             ICurrencyService currencyService,
             IOrderService orderService,
             IWorkContext workContext,
@@ -54,6 +56,7 @@ namespace Nop.Plugin.Payments.PayU.Services
             _httpContextAccessor = httpContextAccessor;
             _webHelper = webHelper;
             _orderProcessingService = orderProcessingService;
+            _orderNotificationService = orderNotificationService;
             _currencyService = currencyService;
             _orderService = orderService;
             _workContext = workContext;
@@ -360,8 +363,10 @@ namespace Nop.Plugin.Payments.PayU.Services
 
                 await _orderService.UpdateOrderAsync(order);
                 await _orderProcessingService.MarkOrderAsPaidAsync(order);
-            }
 
+                // Send order placed notifications after payment confirmation
+                await _orderNotificationService.SendOrderPlacedNotificationsAsync(order);
+            }
         }
 
         private async void OrderCanceledAsync(Order order)
