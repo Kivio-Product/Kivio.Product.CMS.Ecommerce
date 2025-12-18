@@ -205,11 +205,11 @@ namespace Nop.Plugin.Payments.PayU.Services
             if (!string.Equals(expectedSignature, paymentResponse.Signature, StringComparison.InvariantCultureIgnoreCase))
             {
                 _logger.Error($"Firma no válida para la referencia {paymentResponse.ReferenceCode}. Esperado: {expectedSignature}, recibido: {paymentResponse.Signature}");
-                OrderRejectedAsync(order);
+                await OrderRejectedAsync(order);
                 return (false, order.Id);
             }
 
-            return ProcessTransactionStateByReturn(paymentResponse, order);
+            return await ProcessTransactionStateByReturnAsync(paymentResponse, order);
         }
 
         public async Task<(bool succeeded, int orderId)> ConfirmAsync(ConfirmationResponse confirmationResponse)
@@ -242,14 +242,14 @@ namespace Nop.Plugin.Payments.PayU.Services
             if (!string.Equals(expectedSignature, confirmationResponse.Sign, StringComparison.InvariantCultureIgnoreCase))
             {
                 _logger.Error($"Firma no válida para la referencia {confirmationResponse.ReferenceSale}. Esperado: {expectedSignature}, recibido: {confirmationResponse.Sign}");
-                OrderRejectedAsync(order);
+                await OrderRejectedAsync(order);
                 return (false, order.Id);
             }
 
-            return ProcessTransactionStateByConfirm(confirmationResponse, order);
+            return await ProcessTransactionStateByConfirmAsync(confirmationResponse, order);
         }
 
-        private (bool succeeded, int orderId) ProcessTransactionStateByReturn(PaymentResponse paymentResponse, Order order)
+        private async Task<(bool succeeded, int orderId)> ProcessTransactionStateByReturnAsync(PaymentResponse paymentResponse, Order order)
         {
             var stateMessage = paymentResponse.TransactionState switch
             {
@@ -265,28 +265,28 @@ namespace Nop.Plugin.Payments.PayU.Services
             switch (paymentResponse.TransactionState)
             {
                 case 4: // Transacción aprobada
-                    OrderCompletedAsync(order);
+                    await OrderCompletedAsync(order);
                     return (true, order.Id);
 
                 case 6: // Transacción rechazada
-                    OrderRejectedAsync(order);
+                    await OrderRejectedAsync(order);
                     return (false, order.Id);
 
                 case 104: // Error en la transacción
-                    OrderCanceledAsync(order);
+                    await OrderCanceledAsync(order);
                     return (false, order.Id);
 
                 case 7: // Pago pendiente
-                    OrderPendingAsync(order);
+                    await OrderPendingAsync(order);
                     return (true, order.Id);
 
                 default: // Estado desconocido
-                    OrderRejectedAsync(order);
+                    await OrderRejectedAsync(order);
                     return (false, order.Id);
             }
         }
 
-        private (bool succeeded, int orderId) ProcessTransactionStateByConfirm(ConfirmationResponse paymentResponse, Order order)
+        private async Task<(bool succeeded, int orderId)> ProcessTransactionStateByConfirmAsync(ConfirmationResponse paymentResponse, Order order)
         {
             var stateMessage = paymentResponse.StatePol switch
             {
@@ -302,19 +302,19 @@ namespace Nop.Plugin.Payments.PayU.Services
             switch (paymentResponse.StatePol)
             {
                 case 4: // Transacción aprobada
-                    OrderCompletedAsync(order);
+                    await OrderCompletedAsync(order);
                     return (true, order.Id);
 
                 case 6: // Transacción rechazada
-                    OrderRejectedAsync(order);
+                    await OrderRejectedAsync(order);
                     return (false, order.Id);
 
                 case 104: // Error en la transacción
-                    OrderCanceledAsync(order);
+                    await OrderCanceledAsync(order);
                     return (false, order.Id);
 
                 default: // Estado desconocido
-                    OrderRejectedAsync(order);
+                    await OrderRejectedAsync(order);
                     return (false, order.Id);
             }
         }
@@ -334,7 +334,7 @@ namespace Nop.Plugin.Payments.PayU.Services
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
         }
 
-        private async void OrderPendingAsync(Order order)
+        private async Task OrderPendingAsync(Order order)
         {
             await _orderService.InsertOrderNoteAsync(new OrderNote
             {
@@ -348,7 +348,7 @@ namespace Nop.Plugin.Payments.PayU.Services
             await _orderService.UpdateOrderAsync(order);
         }
 
-        private async void OrderCompletedAsync(Order order)
+        private async Task OrderCompletedAsync(Order order)
         {
             if (_orderProcessingService.CanMarkOrderAsPaid(order))
             {
@@ -369,7 +369,7 @@ namespace Nop.Plugin.Payments.PayU.Services
             }
         }
 
-        private async void OrderCanceledAsync(Order order)
+        private async Task OrderCanceledAsync(Order order)
         {
             if (_orderProcessingService.CanCancelOrder(order))
             {
@@ -387,9 +387,9 @@ namespace Nop.Plugin.Payments.PayU.Services
             await _orderService.UpdateOrderAsync(order);
         }
 
-        private async void OrderRejectedAsync(Order order)
+        private async Task OrderRejectedAsync(Order order)
         {
-            OrderCanceledAsync(order);
+            await OrderCanceledAsync(order);
 
             await _orderService.InsertOrderNoteAsync(new OrderNote
             {

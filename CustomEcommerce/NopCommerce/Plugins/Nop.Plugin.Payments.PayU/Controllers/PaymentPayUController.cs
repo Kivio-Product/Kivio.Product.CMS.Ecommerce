@@ -188,7 +188,7 @@ namespace Nop.Plugin.Payments.PayU.Controllers
 
             if (!succeeded)
             {
-                return RedirectToRoute("OrderCancelled", new { orderId = orderId });
+                return RedirectToRoute("OrderDetails", new { orderId = orderId });
             }
 
             return RedirectToRoute("CheckoutCompleted", new { orderId = orderId });
