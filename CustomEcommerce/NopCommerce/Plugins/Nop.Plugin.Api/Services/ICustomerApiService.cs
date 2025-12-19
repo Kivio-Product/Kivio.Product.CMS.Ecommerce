@@ -17,7 +17,7 @@ namespace Nop.Plugin.Api.Services
         Task<IList<CustomerDto>> GetCustomersDtosAsync(
             DateTime? createdAtMin = null, DateTime? createdAtMax = null,
             int limit = Constants.Configurations.DefaultLimit, int page = Constants.Configurations.DefaultPageValue,
-            int sinceId = Constants.Configurations.DefaultSinceId);
+            int sinceId = Constants.Configurations.DefaultSinceId, int? roleId = null);
 
         Task<IList<CustomerDto>> SearchAsync(
             string query = "", string order = Constants.Configurations.DefaultOrder,

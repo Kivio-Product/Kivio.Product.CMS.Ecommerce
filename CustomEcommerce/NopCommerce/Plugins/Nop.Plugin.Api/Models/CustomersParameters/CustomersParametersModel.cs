@@ -54,5 +54,11 @@ namespace Nop.Plugin.Api.Models.CustomersParameters
         /// </summary>
         [JsonProperty("created_at_max")]
         public DateTime? CreatedAtMax { get; set; }
+
+        /// <summary>
+        ///     Filter customers by role id
+        /// </summary>
+        [JsonProperty("role_id")]
+        public int? RoleId { get; set; }
     }
 }

@@ -29,6 +29,7 @@ namespace Nop.Plugin.Api.Services
         private readonly ICurrencyService _currencyService;
         private readonly IRepository<Customer> _customerRepository;
         private readonly IRepository<GenericAttribute> _genericAttributeRepository;
+        private readonly IRepository<CustomerCustomerRoleMapping> _customerRoleMappingRepository;
         private readonly ILanguageService _languageService;
         private readonly ICustomerService _customerService;
 
@@ -43,6 +44,7 @@ namespace Nop.Plugin.Api.Services
           IRepository<Customer> customerRepository,
           IRepository<GenericAttribute> genericAttributeRepository,
           IRepository<NewsLetterSubscription> subscriptionRepository,
+          IRepository<CustomerCustomerRoleMapping> customerRoleMappingRepository,
           IStoreContext storeContext,
           ILanguageService languageService,
           IStoreMappingService storeMappingService,
@@ -54,6 +56,7 @@ namespace Nop.Plugin.Api.Services
             _customerRepository = customerRepository;
             _genericAttributeRepository = genericAttributeRepository;
             _subscriptionRepository = subscriptionRepository;
+            _customerRoleMappingRepository = customerRoleMappingRepository;
             _storeContext = storeContext;
             _languageService = languageService;
             _storeMappingService = storeMappingService;
@@ -66,9 +69,9 @@ namespace Nop.Plugin.Api.Services
 
         public async Task<IList<CustomerDto>> GetCustomersDtosAsync(
           DateTime? createdAtMin = null, DateTime? createdAtMax = null, int limit = Constants.Configurations.DefaultLimit,
-          int page = Constants.Configurations.DefaultPageValue, int sinceId = Constants.Configurations.DefaultSinceId)
+          int page = Constants.Configurations.DefaultPageValue, int sinceId = Constants.Configurations.DefaultSinceId, int? roleId = null)
         {
-            var query = GetCustomersQuery(createdAtMin, createdAtMax, sinceId);
+            var query = GetCustomersQuery(createdAtMin, createdAtMax, sinceId, roleId);
 
             var result = await HandleCustomerGenericAttributesAsync(null, query, limit, page);
 
@@ -382,7 +385,7 @@ namespace Nop.Plugin.Api.Services
         }
 
         private IQueryable<Customer> GetCustomersQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null,
-          int sinceId = 0)
+          int sinceId = 0, int? roleId = null)
         {
             int currentStoreId = _storeContext.GetCurrentStore().Id;
 
@@ -392,6 +395,15 @@ namespace Nop.Plugin.Api.Services
 
             query = query.Where(customer =>
               (customer.RegisteredInStoreId == 0 || customer.RegisteredInStoreId == currentStoreId));
+
+            if (roleId.HasValue)
+            {
+                var customerIdsWithRole = _customerRoleMappingRepository.Table
+                    .Where(mapping => mapping.CustomerRoleId == roleId.Value)
+                    .Select(mapping => mapping.CustomerId);
+
+                query = query.Where(customer => customerIdsWithRole.Contains(customer.Id));
+            }
 
             if (createdAtMin != null)
             {
