@@ -115,7 +115,8 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Services.Rules
                 CutoffHour = _settings.CutoffHour,
                 DisableWeekends = _settings.DisableWeekends,
                 // Placeholder for IsBusinessDay - can be replaced with actual service later
-                IsBusinessDay = date => date.DayOfWeek != DayOfWeek.Saturday && date.DayOfWeek != DayOfWeek.Sunday
+                IsBusinessDay = date => date.DayOfWeek != DayOfWeek.Saturday && date.DayOfWeek != DayOfWeek.Sunday,
+                SameDayDeliveryCutoffHour = _settings.SameDayDeliveryCutoffHour
             };
 
             return context;
@@ -153,14 +154,29 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Services.Rules
         #region Rules
 
         /// <summary>
-        /// Rule for regular suppliers (products without recognized supplier): Only same-day delivery allowed
+        /// Rule for regular suppliers (products without recognized supplier): Only same-day delivery allowed (before cutoff) or next-day (after cutoff)
         /// </summary>
         private RuleResult RegularSupplierSameDayOnlyRule(DeliveryRuleContext context, DeliverySlot slot)
         {
-            // For regular products, only allow same-day delivery
-            if (slot.Date.Date != context.Now.Date)
+            var today = context.Now.Date;
+            var isBeforeCutoff = context.Now.Hour < context.SameDayDeliveryCutoffHour;
+
+            if (isBeforeCutoff)
             {
-                return RuleResult.Fail("Los productos regulares solo permiten entrega el mismo día.");
+                // Before cutoff: only allow same-day delivery
+                if (slot.Date.Date != today)
+                {
+                    return RuleResult.Fail($"Los productos regulares solo permiten entrega el mismo día cuando se ordena antes de las {context.CutoffHour}:00.");
+                }
+            }
+            else
+            {
+                // After cutoff: only allow next-day delivery
+                var nextDay = today.AddDays(1);
+                if (slot.Date.Date != nextDay)
+                {
+                    return RuleResult.Fail($"Los productos regulares solo permiten entrega al día siguiente cuando se ordena después de las {context.CutoffHour}:00.");
+                }
             }
 
             return RuleResult.Success;

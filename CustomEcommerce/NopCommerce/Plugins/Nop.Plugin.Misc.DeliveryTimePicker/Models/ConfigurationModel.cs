@@ -39,6 +39,9 @@ namespace Nop.Plugin.Misc.DeliveryTimePicker.Models
         [NopResourceDisplayName("Plugins.Misc.DeliveryTimePicker.Fields.ReservationTimeoutMinutes")]
         public int ReservationTimeoutMinutes { get; set; }
 
+        [NopResourceDisplayName("Plugins.Misc.DeliveryTimePicker.Fields.SameDayDeliveryCutoffHour")]
+        public int SameDayDeliveryCutoffHour { get; set; }
+
         public IList<SelectListItem> AvailableTimeZones { get; set; }
     }
 }

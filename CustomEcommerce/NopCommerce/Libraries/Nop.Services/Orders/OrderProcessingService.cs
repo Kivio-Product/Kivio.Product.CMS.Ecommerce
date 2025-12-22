@@ -40,6 +40,15 @@ public partial class OrderProcessingService : IOrderProcessingService
 {
     #region Fields
 
+    /// <summary>
+    /// List of payment method system names that defer order placed notifications until payment confirmation.
+    /// For these payment methods, notifications will be sent by the payment processor after payment is confirmed.
+    /// </summary>
+    protected static readonly List<string> DeferredNotificationPaymentMethods = new()
+    {
+        "Payments.PayU"
+    };
+
     protected readonly CurrencySettings _currencySettings;
     protected readonly IAddressService _addressService;
     protected readonly IAffiliateService _affiliateService;
@@ -57,6 +66,7 @@ public partial class OrderProcessingService : IOrderProcessingService
     protected readonly ILanguageService _languageService;
     protected readonly ILocalizationService _localizationService;
     protected readonly ILogger _logger;
+    protected readonly IOrderNotificationService _orderNotificationService;
     protected readonly IOrderService _orderService;
     protected readonly IOrderTotalCalculationService _orderTotalCalculationService;
     protected readonly IPaymentPluginManager _paymentPluginManager;
@@ -110,6 +120,7 @@ public partial class OrderProcessingService : IOrderProcessingService
         ILanguageService languageService,
         ILocalizationService localizationService,
         ILogger logger,
+        IOrderNotificationService orderNotificationService,
         IOrderService orderService,
         IOrderTotalCalculationService orderTotalCalculationService,
         IPaymentPluginManager paymentPluginManager,
@@ -159,6 +170,7 @@ public partial class OrderProcessingService : IOrderProcessingService
         _languageService = languageService;
         _localizationService = localizationService;
         _logger = logger;
+        _orderNotificationService = orderNotificationService;
         _orderService = orderService;
         _orderTotalCalculationService = orderTotalCalculationService;
         _paymentPluginManager = paymentPluginManager;
@@ -815,34 +827,8 @@ public partial class OrderProcessingService : IOrderProcessingService
             ? $"Order placed by a store owner ('{_workContext.OriginalCustomerIfImpersonated.Email}'. ID = {_workContext.OriginalCustomerIfImpersonated.Id}) impersonating the customer."
             : "Order placed");
 
-        //send email notifications
-        var orderPlacedStoreOwnerNotificationQueuedEmailIds = await _workflowMessageService.SendOrderPlacedStoreOwnerNotificationAsync(order, _localizationSettings.DefaultAdminLanguageId);
-        if (orderPlacedStoreOwnerNotificationQueuedEmailIds.Any())
-            await AddOrderNoteAsync(order, $"\"Order placed\" email (to store owner) has been queued. Queued email identifiers: {string.Join(", ", orderPlacedStoreOwnerNotificationQueuedEmailIds)}.");
-
-        var orderPlacedAttachmentFilePath = _orderSettings.AttachPdfInvoiceToOrderPlacedEmail ?
-            (await _pdfService.SaveOrderPdfToDiskAsync(order)) : null;
-        var orderPlacedAttachmentFileName = _orderSettings.AttachPdfInvoiceToOrderPlacedEmail ?
-            (string.Format(await _localizationService.GetResourceAsync("PDFInvoice.FileName"), order.CustomOrderNumber) + ".pdf") : null;
-        var orderPlacedCustomerNotificationQueuedEmailIds = await _workflowMessageService
-            .SendOrderPlacedCustomerNotificationAsync(order, order.CustomerLanguageId, orderPlacedAttachmentFilePath, orderPlacedAttachmentFileName);
-        if (orderPlacedCustomerNotificationQueuedEmailIds.Any())
-            await AddOrderNoteAsync(order, $"\"Order placed\" email (to customer) has been queued. Queued email identifiers: {string.Join(", ", orderPlacedCustomerNotificationQueuedEmailIds)}.");
-
-        var vendors = await GetVendorsInOrderAsync(order);
-        foreach (var vendor in vendors)
-        {
-            var orderPlacedVendorNotificationQueuedEmailIds = await _workflowMessageService.SendOrderPlacedVendorNotificationAsync(order, vendor, _localizationSettings.DefaultAdminLanguageId);
-            if (orderPlacedVendorNotificationQueuedEmailIds.Any())
-                await AddOrderNoteAsync(order, $"\"Order placed\" email (to vendor) has been queued. Queued email identifiers: {string.Join(", ", orderPlacedVendorNotificationQueuedEmailIds)}.");
-        }
-
-        if (order.AffiliateId == 0)
-            return;
-
-        var orderPlacedAffiliateNotificationQueuedEmailIds = await _workflowMessageService.SendOrderPlacedAffiliateNotificationAsync(order, _localizationSettings.DefaultAdminLanguageId);
-        if (orderPlacedAffiliateNotificationQueuedEmailIds.Any())
-            await AddOrderNoteAsync(order, $"\"Order placed\" email (to affiliate) has been queued. Queued email identifiers: {string.Join(", ", orderPlacedAffiliateNotificationQueuedEmailIds)}.");
+        //send email notifications using the notification service
+        await _orderNotificationService.SendOrderPlacedNotificationsAsync(order);
     }
 
     /// <summary>
@@ -1573,8 +1559,9 @@ public partial class OrderProcessingService : IOrderProcessingService
                     if (placeOrderContainer.IsRecurringShoppingCart)
                         await CreateFirstRecurringPaymentAsync(processPaymentRequest, order);
 
-                    //notifications
-                    await SendNotificationsAndSaveNotesAsync(order);
+                    //notifications - skip for payment methods that defer notifications until payment confirmation
+                    if (!DeferredNotificationPaymentMethods.Contains(order.PaymentMethodSystemName))
+                        await SendNotificationsAndSaveNotesAsync(order);
 
                     //reset checkout data
                     await _customerService.ResetCheckoutDataAsync(placeOrderContainer.Customer,
