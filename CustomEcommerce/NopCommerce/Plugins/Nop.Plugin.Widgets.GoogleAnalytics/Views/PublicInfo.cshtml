@@ -57,5 +57,52 @@
             // Mark as sent for this session
             sessionStorage.setItem(sessionKey, 'true');
         }
+        
+        // Track "no products found" event on search page
+        function trackNoProductsFound() {
+            // Check if we're on a search page
+            var isSearchPage = window.location.pathname.toLowerCase().includes('/search');
+            
+            if (!isSearchPage) {
+                return;
+            }
+            
+            // Get the search query from URL parameters
+            var urlParams = new URLSearchParams(window.location.search);
+            var searchQuery = urlParams.get('q') || urlParams.get('query') || '';
+            
+            // Check if there are no products found by looking for the "no results" message
+            // This checks for common selectors that indicate no products were found
+            var noResultsSelectors = [
+                '.no-result'
+            ];
+            
+            var hasNoResults = false;
+            
+            // Check for specific no-results elements
+            for (var i = 0; i < noResultsSelectors.length; i++) {
+                if (document.querySelector(noResultsSelectors[i])) {
+                    hasNoResults = true;
+                    break;
+                }
+            }
+            
+            
+            // Send GA event if no products found
+            if (hasNoResults && searchQuery && typeof gtag === 'function') {
+                gtag('event', 'search_no_results', {
+                    'search_term': searchQuery,
+                    'page_location': window.location.href,
+                    'page_title': document.title
+                });
+            }
+        }
+        
+        // Run after DOM is fully loaded to ensure all elements are available
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', trackNoProductsFound);
+        } else {
+            trackNoProductsFound();
+        }
     })();
 </script>
