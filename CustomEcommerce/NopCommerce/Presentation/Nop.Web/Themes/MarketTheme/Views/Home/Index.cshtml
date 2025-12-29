@@ -31,6 +31,7 @@
         @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "HomepageText" })
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBeforeCategories })
         @await Component.InvokeAsync(typeof(HomepageCategoriesViewComponent))
+        @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "HomepageInformativeBanners" })
         @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "HomepageDiscountCarousel" })
         @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "DiscountDayBanner" })
         <div class="desktop-only">
