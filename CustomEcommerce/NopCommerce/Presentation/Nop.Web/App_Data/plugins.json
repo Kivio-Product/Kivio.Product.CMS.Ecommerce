@@ -16,6 +16,10 @@
       "Version": "1.2.0"
     },
     {
+      "SystemName": "Payments.MercadoPago",
+      "Version": "1.0.0"
+    },
+    {
       "SystemName": "Payments.PayPalCommerce",
       "Version": "4.80.7"
     },

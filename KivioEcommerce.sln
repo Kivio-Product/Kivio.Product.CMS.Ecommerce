@@ -103,6 +103,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Widgets.PopUp", "CustomEcommerce\NopCommerce\Plugins\Nop.Plugin.Widgets.PopUp\Nop.Plugin.Widgets.PopUp.csproj", "{17A92F6C-8F47-F4C3-0568-BA6431DFDD8F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Misc.DeliveryTimePicker", "CustomEcommerce\NopCommerce\Plugins\Nop.Plugin.Misc.DeliveryTimePicker\Nop.Plugin.Misc.DeliveryTimePicker.csproj", "{8E9A71D2-44F3-4A29-B1C8-E47D5F8D2B3E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nop.Plugin.Payments.MercadoPago", "NopCommerce\src\Plugins\Nop.Plugin.Payments.MercadoPago\Nop.Plugin.Payments.MercadoPago.csproj", "{DA69B110-0D95-4B71-8B7E-0FD8827F6389}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -206,6 +207,10 @@ Global
 		{8E9A71D2-44F3-4A29-B1C8-E47D5F8D2B3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E9A71D2-44F3-4A29-B1C8-E47D5F8D2B3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E9A71D2-44F3-4A29-B1C8-E47D5F8D2B3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA69B110-0D95-4B71-8B7E-0FD8827F6389}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA69B110-0D95-4B71-8B7E-0FD8827F6389}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA69B110-0D95-4B71-8B7E-0FD8827F6389}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA69B110-0D95-4B71-8B7E-0FD8827F6389}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -242,6 +247,7 @@ Global
 		{C303DFA9-4DEF-C521-BA12-FBC95D336EB6} = {4931570F-B885-4E7A-9253-C9604C6AAE3F}
 		{17A92F6C-8F47-F4C3-0568-BA6431DFDD8F} = {4931570F-B885-4E7A-9253-C9604C6AAE3F}
 		{8E9A71D2-44F3-4A29-B1C8-E47D5F8D2B3E} = {4931570F-B885-4E7A-9253-C9604C6AAE3F}
+		{DA69B110-0D95-4B71-8B7E-0FD8827F6389} = {4931570F-B885-4E7A-9253-C9604C6AAE3F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BAEF6ED8-1350-4E65-BE10-59AA92EAD457}
