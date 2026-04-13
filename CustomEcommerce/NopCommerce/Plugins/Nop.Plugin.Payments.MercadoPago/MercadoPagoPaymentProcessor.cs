@@ -20,8 +20,8 @@ namespace Nop.Plugin.Payments.MercadoPago
 
         public bool SupportCapture => false; // Not imlpemented
         public bool SupportVoid => false; // Not implemented
-        public bool SupportPartiallyRefund => true;
-        public bool SupportRefund => true;
+        public bool SupportPartiallyRefund => false; // Not implemented
+        public bool SupportRefund => false; // Not implemented
 
         public RecurringPaymentType RecurringPaymentType => RecurringPaymentType.NotSupported;
         public PaymentMethodType PaymentMethodType => PaymentMethodType.Redirection;
