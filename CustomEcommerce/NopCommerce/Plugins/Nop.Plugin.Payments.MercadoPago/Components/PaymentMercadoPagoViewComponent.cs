@@ -8,7 +8,7 @@ namespace Nop.Plugin.Payments.MercadoPago.Components
     {
         public IViewComponentResult Invoke()
         {
-            return View("~/Plugins/Payments.MercadoPago/Views/MercadoPagoInfo.cshtml");
+            return View("~/Plugins/Payments.MercadoPago/Views/PaymentInfo.cshtml");
         }
     }
 }
