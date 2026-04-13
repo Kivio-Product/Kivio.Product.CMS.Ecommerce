@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Payment methods",
+  "FriendlyName": "MercadoPago",
+  "SystemName": "Payments.MercadoPago",
+  "Version": "1.0.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Kivio",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Payments.MercadoPago.dll",
+  "Description": "NopCommerce payment plugin MercadoPago"
+}
