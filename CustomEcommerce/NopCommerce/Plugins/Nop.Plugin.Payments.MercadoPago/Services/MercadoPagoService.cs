@@ -194,17 +194,20 @@ namespace Nop.Plugin.Payments.MercadoPago.Services
                 return (false, 0);
             }
 
+            // Payment processing and notifications are handled exclusively by the
+            // webhook (ConfirmAsync). This endpoint only determines which page to
+            // show the returning user, to avoid race-condition duplicate emails.
             if (order.PaymentStatus == PaymentStatus.Paid)
-            {
-                _logger.Information($"La transacción ya fue procesada para el pedido {order.Id}");
                 return (true, order.Id);
-            }
 
             var status = paymentResponse.Status;
             if (string.IsNullOrWhiteSpace(status))
                 status = paymentResponse.CollectionStatus;
 
-            return await ProcessPaymentStatusAsync(status, order);
+            var normalizedStatus = status?.Trim().ToLowerInvariant() ?? string.Empty;
+            var succeeded = normalizedStatus is "approved" or "pending" or "in_process";
+
+            return (succeeded, order.Id);
         }
 
         public async Task<(bool succeeded, int orderId)> ConfirmAsync(ConfirmationResponse confirmationResponse)
