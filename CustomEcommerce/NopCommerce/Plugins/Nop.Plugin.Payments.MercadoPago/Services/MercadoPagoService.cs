@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Concurrent;
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -30,6 +31,11 @@ namespace Nop.Plugin.Payments.MercadoPago.Services
         private readonly IStoreContext _storeContext;
         private readonly IOrderTotalCalculationService _orderTotalCalculationService;
         private const string MercadoPagoApiBaseUrl = "https://api.mercadopago.com";
+
+        /// <summary>
+        /// Per-order lock to prevent concurrent webhook processing for the same order.
+        /// </summary>
+        private static readonly ConcurrentDictionary<int, SemaphoreSlim> _orderLocks = new();
 
         public MercadoPagoService(
             ILogger logger,
@@ -247,20 +253,32 @@ namespace Nop.Plugin.Payments.MercadoPago.Services
                 return (false, 0);
             }
 
-            var order = await _orderService.GetOrderByIdAsync(orderId);
-            if (order == null)
+            // Acquire a per-order lock so that concurrent webhooks for the same
+            // order are serialized and only the first one processes the payment.
+            var orderLock = _orderLocks.GetOrAdd(orderId, _ => new SemaphoreSlim(1, 1));
+            await orderLock.WaitAsync();
+            try
             {
-                _logger.Error($"No se encontró el pedido para orderId={orderId}");
-                return (false, 0);
-            }
+                var order = await _orderService.GetOrderByIdAsync(orderId);
+                if (order == null)
+                {
+                    _logger.Error($"No se encontró el pedido para orderId={orderId}");
+                    return (false, 0);
+                }
 
-            if (order.PaymentStatus == PaymentStatus.Paid)
+                if (order.PaymentStatus == PaymentStatus.Paid)
+                {
+                    _logger.Information($"Webhook: La transacción ya fue procesada para el pedido {order.Id}. Se omite.");
+                    return (true, order.Id);
+                }
+
+                return await ProcessPaymentStatusAsync(paymentData.Status, order);
+            }
+            finally
             {
-                _logger.Information($"Webhook: La transacción ya fue procesada para el pedido {order.Id}. Se omite.");
-                return (true, order.Id);
+                orderLock.Release();
+                _orderLocks.TryRemove(orderId, out _);
             }
-
-            return await ProcessPaymentStatusAsync(paymentData.Status, order);
         }
 
         private async Task<(bool succeeded, int orderId)> ProcessPaymentStatusAsync(string status, Order order)
