@@ -46,7 +46,8 @@ public partial class OrderProcessingService : IOrderProcessingService
     /// </summary>
     protected static readonly List<string> DeferredNotificationPaymentMethods = new()
     {
-        "Payments.PayU"
+        "Payments.PayU",
+        "Payments.MercadoPago"
     };
 
     protected readonly CurrencySettings _currencySettings;

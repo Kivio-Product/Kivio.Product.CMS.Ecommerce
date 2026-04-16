@@ -251,6 +251,12 @@ namespace Nop.Plugin.Payments.MercadoPago.Services
                 return (false, 0);
             }
 
+            if (order.PaymentStatus == PaymentStatus.Paid)
+            {
+                _logger.Information($"Webhook: La transacción ya fue procesada para el pedido {order.Id}. Se omite.");
+                return (true, order.Id);
+            }
+
             return await ProcessPaymentStatusAsync(paymentData.Status, order);
         }
 
@@ -380,23 +386,29 @@ namespace Nop.Plugin.Payments.MercadoPago.Services
 
         private async Task OrderCompletedAsync(Order order)
         {
-            if (_orderProcessingService.CanMarkOrderAsPaid(order))
+            // Re-fetch the order to get the latest state and avoid race conditions
+            // between the Return (user redirect) and Confirm (webhook) endpoints
+            order = await _orderService.GetOrderByIdAsync(order.Id);
+            if (order == null || !_orderProcessingService.CanMarkOrderAsPaid(order))
             {
-                await _orderService.InsertOrderNoteAsync(new OrderNote
-                {
-                    Note = $"MercadoPago order id {order.Id}",
-                    DisplayToCustomer = false,
-                    CreatedOnUtc = DateTime.UtcNow,
-                    OrderId = order.Id,
-                    Id = order.Id
-                });
-
-                await _orderService.UpdateOrderAsync(order);
-                await _orderProcessingService.MarkOrderAsPaidAsync(order);
-
-                // Send order placed notifications after payment confirmation
-                await _orderNotificationService.SendOrderPlacedNotificationsAsync(order);
+                _logger.Information($"El pedido {order?.Id} ya fue procesado o no se puede marcar como pagado. Se omite.");
+                return;
             }
+
+            await _orderService.InsertOrderNoteAsync(new OrderNote
+            {
+                Note = $"MercadoPago order id {order.Id}",
+                DisplayToCustomer = false,
+                CreatedOnUtc = DateTime.UtcNow,
+                OrderId = order.Id,
+                Id = order.Id
+            });
+
+            await _orderService.UpdateOrderAsync(order);
+            await _orderProcessingService.MarkOrderAsPaidAsync(order);
+
+            // Send order placed notifications after payment confirmation
+            await _orderNotificationService.SendOrderPlacedNotificationsAsync(order);
         }
 
         private async Task OrderCanceledAsync(Order order)
