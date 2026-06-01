@@ -55,8 +55,8 @@ namespace Nop.Plugin.Misc.PushNotifications.Infrastructure
             var config = new GoogleGeminiConfig()
             {
                 ApiKey = geminiApiKey.IsNullOrEmpty() ? "" : geminiApiKey.Trim(),
-                TextBaseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite",
-                ImageBaseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite",
+                TextBaseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest",
+                ImageBaseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest",
                 GenerateImageBaseURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation"
             };
 

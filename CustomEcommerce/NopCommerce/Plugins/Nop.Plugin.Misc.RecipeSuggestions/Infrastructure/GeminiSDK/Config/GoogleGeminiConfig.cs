@@ -8,9 +8,9 @@ namespace DotnetGeminiSDK.Config
     public class GoogleGeminiConfig
     {
         public string ApiKey { get; set; }
-        public string TextBaseUrl { get; set; } = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20";
+        public string TextBaseUrl { get; set; } = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest";
         public string ImageBaseUrl { get; set; } =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20";
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest";
         public string GenerateImageBaseURL { get; set; } =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation";
         public string ModelBaseUrl { get; set; } = "https://generativelanguage.googleapis.com/v1beta/models";
